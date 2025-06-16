@@ -1,0 +1,11 @@
+name: utils
+publish_to: "none"
+
+environment:
+  sdk: ^3.8.1
+
+resolution: workspace
+
+dependencies:
+  uuid: ^4.5.1
+  path: ^1.9.1
