@@ -1,0 +1,50 @@
+import 'package:converter/converter.dart';
+import 'package:design_system/design_system.dart';
+import 'package:flutter/material.dart';
+import 'package:platform_utils/platform_utils.dart';
+
+class JobFileFormatIndicator extends StatelessWidget {
+  final String outputFileName;
+  final JobStatus status;
+
+  const JobFileFormatIndicator({
+    super.key,
+    required this.outputFileName,
+    required this.status,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final fileExtension = extension(outputFileName).toUpperCase();
+    final fileExtensionWithoutDot = fileExtension.startsWith('.')
+        ? fileExtension.substring(1)
+        : fileExtension;
+    return Container(
+      decoration: ShapeDecoration(
+        color: status.getColor(),
+        shape: const SmoothRectangleBorder(
+          borderRadius: SmoothBorderRadius.all(
+            SmoothRadius(
+              cornerRadius: 8.0,
+              cornerSmoothing: 1.0,
+            ),
+          ),
+        ),
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: Spacing.d12,
+        vertical: Spacing.d4,
+      ),
+      child: Center(
+        child: Text(
+          fileExtensionWithoutDot,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+}

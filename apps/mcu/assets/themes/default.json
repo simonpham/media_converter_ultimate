@@ -1,0 +1,17 @@
+{
+  "colors": {
+    "primary": "#673AB7",
+    "secondary": "#8AB73A",
+    "neutral1": "#FEFEFE",
+    "neutral2": "#F3F5F7",
+    "neutral3": "#E8ECEF",
+    "neutral4": "#6C7275",
+    "neutral5": "#343839",
+    "neutral6": "#232627",
+    "neutral7": "#141718"
+  },
+  "typography": {
+    "fontFamily": "Roboto",
+    "bodyFontFamily": "Roboto"
+  }
+}
