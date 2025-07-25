@@ -1,0 +1,50 @@
+{
+  "format": [
+    { "name": "mp3", "output_extension": "mp3", "output_type": "audio" },
+    { "name": "aac", "output_extension": "aac", "output_type": "audio" },
+    { "name": "flac", "output_extension": "flac", "output_type": "audio" },
+    { "name": "opus", "output_extension": "opus", "output_type": "audio" },
+    { "name": "ogg", "output_extension": "ogg", "output_type": "audio" },
+    { "name": "wav", "output_extension": "wav", "output_type": "audio" },
+    { "name": "mp4", "output_extension": "mp4", "output_type": "video" },
+    { "name": "mov", "output_extension": "mov", "output_type": "video" },
+    { "name": "mkv", "output_extension": "mkv", "output_type": "video" },
+    { "name": "webm", "output_extension": "webm", "output_type": "video" },
+    { "name": "avi", "output_extension": "avi", "output_type": "video" }
+  ],
+  "supported_codec": {
+    "mp3": ["libmp3lame", "libshine"],
+    "aac": ["aac"],
+    "flac": ["flac"],
+    "opus": ["libopus"],
+    "ogg": ["libvorbis"],
+    "wav": [
+      "pcm_alaw",
+      "pcm_f32le",
+      "pcm_f64le",
+      "pcm_mulaw",
+      "pcm_s16le",
+      "pcm_s24le",
+      "pcm_s32le",
+      "pcm_u8"
+    ],
+    "mp4": ["mpeg4"],
+    "mov": ["prores", "mpeg4", "libx264"],
+    "mkv": ["libx264", "libx265", "vp9"],
+    "webm": ["vp8", "vp9", "libvpx"],
+    "avi": ["mpeg4", "libx264"]
+  },
+  "ui_gradients": {
+    "mp3": ["#fc5c7d", "#6a82fb"],
+    "aac": ["#11998e", "#38ef7d"],
+    "flac": ["#74ebd5", "#ACB6E5"],
+    "opus": ["#dce35b", "#45b649"],
+    "ogg": ["#83a4d4", "#b6fbff"],
+    "wav": ["#56ccf2", "#2f80ed"],
+    "mp4": ["#2980b9", "#2c3e50"],
+    "mov": ["#4ca1af", "#c4e0e5"],
+    "mkv": ["#f12711", "#f5af19"],
+    "webm": ["#C04848", "#480048"],
+    "avi": ["#4da0b0", "#d39d38"]
+  }
+}

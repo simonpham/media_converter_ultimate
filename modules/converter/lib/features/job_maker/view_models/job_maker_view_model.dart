@@ -4,10 +4,20 @@ import 'package:flutter/foundation.dart';
 import 'package:platform_utils/platform_utils.dart';
 
 class JobMakerViewModel extends ChangeNotifier {
+  final FormatConfigModel formatConfigModel;
+  final Map<String, String?> translations;
+
+  JobMakerViewModel({
+    required this.formatConfigModel,
+    required this.translations,
+  });
+
   /// Map of file path to file name.
-  Map<String, String?> _selectedFilePaths = {};
-  OutputFormat? _outputFormat;
-  BaseOutputConfiguration? _outputConfig;
+  Map<String, String?> _selectedFilePaths = const {};
+  FormatEntry? _selectedFormatEntry;
+  Map<String, List<ConfigControl>> _configControls = const {};
+  Map<String, String> _selectedValues = const {};
+
   String? _outputDirectoryPath;
   String? _outputDirectoryName;
 
@@ -15,10 +25,19 @@ class JobMakerViewModel extends ChangeNotifier {
   Set<String> get errorPaths => _errorPaths;
 
   Map<String, String?> get selectedFiles => _selectedFilePaths;
-  OutputFormat? get outputFormat => _outputFormat;
-  BaseOutputConfiguration? get outputConfig => _outputConfig;
+  FormatEntry? get selectedFormatEntry => _selectedFormatEntry;
+  Map<String, List<ConfigControl>> get configControls => _configControls;
+  Map<String, String> get selectedValues => _selectedValues;
+
   String? get outputDirectoryPath => _outputDirectoryPath;
   String? get outputDirectoryName => _outputDirectoryName;
+
+  void setSelectedValue(String name, String value) {
+    final clone = {..._selectedValues};
+    clone[name] = value;
+    _selectedValues = clone;
+    notifyListeners();
+  }
 
   void setOutputDirectoryPath(String? path, String? name) {
     _outputDirectoryPath = path;
@@ -56,8 +75,8 @@ class JobMakerViewModel extends ChangeNotifier {
   }
 
   void refreshOutputFileNames() {
-    final outputFormat = _outputFormat;
-    if (outputFormat == null) {
+    final formatEntry = _selectedFormatEntry;
+    if (formatEntry == null) {
       return;
     }
     final clone = {
@@ -71,7 +90,7 @@ class JobMakerViewModel extends ChangeNotifier {
       }
       final outputFileName = CommandBuilder.getOutputFileName(
         inputFilePath: filePath,
-        outputFormat: outputFormat,
+        formatEntry: formatEntry,
       );
       clone[filePath] = outputFileName;
     }
@@ -83,9 +102,9 @@ class JobMakerViewModel extends ChangeNotifier {
 
   Future<void> _validateSelectedPaths() async {
     final selectedPaths = {..._selectedFilePaths};
-    final outputFormat = _outputFormat;
+    final formatEntry = _selectedFormatEntry;
     final outputDirectoryPath = _outputDirectoryPath;
-    if (outputFormat == null || outputDirectoryPath == null) {
+    if (formatEntry == null || outputDirectoryPath == null) {
       return;
     }
     final errorPaths = await findInvalidPaths(
@@ -96,40 +115,48 @@ class JobMakerViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setOutputFormat(OutputFormat format) {
-    if (_outputFormat == format) {
+  void setSelectedFormatEntry(FormatEntry formatEntry) {
+    if (_selectedFormatEntry == formatEntry) {
       return;
     }
-    _outputFormat = format;
+    _selectedFormatEntry = formatEntry;
     notifyListeners();
     _initOutputConfig();
+    _loadConfigModel();
   }
 
   void _initOutputConfig() {
-    final outputFormat = _outputFormat;
-    if (outputFormat == null) return;
+    final formatEntry = _selectedFormatEntry;
+    if (formatEntry == null) return;
     final selectedPaths = {..._selectedFilePaths};
     for (final key in selectedPaths.keys) {
       selectedPaths[key] = null;
     }
     _selectedFilePaths = selectedPaths;
-    setOutputConfig(outputFormat.getDefaultOutputConfig());
+    // Initialize selected config state to defaults (if needed)
+    _selectedValues = const {};
+    notifyListeners();
   }
 
-  void setOutputConfig(BaseOutputConfiguration config) {
-    _outputConfig = config;
+  Future<void> _loadConfigModel() async {
+    final formatEntry = _selectedFormatEntry;
+    if (formatEntry == null) {
+      return;
+    }
+    final configControls = await formatConfigModel.loadConfigControls(
+      formatEntry,
+    );
+    _configControls = configControls;
     notifyListeners();
   }
 
   Future<List<ConvertJob>> cook() async {
-    final outputFormat = _outputFormat;
-    final outputConfig = _outputConfig;
+    final formatEntry = _selectedFormatEntry;
+    final selectedValues = _selectedValues;
     final outputDirectoryPath = _outputDirectoryPath;
-    if (outputFormat == null ||
-        outputConfig == null ||
-        outputDirectoryPath == null) {
+    if (formatEntry == null || outputDirectoryPath == null) {
       printLog(
-        '[JobMakerViewModel]: Output format, config or directory is null',
+        '[JobMakerViewModel]: Output format or directory is null',
       );
       return [];
     }
@@ -153,15 +180,16 @@ class JobMakerViewModel extends ChangeNotifier {
       }
       final outputFilePath = CommandBuilder.getOutputFilePath(
         inputFilePath: inputFilePath,
-        outputFormat: outputFormat,
+        formatEntry: formatEntry,
         outputDirectoryPath: convertTempFolder.path,
         overrideFileName: fileName,
       );
       final command = CommandBuilder.buildCommand(
         inputFilePath: inputFilePath,
-        outputFormat: outputFormat,
-        outputConfig: outputConfig,
+        formatEntry: formatEntry,
+        selectedValues: selectedValues,
         outputFilePath: outputFilePath,
+        supportedCodec: formatConfigModel.supportedCodec,
       );
       return ConvertJob(
         id: UniqueKey().toString(),
@@ -196,12 +224,12 @@ class JobMakerViewModel extends ChangeNotifier {
       }
 
       /// Check for output file existence.
-      final outputFormat = _outputFormat;
+      final formatEntry = _selectedFormatEntry;
       final outputDirectoryPath = _outputDirectoryPath;
-      if (outputFormat != null && outputDirectoryPath != null) {
+      if (formatEntry != null && outputDirectoryPath != null) {
         final outputFilePath = CommandBuilder.getOutputFilePath(
           inputFilePath: filePath,
-          outputFormat: outputFormat,
+          formatEntry: formatEntry,
           outputDirectoryPath: outputDirectoryPath,
           overrideFileName: fileName,
         );
@@ -209,7 +237,9 @@ class JobMakerViewModel extends ChangeNotifier {
         /// Check for duplicated file path.
         if (outputPaths.contains(outputFilePath)) {
           errorPaths.add(filePath);
-          printLog('[JobMakerViewModel]: Duplicated file path: $outputFilePath');
+          printLog(
+            '[JobMakerViewModel]: Duplicated file path: $outputFilePath',
+          );
           continue;
         }
         outputPaths.add(outputFilePath);
@@ -261,7 +291,7 @@ class JobMakerViewModel extends ChangeNotifier {
   }
 
   Failure? _checkOutputFormatError() {
-    if (_outputFormat == null) {
+    if (_selectedFormatEntry == null) {
       return const Failure('No output format selected.');
     }
 
@@ -269,7 +299,7 @@ class JobMakerViewModel extends ChangeNotifier {
   }
 
   Failure? _checkOutputConfigError() {
-    if (_outputConfig == null) {
+    if (_selectedValues.isEmpty) {
       return const Failure('No output config selected.');
     }
 

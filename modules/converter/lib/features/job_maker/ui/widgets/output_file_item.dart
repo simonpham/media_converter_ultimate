@@ -1,4 +1,5 @@
 import 'package:converter/converter.dart';
+import 'package:core/models/models.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:platform_utils/platform_utils.dart';
@@ -6,7 +7,7 @@ import 'package:platform_utils/platform_utils.dart';
 class OutputFileItem extends StatelessWidget {
   final File file;
 
-  final OutputFormat outputFormat;
+  final FormatEntry outputFormat;
   final String? outputFileName;
 
   final bool hasError;
@@ -44,7 +45,7 @@ class OutputFileItem extends StatelessWidget {
             children: [
               FileIcon(file),
               Text(
-                outputFormat.fileExtension.toUpperCase(),
+                outputFormat.outputExtension.toUpperCase(),
               ),
             ],
           ),

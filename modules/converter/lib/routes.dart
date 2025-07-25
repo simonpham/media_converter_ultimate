@@ -10,7 +10,7 @@ final List<GoRoute> kConverterRoutes = [
       GoRoute(
         name: JobMaker.routeName,
         path: JobMaker.routePath,
-        builder: (_, _) => const JobMaker(),
+        builder: (_, state) => JobMaker.fromRouterState(state),
       ),
     ],
   ),

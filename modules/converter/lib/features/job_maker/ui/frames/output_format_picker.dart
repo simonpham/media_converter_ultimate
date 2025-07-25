@@ -10,15 +10,22 @@ class JobMakerOutputFormatPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final audioFormats = OutputFormat.audioFormats();
-    final videoFormats = OutputFormat.videoFormats();
+    final formatConfigModel = context
+        .read<JobMakerViewModel>()
+        .formatConfigModel;
+    final audioFormats = formatConfigModel.formats
+        .where((f) => f.outputType == 'audio')
+        .toList();
+    final videoFormats = formatConfigModel.formats
+        .where((f) => f.outputType == 'video')
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Selector<JobMakerViewModel, OutputFormat?>(
-            selector: (context, model) => model.outputFormat,
+          child: Selector<JobMakerViewModel, FormatEntry?>(
+            selector: (context, model) => model.selectedFormatEntry,
             builder: (context, selectedFormat, _) {
               return ListView(
                 padding: EdgeInsets.symmetric(
@@ -29,6 +36,7 @@ class JobMakerOutputFormatPicker extends StatelessWidget {
                   _buildGridCategory(
                     context,
                     'Video'.hardcode,
+                    formatConfigModel,
                     videoFormats,
                     selectedFormat,
                   ),
@@ -36,6 +44,7 @@ class JobMakerOutputFormatPicker extends StatelessWidget {
                   _buildGridCategory(
                     context,
                     'Audio'.hardcode,
+                    formatConfigModel,
                     audioFormats,
                     selectedFormat,
                   ),
@@ -52,8 +61,9 @@ class JobMakerOutputFormatPicker extends StatelessWidget {
   Widget _buildGridCategory(
     BuildContext context,
     String label,
-    List<OutputFormat> formats,
-    OutputFormat? selectedFormat,
+    FormatConfigModel config,
+    List<FormatEntry> formats,
+    FormatEntry? selectedFormat,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,10 +94,13 @@ class JobMakerOutputFormatPicker extends StatelessWidget {
             final format = formats[index];
             final isSelected = selectedFormat == format;
             return OutputFormatGridItem(
+              config: config,
               format: format,
               isSelected: isSelected,
               onTap: () {
-                context.read<JobMakerViewModel>().setOutputFormat(format);
+                context.read<JobMakerViewModel>().setSelectedFormatEntry(
+                  format,
+                );
               },
             );
           },
