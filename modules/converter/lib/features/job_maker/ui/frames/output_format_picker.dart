@@ -14,10 +14,10 @@ class JobMakerOutputFormatPicker extends StatelessWidget {
         .read<JobMakerViewModel>()
         .formatConfigModel;
     final audioFormats = formatConfigModel.formats
-        .where((f) => f.outputType == 'audio')
+        .where((f) => f.outputType == OutputType.audio)
         .toList();
     final videoFormats = formatConfigModel.formats
-        .where((f) => f.outputType == 'video')
+        .where((f) => f.outputType == OutputType.video)
         .toList();
 
     return Column(

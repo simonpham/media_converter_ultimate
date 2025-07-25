@@ -1,0 +1,48 @@
+{
+  "common_video": [
+    {
+      "type": "multi_choice",
+      "name": "configs.common.recommended_args",
+      "description": "configs.common.recommended_args.desc",
+      "ffmpeg_flag": null,
+      "default": ["-hide_banner", "-map_metadata 0:g"],
+      "options": [
+        {
+          "label": "configs.common.recommended_args.hide_banner",
+          "ffmpeg_arg": "-hide_banner"
+        },
+        {
+          "label": "configs.common.recommended_args.map_metadata",
+          "ffmpeg_arg": "-map_metadata 0:g"
+        },
+        {
+          "label": "configs.common.recommended_args.map_video",
+          "ffmpeg_arg": "-map 0:v"
+        },
+        {
+          "label": "configs.common.recommended_args.map_audio_optional",
+          "ffmpeg_arg": "-map '0:a?'"
+        },
+        {
+          "label": "configs.common.recommended_args.map_subtitle_optional",
+          "ffmpeg_arg": "-map '0:s?'"
+        }
+      ]
+    }
+  ],
+  "-map '0:a?'": [
+    {
+      "type": "single_choice",
+      "name": "configs.common.trim_silence",
+      "description": "configs.common.trim_silence.desc",
+      "ffmpeg_flag": "-af",
+      "default": "silenceremove=1:0:-50dB:1:1:-50dB",
+      "options": [
+        {
+          "label": "configs.common.trim_silence.silenceremove",
+          "value": "silenceremove=1:0:-50dB:1:1:-50dB"
+        }
+      ]
+    }
+  ]
+}

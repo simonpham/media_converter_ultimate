@@ -68,7 +68,7 @@ class FormatConfigModel {
 class FormatEntry {
   final String name;
   final String outputExtension;
-  final String outputType;
+  final OutputType outputType;
 
   const FormatEntry({
     required this.name,
@@ -79,11 +79,28 @@ class FormatEntry {
   factory FormatEntry.fromJson(Map<String, dynamic> json) {
     final name = requireField<String>(json, 'name');
     final outputExtension = requireField<String>(json, 'output_extension');
-    final outputType = requireField<String>(json, 'output_type');
+    final outputType = OutputType.parse(json['output_type']);
     return FormatEntry(
       name: name,
       outputExtension: outputExtension,
       outputType: outputType,
+    );
+  }
+}
+
+enum OutputType {
+  audio('audio'),
+  video('video'),
+  unknown('');
+
+  final String value;
+
+  const OutputType(this.value);
+
+  factory OutputType.parse(dynamic key) {
+    return values.firstWhere(
+      (e) => e.value == '$key',
+      orElse: () => unknown,
     );
   }
 }
