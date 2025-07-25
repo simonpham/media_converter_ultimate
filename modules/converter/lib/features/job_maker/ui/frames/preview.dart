@@ -14,14 +14,15 @@ class JobMakerPreview extends StatelessWidget {
     return Consumer<JobMakerViewModel>(
       builder: (context, model, _) {
         final selectedPaths = model.selectedFiles;
-        final outputFormat = model.outputFormat;
-        final outputConfig = model.outputConfig;
+        final formatEntry = model.selectedFormatEntry;
         final outputDirectoryName = model.outputDirectoryName;
 
-        if (selectedPaths.isEmpty ||
-            outputFormat == null ||
-            outputConfig == null) {
-          return const Text('No files selected');
+        if (selectedPaths.isEmpty) {
+          return Text('No files selected'.hardcode);
+        }
+
+        if (formatEntry == null) {
+          return Text('No output format selected'.hardcode);
         }
 
         final errorPaths = model.errorPaths;
@@ -77,7 +78,7 @@ class JobMakerPreview extends StatelessWidget {
                   final file = File(filePath);
                   return OutputFileItem(
                     file,
-                    outputFormat: outputFormat,
+                    outputFormat: formatEntry,
                     outputFileName: outputFileName,
                     hasError: errorPaths.contains(filePath),
                   );

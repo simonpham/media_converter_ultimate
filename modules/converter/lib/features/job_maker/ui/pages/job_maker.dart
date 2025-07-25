@@ -9,8 +9,23 @@ class JobMaker extends StatefulWidget {
   static const String routeName = 'job-maker';
   static const String routePath = routeName;
 
+  final FormatConfigModel formatConfigModel;
+  final Map<String, String?> translations;
+
   static Future<List<ConvertJob>> cook(BuildContext context) async {
-    final result = await context.router.pushNamed(routeName);
+    final formatConfigModel = await FormatConfigModel.get(context);
+    if (formatConfigModel == null) {
+      return const [];
+    }
+
+    final Map<String, String?> translations = await ConfigTranslations.get(
+      context,
+    );
+
+    final result = await context.router.pushNamed(
+      routeName,
+      extra: (formatConfigModel, translations),
+    );
     if (result is! List<ConvertJob> || result.isEmpty) {
       return const [];
     }
@@ -18,8 +33,19 @@ class JobMaker extends StatefulWidget {
     return result;
   }
 
+  static JobMaker fromRouterState(GoRouterState state) {
+    final (formatConfigModel, translations) =
+        state.extra as (FormatConfigModel, Map<String, String?>);
+    return JobMaker(
+      formatConfigModel: formatConfigModel,
+      translations: translations,
+    );
+  }
+
   const JobMaker({
     super.key,
+    required this.formatConfigModel,
+    required this.translations,
   });
 
   @override
@@ -27,7 +53,10 @@ class JobMaker extends StatefulWidget {
 }
 
 class _JobMakerState extends State<JobMaker> {
-  final JobMakerViewModel _viewModel = JobMakerViewModel();
+  late final JobMakerViewModel _viewModel = JobMakerViewModel(
+    formatConfigModel: widget.formatConfigModel,
+    translations: widget.translations,
+  );
 
   final PageController _pageController = PageController();
   final ValueNotifier<int> _currentStepNotifier = ValueNotifier(0);

@@ -1,14 +1,16 @@
-import 'package:converter/converter.dart';
+import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
 class OutputFormatGridItem extends StatelessWidget {
-  final OutputFormat format;
+  final FormatConfigModel config;
+  final FormatEntry format;
   final bool isSelected;
   final VoidCallback? onTap;
 
   const OutputFormatGridItem({
     super.key,
+    required this.config,
     required this.format,
     required this.isSelected,
     this.onTap,
@@ -27,11 +29,7 @@ class OutputFormatGridItem extends StatelessWidget {
         curve: Curves.easeOut,
         child: Container(
           decoration: ShapeDecoration(
-            gradient: LinearGradient(
-              colors: format.getGradient(),
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            gradient: config.getGradient(format),
             shape: SmoothRectangleBorder(
               borderRadius: Spacing.smoothR12,
             ),
@@ -58,7 +56,7 @@ class OutputFormatGridItem extends StatelessWidget {
           ),
           child: Center(
             child: Text(
-              format.fileExtension.toUpperCase(),
+              format.outputExtension.toUpperCase(),
               style: context.theme.textTheme.labelMedium?.copyWith(
                 color: Colors.white,
                 fontSize: Spacing.d20,

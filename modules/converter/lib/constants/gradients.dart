@@ -34,6 +34,7 @@ class Gradients {
   static const List<Color> quepal = [Color(0xff11998e), Color(0xff38ef7d)];
 
   /// R
+  static const List<Color> redMist = [Color(0xff000000), Color(0xffe74c3c)];
   static const List<Color> royalBlue = [Color(0xff141E30), Color(0xff243B55)];
 
   /// S
