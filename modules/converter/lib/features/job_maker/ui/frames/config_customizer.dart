@@ -33,7 +33,11 @@ class JobMakerConfigCustomizer extends StatelessWidget {
     }
     final List<String> keys = [
       selectedFormat.name,
-      kCommonKey,
+      ?switch (selectedFormat.outputType) {
+        OutputType.audio => kCommonAudioKey,
+        OutputType.video => kCommonVideoKey,
+        _ => null,
+      },
     ];
 
     final List<ConfigControl> controls = [];

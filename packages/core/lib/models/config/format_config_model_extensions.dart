@@ -11,7 +11,7 @@ extension FormatConfigModelHelperExtensions on FormatConfigModel {
       return configControls;
     }
 
-    final configsToLoad = [kCommonKey, config.name];
+    final configsToLoad = [kCommonVideoKey, kCommonAudioKey, config.name];
 
     for (final configName in configsToLoad) {
       try {
