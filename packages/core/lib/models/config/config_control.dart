@@ -8,11 +8,14 @@ class ConfigControl {
 
   final String? ffmpegFlag;
 
+  final String? defaultValue;
+
   const ConfigControl({
     required this.type,
     required this.name,
     required this.options,
     this.ffmpegFlag,
+    this.defaultValue,
   });
 
   factory ConfigControl.fromJson(dynamic json) {
@@ -26,6 +29,7 @@ class ConfigControl {
             )
           : <ConfigControlOption>[],
       ffmpegFlag: json['ffmpeg_flag']?.toString(),
+      defaultValue: json['default']?.toString(),
     );
   }
 }

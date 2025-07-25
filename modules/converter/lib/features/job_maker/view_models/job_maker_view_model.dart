@@ -115,14 +115,14 @@ class JobMakerViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSelectedFormatEntry(FormatEntry formatEntry) {
+  Future<void> setSelectedFormatEntry(FormatEntry formatEntry) async {
     if (_selectedFormatEntry == formatEntry) {
       return;
     }
     _selectedFormatEntry = formatEntry;
     notifyListeners();
+    await _loadConfigModel();
     _initOutputConfig();
-    _loadConfigModel();
   }
 
   void _initOutputConfig() {
@@ -134,7 +134,10 @@ class JobMakerViewModel extends ChangeNotifier {
     }
     _selectedFilePaths = selectedPaths;
     // Initialize selected config state to defaults (if needed)
-    _selectedValues = const {};
+    _selectedValues = _getDefaultConfigValue(
+      _configControls,
+      formatEntry,
+    );
     notifyListeners();
   }
 
@@ -312,5 +315,23 @@ class JobMakerViewModel extends ChangeNotifier {
     }
 
     return null;
+  }
+
+  Map<String, String> _getDefaultConfigValue(
+    Map<String, List<ConfigControl>> configControls,
+    FormatEntry formatEntry,
+  ) {
+    final Map<String, String> defaultValues = {};
+    for (final entry in configControls.entries) {
+      final configControls = entry.value;
+      for (final configControl in configControls) {
+        final defaultValue = configControl.defaultValue;
+        if (defaultValue == null) {
+          continue;
+        }
+        defaultValues[configControl.name] = defaultValue;
+      }
+    }
+    return defaultValues;
   }
 }

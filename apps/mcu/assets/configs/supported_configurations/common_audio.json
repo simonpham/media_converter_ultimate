@@ -5,7 +5,7 @@
       "name": "configs.common.recommended_args",
       "description": "configs.common.recommended_args.desc",
       "ffmpeg_flag": null,
-      "default": ["-hide_banner", "-map_metadata 0:g", "-map 0:a"],
+      "default": "[\"-hide_banner\", \"-map_metadata 0:g\", \"-map 0:a\"]",
       "options": [
         {
           "label": "configs.common.recommended_args.hide_banner",

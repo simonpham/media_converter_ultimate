@@ -57,7 +57,7 @@
       "type": "dropdown",
       "name": "configs.mp3.bitrate_type.vbr.quality",
       "ffmpeg_flag": "-q:a",
-      "default": "5",
+      "default": "4",
       "options": [
         { "label": "configs.mp3.bitrate_type.vbr.quality.0", "value": "0" },
         { "label": "configs.mp3.bitrate_type.vbr.quality.1", "value": "1" },
