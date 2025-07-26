@@ -1,0 +1,18 @@
+{
+  "flac": [
+    {
+      "type": "single_choice",
+      "name": "configs.flac.audio_encoder",
+      "label": "configs.common.audio_encoder",
+      "is_visible": false,
+      "should_add_to_args": true,
+      "default": "-c:a flac",
+      "options": [
+        {
+          "label": "",
+          "value": "-c:a flac"
+        }
+      ]
+    }
+  ]
+}

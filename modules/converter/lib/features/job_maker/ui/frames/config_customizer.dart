@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
@@ -20,6 +18,9 @@ class JobMakerConfigCustomizer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final visibleControls = availableControls.where(
+      (control) => control.isVisible,
+    );
     return Column(
       children: [
         Expanded(
@@ -27,9 +28,9 @@ class JobMakerConfigCustomizer extends StatelessWidget {
             slivers: [
               SliverList.separated(
                 separatorBuilder: (context, index) => const Divider(),
-                itemCount: availableControls.length,
+                itemCount: visibleControls.length,
                 itemBuilder: (context, index) {
-                  final control = availableControls[index];
+                  final control = visibleControls.elementAt(index);
                   return ConfigControlWidget(
                     control,
                     selectedValues: selectedValues,

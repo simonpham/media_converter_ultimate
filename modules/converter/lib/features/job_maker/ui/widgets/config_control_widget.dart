@@ -26,7 +26,7 @@ class ConfigControlWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final labelWidget = Text(
-      context.configL10n(control.name),
+      context.configL10n(control.label),
       style: Theme.of(context).textTheme.titleMedium,
     );
     final controlWidget = switch (control.type) {
