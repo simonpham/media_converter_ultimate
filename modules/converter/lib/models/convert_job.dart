@@ -2,7 +2,26 @@ import 'dart:convert';
 
 import 'package:converter/converter.dart';
 import 'package:flutter/foundation.dart';
+import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
+
+extension ConvertJobExtension on ConvertJob {
+  Future<DocumentFile?> get outputDirectory async {
+    final outputDir = await DocumentFile.fromUri(outputDirectoryPath);
+    if (outputDir == null || !outputDir.isDirectory) {
+      return null;
+    }
+    return outputDir;
+  }
+
+  Future<DocumentFile?> get outputFile async {
+    final outputDir = await outputDirectory;
+    if (outputDir == null) {
+      return null;
+    }
+    return outputDir.find(outputFileName);
+  }
+}
 
 @immutable
 class ConvertJob {
