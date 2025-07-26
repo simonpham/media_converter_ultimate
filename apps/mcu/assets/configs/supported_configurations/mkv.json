@@ -1,0 +1,26 @@
+{
+  "mkv": [
+    {
+      "type": "dropdown",
+      "name": "configs.mkv.video_encoder",
+      "label": "configs.common.video_encoder",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-c:v",
+      "default": "libx264",
+      "options": [
+        {
+          "label": "ui_codec_description.libx264",
+          "value": "libx264"
+        },
+        {
+          "label": "ui_codec_description.libx265",
+          "value": "libx265"
+        },
+        {
+          "label": "ui_codec_description.vp9",
+          "value": "vp9"
+        }
+      ]
+    }
+  ]
+}

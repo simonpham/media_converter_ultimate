@@ -1,0 +1,46 @@
+{
+  "wav": [
+    {
+      "type": "dropdown",
+      "name": "configs.wav.audio_encoder",
+      "label": "configs.common.audio_encoder",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-c:a",
+      "default": "pcm_s24le",
+      "options": [
+        {
+          "label": "ui_codec_description.pcm_alaw",
+          "value": "pcm_alaw"
+        },
+        {
+          "label": "ui_codec_description.pcm_f32le",
+          "value": "pcm_f32le"
+        },
+        {
+          "label": "ui_codec_description.pcm_f64le",
+          "value": "pcm_f64le"
+        },
+        {
+          "label": "ui_codec_description.pcm_mulaw",
+          "value": "pcm_mulaw"
+        },
+        {
+          "label": "ui_codec_description.pcm_s16le",
+          "value": "pcm_s16le"
+        },
+        {
+          "label": "ui_codec_description.pcm_s24le",
+          "value": "pcm_s24le"
+        },
+        {
+          "label": "ui_codec_description.pcm_s32le",
+          "value": "pcm_s32le"
+        },
+        {
+          "label": "ui_codec_description.pcm_u8",
+          "value": "pcm_u8"
+        }
+      ]
+    }
+  ]
+}

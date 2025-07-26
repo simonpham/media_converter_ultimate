@@ -1,0 +1,18 @@
+{
+  "opus": [
+    {
+      "type": "single_choice",
+      "name": "configs.opus.audio_encoder",
+      "label": "configs.common.audio_encoder",
+      "is_visible": false,
+      "should_add_to_args": true,
+      "default": "-c:a libopus",
+      "options": [
+        {
+          "label": "",
+          "value": "-c:a libopus"
+        }
+      ]
+    }
+  ]
+}

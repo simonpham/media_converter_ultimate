@@ -1,0 +1,22 @@
+{
+  "avi": [
+    {
+      "type": "dropdown",
+      "name": "configs.avi.video_encoder",
+      "label": "configs.common.video_encoder",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-c:v",
+      "default": "mpeg4",
+      "options": [
+        {
+          "label": "ui_codec_description.mpeg4",
+          "value": "mpeg4"
+        },
+        {
+          "label": "ui_codec_description.libx264",
+          "value": "libx264"
+        }
+      ]
+    }
+  ]
+}

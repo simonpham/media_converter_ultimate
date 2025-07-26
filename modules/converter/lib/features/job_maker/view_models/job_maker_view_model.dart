@@ -194,7 +194,6 @@ class JobMakerViewModel extends ChangeNotifier {
         formatEntry: formatEntry,
         selectedValues: selectedValues,
         availableControls: availableControls,
-        supportedCodec: formatConfigModel.supportedCodec,
         outputFilePath: outputFilePath,
       );
 
@@ -345,12 +344,6 @@ class JobMakerViewModel extends ChangeNotifier {
       return [];
     }
 
-    final supportedCodec =
-        formatConfigModel.supportedCodec[selectedFormat.name];
-    if (supportedCodec == null) {
-      return [];
-    }
-
     final configControls = _configControls;
     final selectedValues = _selectedValues;
     final List<String> selectedKeys = [];
@@ -371,16 +364,18 @@ class JobMakerViewModel extends ChangeNotifier {
       },
     ];
 
-    final codecControl = selectedFormat.getEncoderPickerControl(supportedCodec);
-    final List<ConfigControl> controls = [
-      codecControl,
-    ];
+    printLog('selectedValues: $selectedValues');
+    printLog('Config controls: ${configControls.keys}');
+    printLog('Keys: $keys');
+
+    final List<ConfigControl> controls = [];
     for (final key in keys) {
       final controlsOfKey = configControls[key];
       if (controlsOfKey is! List<ConfigControl>) {
         continue;
       }
       for (final control in controlsOfKey) {
+        printLog('Adding control 1: ${control.name} of key: $key');
         controls.add(control);
 
         for (final option in control.options) {
@@ -394,10 +389,13 @@ class JobMakerViewModel extends ChangeNotifier {
             continue;
           }
 
+          printLog('Adding control 2: ${control.name} of key: $value');
           controls.addAll(controlOfValue);
         }
       }
     }
+
+    printLog('Controls: ${controls.map((e) => e.name)}');
 
     return controls;
   }

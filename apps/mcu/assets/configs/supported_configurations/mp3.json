@@ -1,63 +1,84 @@
 {
   "mp3": [
     {
+      "type": "dropdown",
+      "name": "configs.mp3.audio_encoder",
+      "label": "configs.common.audio_encoder",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-c:a",
+      "default": "libmp3lame",
+      "options": [
+        {
+          "label": "ui_codec_description.libmp3lame",
+          "value": "libmp3lame"
+        },
+        {
+          "label": "ui_codec_description.libshine",
+          "value": "libshine"
+        }
+      ]
+    },
+    {
       "type": "radio_group",
       "name": "configs.mp3.bitrate_type",
+      "label": "configs.common.bitrate_type",
       "should_add_to_args": false,
       "options": [
         {
           "label": "configs.mp3.bitrate_type.cbr",
-          "value": "cbr",
+          "value": "configs.mp3.bitrate_type.cbr.value",
           "description": "configs.mp3.bitrate_type.cbr.desc"
         },
         {
           "label": "configs.mp3.bitrate_type.vbr",
-          "value": "vbr",
+          "value": "configs.mp3.bitrate_type.vbr.value",
           "description": "configs.mp3.bitrate_type.vbr.desc"
         }
       ]
     }
   ],
-  "cbr": [
+  "configs.mp3.bitrate_type.cbr.value": [
     {
       "type": "dropdown",
-      "name": "configs.mp3.bitrate_type.cbr.bitrate",
+      "name": "configs.mp3.bitrate",
+      "label": "configs.common.bitrate",
       "should_add_to_args": true,
       "ffmpeg_flag": "-b:a",
       "default": "192k",
       "options": [
         {
-          "label": "configs.mp3.bitrate_type.cbr.bitrate.320k",
+          "label": "configs.common.bitrate.320k",
           "value": "320k"
         },
         {
-          "label": "configs.mp3.bitrate_type.cbr.bitrate.256k",
+          "label": "configs.common.bitrate.256k",
           "value": "256k"
         },
         {
-          "label": "configs.mp3.bitrate_type.cbr.bitrate.224k",
+          "label": "configs.common.bitrate.224k",
           "value": "224k"
         },
         {
-          "label": "configs.mp3.bitrate_type.cbr.bitrate.192k",
+          "label": "configs.common.bitrate.192k",
           "value": "192k"
         },
         {
-          "label": "configs.mp3.bitrate_type.cbr.bitrate.128k",
+          "label": "configs.common.bitrate.128k",
           "value": "128k"
         },
-        { "label": "configs.mp3.bitrate_type.cbr.bitrate.96k", "value": "96k" },
-        { "label": "configs.mp3.bitrate_type.cbr.bitrate.80k", "value": "80k" },
-        { "label": "configs.mp3.bitrate_type.cbr.bitrate.64k", "value": "64k" },
-        { "label": "configs.mp3.bitrate_type.cbr.bitrate.48k", "value": "48k" },
-        { "label": "configs.mp3.bitrate_type.cbr.bitrate.32k", "value": "32k" }
+        { "label": "configs.common.bitrate.96k", "value": "96k" },
+        { "label": "configs.common.bitrate.80k", "value": "80k" },
+        { "label": "configs.common.bitrate.64k", "value": "64k" },
+        { "label": "configs.common.bitrate.48k", "value": "48k" },
+        { "label": "configs.common.bitrate.32k", "value": "32k" }
       ]
     }
   ],
-  "vbr": [
+  "configs.mp3.bitrate_type.vbr.value": [
     {
       "type": "dropdown",
       "name": "configs.mp3.bitrate_type.vbr.quality",
+      "label": "configs.mp3.bitrate_type.vbr.quality",
       "should_add_to_args": true,
       "ffmpeg_flag": "-q:a",
       "default": "4",

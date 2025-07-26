@@ -10,7 +10,6 @@ part 'format_config_model_extensions.dart';
 @immutable
 class FormatConfigModel {
   final List<FormatEntry> formats;
-  final Map<String, List<String>> supportedCodec;
   final Map<String, LinearGradient> uiGradients;
 
   static Future<FormatConfigModel?> get(BuildContext context) async {
@@ -22,7 +21,6 @@ class FormatConfigModel {
 
   const FormatConfigModel({
     required this.formats,
-    required this.supportedCodec,
     required this.uiGradients,
   });
 
@@ -31,12 +29,6 @@ class FormatConfigModel {
     final formats = formatsList
         .map((e) => FormatEntry.fromJson(e as Map<String, dynamic>))
         .toList();
-
-    final supportedCodec = parseMap<List<String>>(
-      json,
-      'supported_codec',
-      (v) => (v as List).map((e) => e.toString()).toList(),
-    );
 
     final rawGradients = requireField<Map<String, dynamic>>(
       json,
@@ -58,7 +50,6 @@ class FormatConfigModel {
 
     return FormatConfigModel(
       formats: formats,
-      supportedCodec: supportedCodec,
       uiGradients: uiGradients,
     );
   }
@@ -84,25 +75,6 @@ class FormatEntry {
       name: name,
       outputExtension: outputExtension,
       outputType: outputType,
-    );
-  }
-
-  ConfigControl getEncoderPickerControl(List<String> supportedCodec) {
-    final flag = outputType == OutputType.audio ? '-c:a' : '-c:v';
-    return ConfigControl(
-      type: ConfigControlType.dropdown,
-      name: 'configs.common.encoder',
-      shouldAddToArgs: true,
-      options: supportedCodec
-          .map(
-            (codec) => ConfigControlOption(
-              label: 'ui_codec_description.$codec',
-              value: codec,
-            ),
-          )
-          .toList(),
-      ffmpegFlag: flag,
-      defaultValue: supportedCodec.firstOrNull,
     );
   }
 }

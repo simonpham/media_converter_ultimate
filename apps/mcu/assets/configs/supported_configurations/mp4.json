@@ -1,0 +1,18 @@
+{
+  "mp4": [
+    {
+      "type": "single_choice",
+      "name": "configs.mp4.video_encoder",
+      "label": "configs.common.video_encoder",
+      "is_visible": false,
+      "should_add_to_args": true,
+      "default": "-c:v mpeg4",
+      "options": [
+        {
+          "label": "",
+          "value": "-c:v mpeg4"
+        }
+      ]
+    }
+  ]
+}

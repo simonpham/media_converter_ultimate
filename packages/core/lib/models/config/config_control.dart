@@ -4,7 +4,9 @@ import 'package:flutter/foundation.dart';
 class ConfigControl {
   final ConfigControlType type;
   final String name;
+  final String label;
   final List<ConfigControlOption> options;
+  final bool isVisible;
   final bool shouldAddToArgs;
 
   final String? ffmpegFlag;
@@ -14,7 +16,9 @@ class ConfigControl {
   const ConfigControl({
     required this.type,
     required this.name,
+    required this.label,
     required this.options,
+    required this.isVisible,
     required this.shouldAddToArgs,
     this.ffmpegFlag,
     this.defaultValue,
@@ -24,12 +28,14 @@ class ConfigControl {
     return ConfigControl(
       type: ConfigControlType.fromValue(json['type']),
       name: '${json['name'] ?? ''}',
+      label: '${json['label'] ?? ''}',
       options: json['options'] is List
           ? List<ConfigControlOption>.from(
               json['options']?.map((x) => ConfigControlOption.fromJson(x)) ??
                   <ConfigControlOption>[],
             )
           : <ConfigControlOption>[],
+      isVisible: json['is_visible'] != false,
       shouldAddToArgs: json['should_add_to_args'] == true,
       ffmpegFlag: json['ffmpeg_flag']?.toString(),
       defaultValue: json['default']?.toString(),

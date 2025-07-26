@@ -11,7 +11,6 @@ class CommandBuilder {
     required FormatEntry formatEntry,
     required List<ConfigControl> availableControls,
     required Map<String, String> selectedValues,
-    required Map<String, List<String>> supportedCodec,
     required String outputFilePath,
   }) {
     final args = <String>[];
@@ -59,13 +58,11 @@ class CommandBuilder {
     required Map<String, String> selectedValues,
     required String outputFilePath,
     required List<ConfigControl> availableControls,
-    required Map<String, List<String>> supportedCodec,
   }) {
     final args = buildArgs(
       inputFilePath: inputFilePath,
       formatEntry: formatEntry,
       selectedValues: selectedValues,
-      supportedCodec: supportedCodec,
       availableControls: availableControls,
       outputFilePath: outputFilePath,
     );

@@ -1,0 +1,26 @@
+{
+  "webm": [
+    {
+      "type": "dropdown",
+      "name": "configs.webm.video_encoder",
+      "label": "configs.common.video_encoder",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-c:v",
+      "default": "vp9",
+      "options": [
+        {
+          "label": "ui_codec_description.vp8",
+          "value": "vp8"
+        },
+        {
+          "label": "ui_codec_description.vp9",
+          "value": "vp9"
+        },
+        {
+          "label": "ui_codec_description.libvpx",
+          "value": "libvpx"
+        }
+      ]
+    }
+  ]
+}

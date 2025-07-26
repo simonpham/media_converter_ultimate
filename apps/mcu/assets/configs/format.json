@@ -12,28 +12,6 @@
     { "name": "webm", "output_extension": "webm", "output_type": "video" },
     { "name": "avi", "output_extension": "avi", "output_type": "video" }
   ],
-  "supported_codec": {
-    "mp3": ["libmp3lame", "libshine"],
-    "aac": ["aac"],
-    "flac": ["flac"],
-    "opus": ["libopus"],
-    "ogg": ["libvorbis"],
-    "wav": [
-      "pcm_alaw",
-      "pcm_f32le",
-      "pcm_f64le",
-      "pcm_mulaw",
-      "pcm_s16le",
-      "pcm_s24le",
-      "pcm_s32le",
-      "pcm_u8"
-    ],
-    "mp4": ["mpeg4"],
-    "mov": ["prores", "mpeg4", "libx264"],
-    "mkv": ["libx264", "libx265", "vp9"],
-    "webm": ["vp8", "vp9", "libvpx"],
-    "avi": ["mpeg4", "libx264"]
-  },
   "ui_gradients": {
     "mp3": ["#fc5c7d", "#6a82fb"],
     "aac": ["#11998e", "#38ef7d"],
