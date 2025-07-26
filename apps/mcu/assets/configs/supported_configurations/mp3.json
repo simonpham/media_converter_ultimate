@@ -3,6 +3,7 @@
     {
       "type": "radio_group",
       "name": "configs.mp3.bitrate_type",
+      "should_add_to_args": false,
       "options": [
         {
           "label": "configs.mp3.bitrate_type.cbr",
@@ -21,6 +22,7 @@
     {
       "type": "dropdown",
       "name": "configs.mp3.bitrate_type.cbr.bitrate",
+      "should_add_to_args": true,
       "ffmpeg_flag": "-b:a",
       "default": "192k",
       "options": [
@@ -56,6 +58,7 @@
     {
       "type": "dropdown",
       "name": "configs.mp3.bitrate_type.vbr.quality",
+      "should_add_to_args": true,
       "ffmpeg_flag": "-q:a",
       "default": "4",
       "options": [

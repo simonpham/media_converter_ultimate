@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:flutter/foundation.dart';
@@ -191,9 +193,11 @@ class JobMakerViewModel extends ChangeNotifier {
         inputFilePath: inputFilePath,
         formatEntry: formatEntry,
         selectedValues: selectedValues,
-        outputFilePath: outputFilePath,
+        availableControls: availableControls,
         supportedCodec: formatConfigModel.supportedCodec,
+        outputFilePath: outputFilePath,
       );
+
       return ConvertJob(
         id: UniqueKey().toString(),
         inputFilePath: inputFilePath,
@@ -333,5 +337,68 @@ class JobMakerViewModel extends ChangeNotifier {
       }
     }
     return defaultValues;
+  }
+
+  List<ConfigControl> get availableControls {
+    final selectedFormat = _selectedFormatEntry;
+    if (selectedFormat == null) {
+      return [];
+    }
+
+    final supportedCodec =
+        formatConfigModel.supportedCodec[selectedFormat.name];
+    if (supportedCodec == null) {
+      return [];
+    }
+
+    final configControls = _configControls;
+    final selectedValues = _selectedValues;
+    final List<String> selectedKeys = [];
+    for (final value in selectedValues.values) {
+      try {
+        final valueAsList = List<String>.from(jsonDecode(value));
+        selectedKeys.addAll(valueAsList);
+        continue;
+      } catch (_) {}
+      selectedKeys.add(value);
+    }
+    final List<String> keys = [
+      selectedFormat.name,
+      ?switch (selectedFormat.outputType) {
+        OutputType.audio => kCommonAudioKey,
+        OutputType.video => kCommonVideoKey,
+        _ => null,
+      },
+    ];
+
+    final codecControl = selectedFormat.getEncoderPickerControl(supportedCodec);
+    final List<ConfigControl> controls = [
+      codecControl,
+    ];
+    for (final key in keys) {
+      final controlsOfKey = configControls[key];
+      if (controlsOfKey is! List<ConfigControl>) {
+        continue;
+      }
+      for (final control in controlsOfKey) {
+        controls.add(control);
+
+        for (final option in control.options) {
+          final value = option.value;
+          if (!selectedKeys.contains(value)) {
+            continue;
+          }
+
+          final controlOfValue = configControls[value];
+          if (controlOfValue is! List<ConfigControl>) {
+            continue;
+          }
+
+          controls.addAll(controlOfValue);
+        }
+      }
+    }
+
+    return controls;
   }
 }

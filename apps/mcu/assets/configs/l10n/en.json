@@ -10,6 +10,7 @@
   "configs.common.trim_silence": "Trim silence",
   "configs.common.trim_silence.desc": "Remove silent parts from audio",
   "configs.common.trim_silence.silenceremove": "Remove silence (-50dB threshold)",
+  "configs.common.encoder": "Encoder",
   "configs.mp3.bitrate_type": "Bitrate type",
   "configs.mp3.bitrate_type.cbr": "CBR (faster)",
   "configs.mp3.bitrate_type.cbr.bitrate": "Bitrate",

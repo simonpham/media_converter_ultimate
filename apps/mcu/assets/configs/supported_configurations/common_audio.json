@@ -4,6 +4,7 @@
       "type": "multi_choice",
       "name": "configs.common.recommended_args",
       "description": "configs.common.recommended_args.desc",
+      "should_add_to_args": true,
       "ffmpeg_flag": null,
       "default": "[\"-hide_banner\", \"-map_metadata 0:g\", \"-map 0:a\"]",
       "options": [
@@ -27,6 +28,7 @@
       "type": "single_choice",
       "name": "configs.common.trim_silence",
       "description": "configs.common.trim_silence.desc",
+      "should_add_to_args": true,
       "ffmpeg_flag": "-af",
       "default": "silenceremove=1:0:-50dB:1:1:-50dB",
       "options": [
