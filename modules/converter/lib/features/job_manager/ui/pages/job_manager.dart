@@ -2,6 +2,7 @@ import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:platform_utils/platform_utils.dart';
 
 class JobManager extends StatelessWidget {
   const JobManager({
@@ -170,19 +171,37 @@ class JobManager extends StatelessWidget {
     // TODO: Implement.
   }
 
-  void _handleShare(BuildContext context, ConvertJob job) {
-    // TODO: Implement.
+  Future<void> _handleShare(BuildContext context, ConvertJob job) async {
+    final file = await job.outputFile;
+    if (file == null || !file.isFile) {
+      return;
+    }
+    await file.share();
   }
 
-  void _handleOpenFile(BuildContext context, ConvertJob job) {
-    // TODO: Implement.
+  Future<void> _handleOpenFile(BuildContext context, ConvertJob job) async {
+    final file = await job.outputFile;
+    if (file == null || !file.isFile) {
+      return;
+    }
+    await file.open();
   }
 
-  void _handleOpenFolder(BuildContext context, ConvertJob job) {
-    // TODO: Implement.
+  Future<void> _handleOpenFolder(BuildContext context, ConvertJob job) async {
+    await launchUrl(Uri.parse(job.outputDirectoryPath));
   }
 
-  void _handleDelete(BuildContext context, ConvertJob job) {
-    // TODO: Implement.
+  Future<void> _handleDelete(BuildContext context, ConvertJob job) async {
+    final file = await job.outputFile;
+    if (file == null || !file.isFile) {
+      return;
+    }
+    final success = await file.delete();
+    if (!success) {
+      // TODO: Show error.
+      return;
+    }
+
+    _handleRemoveItem(context, job);
   }
 }
