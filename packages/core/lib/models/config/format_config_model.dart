@@ -86,6 +86,25 @@ class FormatEntry {
       outputType: outputType,
     );
   }
+
+  ConfigControl getEncoderPickerControl(List<String> supportedCodec) {
+    final flag = outputType == OutputType.audio ? '-c:a' : '-c:v';
+    return ConfigControl(
+      type: ConfigControlType.dropdown,
+      name: 'configs.common.encoder',
+      shouldAddToArgs: true,
+      options: supportedCodec
+          .map(
+            (codec) => ConfigControlOption(
+              label: 'ui_codec_description.$codec',
+              value: codec,
+            ),
+          )
+          .toList(),
+      ffmpegFlag: flag,
+      defaultValue: supportedCodec.firstOrNull,
+    );
+  }
 }
 
 enum OutputType {

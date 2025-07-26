@@ -5,6 +5,7 @@ class ConfigControl {
   final ConfigControlType type;
   final String name;
   final List<ConfigControlOption> options;
+  final bool shouldAddToArgs;
 
   final String? ffmpegFlag;
 
@@ -14,6 +15,7 @@ class ConfigControl {
     required this.type,
     required this.name,
     required this.options,
+    required this.shouldAddToArgs,
     this.ffmpegFlag,
     this.defaultValue,
   });
@@ -28,6 +30,7 @@ class ConfigControl {
                   <ConfigControlOption>[],
             )
           : <ConfigControlOption>[],
+      shouldAddToArgs: json['should_add_to_args'] == true,
       ffmpegFlag: json['ffmpeg_flag']?.toString(),
       defaultValue: json['default']?.toString(),
     );

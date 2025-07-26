@@ -16,19 +16,13 @@ enum JobMakerSteps {
       chooseOutputFormat => const JobMakerOutputFormatPicker(),
       customizeConfigs => Consumer<JobMakerViewModel>(
         builder: (context, model, _) {
-          final formatEntry = model.selectedFormatEntry;
-          if (formatEntry == null) {
-            return const SizedBox();
-          }
-
-          final configControls = model.configControls;
-          if (configControls.isEmpty) {
+          final availableControls = model.availableControls;
+          if (availableControls.isEmpty) {
             return const SizedBox();
           }
 
           return JobMakerConfigCustomizer(
-            configControls: configControls,
-            selectedFormat: formatEntry,
+            availableControls: availableControls,
             selectedValues: model.selectedValues,
             onChanged: (name, value) {
               model.setSelectedValue(name, value);

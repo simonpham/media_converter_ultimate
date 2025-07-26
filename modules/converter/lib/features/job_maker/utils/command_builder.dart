@@ -1,4 +1,5 @@
-import 'package:converter/converter.dart';
+import 'dart:convert';
+
 import 'package:core/core.dart';
 import 'package:utils/utils.dart' as utils;
 
@@ -8,23 +9,39 @@ class CommandBuilder {
   static List<String> buildArgs({
     required String inputFilePath,
     required FormatEntry formatEntry,
+    required List<ConfigControl> availableControls,
     required Map<String, String> selectedValues,
-    required String outputFilePath,
     required Map<String, List<String>> supportedCodec,
+    required String outputFilePath,
   }) {
     final args = <String>[];
 
-    // Add dynamic config args from selectedConfigState
-    // selectedValues.forEach((groupName, value) {
-    //   if (value is String) {
-    //     args.add(groupName);
-    //     args.add(value);
-    //   } else if (value is List) {
-    //     for (final v in value) {
-    //       args.add(v.toString());
-    //     }
-    //   }
-    // });
+    for (final control in availableControls) {
+      if (!control.shouldAddToArgs) {
+        continue;
+      }
+
+      final selectedValue = selectedValues[control.name];
+      if (selectedValue == null || selectedValue.isEmpty) {
+        continue;
+      }
+
+      final ffmpegFlag = control.ffmpegFlag;
+      if (ffmpegFlag == null) {
+        printLog(
+          '[CommandBuilder]: FFmpeg flag not found. Adding arg directly: $args',
+        );
+        _addValue(args, selectedValue);
+        continue;
+      }
+
+      printLog(
+        '[CommandBuilder]: Adding flag and arg: $ffmpegFlag $selectedValue',
+      );
+      args.add(ffmpegFlag);
+      _addValue(args, selectedValue);
+      continue;
+    }
 
     return [
       '-i',
@@ -41,14 +58,16 @@ class CommandBuilder {
     required FormatEntry formatEntry,
     required Map<String, String> selectedValues,
     required String outputFilePath,
+    required List<ConfigControl> availableControls,
     required Map<String, List<String>> supportedCodec,
   }) {
     final args = buildArgs(
       inputFilePath: inputFilePath,
       formatEntry: formatEntry,
       selectedValues: selectedValues,
-      outputFilePath: outputFilePath,
       supportedCodec: supportedCodec,
+      availableControls: availableControls,
+      outputFilePath: outputFilePath,
     );
     return args.join(' ');
   }
@@ -80,5 +99,15 @@ class CommandBuilder {
         overrideFileName: overrideFileName,
       ),
     );
+  }
+
+  static void _addValue(List<String> args, String value) {
+    try {
+      final valueAsList = List<String>.from(jsonDecode(value));
+      args.addAll(valueAsList);
+      return;
+    } catch (_) {}
+
+    args.add(value);
   }
 }
