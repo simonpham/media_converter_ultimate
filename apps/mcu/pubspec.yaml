@@ -20,6 +20,8 @@ dependencies:
     path: ../../packages/core
   design_system:
     path: ../../packages/design_system
+  platform_utils:
+    path: ../../packages/platform_utils
 
 dev_dependencies:
   flutter_test:
