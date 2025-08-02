@@ -23,5 +23,4 @@ dependencies:
   universal_file: ^1.0.0
   universal_io: ^2.2.2
   url_launcher: ^6.3.2
-  docman: ^1.2.0
   share_plus: ^11.0.0

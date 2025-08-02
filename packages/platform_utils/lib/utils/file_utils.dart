@@ -5,25 +5,6 @@ import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:platform_utils/platform_utils.dart';
 
 class FileUtils {
-  static Future<bool> checkOutputWritability({
-    required String outputFolderPath,
-    required String fileName,
-  }) async {
-    final outputFolder = await DocumentFile.fromUri(outputFolderPath);
-    if (outputFolder == null || !outputFolder.isDirectory) {
-      return false;
-    }
-
-    final listFiles = await outputFolder.listDocuments(nameContains: fileName);
-    for (final file in listFiles) {
-      if (file.name == fileName) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   static Future<bool> isFileExist(String path) async {
     return await File(path).exists();
   }
@@ -60,30 +41,27 @@ class FileUtils {
   }
 
   /// Return folder path and folder name.
-  static Future<(String?, String?)> chooseSavePath(
+  static Future<(String?, Failure?)> chooseSavePath(
     BuildContext context, {
     String? initialPath,
   }) async {
     try {
-      if (Platform.isAndroid) {
-        final DocumentFile? result = await DocMan.pick.directory(
-          initDir: initialPath,
-        );
-        if (result == null || !result.isDirectory || !result.canWrite) {
-          return (null, null);
-        }
-        return (result.uri, result.name);
-      }
-
       final path = await FilePicker.platform.getDirectoryPath(
         initialDirectory: initialPath,
       );
       if (path == null || path.isEmpty) {
         return (null, null);
       }
-      await Directory(path).createIfNotExists();
 
-      return (path, basename(path));
+      final dir = Directory(path);
+      await dir.createIfNotExists();
+
+      final isWritable = await isDirectoryWritable(dir);
+      if (!isWritable) {
+        return (null, const DirectoryNotWritableFailure());
+      }
+
+      return (path, null);
     } catch (err, trace) {
       printError(err, trace);
       return (null, null);
@@ -102,27 +80,13 @@ class FileUtils {
       return false;
     }
 
-    if (Platform.isAndroid) {
-      final DocumentFile? directory = await DocumentFile.fromUri(
-        path,
-      );
-      if (directory == null || !directory.isDirectory || !directory.canWrite) {
-        return false;
-      }
+    final dir = Directory(path);
+    await dir.createIfNotExists();
 
-      final result = await directory.createFile(
-        name: fileName,
-        bytes: await tempFile.readAsBytes(),
-      );
-
-      if (result == null) {
-        return false;
-      }
-      await tempFile.delete();
-      return true;
-    }
-
-    await tempFile.rename(path);
+    await tempFile.copy(
+      join(dir.path, fileName),
+    );
+    await tempFile.delete();
     return true;
   }
 
@@ -137,6 +101,40 @@ class FileUtils {
   static Future<void> cleanConvertTemporaryDirectory() async {
     final tempFolder = await getConvertTemporaryDirectory();
     await tempFolder.delete(recursive: true);
+  }
+
+  static Future<bool> isDirectoryWritable(Directory dir) async {
+    try {
+      if (!await dir.exists()) {
+        return false;
+      }
+
+      final stat = await dir.stat();
+      if (stat.type != FileSystemEntityType.directory) {
+        return false;
+      }
+
+      final testFile = File(
+        path.join(dir.path, '.${DateTime.now().millisecondsSinceEpoch}.mcu'),
+      );
+      await testFile.create(recursive: true);
+      await testFile.delete();
+    } catch (err, trace) {
+      printError(err, trace);
+      return false;
+    }
+
+    return true;
+  }
+}
+
+extension FileExtension on File {
+  Future<void> share() async {
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(this.path)],
+      ),
+    );
   }
 }
 

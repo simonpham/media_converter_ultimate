@@ -20,8 +20,7 @@ class JobMakerViewModel extends ChangeNotifier {
   Map<String, List<ConfigControl>> _configControls = const {};
   Map<String, String> _selectedValues = const {};
 
-  String? _outputDirectoryPath;
-  String? _outputDirectoryName;
+  String? _outputDirectoryPath = '/storage/emulated/0/Download/MCU';
 
   Set<String> _errorPaths = {};
   Set<String> get errorPaths => _errorPaths;
@@ -32,7 +31,6 @@ class JobMakerViewModel extends ChangeNotifier {
   Map<String, String> get selectedValues => _selectedValues;
 
   String? get outputDirectoryPath => _outputDirectoryPath;
-  String? get outputDirectoryName => _outputDirectoryName;
 
   void setSelectedValue(String name, String value) {
     final clone = {..._selectedValues};
@@ -41,9 +39,8 @@ class JobMakerViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setOutputDirectoryPath(String? path, String? name) {
+  void setOutputDirectoryPath(String? path) {
     _outputDirectoryPath = path;
-    _outputDirectoryName = name;
     notifyListeners();
 
     refreshOutputFileNames();
@@ -222,7 +219,7 @@ class JobMakerViewModel extends ChangeNotifier {
         throw Exception('File name is null');
       }
 
-      /// Check for file existence.
+      /// Check for input file existence.
       if (!await FileUtils.isFileExist(filePath)) {
         errorPaths.add(filePath);
         printLog('[JobMakerViewModel]: File not exist: $filePath');
@@ -250,30 +247,14 @@ class JobMakerViewModel extends ChangeNotifier {
         }
         outputPaths.add(outputFilePath);
 
-        /// Check if output file exists.
-        int retryCount = 0;
-        do {
-          try {
-            if (!await FileUtils.checkOutputWritability(
-              outputFolderPath: outputDirectoryPath,
-              fileName: fileName,
-            )) {
-              errorPaths.add(filePath);
-              continue;
-            }
-            break;
-          } on AlreadyRunningException catch (_) {
-            if (retryCount >= 3) {
-              throw Exception('Output writability check failed');
-            }
-            await Future.delayed(const Duration(milliseconds: 500));
-            retryCount++;
-            continue;
-          } catch (err, trace) {
-            printError(err, trace);
-            rethrow;
-          }
-        } while (true);
+        /// Check if output file already exists.
+        if (await FileUtils.isFileExist(outputFilePath)) {
+          errorPaths.add(filePath);
+          printLog(
+            '[JobMakerViewModel]: Output file already exists: $outputFilePath',
+          );
+          continue;
+        }
       }
     }
     return errorPaths;
