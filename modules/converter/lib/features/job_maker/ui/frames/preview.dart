@@ -15,7 +15,10 @@ class JobMakerPreview extends StatelessWidget {
       builder: (context, model, _) {
         final selectedPaths = model.selectedFiles;
         final formatEntry = model.selectedFormatEntry;
-        final outputDirectoryName = model.outputDirectoryName;
+        final outputDirectoryName = switch (model.outputDirectoryPath) {
+          String path => basename(path),
+          _ => null,
+        };
 
         if (selectedPaths.isEmpty) {
           return Text('No files selected'.hardcode);
@@ -95,14 +98,19 @@ class JobMakerPreview extends StatelessWidget {
     final viewModel = context.read<JobMakerViewModel>();
     final currentPath = viewModel.outputDirectoryPath;
 
-    final (path, name) = await FileUtils.chooseSavePath(
+    final (path, error) = await FileUtils.chooseSavePath(
       context,
       initialPath: currentPath,
     );
+
+    if (error != null) {
+      context.toast(error, type: MessageType.error);
+    }
+
     if (path == null) {
       return;
     }
 
-    viewModel.setOutputDirectoryPath(path, name);
+    viewModel.setOutputDirectoryPath(path);
   }
 }

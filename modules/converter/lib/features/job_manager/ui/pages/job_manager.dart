@@ -172,35 +172,28 @@ class JobManager extends StatelessWidget {
   }
 
   Future<void> _handleShare(BuildContext context, ConvertJob job) async {
-    final file = await job.outputFile;
-    if (file == null || !file.isFile) {
-      return;
-    }
+    final file = job.outputFile;
     await file.share();
   }
 
   Future<void> _handleOpenFile(BuildContext context, ConvertJob job) async {
-    final file = await job.outputFile;
-    if (file == null || !file.isFile) {
-      return;
-    }
-    await file.open();
+    // TODO: check for iOS.
   }
 
   Future<void> _handleOpenFolder(BuildContext context, ConvertJob job) async {
-    await launchUrl(Uri.parse(job.outputDirectoryPath));
+    // TODO: check for iOS.
   }
 
   Future<void> _handleDelete(BuildContext context, ConvertJob job) async {
-    final file = await job.outputFile;
-    if (file == null || !file.isFile) {
-      return;
-    }
-    final success = await file.delete();
-    if (!success) {
-      // TODO: Show error.
-      return;
-    }
+    // final file = await job.outputFile;
+    // if (file == null || !file.isFile) {
+    //   return;
+    // }
+    // final success = await file.delete();
+    // if (!success) {
+    //   // TODO: Show error.
+    //   return;
+    // }
 
     _handleRemoveItem(context, job);
   }

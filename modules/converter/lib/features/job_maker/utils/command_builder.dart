@@ -75,9 +75,7 @@ class CommandBuilder {
     required FormatEntry formatEntry,
     String? overrideFileName,
   }) {
-    final base = utils
-        .basenameWithoutExtension(inputFilePath)
-        .replaceAll(RegExp(r'\s+'), '_');
+    final base = utils.basenameWithoutExtension(inputFilePath);
     final ext = formatEntry.outputExtension;
     return '$base.$ext';
   }
