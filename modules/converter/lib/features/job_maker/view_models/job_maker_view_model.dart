@@ -20,7 +20,7 @@ class JobMakerViewModel extends ChangeNotifier {
   Map<String, List<ConfigControl>> _configControls = const {};
   Map<String, String> _selectedValues = const {};
 
-  String? _outputDirectoryPath = '/storage/emulated/0/Download/MCU';
+  String? _outputDirectoryPath = SettingsBox().lastOutputDirectoryPath;
 
   Set<String> _errorPaths = {};
   Set<String> get errorPaths => _errorPaths;
@@ -41,6 +41,7 @@ class JobMakerViewModel extends ChangeNotifier {
 
   void setOutputDirectoryPath(String? path) {
     _outputDirectoryPath = path;
+    SettingsBox().lastOutputDirectoryPath = path;
     notifyListeners();
 
     refreshOutputFileNames();
