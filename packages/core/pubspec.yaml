@@ -15,5 +15,10 @@ dependencies:
   utils:
     path: ../utils
 
+  get_it: ^8.2.0
+
   go_router: ^15.2.0
   provider: ^6.1.5
+
+  easy_hive: ^1.1.0
+  easy_hive_encryption: ^1.2.0
