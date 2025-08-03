@@ -22,6 +22,9 @@ class JobMaker extends StatefulWidget {
       context,
     );
 
+    SettingsBox().lastOutputDirectoryPath ??=
+        await JobMakerPathUtils.getDefaultOutputDirectoryPath();
+
     final result = await context.router.pushNamed(
       routeName,
       extra: (formatConfigModel, translations),
