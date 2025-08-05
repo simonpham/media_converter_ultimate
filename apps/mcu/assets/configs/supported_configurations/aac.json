@@ -17,7 +17,7 @@
     {
       "type": "dropdown",
       "name": "configs.aac.bitrate",
-      "label": "configs.common.bitrate",
+      "label": "configs.common.bitrate.label",
       "should_add_to_args": true,
       "ffmpeg_flag": "-b:a",
       "default": "192k",

@@ -3,7 +3,7 @@
     {
       "type": "multi_choice",
       "name": "configs.common.recommended_args",
-      "label": "configs.common.recommended_args",
+      "label": "configs.common.recommended_args.label",
       "description": "configs.common.recommended_args.desc",
       "should_add_to_args": true,
       "ffmpeg_flag": null,
@@ -28,7 +28,7 @@
     {
       "type": "single_choice",
       "name": "configs.common.trim_silence",
-      "label": "configs.common.trim_silence",
+      "label": "configs.common.trim_silence.label",
       "description": "configs.common.trim_silence.desc",
       "should_add_to_args": true,
       "ffmpeg_flag": "-af",

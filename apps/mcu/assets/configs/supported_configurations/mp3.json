@@ -25,12 +25,12 @@
       "should_add_to_args": false,
       "options": [
         {
-          "label": "configs.mp3.bitrate_type.cbr",
+          "label": "configs.mp3.bitrate_type.cbr.label",
           "value": "configs.mp3.bitrate_type.cbr.value",
           "description": "configs.mp3.bitrate_type.cbr.desc"
         },
         {
-          "label": "configs.mp3.bitrate_type.vbr",
+          "label": "configs.mp3.bitrate_type.vbr.label",
           "value": "configs.mp3.bitrate_type.vbr.value",
           "description": "configs.mp3.bitrate_type.vbr.desc"
         }
@@ -41,7 +41,7 @@
     {
       "type": "dropdown",
       "name": "configs.mp3.bitrate",
-      "label": "configs.common.bitrate",
+      "label": "configs.common.bitrate.label",
       "should_add_to_args": true,
       "ffmpeg_flag": "-b:a",
       "default": "192k",
@@ -78,7 +78,7 @@
     {
       "type": "dropdown",
       "name": "configs.mp3.bitrate_type.vbr.quality",
-      "label": "configs.mp3.bitrate_type.vbr.quality",
+      "label": "configs.mp3.bitrate_type.vbr.quality.label",
       "should_add_to_args": true,
       "ffmpeg_flag": "-q:a",
       "default": "4",
