@@ -20,6 +20,8 @@ dependencies:
     path: ../../packages/core
   design_system:
     path: ../../packages/design_system
+  l10n:
+    path: ../../packages/l10n
   platform_utils:
     path: ../../packages/platform_utils
 
