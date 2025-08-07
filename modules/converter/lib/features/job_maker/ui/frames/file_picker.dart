@@ -25,7 +25,7 @@ class JobMakerFilePicker extends StatelessWidget {
                   top: Spacing.d16,
                 ),
                 child: Text(
-                  'Selected files: ${files.length}'.hardcode,
+                  context.l10n.selectedFiles(files.length),
                   style: context.theme.textTheme.titleSmall?.copyWith(
                     color: context.theme.primaryColor,
                   ),
@@ -67,11 +67,11 @@ class JobMakerFilePicker extends StatelessWidget {
                             children: [
                               // TODO: add icon.
                               Text(
-                                'No files selected.'.hardcode,
+                                context.l10n.noFilesSelected,
                                 style: context.theme.textTheme.titleSmall,
                               ),
                               Text(
-                                'Tap Add Files to begin.'.hardcode,
+                                context.l10n.tapAddFilesToBegin,
                                 style: context.theme.textTheme.bodySmall,
                               ),
                             ],
@@ -91,7 +91,7 @@ class JobMakerFilePicker extends StatelessWidget {
               ),
               child: Button(
                 variant: ButtonVariant.secondary,
-                label: 'Add Files'.hardcode,
+                label: context.l10n.addFiles,
                 onPressed: () {
                   _handleChooseFilesPressed(context);
                 },

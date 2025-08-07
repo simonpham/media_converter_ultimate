@@ -21,11 +21,11 @@ class JobMakerPreview extends StatelessWidget {
         };
 
         if (selectedPaths.isEmpty) {
-          return Text('No files selected'.hardcode);
+          return Text(context.l10n.noFilesSelected);
         }
 
         if (formatEntry == null) {
-          return Text('No output format selected'.hardcode);
+          return Text(context.l10n.noOutputFormatSelected);
         }
 
         final errorPaths = model.errorPaths;
@@ -38,7 +38,7 @@ class JobMakerPreview extends StatelessWidget {
                 right: Spacing.d16,
               ),
               child: Text(
-                'Output Directory'.hardcode,
+                context.l10n.outputDirectory,
               ),
             ),
             Padding(
@@ -59,7 +59,7 @@ class JobMakerPreview extends StatelessWidget {
               ),
               child: Button(
                 variant: ButtonVariant.secondary,
-                label: 'Choose'.hardcode,
+                label: context.l10n.choose,
                 onPressed: () {
                   _handleChooseOutputDirectoryPressed(context);
                 },

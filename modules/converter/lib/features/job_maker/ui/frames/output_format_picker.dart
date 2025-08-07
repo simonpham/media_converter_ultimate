@@ -35,7 +35,7 @@ class JobMakerOutputFormatPicker extends StatelessWidget {
                 children: [
                   _buildGridCategory(
                     context,
-                    'Video'.hardcode,
+                    context.l10n.video,
                     formatConfigModel,
                     videoFormats,
                     selectedFormat,
@@ -43,7 +43,7 @@ class JobMakerOutputFormatPicker extends StatelessWidget {
                   Spacing.v16,
                   _buildGridCategory(
                     context,
-                    'Audio'.hardcode,
+                    context.l10n.audio,
                     formatConfigModel,
                     audioFormats,
                     selectedFormat,

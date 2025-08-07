@@ -26,7 +26,7 @@ class JobManager extends StatelessWidget {
                 flexibleSpace: FlexibleSpaceBar(
                   centerTitle: true,
                   title: Text(
-                    'Job manager'.hardcode,
+                    context.l10n.jobManager,
                   ),
                 ),
                 pinned: true,
@@ -40,7 +40,7 @@ class JobManager extends StatelessWidget {
                       horizontal: Spacing.d16,
                     ),
                     child: Text(
-                      'Running'.hardcode,
+                      context.l10n.running,
                       style: context.theme.textTheme.labelLarge?.copyWith(
                         color: context.theme.colorScheme.primary,
                       ),
@@ -73,7 +73,7 @@ class JobManager extends StatelessWidget {
                       horizontal: Spacing.d16,
                     ),
                     child: Text(
-                      'Pending'.hardcode,
+                      context.l10n.pending,
                       style: context.theme.textTheme.labelLarge?.copyWith(
                         color: context.theme.colorScheme.primary,
                       ),
@@ -106,7 +106,7 @@ class JobManager extends StatelessWidget {
                       horizontal: Spacing.d16,
                     ),
                     child: Text(
-                      'Finished'.hardcode,
+                      context.l10n.finished,
                       style: context.theme.textTheme.labelLarge?.copyWith(
                         color: context.theme.colorScheme.primary,
                       ),
@@ -149,7 +149,7 @@ class JobManager extends StatelessWidget {
           size: Spacing.d24,
           color: context.theme.colorScheme.onPrimary,
         ),
-        label: 'Create'.hardcode,
+        label: context.l10n.create,
         onPressed: () {
           _handleCreateJob(context);
         },

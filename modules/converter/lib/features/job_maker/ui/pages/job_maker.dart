@@ -121,7 +121,7 @@ class _JobMakerState extends State<JobMaker> {
                     ),
                     child: Button(
                       variant: ButtonVariant.primary,
-                      label: 'Next'.hardcode,
+                      label: context.l10n.next,
                       onPressed: () {
                         _handleNext(context);
                       },
