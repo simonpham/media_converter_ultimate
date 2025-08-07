@@ -36,10 +36,10 @@ enum JobMakerSteps {
 
   String getTitle(BuildContext context) {
     return switch (this) {
-      JobMakerSteps.pickFiles => 'Pick files'.hardcode,
-      JobMakerSteps.chooseOutputFormat => 'Choose output format'.hardcode,
-      JobMakerSteps.customizeConfigs => 'Customize configs'.hardcode,
-      JobMakerSteps.preview => 'Preview'.hardcode,
+      JobMakerSteps.pickFiles => context.l10n.pickFiles,
+      JobMakerSteps.chooseOutputFormat => context.l10n.chooseOutputFormat,
+      JobMakerSteps.customizeConfigs => context.l10n.customizeConfigs,
+      JobMakerSteps.preview => context.l10n.preview,
     };
   }
 }

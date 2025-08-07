@@ -10,6 +10,8 @@ dependencies:
   flutter:
     sdk: "flutter"
 
+  l10n:
+    path: ../l10n
   platform_utils:
     path: ../platform_utils
   utils:

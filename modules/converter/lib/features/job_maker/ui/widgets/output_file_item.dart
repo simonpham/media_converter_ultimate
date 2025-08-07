@@ -1,5 +1,5 @@
 import 'package:converter/converter.dart';
-import 'package:core/models/models.dart';
+import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:platform_utils/platform_utils.dart';
@@ -55,13 +55,13 @@ class OutputFileItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Output file: ${outputFileName ?? 'N/A'}'.hardcode,
+                  context.l10n.outputFile(outputFileName ?? 'N/A'),
                   style: context.theme.textTheme.titleSmall?.copyWith(
                     color: hasError ? context.theme.colorScheme.error : null,
                   ),
                 ),
                 Text(
-                  'Original file: ${basename(file.path)}'.hardcode,
+                  context.l10n.originalFile(basename(file.path)),
                   style: context.theme.textTheme.bodySmall,
                 ),
               ],

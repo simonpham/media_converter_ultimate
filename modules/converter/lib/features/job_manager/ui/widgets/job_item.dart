@@ -1,4 +1,5 @@
 import 'package:converter/converter.dart';
+import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:utils/utils.dart';
@@ -89,7 +90,7 @@ class JobItem extends StatelessWidget {
             ),
             child: Text.rich(
               TextSpan(
-                text: 'Status: '.hardcode,
+                text: context.l10n.statusPrefix,
                 children: [
                   TextSpan(
                     text: job.status.getLabel(context),
@@ -110,7 +111,7 @@ class JobItem extends StatelessWidget {
               horizontal: Spacing.d16,
             ),
             child: Text(
-              'Input: ${basename(job.inputFilePath)}'.hardcode,
+              context.l10n.inputFile(basename(job.inputFilePath)),
               style: TextStyle(
                 fontSize: Spacing.d12,
                 color: Colors.grey,

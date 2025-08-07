@@ -1,4 +1,4 @@
-import 'package:converter/converter.dart';
+import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 
 enum JobStatus {
@@ -22,12 +22,12 @@ enum JobStatus {
 
   String getLabel(BuildContext context) {
     return switch (this) {
-      JobStatus.running => 'Running',
-      JobStatus.preparing => 'Preparing',
-      JobStatus.ready => 'Ready',
-      JobStatus.pending => 'Pending',
-      JobStatus.completed => 'Completed',
-      JobStatus.failed => 'Failed',
-    }.hardcode;
+      JobStatus.running => context.l10n.runningStatus,
+      JobStatus.preparing => context.l10n.preparingStatus,
+      JobStatus.ready => context.l10n.readyStatus,
+      JobStatus.pending => context.l10n.pendingStatus,
+      JobStatus.completed => context.l10n.completedStatus,
+      JobStatus.failed => context.l10n.failedStatus,
+    };
   }
 }
