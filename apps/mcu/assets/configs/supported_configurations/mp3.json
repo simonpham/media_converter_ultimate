@@ -23,6 +23,7 @@
       "name": "configs.mp3.bitrate_type",
       "label": "configs.common.bitrate_type",
       "should_add_to_args": false,
+      "default": "configs.mp3.bitrate_type.vbr.value",
       "options": [
         {
           "label": "configs.mp3.bitrate_type.cbr.label",
