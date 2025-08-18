@@ -68,15 +68,10 @@ class JobMakerOutputFormatPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
+        SectionTitle(
+          label,
           padding: EdgeInsets.only(
             bottom: Spacing.d16,
-          ),
-          child: Text(
-            label,
-            style: context.theme.textTheme.titleSmall?.copyWith(
-              color: context.theme.primaryColor,
-            ),
           ),
         ),
         GridView.builder(

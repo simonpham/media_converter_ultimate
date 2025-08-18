@@ -18,18 +18,8 @@ class JobMakerFilePicker extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (files.isNotEmpty) ...[
-              Padding(
-                padding: EdgeInsets.only(
-                  left: Spacing.d16,
-                  right: Spacing.d16,
-                  top: Spacing.d16,
-                ),
-                child: Text(
-                  context.l10n.selectedFiles(files.length),
-                  style: context.theme.textTheme.titleSmall?.copyWith(
-                    color: context.theme.primaryColor,
-                  ),
-                ),
+              SectionTitle(
+                context.l10n.selectedFiles(files.length),
               ),
             ],
             Expanded(

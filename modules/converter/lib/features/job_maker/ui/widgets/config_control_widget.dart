@@ -25,9 +25,9 @@ class ConfigControlWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final labelWidget = Text(
+    final labelWidget = SectionTitle(
       context.configL10n(control.label),
-      style: Theme.of(context).textTheme.titleMedium,
+      padding: EdgeInsets.zero,
     );
     final controlWidget = switch (control.type) {
       ConfigControlType.multiChoice => MultiChoiceWidget(
