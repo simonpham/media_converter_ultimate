@@ -8,7 +8,7 @@ class OutputFileItem extends StatelessWidget {
   final File file;
 
   final FormatEntry outputFormat;
-  final String? outputFileName;
+  final String outputFileName;
 
   final bool hasError;
 
@@ -22,6 +22,61 @@ class OutputFileItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Button(
+      enable: false,
+      enableHover: false,
+      variant: ButtonVariant.ghost,
+      padding: EdgeInsets.symmetric(
+        horizontal: Spacing.d16,
+        vertical: Spacing.d12,
+      ),
+      icon: Padding(
+        padding: EdgeInsets.only(right: Spacing.d4),
+        child: Column(
+          children: [
+            FileIcon(file),
+            Text(
+              outputFormat.outputExtension.toUpperCase(),
+            ),
+          ],
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            outputFileName,
+            style: context.theme.textTheme.titleSmall?.copyWith(
+              color: hasError ? context.theme.colorScheme.error : null,
+            ),
+          ),
+          Text(
+            context.l10n.originalFile(basename(file.path)),
+            style: context.theme.textTheme.bodySmall,
+          ),
+        ],
+      ),
+      labelTextAlign: TextAlign.start,
+      expandTitle: true,
+      trailingIcon: Tappable(
+        behavior: HitTestBehavior.translucent,
+        tooltip: context.l10n.rename,
+        onTap: () {},
+        child: Container(
+          padding: EdgeInsets.all(
+            Spacing.d12,
+          ),
+          child: ImageView(
+            Assets.hugeicons.stroke.editFormatting.edit02,
+            color: hasError
+                ? context.theme.colorScheme.error
+                : context.theme.colorScheme.primary,
+            size: Spacing.d20,
+          ),
+        ),
+      ),
+      mainAxisAlignment: MainAxisAlignment.start,
+    );
     return Container(
       decoration: ShapeDecoration(
         color: context.theme.colorScheme.surface,
@@ -36,7 +91,7 @@ class OutputFileItem extends StatelessWidget {
       ),
       padding: EdgeInsets.symmetric(
         horizontal: Spacing.d4,
-        vertical: Spacing.d4,
+        vertical: Spacing.d12,
       ),
       child: Row(
         children: [

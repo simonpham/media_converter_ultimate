@@ -19,6 +19,7 @@ class JobMakerPreview extends StatelessWidget {
           String path => basename(path),
           _ => null,
         };
+        final isFolderSelected = model.outputDirectoryPath != null;
 
         if (selectedPaths.isEmpty) {
           return Text(context.l10n.noFilesSelected);
@@ -30,26 +31,10 @@ class JobMakerPreview extends StatelessWidget {
 
         final errorPaths = model.errorPaths;
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Choose output directory.
-            Padding(
-              padding: EdgeInsets.only(
-                left: Spacing.d16,
-                right: Spacing.d16,
-              ),
-              child: Text(
-                context.l10n.outputDirectory,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(
-                top: Spacing.d16,
-                left: Spacing.d16,
-                right: Spacing.d16,
-              ),
-              child: Text(
-                outputDirectoryName ?? 'No directory selected',
-              ),
+            SectionTitle(
+              context.l10n.outputFolder,
             ),
             Padding(
               padding: EdgeInsets.only(
@@ -58,15 +43,41 @@ class JobMakerPreview extends StatelessWidget {
                 right: Spacing.d16,
               ),
               child: Button(
-                variant: ButtonVariant.secondary,
-                label: context.l10n.choose,
+                tooltip: model.outputDirectoryPath,
+                variant: ButtonVariant.ghost,
+                padding: EdgeInsets.symmetric(
+                  horizontal: Spacing.d16,
+                  vertical: Spacing.d12,
+                ),
+                icon: Padding(
+                  padding: EdgeInsets.only(right: Spacing.d4),
+                  child: ImageView(
+                    Assets.hugeicons.stroke.filesFolders.folder01,
+                    color: context.theme.primaryColor,
+                    size: Spacing.d24,
+                  ),
+                ),
+                label: outputDirectoryName ?? context.l10n.selectFolder,
+                labelTextAlign: TextAlign.start,
+                expandTitle: true,
+                trailingIcon: !isFolderSelected
+                    ? null
+                    : Text(
+                        context.l10n.selectFolder,
+                        style: context.theme.textTheme.labelSmall?.copyWith(
+                          color: context.theme.colorScheme.primary,
+                        ),
+                      ),
+                mainAxisAlignment: MainAxisAlignment.start,
                 onPressed: () {
                   _handleChooseOutputDirectoryPressed(context);
                 },
               ),
             ),
-            const Divider(),
-
+            Spacing.v8,
+            SectionTitle(
+              context.l10n.outputFiles,
+            ),
             Expanded(
               child: ListView.separated(
                 padding: EdgeInsets.symmetric(
@@ -74,10 +85,11 @@ class JobMakerPreview extends StatelessWidget {
                   vertical: Spacing.d16,
                 ),
                 itemCount: selectedPaths.length,
-                separatorBuilder: (_, _) => const Divider(),
+                separatorBuilder: (_, _) => Spacing.v4,
                 itemBuilder: (context, index) {
                   final filePath = selectedPaths.keys.elementAt(index);
-                  final outputFileName = selectedPaths[filePath];
+                  final outputFileName =
+                      selectedPaths.values.elementAt(index) ?? '';
                   final file = File(filePath);
                   return OutputFileItem(
                     file,
