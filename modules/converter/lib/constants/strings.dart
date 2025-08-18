@@ -5,6 +5,6 @@ const String kDefaultOutputDirectoryPath =
     '/Download/$kDefaultOutputDirectoryName';
 
 const List<String> kStoragePaths = [
-  '/storage/emulated/0',
   '/sdcard',
+  '/storage/emulated/0',
 ];
