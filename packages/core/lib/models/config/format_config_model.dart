@@ -60,21 +60,25 @@ class FormatEntry {
   final String name;
   final String outputExtension;
   final OutputType outputType;
+  final bool shouldAddToArgs;
 
   const FormatEntry({
     required this.name,
     required this.outputExtension,
     required this.outputType,
+    required this.shouldAddToArgs,
   });
 
   factory FormatEntry.fromJson(Map<String, dynamic> json) {
     final name = requireField<String>(json, 'name');
     final outputExtension = requireField<String>(json, 'output_extension');
     final outputType = OutputType.parse(json['output_type']);
+    final shouldAddToArgs = json['should_add_to_args'] == true;
     return FormatEntry(
       name: name,
       outputExtension: outputExtension,
       outputType: outputType,
+      shouldAddToArgs: shouldAddToArgs,
     );
   }
 }
