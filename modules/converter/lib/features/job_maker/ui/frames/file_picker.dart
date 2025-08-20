@@ -11,7 +11,7 @@ class JobMakerFilePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<JobMakerViewModel, Map<String, String?>>(
+    return Selector<JobMakerViewModel, List<File>>(
       selector: (context, model) => model.selectedFiles,
       builder: (context, files, _) {
         return Column(
@@ -30,21 +30,47 @@ class JobMakerFilePicker extends StatelessWidget {
                     SliverPadding(
                       padding: EdgeInsets.symmetric(
                         horizontal: Spacing.d16,
-                        vertical: Spacing.d16,
+                        vertical: Spacing.d12,
                       ),
-                      sliver: SliverList.separated(
-                        itemCount: files.length,
-                        separatorBuilder: (_, _) => Spacing.v4,
-                        itemBuilder: (context, index) {
-                          final filePath = files.keys.elementAt(index);
-                          final file = File(filePath);
-                          return FileItem(
-                            file,
-                            onRemove: () {
-                              context.read<JobMakerViewModel>().removeFile(
+                      sliver: ReorderableSliverList(
+                        buildDraggableFeedback: (context, constraints, child) {
+                          return ConstrainedBox(
+                            constraints: constraints,
+                            child: child,
+                          );
+                        },
+                        delegate: ReorderableSliverChildBuilderDelegate(
+                          (context, index) {
+                            final file = files.elementAt(index);
+                            return Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: Spacing.d4,
+                              ),
+                              child: FileItem(
+                                key: ValueKey(file.path),
                                 file,
-                              );
-                            },
+                                leading: ImageView(
+                                  Assets
+                                      .hugeicons
+                                      .stroke
+                                      .editFormatting
+                                      .verticalDragDrop,
+                                  size: Spacing.d20,
+                                ),
+                                onRemove: () {
+                                  context.read<JobMakerViewModel>().removeFile(
+                                    file,
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                          childCount: files.length,
+                        ),
+                        onReorder: (int oldIndex, int newIndex) {
+                          context.read<JobMakerViewModel>().reorderFile(
+                            oldIndex,
+                            newIndex,
                           );
                         },
                       ),
