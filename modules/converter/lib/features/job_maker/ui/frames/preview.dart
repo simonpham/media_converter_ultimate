@@ -14,6 +14,7 @@ class JobMakerPreview extends StatelessWidget {
     return Consumer<JobMakerViewModel>(
       builder: (context, model, _) {
         final selectedPaths = model.selectedFiles;
+        final outputFileNames = model.outputFileNames;
         final formatEntry = model.selectedFormatEntry;
         final outputDirectoryName = switch (model.outputDirectoryPath) {
           String path => basename(path),
@@ -87,9 +88,8 @@ class JobMakerPreview extends StatelessWidget {
                 itemCount: selectedPaths.length,
                 separatorBuilder: (_, _) => Spacing.v4,
                 itemBuilder: (context, index) {
-                  final filePath = selectedPaths.keys.elementAt(index);
-                  final outputFileName =
-                      selectedPaths.values.elementAt(index) ?? '';
+                  final filePath = selectedPaths.elementAt(index).path;
+                  final outputFileName = outputFileNames[filePath] ?? '';
                   final file = File(filePath);
                   return OutputFileItem(
                     file,

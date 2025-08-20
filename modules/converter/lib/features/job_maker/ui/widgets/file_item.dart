@@ -7,10 +7,12 @@ class FileItem extends StatelessWidget {
   const FileItem(
     this.file, {
     super.key,
+    this.leading,
     this.onRemove,
   });
 
   final File file;
+  final Widget? leading;
   final VoidCallback? onRemove;
 
   @override
@@ -34,6 +36,10 @@ class FileItem extends StatelessWidget {
       child: Row(
         children: [
           Spacing.h8,
+          if (leading case Widget leading) ...[
+            leading,
+            Spacing.h8,
+          ],
           FileIcon(file),
           Spacing.h8,
           Expanded(
