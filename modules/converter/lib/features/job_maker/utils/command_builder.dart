@@ -46,7 +46,7 @@ class CommandBuilder {
       '-i',
       '"$inputFilePath"',
       ...args,
-      '-f ${formatEntry.name}',
+      if (formatEntry.shouldAddToArgs) '-f ${formatEntry.name}',
       '"$outputFilePath"',
     ];
   }

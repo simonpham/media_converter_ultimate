@@ -1,16 +1,71 @@
 {
   "format": [
-    { "name": "mp3", "output_extension": "mp3", "output_type": "audio" },
-    { "name": "aac", "output_extension": "aac", "output_type": "audio" },
-    { "name": "flac", "output_extension": "flac", "output_type": "audio" },
-    { "name": "opus", "output_extension": "opus", "output_type": "audio" },
-    { "name": "ogg", "output_extension": "ogg", "output_type": "audio" },
-    { "name": "wav", "output_extension": "wav", "output_type": "audio" },
-    { "name": "mp4", "output_extension": "mp4", "output_type": "video" },
-    { "name": "mov", "output_extension": "mov", "output_type": "video" },
-    { "name": "mkv", "output_extension": "mkv", "output_type": "video" },
-    { "name": "webm", "output_extension": "webm", "output_type": "video" },
-    { "name": "avi", "output_extension": "avi", "output_type": "video" }
+    {
+      "name": "mp3",
+      "output_extension": "mp3",
+      "output_type": "audio",
+      "should_add_to_args": true
+    },
+    {
+      "name": "aac",
+      "output_extension": "aac",
+      "output_type": "audio",
+      "should_add_to_args": false
+    },
+    {
+      "name": "flac",
+      "output_extension": "flac",
+      "output_type": "audio",
+      "should_add_to_args": true
+    },
+    {
+      "name": "opus",
+      "output_extension": "opus",
+      "output_type": "audio",
+      "should_add_to_args": true
+    },
+    {
+      "name": "ogg",
+      "output_extension": "ogg",
+      "output_type": "audio",
+      "should_add_to_args": true
+    },
+    {
+      "name": "wav",
+      "output_extension": "wav",
+      "output_type": "audio",
+      "should_add_to_args": true
+    },
+    {
+      "name": "mp4",
+      "output_extension": "mp4",
+      "output_type": "video",
+      "should_add_to_args": true
+    },
+    {
+      "name": "mov",
+      "output_extension": "mov",
+      "output_type": "video",
+      "should_add_to_args": true
+    },
+    {
+      "name": "mkv",
+      "output_extension": "mkv",
+      "output_type": "video",
+      "should_add_to_args": true
+    },
+    {
+      "name": "webm",
+      "output_extension": "webm",
+      "output_type": "video",
+      "should_add_to_args": true
+    },
+    {
+      "name": "avi",
+      "output_extension": "avi",
+      "output_type": "video",
+      "should_add_to_args": true
+    }
   ],
   "ui_gradients": {
     "mp3": ["#fc5c7d", "#6a82fb"],
