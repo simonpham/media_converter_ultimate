@@ -2,7 +2,7 @@
   "common_audio": [
     {
       "type": "multi_choice",
-      "name": "configs.common.recommended_args",
+      "name": "configs.common.audio.recommended_args",
       "label": "configs.common.recommended_args.label",
       "description": "configs.common.recommended_args.desc",
       "should_add_to_args": true,

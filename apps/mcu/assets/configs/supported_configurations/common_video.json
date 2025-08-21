@@ -2,12 +2,12 @@
   "common_video": [
     {
       "type": "multi_choice",
-      "name": "configs.common.recommended_args",
+      "name": "configs.common.video.recommended_args",
       "label": "configs.common.recommended_args.label",
       "description": "configs.common.recommended_args.desc",
       "should_add_to_args": true,
       "ffmpeg_flag": null,
-      "default": "[\"-hide_banner\", \"-map_metadata 0:g\"]",
+      "default": "[\"-hide_banner\", \"-map_metadata 0:g\", \"-map 0:v\", \"-map '0:a?'\", \"-map '0:s?'\"]",
       "options": [
         {
           "label": "configs.common.recommended_args.hide_banner",
