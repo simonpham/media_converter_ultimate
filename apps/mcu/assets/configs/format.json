@@ -52,7 +52,7 @@
       "name": "mkv",
       "output_extension": "mkv",
       "output_type": "video",
-      "should_add_to_args": true
+      "should_add_to_args": false
     },
     {
       "name": "webm",
