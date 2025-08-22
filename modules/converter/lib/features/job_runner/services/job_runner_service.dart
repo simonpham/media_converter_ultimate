@@ -30,15 +30,20 @@ class FfmpegJobRunnerService implements JobRunnerService {
 
   @override
   Future<ConvertJob> run(ConvertJob job) async {
-    final mediaInfo = await FFprobeKit.getMediaInformation(job.inputFilePath);
-    final duration = int.tryParse(
-      '${await mediaInfo.getDuration()}',
+    final mediaInfoSession = await FFprobeKit.getMediaInformation(
+      job.inputFilePath,
     );
+    final mediaInfo = mediaInfoSession.getMediaInformation();
+    final duration =
+        ((double.tryParse('${mediaInfo?.getDuration()}') ?? 0) * 1000).toInt();
 
     final session = await FFmpegKit.executeAsync(
       job.command,
       (session) async {
         final state = await session.getState();
+        printLog(
+          '[JobRunnerService] Session updated: session ${session.getSessionId()}, state ${state.toString()}.',
+        );
         _jobController.add(
           job.copyWith(
             sessionId: Some(
@@ -56,13 +61,16 @@ class FfmpegJobRunnerService implements JobRunnerService {
       },
       (stats) async {
         final progress = stats.getTime();
+        final sessionId = stats.getSessionId();
+        printLog(
+          '[JobRunnerService] Stats updated: progress $progress, duration $duration.',
+        );
         _jobController.add(
           job.copyWith(
-            sessionId: Some(
-              stats.getSessionId(),
-            ),
+            sessionId: Some(sessionId),
             progress: Some(progress),
             duration: Some(duration),
+            status: const Some(JobStatus.running),
           ),
         );
       },
@@ -75,6 +83,9 @@ class FfmpegJobRunnerService implements JobRunnerService {
 
     final state = await session.getState();
 
+    printLog(
+      '[JobRunnerService] Init session ${session.getSessionId()} with command:\n${job.command}',
+    );
     return job.copyWith(
       sessionId: Some(sessionId),
       status: Some(state.toJobStatus()),
