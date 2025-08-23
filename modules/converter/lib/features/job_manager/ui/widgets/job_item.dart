@@ -14,6 +14,8 @@ class JobItem extends StatelessWidget {
   final VoidCallback? onOpenFolder;
   final VoidCallback? onDelete;
 
+  final VoidCallback? onStop;
+
   const JobItem(
     this.job, {
     this.onRemoveItem,
@@ -22,6 +24,7 @@ class JobItem extends StatelessWidget {
     this.onOpenFile,
     this.onOpenFolder,
     this.onDelete,
+    this.onStop,
     super.key,
   });
 
@@ -119,23 +122,30 @@ class JobItem extends StatelessWidget {
             ),
           ),
           Spacing.v4,
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: Spacing.d16,
-            ),
-            child: Row(
-              children: [
-                if ((job.progress, job.duration) case (
-                  int progress,
-                  int duration,
-                ))
-                  LinearProgressIndicator(
-                    value: progress / duration,
-                    color: Colors.blue,
+          if ((job.progress, job.duration) case (
+            int progress,
+            int duration,
+          )) ...[
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: Spacing.d16,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: LinearProgressIndicator(
+                      value: progress / duration,
+                      color: JobStatus.running.getColor(),
+                      borderRadius: BorderRadius.circular(Spacing.d4),
+                      backgroundColor: JobStatus.running.getColor().withValues(
+                        alpha: 0.1,
+                      ),
+                    ),
                   ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
           Spacing.v16,
           Padding(
             padding: EdgeInsets.symmetric(
@@ -148,6 +158,7 @@ class JobItem extends StatelessWidget {
               onOpenFile: onOpenFile,
               onOpenFolder: onOpenFolder,
               onDelete: onDelete,
+              onStop: onStop,
             ),
           ),
         ],

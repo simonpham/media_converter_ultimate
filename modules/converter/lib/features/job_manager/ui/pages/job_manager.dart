@@ -61,6 +61,7 @@ class JobManager extends StatelessWidget {
                       onOpenFile: () => _handleOpenFile(context, job),
                       onOpenFolder: () => _handleOpenFolder(context, job),
                       onDelete: () => _handleDelete(context, job),
+                      onStop: () => _handleStop(context, job),
                     );
                   },
                 ),
@@ -196,5 +197,9 @@ class JobManager extends StatelessWidget {
     // }
 
     _handleRemoveItem(context, job);
+  }
+
+  void _handleStop(BuildContext context, ConvertJob job) {
+    context.read<JobManagerViewModel>().removeRunningJob(job);
   }
 }
