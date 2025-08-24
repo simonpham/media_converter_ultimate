@@ -96,6 +96,9 @@ class JobMakerPreview extends StatelessWidget {
                     outputFormat: formatEntry,
                     outputFileName: outputFileName,
                     hasError: errorPaths.contains(filePath),
+                    onRenamePressed: () {
+                      _handleRenameOutputFilePressed(context, file);
+                    },
                   );
                 },
               ),
@@ -124,5 +127,28 @@ class JobMakerPreview extends StatelessWidget {
     }
 
     viewModel.setOutputDirectoryPath(path);
+  }
+
+  Future<void> _handleRenameOutputFilePressed(
+    BuildContext context,
+    File file,
+  ) async {
+    final viewModel = context.read<JobMakerViewModel>();
+    final outputFileName = viewModel.outputFileNames[file.path] ?? '';
+    final newName = await InputTextDialog.show(
+      context,
+      initialValue: outputFileName,
+      title: context.l10n.outputFileName,
+      labelText: context.l10n.fileName,
+      hintText: context.l10n.enterNewName,
+      cancelText: context.l10n.cancel,
+      confirmText: context.l10n.ok,
+    );
+
+    if (newName == null) {
+      return;
+    }
+
+    viewModel.setOutputFileName(file.path, newName);
   }
 }

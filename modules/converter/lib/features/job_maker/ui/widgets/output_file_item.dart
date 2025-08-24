@@ -12,12 +12,15 @@ class OutputFileItem extends StatelessWidget {
 
   final bool hasError;
 
+  final VoidCallback? onRenamePressed;
+
   const OutputFileItem(
     this.file, {
     super.key,
     required this.outputFormat,
     required this.outputFileName,
     this.hasError = false,
+    this.onRenamePressed,
   });
 
   @override
@@ -70,7 +73,7 @@ class OutputFileItem extends StatelessWidget {
           Tappable(
             behavior: HitTestBehavior.translucent,
             tooltip: context.l10n.rename,
-            onTap: () {},
+            onTap: onRenamePressed,
             child: Container(
               padding: EdgeInsets.all(
                 Spacing.d12,
