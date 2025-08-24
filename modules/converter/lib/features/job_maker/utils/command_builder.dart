@@ -75,6 +75,9 @@ class CommandBuilder {
     required FormatEntry formatEntry,
     String? overrideFileName,
   }) {
+    if (overrideFileName != null) {
+      return overrideFileName;
+    }
     final base = utils.basenameWithoutExtension(inputFilePath);
     final ext = formatEntry.outputExtension;
     return '$base.$ext';
