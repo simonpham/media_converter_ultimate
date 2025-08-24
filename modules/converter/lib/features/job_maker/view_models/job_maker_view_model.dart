@@ -4,6 +4,7 @@ import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:platform_utils/platform_utils.dart';
+import 'package:utils/utils.dart';
 
 class JobMakerViewModel extends ChangeNotifier {
   final FormatConfigModel formatConfigModel;
@@ -211,7 +212,7 @@ class JobMakerViewModel extends ChangeNotifier {
       );
 
       return ConvertJob(
-        id: UniqueKey().toString(),
+        id: kUuid.v4(),
         inputFilePath: inputFilePath,
         outputFileName: fileName,
         outputDirectoryPath: outputDirectoryPath,
