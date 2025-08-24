@@ -14,19 +14,19 @@ abstract interface class JobRunnerService {
 
   Stream<ConvertJob> get onJobUpdate;
 
-  Stream<String> get onLogUpdate;
+  Stream<JobLog> get onLogUpdate;
 }
 
 class FfmpegJobRunnerService implements JobRunnerService {
   final StreamController<ConvertJob> _jobController =
       StreamController.broadcast();
-  final StreamController<String> _logController = StreamController.broadcast();
+  final StreamController<JobLog> _logController = StreamController.broadcast();
 
   @override
   Stream<ConvertJob> get onJobUpdate => _jobController.stream;
 
   @override
-  Stream<String> get onLogUpdate => _logController.stream;
+  Stream<JobLog> get onLogUpdate => _logController.stream;
 
   @override
   Future<ConvertJob> run(ConvertJob job) async {
@@ -55,8 +55,13 @@ class FfmpegJobRunnerService implements JobRunnerService {
         );
       },
       (log) {
+        final msg =
+            '[${log.getSessionId()}] - ${log.getLevel()}: ${log.getMessage()}';
         _logController.add(
-          '[${log.getSessionId()}] - ${log.getLevel()}: ${log.getMessage()}',
+          JobLog(
+            jobId: job.id,
+            message: msg,
+          ),
         );
       },
       (stats) async {

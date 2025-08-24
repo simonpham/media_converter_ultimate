@@ -38,14 +38,6 @@ class JobManagerViewModel extends ChangeNotifier {
 
   List<ConvertJob> get completedJobs => _completedJobs;
 
-  String _log = '';
-
-  String get log => _log;
-  void appendLog(String text) {
-    _log += '$text\n';
-    notifyListeners();
-  }
-
   void addJobs(final List<ConvertJob> jobs) {
     _pendingJobs = [
       ..._pendingJobs,
@@ -76,10 +68,11 @@ class JobManagerViewModel extends ChangeNotifier {
     }
   }
 
-  void _handleLogUpdate(String event) {
-    final log = '[JobManagerViewModel]: Log: $event';
-    printLog(log);
-    appendLog(log);
+  void _handleLogUpdate(JobLog event) {
+    printLog('[JobManagerViewModel]: Log: $event');
+    final jobId = event.jobId;
+    final message = event.message;
+    LogData().appendLog(jobId, message);
   }
 
   void _updateJobInList(ConvertJob job) {
