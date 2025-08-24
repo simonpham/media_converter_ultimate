@@ -405,4 +405,12 @@ class JobMakerViewModel extends ChangeNotifier {
     _selectedFiles = clone;
     notifyListeners();
   }
+
+  void setOutputFileName(String path, String newName) {
+    final clone = {..._outputFileNames};
+    clone[path] = newName;
+    _outputFileNames = clone;
+    notifyListeners();
+    _validateSelectedPaths();
+  }
 }
