@@ -1,3 +1,5 @@
+import 'package:converter/converter.dart' show ConverterInjector;
+import 'package:converter/data/data.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
@@ -12,10 +14,14 @@ Future<void> main() async {
   await FileUtils.cleanConvertTemporaryDirectory();
   await ThemeConfigs().init();
 
+  await injector.reset();
   await Injector.init();
+  await ConverterInjector.init();
 
   await EasyBox.initialize(subDir: kAppDataDir);
   await SettingsBox().init();
+
+  await LogData().init();
 
   runApp(
     const MediaConverterUltimate(),
