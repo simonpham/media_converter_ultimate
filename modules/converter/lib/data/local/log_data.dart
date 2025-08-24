@@ -1,5 +1,6 @@
 import 'package:converter/converter.dart';
 import 'package:core/core.dart' show EasyBox, injector;
+import 'package:flutter/foundation.dart';
 
 class LogData extends EasyBox {
   @override
@@ -31,6 +32,10 @@ extension LogDataBoxExt on LogData {
       return;
     }
     put(jobId, '$currentLog\n$value');
+  }
+
+  ValueListenable<void> getLogListenable(String key) {
+    return listenTo([key]);
   }
 
   void clearLog(String jobId) {
