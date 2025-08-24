@@ -88,12 +88,24 @@ class _JobMakerState extends State<JobMaker> {
           builder: (BuildContext context) {
             return Scaffold(
               appBar: AppBar(
+                centerTitle: true,
                 title: ValueListenableBuilder(
                   valueListenable: _currentStepNotifier,
                   builder: (context, currentStep, child) {
                     final step = JobMakerSteps.values.elementAt(currentStep);
-                    return Text(
-                      step.getTitle(context),
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          step.getTitle(context),
+                          style: context.theme.textTheme.titleMedium,
+                        ),
+                        Spacing.v4,
+                        StepperWidget(
+                          stepCount: JobMakerSteps.values.length,
+                          currentStep: currentStep,
+                        ),
+                      ],
                     );
                   },
                 ),
