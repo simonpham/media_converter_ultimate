@@ -4,10 +4,23 @@ import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:platform_utils/platform_utils.dart';
 
-class JobMakerFilePicker extends StatelessWidget {
+class JobMakerFilePicker extends StatefulWidget {
   const JobMakerFilePicker({
     super.key,
   });
+
+  @override
+  State<JobMakerFilePicker> createState() => _JobMakerFilePickerState();
+}
+
+class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +37,10 @@ class JobMakerFilePicker extends StatelessWidget {
             ],
             Expanded(
               child: Scrollbar(
+                controller: _scrollController,
                 thumbVisibility: true,
                 child: CustomScrollView(
+                  controller: _scrollController,
                   slivers: [
                     SliverPadding(
                       padding: EdgeInsets.symmetric(
