@@ -1,13 +1,24 @@
 import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 
+extension JobStatusExtension on JobStatus {
+  bool get isQueued => this == JobStatus.pending;
+
+  bool get isProcessing =>
+      this == JobStatus.running ||
+      this == JobStatus.preparing ||
+      this == JobStatus.ready;
+
+  bool get isDone => this == JobStatus.completed || this == JobStatus.failed;
+}
+
 enum JobStatus {
-  running,
-  preparing,
-  ready,
-  pending,
-  completed,
-  failed;
+  pending, // Just created.
+  preparing, // Getting media info.
+  ready, // Done getting media info.
+  running, // FFmpeg session is running.
+  completed, // FFmpeg session is completed.
+  failed; // FFmpeg session is failed.
 
   Color getColor() {
     return switch (this) {

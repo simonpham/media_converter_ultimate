@@ -30,12 +30,24 @@ class FfmpegJobRunnerService implements JobRunnerService {
 
   @override
   Future<ConvertJob> run(ConvertJob job) async {
+    _jobController.add(
+      job.copyWith(
+        status: const Some(JobStatus.preparing),
+      ),
+    );
+
     final mediaInfoSession = await FFprobeKit.getMediaInformation(
       job.inputFilePath,
     );
     final mediaInfo = mediaInfoSession.getMediaInformation();
     final duration =
         ((double.tryParse('${mediaInfo?.getDuration()}') ?? 0) * 1000).toInt();
+
+    _jobController.add(
+      job.copyWith(
+        status: const Some(JobStatus.ready),
+      ),
+    );
 
     final session = await FFmpegKit.executeAsync(
       job.command,

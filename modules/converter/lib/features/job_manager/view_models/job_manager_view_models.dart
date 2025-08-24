@@ -28,19 +28,20 @@ class JobManagerViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  List<ConvertJob> _pendingJobs = [];
-  List<ConvertJob> _runningJobs = [];
-  List<ConvertJob> _completedJobs = [];
+  List<ConvertJob> _jobs = [];
 
-  List<ConvertJob> get pendingJobs => _pendingJobs;
+  List<ConvertJob> get pendingJobs =>
+      _jobs.where((job) => job.status.isQueued).toList();
 
-  List<ConvertJob> get runningJobs => _runningJobs;
+  List<ConvertJob> get runningJobs =>
+      _jobs.where((job) => job.status.isProcessing).toList();
 
-  List<ConvertJob> get completedJobs => _completedJobs;
+  List<ConvertJob> get completedJobs =>
+      _jobs.where((job) => job.status.isDone).toList();
 
   void addJobs(final List<ConvertJob> jobs) {
-    _pendingJobs = [
-      ..._pendingJobs,
+    _jobs = [
+      ..._jobs,
       ...jobs,
     ];
     notifyListeners();
@@ -76,52 +77,11 @@ class JobManagerViewModel extends ChangeNotifier {
   }
 
   void _updateJobInList(ConvertJob job) {
-    /// Remove old job from list.
-    final isJobInPending = _pendingJobs.any(
-      (element) => element.id == job.id,
-    );
-    if (isJobInPending) {
-      _pendingJobs = _pendingJobs.toList()
-        ..removeWhere(
-          (element) => element.id == job.id,
-        );
-    }
-
-    final isJobInRunning = _runningJobs.any(
-      (element) => element.id == job.id,
-    );
-    if (isJobInRunning) {
-      _runningJobs = _runningJobs.toList()
-        ..removeWhere(
-          (element) => element.id == job.id,
-        );
-    }
-
-    final isJobInCompleted = _completedJobs.any(
-      (element) => element.id == job.id,
-    );
-    if (isJobInCompleted) {
-      _completedJobs = _completedJobs.toList()
-        ..removeWhere(
-          (element) => element.id == job.id,
-        );
-    }
-
-    /// Add updated job to list.
-    switch (job.status) {
-      case JobStatus.preparing:
-      case JobStatus.ready:
-      case JobStatus.pending:
-        _pendingJobs = _pendingJobs.toList()..add(job);
-        break;
-      case JobStatus.running:
-        _runningJobs = _runningJobs.toList()..add(job);
-        break;
-      case JobStatus.failed:
-      case JobStatus.completed:
-        _completedJobs = _completedJobs.toList()..add(job);
-        break;
-    }
+    _jobs = _jobs.toList()
+      ..removeWhere(
+        (element) => element.id == job.id,
+      )
+      ..add(job);
     notifyListeners();
   }
 
@@ -137,7 +97,7 @@ class JobManagerViewModel extends ChangeNotifier {
   }
 
   void _runPendingJobs() {
-    for (final job in _pendingJobs) {
+    for (final job in pendingJobs) {
       runJob(job);
     }
   }
