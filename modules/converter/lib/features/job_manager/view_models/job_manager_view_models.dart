@@ -4,6 +4,7 @@ import 'package:converter/converter.dart';
 import 'package:core/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:platform_utils/platform_utils.dart';
+import 'package:utils/utils.dart';
 
 class JobManagerViewModel extends ChangeNotifier {
   final JobRunnerService _jobRunnerService;
@@ -54,7 +55,7 @@ class JobManagerViewModel extends ChangeNotifier {
       return;
     }
 
-    await _jobRunnerService.stop('$sessionId');
+    await _jobRunnerService.stop(job);
   }
 
   Future<void> runJob(ConvertJob job) async {
@@ -77,10 +78,17 @@ class JobManagerViewModel extends ChangeNotifier {
   }
 
   void _updateJobInList(ConvertJob job) {
+    final currentJob = _jobs.firstWhereOrNull(
+      (element) => element.id == job.id,
+    );
+    if (currentJob != null && currentJob.status.isDone) {
+      job = job.copyWith(
+        status: Some(currentJob.status),
+      );
+    }
+
     _jobs = _jobs.toList()
-      ..removeWhere(
-        (element) => element.id == job.id,
-      )
+      ..remove(currentJob)
       ..add(job);
     notifyListeners();
   }

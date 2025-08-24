@@ -8,7 +8,7 @@ import 'package:utils/utils.dart';
 abstract interface class JobRunnerService {
   Future<ConvertJob> run(ConvertJob job);
 
-  Future<bool> stop(String sessionId);
+  Future<bool> stop(ConvertJob job);
 
   Future<JobStatus> getStatus(String sessionId);
 
@@ -111,7 +111,11 @@ class FfmpegJobRunnerService implements JobRunnerService {
   }
 
   @override
-  Future<bool> stop(String sessionId) async {
+  Future<bool> stop(ConvertJob job) async {
+    if (job.sessionId == null) {
+      return false;
+    }
+
     try {
       final sessions = await FFmpegKit.listSessions();
       if (sessions.isEmpty) {
@@ -119,13 +123,19 @@ class FfmpegJobRunnerService implements JobRunnerService {
       }
 
       final session = sessions.firstWhereOrNull(
-        (element) => element.getSessionId()?.toString() == sessionId,
+        (element) => element.getSessionId() == job.sessionId,
       );
       if (session == null) {
         return false;
       }
 
       await session.cancel();
+
+      _jobController.add(
+        job.copyWith(
+          status: const Some(JobStatus.cancelled),
+        ),
+      );
     } catch (err, trace) {
       printError(err, trace);
       return false;
