@@ -4,6 +4,7 @@
   "audio": "Audio",
   "selectFolder": "Select folder",
   "chooseOutputFormat": "Choose output format",
+  "cancelledStatus": "Cancelled",
   "completedStatus": "Completed",
   "create": "Create",
   "customizeConfigs": "Customize configs",

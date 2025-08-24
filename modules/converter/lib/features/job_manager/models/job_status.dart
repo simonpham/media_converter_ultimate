@@ -9,7 +9,10 @@ extension JobStatusExtension on JobStatus {
       this == JobStatus.preparing ||
       this == JobStatus.ready;
 
-  bool get isDone => this == JobStatus.completed || this == JobStatus.failed;
+  bool get isDone =>
+      this == JobStatus.completed ||
+      this == JobStatus.failed ||
+      this == JobStatus.cancelled;
 }
 
 enum JobStatus {
@@ -18,6 +21,7 @@ enum JobStatus {
   ready, // Done getting media info.
   running, // FFmpeg session is running.
   completed, // FFmpeg session is completed.
+  cancelled, // FFmpeg session is cancelled.
   failed; // FFmpeg session is failed.
 
   Color getColor() {
@@ -27,6 +31,7 @@ enum JobStatus {
       JobStatus.ready => Colors.green,
       JobStatus.pending => Colors.grey,
       JobStatus.completed => Colors.green,
+      JobStatus.cancelled => Colors.red,
       JobStatus.failed => Colors.red,
     };
   }
@@ -38,6 +43,7 @@ enum JobStatus {
       JobStatus.ready => context.l10n.readyStatus,
       JobStatus.pending => context.l10n.pendingStatus,
       JobStatus.completed => context.l10n.completedStatus,
+      JobStatus.cancelled => context.l10n.cancelledStatus,
       JobStatus.failed => context.l10n.failedStatus,
     };
   }
