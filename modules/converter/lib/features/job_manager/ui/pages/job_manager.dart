@@ -169,7 +169,7 @@ class JobManager extends StatelessWidget {
   }
 
   void _handleOpenLogs(BuildContext context, ConvertJob job) {
-    // TODO: Implement.
+    job.openLogs(context);
   }
 
   Future<void> _handleShare(BuildContext context, ConvertJob job) async {

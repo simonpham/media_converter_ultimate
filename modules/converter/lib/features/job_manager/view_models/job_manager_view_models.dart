@@ -69,9 +69,9 @@ class JobManagerViewModel extends ChangeNotifier {
   }
 
   void _handleLogUpdate(JobLog event) {
-    printLog('[JobManagerViewModel]: Log: $event');
     final jobId = event.jobId;
     final message = event.message;
+    printLog('[JobManagerViewModel]: Log: $message');
     LogData().appendLog(jobId, message);
   }
 
