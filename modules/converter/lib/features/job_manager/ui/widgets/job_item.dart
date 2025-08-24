@@ -125,7 +125,7 @@ class JobItem extends StatelessWidget {
           if ((job.progress, job.duration) case (
             int progress,
             int duration,
-          )) ...[
+          ) when job.status.isProcessing) ...[
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: Spacing.d16,
