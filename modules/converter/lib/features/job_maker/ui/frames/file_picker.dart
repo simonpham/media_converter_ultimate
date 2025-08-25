@@ -94,19 +94,10 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                     if (files.isEmpty) ...[
                       SliverFillRemaining(
                         child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // TODO: add icon.
-                              Text(
-                                context.l10n.noFilesSelected,
-                                style: context.theme.textTheme.titleSmall,
-                              ),
-                              Text(
-                                context.l10n.tapAddFilesToBegin,
-                                style: context.theme.textTheme.bodySmall,
-                              ),
-                            ],
+                          child: EmptyWidget(
+                            icon: Assets.hugeicons.bulk.filesFolders.fileAdd,
+                            title: context.l10n.noFilesSelected,
+                            subtitle: context.l10n.tapAddFilesToBegin,
                           ),
                         ),
                       ),
