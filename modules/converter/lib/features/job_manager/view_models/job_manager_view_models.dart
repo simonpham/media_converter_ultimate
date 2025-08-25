@@ -76,7 +76,7 @@ class JobManagerViewModel extends ChangeNotifier {
   void _handleJobUpdate(ConvertJob job) {
     _updateJobInList(job);
 
-    if (job.status == JobStatus.completed) {
+    if (job.status.isDone) {
       _completeJob(job);
     }
   }
@@ -105,6 +105,14 @@ class JobManagerViewModel extends ChangeNotifier {
   }
 
   Future<void> _completeJob(ConvertJob job) async {
+    if (job.status != JobStatus.completed) {
+      await FileUtils.cleanUpTempFile(
+        fileName: job.outputFileName,
+        path: job.outputDirectoryPath,
+      );
+      return;
+    }
+
     final success = await FileUtils.moveTempFileToPath(
       fileName: job.outputFileName,
       path: job.outputDirectoryPath,
