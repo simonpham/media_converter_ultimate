@@ -57,10 +57,6 @@ class JobManager extends StatelessWidget {
                       job,
                       onRemoveItem: () => _handleRemoveItem(context, job),
                       onOpenLogs: () => _handleOpenLogs(context, job),
-                      onShare: () => _handleShare(context, job),
-                      onOpenFile: () => _handleOpenFile(context, job),
-                      onOpenFolder: () => _handleOpenFolder(context, job),
-                      onDelete: () => _handleDelete(context, job),
                       onStop: () => _handleStop(context, job),
                     );
                   },
@@ -91,10 +87,6 @@ class JobManager extends StatelessWidget {
                       job,
                       onRemoveItem: () => _handleRemoveItem(context, job),
                       onOpenLogs: () => _handleOpenLogs(context, job),
-                      onShare: () => _handleShare(context, job),
-                      onOpenFile: () => _handleOpenFile(context, job),
-                      onOpenFolder: () => _handleOpenFolder(context, job),
-                      onDelete: () => _handleDelete(context, job),
                     );
                   },
                 ),
@@ -125,8 +117,6 @@ class JobManager extends StatelessWidget {
                       onRemoveItem: () => _handleRemoveItem(context, job),
                       onOpenLogs: () => _handleOpenLogs(context, job),
                       onShare: () => _handleShare(context, job),
-                      onOpenFile: () => _handleOpenFile(context, job),
-                      onOpenFolder: () => _handleOpenFolder(context, job),
                       onDelete: () => _handleDelete(context, job),
                     );
                   },
@@ -175,14 +165,6 @@ class JobManager extends StatelessWidget {
   Future<void> _handleShare(BuildContext context, ConvertJob job) async {
     final file = job.outputFile;
     await file.share();
-  }
-
-  Future<void> _handleOpenFile(BuildContext context, ConvertJob job) async {
-    // TODO: check for iOS.
-  }
-
-  Future<void> _handleOpenFolder(BuildContext context, ConvertJob job) async {
-    // TODO: check for iOS.
   }
 
   Future<void> _handleDelete(BuildContext context, ConvertJob job) async {
