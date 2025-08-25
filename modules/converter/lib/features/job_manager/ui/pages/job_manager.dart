@@ -17,6 +17,10 @@ class JobManager extends StatelessWidget {
           final pendingJobs = model.pendingJobs;
           final completedJobs = model.completedJobs;
           final runningJobs = model.runningJobs;
+          final isAllEmpty =
+              pendingJobs.isEmpty &&
+              completedJobs.isEmpty &&
+              runningJobs.isEmpty;
 
           return CustomScrollView(
             slivers: [
@@ -129,11 +133,24 @@ class JobManager extends StatelessWidget {
                     );
                   },
                 ),
+              ],
+              if (!isAllEmpty) ...[
                 SliverToBoxAdapter(
                   child: Spacing.vertical(Spacing.d56),
                 ),
                 const SliverToBoxAdapter(
                   child: BottomSpacer(),
+                ),
+              ],
+              if (isAllEmpty) ...[
+                SliverFillRemaining(
+                  child: Center(
+                    child: EmptyWidget(
+                      icon: Assets.hugeicons.bulk.smileyEmojis.smile,
+                      title: context.l10n.thereIsNothingHere,
+                      subtitle: context.l10n.tapCreateToBegin,
+                    ),
+                  ),
                 ),
               ],
             ],

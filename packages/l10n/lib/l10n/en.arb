@@ -39,5 +39,7 @@
   "selectedFiles": "Selected Files: {file}",
   "statusPrefix": "Status: ",
   "tapAddFilesToBegin": "Tap Add Files to begin",
+  "thereIsNothingHere": "There is nothing here",
+  "tapCreateToBegin": "Tap (+) Create to begin",
   "video": "Video"
 }
