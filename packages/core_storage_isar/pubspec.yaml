@@ -1,0 +1,29 @@
+name: core_storage_isar
+publish_to: "none"
+
+environment:
+  sdk: ^3.8.1
+
+resolution: workspace
+
+isar_version: &isar_version 3.2.0-dev.2
+
+dependencies:
+  flutter:
+    sdk: "flutter"
+
+  core:
+    path: ../core
+  core_storage_base:
+    path: ../core_storage_base
+  platform_utils:
+    path: ../platform_utils
+  utils:
+    path: ../utils
+
+  isar_community: *isar_version
+  isar_community_flutter_libs: *isar_version
+
+dev_dependencies:
+  build_runner: any
+  isar_community_generator: *isar_version

@@ -6,6 +6,7 @@ workspace:
   - modules/converter
   - packages/core
   - packages/core_storage_base
+  - packages/core_storage_isar
   - packages/l10n
   - packages/platform_utils
   - packages/utils
