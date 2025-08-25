@@ -1,3 +1,4 @@
+import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
@@ -109,7 +110,7 @@ class JobActionBar extends StatelessWidget {
               color: context.theme.colorScheme.error,
             ),
             child: Text(
-              'Stop',
+              context.l10n.stop,
               style: context.theme.textTheme.bodyMedium?.copyWith(
                 color: context.theme.colorScheme.error,
               ),
