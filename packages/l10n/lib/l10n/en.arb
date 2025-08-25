@@ -34,7 +34,7 @@
   "rename": "Rename",
   "running": "Running",
   "runningStatus": "Running",
-  "selectedFiles": "Selected files: {file}",
+  "selectedFiles": "Selected Files: {file}",
   "statusPrefix": "Status: ",
   "tapAddFilesToBegin": "Tap Add Files to begin",
   "video": "Video"
