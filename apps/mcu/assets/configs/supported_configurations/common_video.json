@@ -31,22 +31,5 @@
         }
       ]
     }
-  ],
-  "-map '0:a?'": [
-    {
-      "type": "single_choice",
-      "name": "configs.common.trim_silence",
-      "label": "configs.common.trim_silence.label",
-      "description": "configs.common.trim_silence.desc",
-      "should_add_to_args": true,
-      "ffmpeg_flag": "-af",
-      "default": "silenceremove=1:0:-50dB:1:1:-50dB",
-      "options": [
-        {
-          "label": "configs.common.trim_silence.silenceremove",
-          "value": "silenceremove=1:0:-50dB:1:1:-50dB"
-        }
-      ]
-    }
   ]
 }
