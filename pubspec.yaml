@@ -5,6 +5,7 @@ workspace:
   - apps/mcu
   - modules/converter
   - packages/core
+  - packages/core_storage_base
   - packages/l10n
   - packages/platform_utils
   - packages/utils
