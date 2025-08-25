@@ -16,6 +16,7 @@ class JobItem extends StatelessWidget {
   final VoidCallback? onOpenFolder;
   final VoidCallback? onDelete;
   final VoidCallback? onStop;
+  final VoidCallback? onRestart;
 
   const JobItem(
     this.job, {
@@ -26,6 +27,7 @@ class JobItem extends StatelessWidget {
     this.onOpenFolder,
     this.onDelete,
     this.onStop,
+    this.onRestart,
     super.key,
   });
 
@@ -159,6 +161,7 @@ class JobItem extends StatelessWidget {
               onOpenFolder: onOpenFolder,
               onDelete: onDelete,
               onStop: onStop,
+              onRestart: onRestart,
             ),
           ),
         ],

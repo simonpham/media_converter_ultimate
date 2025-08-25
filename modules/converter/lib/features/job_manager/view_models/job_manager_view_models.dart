@@ -62,6 +62,17 @@ class JobManagerViewModel extends ChangeNotifier {
     await _jobRunnerService.run(job);
   }
 
+  Future<void> restartJob(ConvertJob job) async {
+    final newJob = job.copyWith(
+      status: const Some(JobStatus.pending),
+    );
+    _jobs = _jobs.toList()
+      ..remove(job)
+      ..add(newJob);
+    notifyListeners();
+    await _jobRunnerService.run(newJob);
+  }
+
   void _handleJobUpdate(ConvertJob job) {
     _updateJobInList(job);
 
