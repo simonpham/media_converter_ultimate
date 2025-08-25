@@ -19,6 +19,7 @@
   "fileName": "File name",
   "cancel": "Cancel",
   "ok": "OK",
+  "stop": "Stop",
   "noFolderSelected": "No folder selected",
   "noFilesSelected": "No files selected",
   "noOutputFormatSelected": "No output format selected",
