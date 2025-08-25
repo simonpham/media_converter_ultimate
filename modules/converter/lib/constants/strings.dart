@@ -7,4 +7,9 @@ const String kDefaultOutputDirectoryPath =
 const List<String> kStoragePaths = [
   '/sdcard',
   '/storage/emulated/0',
+  '/storage/sdcard',
+  '/mnt/sdcard',
+  '/storage/sdcard0',
+  '/storage/sdcard1',
+  '/storage/extSdCard',
 ];
