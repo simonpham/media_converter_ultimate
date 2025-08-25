@@ -1,3 +1,4 @@
+import 'package:converter/features/job_manager/job_manager.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ class JobActionBar extends StatelessWidget {
   final VoidCallback? onOpenFolder;
   final VoidCallback? onDelete;
   final VoidCallback? onStop;
+  final VoidCallback? onRestart;
 
   const JobActionBar({
     this.onOpenLogs,
@@ -17,6 +19,7 @@ class JobActionBar extends StatelessWidget {
     this.onOpenFolder,
     this.onDelete,
     this.onStop,
+    this.onRestart,
     super.key,
   });
 
@@ -116,6 +119,26 @@ class JobActionBar extends StatelessWidget {
               ),
             ),
             onPressed: onStop,
+          ),
+        ],
+        if (onRestart != null) ...[
+          Spacing.h8,
+          Button(
+            mainAxisSize: MainAxisSize.min,
+            variant: ButtonVariant.ghost,
+            padding: EdgeInsets.all(Spacing.d8),
+            icon: ImageView(
+              Assets.hugeicons.stroke.editFormatting.reload,
+              size: Spacing.d16,
+              color: JobStatus.completed.getColor(),
+            ),
+            child: Text(
+              context.l10n.restart,
+              style: context.theme.textTheme.bodyMedium?.copyWith(
+                color: JobStatus.completed.getColor(),
+              ),
+            ),
+            onPressed: onRestart,
           ),
         ],
       ],

@@ -112,12 +112,20 @@ class JobManager extends StatelessWidget {
                   separatorBuilder: (_, _) => Spacing.v8,
                   itemBuilder: (BuildContext context, int index) {
                     final job = completedJobs[index];
+                    final isSuccess = job.status == JobStatus.completed;
                     return JobItem(
                       job,
                       onRemoveItem: () => _handleRemoveItem(context, job),
                       onOpenLogs: () => _handleOpenLogs(context, job),
-                      onShare: () => _handleShare(context, job),
-                      onDelete: () => _handleDelete(context, job),
+                      onShare: !isSuccess
+                          ? null
+                          : () => _handleShare(context, job),
+                      onDelete: !isSuccess
+                          ? null
+                          : () => _handleDelete(context, job),
+                      onRestart: isSuccess
+                          ? null
+                          : () => _handleRestart(context, job),
                     );
                   },
                 ),
@@ -183,5 +191,10 @@ class JobManager extends StatelessWidget {
 
   void _handleStop(BuildContext context, ConvertJob job) {
     context.read<JobManagerViewModel>().removeRunningJob(job);
+  }
+
+  void _handleRestart(BuildContext context, ConvertJob job) {
+    // TODO: check existing file.
+    context.read<JobManagerViewModel>().restartJob(job);
   }
 }
