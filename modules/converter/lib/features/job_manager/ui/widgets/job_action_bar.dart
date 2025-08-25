@@ -1,4 +1,3 @@
-import 'package:converter/features/job_manager/job_manager.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';

@@ -1,4 +1,4 @@
-import 'package:converter/converter.dart';
+import 'package:core/core.dart';
 import 'package:platform_utils/platform_utils.dart';
 
 extension FfmpegSessionStateMapper on SessionState {
