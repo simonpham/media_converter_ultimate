@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
@@ -125,7 +127,7 @@ class JobItem extends StatelessWidget {
           if ((job.progress, job.duration) case (
             int progress,
             int duration,
-          ) when job.status.isProcessing) ...[
+          ) when job.status.isProcessing && duration > 0) ...[
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: Spacing.d16,
@@ -134,7 +136,7 @@ class JobItem extends StatelessWidget {
                 children: [
                   Expanded(
                     child: LinearProgressIndicator(
-                      value: progress / duration,
+                      value: max(0, min(1.0, progress / duration)),
                       color: JobStatus.running.getColor(),
                       borderRadius: BorderRadius.circular(Spacing.d4),
                       backgroundColor: JobStatus.running.getColor().withValues(
