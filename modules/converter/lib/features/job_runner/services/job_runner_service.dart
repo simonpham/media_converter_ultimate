@@ -53,16 +53,26 @@ class FfmpegJobRunnerService implements JobRunnerService {
       job.command,
       (session) async {
         final state = await session.getState();
+        final exitCode = await session.getReturnCode();
         printLog(
-          '[JobRunnerService] Session updated: session ${session.getSessionId()}, state ${state.toString()}.',
+          '[JobRunnerService] Session updated: session ${session.getSessionId()}, exitCode $exitCode, state ${state.toString()}.',
         );
+        final status = exitCode == null
+            ? state.toJobStatus()
+            : exitCode.isValueSuccess()
+            ? JobStatus.completed
+            : exitCode.isValueCancel()
+            ? JobStatus.cancelled
+            : exitCode.isValueError()
+            ? JobStatus.failed
+            : null;
         _jobController.add(
           job.copyWith(
             sessionId: Some(
               session.getSessionId(),
             ),
             duration: Some(duration),
-            status: Some(state.toJobStatus()),
+            status: status != null ? Some(status) : null,
           ),
         );
       },
