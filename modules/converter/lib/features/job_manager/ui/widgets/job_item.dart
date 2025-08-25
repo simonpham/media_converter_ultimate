@@ -15,7 +15,6 @@ class JobItem extends StatelessWidget {
   final VoidCallback? onOpenFile;
   final VoidCallback? onOpenFolder;
   final VoidCallback? onDelete;
-
   final VoidCallback? onStop;
 
   const JobItem(
@@ -154,7 +153,6 @@ class JobItem extends StatelessWidget {
               horizontal: Spacing.d16,
             ),
             child: JobActionBar(
-              job,
               onOpenLogs: onOpenLogs,
               onShare: onShare,
               onOpenFile: onOpenFile,
