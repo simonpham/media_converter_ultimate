@@ -13,6 +13,7 @@
   "inputFile": "Input: {file}",
   "jobManager": "Job manager",
   "next": "Next",
+  "startConversion": "Start Conversion",
   "outputFileName": "Output file name",
   "enterNewName": "Enter a new name",
   "fileName": "File name",

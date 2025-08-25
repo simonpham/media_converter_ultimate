@@ -131,11 +131,20 @@ class _JobMakerState extends State<JobMaker> {
                     padding: EdgeInsets.symmetric(
                       horizontal: Spacing.d16,
                     ),
-                    child: Button(
-                      variant: ButtonVariant.primary,
-                      label: context.l10n.next,
-                      onPressed: () {
-                        _handleNext(context);
+                    child: ValueListenableBuilder(
+                      valueListenable: _currentStepNotifier,
+                      builder: (context, currentStep, child) {
+                        final isLastStep =
+                            currentStep == JobMakerSteps.values.length - 1;
+                        return Button(
+                          variant: ButtonVariant.primary,
+                          label: isLastStep
+                              ? context.l10n.startConversion
+                              : context.l10n.next,
+                          onPressed: () {
+                            _handleNext(context);
+                          },
+                        );
                       },
                     ),
                   ),
