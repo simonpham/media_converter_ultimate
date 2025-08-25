@@ -90,6 +90,22 @@ class FileUtils {
     return true;
   }
 
+  static Future<bool> cleanUpTempFile({
+    required String fileName,
+    required String path,
+  }) async {
+    final tempDir = await FileUtils.getConvertTemporaryDirectory();
+    final tempFile = File(
+      join(tempDir.path, fileName),
+    );
+    if (!await tempFile.exists()) {
+      return false;
+    }
+
+    await tempFile.delete();
+    return true;
+  }
+
   static Future<Directory> getConvertTemporaryDirectory() async {
     final tempFolder = await path_provider.getTemporaryDirectory();
     final convertTempFolder = Directory(
