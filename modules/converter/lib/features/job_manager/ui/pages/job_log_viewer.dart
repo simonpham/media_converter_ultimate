@@ -1,5 +1,6 @@
 import 'package:converter/converter.dart'
-    show ConvertJob, LogDataExt, LogData, LogDataBoxExt;
+    show LogDataExt, LogData, LogDataBoxExt;
+import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 

@@ -1,5 +1,5 @@
 import 'package:converter/converter.dart';
-import 'package:core/core.dart' show EasyBox, injector;
+import 'package:core/core.dart' show ConvertJob, EasyBox, injector;
 import 'package:flutter/foundation.dart';
 
 class LogData extends EasyBox {
