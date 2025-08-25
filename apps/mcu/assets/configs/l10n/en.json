@@ -7,7 +7,7 @@
   "configs.common.recommended_args.map_metadata": "Copy metadata from input",
   "configs.common.recommended_args.map_subtitle_optional": "Map subtitle streams if present",
   "configs.common.recommended_args.map_video": "Map all video streams",
-  "configs.common.trim_silence.label": "Trim silence",
+  "configs.common.trim_silence.label": "Trim Silence",
   "configs.common.trim_silence.desc": "Remove silent parts from audio",
   "configs.common.trim_silence.silenceremove": "Remove silence (-50dB threshold)",
   "configs.common.video_encoder": "Video encoder",
