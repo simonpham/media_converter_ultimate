@@ -217,6 +217,7 @@ class JobMakerViewModel extends ChangeNotifier {
         outputFileName: fileName,
         outputDirectoryPath: outputDirectoryPath,
         command: command,
+        createdAt: DateTime.now(),
       );
     }).toList();
   }
