@@ -48,6 +48,7 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                         vertical: Spacing.d12,
                       ),
                       sliver: ReorderableSliverList(
+                        controller: _scrollController,
                         buildDraggableFeedback: (context, constraints, child) {
                           return ConstrainedBox(
                             constraints: constraints,
