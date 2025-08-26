@@ -50,7 +50,16 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
 
   @override
   Future<List<ConvertJob>> list(Pagination pagination) async {
-    final jobs = await isar.isarConvertJobs.where().findAll();
+    final (offset, limit) = switch (pagination) {
+      OffsetLimitPagination p => (p.offset, p.limit),
+      _ => (0, 0),
+    };
+    final jobs = await isar.isarConvertJobs
+        .where()
+        .sortByCreatedAtDesc()
+        .offset(offset)
+        .limit(limit)
+        .findAll();
     return jobs.map((job) => job.toOriginalModel()).toList();
   }
 
@@ -66,5 +75,58 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   @override
   void onDispose() {
     isar.close();
+  }
+
+  @override
+  Stream<List<ConvertJob>> watchCompletedJobs() {
+    return isar.isarConvertJobs
+        .where()
+        .statusEqualTo(JobStatus.completed)
+        .or()
+        .statusEqualTo(JobStatus.failed)
+        .or()
+        .statusEqualTo(JobStatus.cancelled)
+        .sortByCreatedAtDesc()
+        .watch(fireImmediately: true)
+        .map(
+          (list) => list
+              .whereType<IsarConvertJob>()
+              .map((e) => e.toOriginalModel())
+              .toList(),
+        );
+  }
+
+  @override
+  Stream<List<ConvertJob>> watchPendingJobs() {
+    return isar.isarConvertJobs
+        .where()
+        .statusEqualTo(JobStatus.pending)
+        .sortByCreatedAtDesc()
+        .watch(fireImmediately: true)
+        .map(
+          (list) => list
+              .whereType<IsarConvertJob>()
+              .map((e) => e.toOriginalModel())
+              .toList(),
+        );
+  }
+
+  @override
+  Stream<List<ConvertJob>> watchRunningJobs() {
+    return isar.isarConvertJobs
+        .where()
+        .statusEqualTo(JobStatus.running)
+        .or()
+        .statusEqualTo(JobStatus.preparing)
+        .or()
+        .statusEqualTo(JobStatus.ready)
+        .sortByCreatedAtDesc()
+        .watch(fireImmediately: true)
+        .map(
+          (list) => list
+              .whereType<IsarConvertJob>()
+              .map((e) => e.toOriginalModel())
+              .toList(),
+        );
   }
 }
