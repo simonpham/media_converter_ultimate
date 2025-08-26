@@ -2,12 +2,15 @@ import 'dart:async';
 
 import 'package:converter/converter.dart';
 import 'package:core/core.dart';
+import 'package:core_storage_base/data/data.dart';
 import 'package:flutter/foundation.dart';
 import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
 
 class JobManagerViewModel extends ChangeNotifier {
   final JobRunnerService _jobRunnerService;
+
+  ConvertJobStorage get _jobStorage => ConvertJobStorage.getInstance();
 
   JobManagerViewModel(this._jobRunnerService) {
     _jobSubscription = _jobRunnerService.onJobUpdate.listen(
@@ -22,6 +25,13 @@ class JobManagerViewModel extends ChangeNotifier {
   StreamSubscription? _jobSubscription;
   StreamSubscription? _logSubscription;
 
+  Stream<List<ConvertJob>> get pendingJobsStream =>
+      _jobStorage.watchPendingJobs();
+  Stream<List<ConvertJob>> get runningJobsStream =>
+      _jobStorage.watchRunningJobs();
+  Stream<List<ConvertJob>> get completedJobsStream =>
+      _jobStorage.watchCompletedJobs();
+
   @override
   void dispose() {
     _jobSubscription?.cancel();
@@ -29,24 +39,9 @@ class JobManagerViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  List<ConvertJob> _jobs = [];
-
-  List<ConvertJob> get pendingJobs =>
-      _jobs.where((job) => job.status.isQueued).toList();
-
-  List<ConvertJob> get runningJobs =>
-      _jobs.where((job) => job.status.isProcessing).toList();
-
-  List<ConvertJob> get completedJobs =>
-      _jobs.where((job) => job.status.isDone).toList();
-
-  void addJobs(final List<ConvertJob> jobs) {
-    _jobs = [
-      ..._jobs,
-      ...jobs,
-    ];
-    notifyListeners();
-    _runPendingJobs();
+  Future<void> addJobs(final List<ConvertJob> jobs) async {
+    await _jobStorage.addAll(jobs);
+    await _runPendingJobs(jobs);
   }
 
   Future<void> removeRunningJob(ConvertJob job) async {
@@ -66,18 +61,15 @@ class JobManagerViewModel extends ChangeNotifier {
     final newJob = job.copyWith(
       status: const Some(JobStatus.pending),
     );
-    _jobs = _jobs.toList()
-      ..remove(job)
-      ..add(newJob);
-    notifyListeners();
+    await _jobStorage.update(newJob);
     await _jobRunnerService.run(newJob);
   }
 
-  void _handleJobUpdate(ConvertJob job) {
-    _updateJobInList(job);
+  Future<void> _handleJobUpdate(ConvertJob job) async {
+    await _updateJobInList(job);
 
     if (job.status.isDone) {
-      _completeJob(job);
+      await _completeJob(job);
     }
   }
 
@@ -88,20 +80,15 @@ class JobManagerViewModel extends ChangeNotifier {
     LogData().appendLog(jobId, message);
   }
 
-  void _updateJobInList(ConvertJob job) {
-    final currentJob = _jobs.firstWhereOrNull(
-      (element) => element.id == job.id,
-    );
+  Future<void> _updateJobInList(ConvertJob job) async {
+    final currentJob = await _jobStorage.get(job.id);
     if (currentJob != null && currentJob.status.isDone) {
       job = job.copyWith(
         status: Some(currentJob.status),
       );
     }
 
-    _jobs = _jobs.toList()
-      ..remove(currentJob)
-      ..add(job);
-    notifyListeners();
+    await _jobStorage.update(job);
   }
 
   Future<void> _completeJob(ConvertJob job) async {
@@ -113,19 +100,15 @@ class JobManagerViewModel extends ChangeNotifier {
       return;
     }
 
-    final success = await FileUtils.moveTempFileToPath(
+    await FileUtils.moveTempFileToPath(
       fileName: job.outputFileName,
       path: job.outputDirectoryPath,
     );
-    if (!success) {
-      return;
-    }
-    notifyListeners();
   }
 
-  void _runPendingJobs() {
+  Future<void> _runPendingJobs(List<ConvertJob> pendingJobs) async {
     for (final job in pendingJobs) {
-      runJob(job);
+      await runJob(job);
     }
   }
 }

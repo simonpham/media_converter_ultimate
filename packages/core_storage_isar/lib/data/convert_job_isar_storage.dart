@@ -49,6 +49,13 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   }
 
   @override
+  Future<ConvertJob?> get(String id) async {
+    final hashedId = fastHash(id);
+    final job = await isar.isarConvertJobs.get(hashedId);
+    return job?.toOriginalModel();
+  }
+
+  @override
   Future<List<ConvertJob>> list(Pagination pagination) async {
     final (offset, limit) = switch (pagination) {
       OffsetLimitPagination p => (p.offset, p.limit),
@@ -73,8 +80,22 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   }
 
   @override
+  Future<int> count() async {
+    final count = await isar.isarConvertJobs.count();
+    return count;
+  }
+
+  @override
   void onDispose() {
     isar.close();
+  }
+
+  @override
+  Stream<int> watchJobCount() {
+    return isar.isarConvertJobs
+        .where()
+        .watch(fireImmediately: true)
+        .map((list) => list.length);
   }
 
   @override

@@ -14,146 +14,158 @@ class JobManager extends StatelessWidget {
     return Scaffold(
       body: Consumer<JobManagerViewModel>(
         builder: (context, model, _) {
-          final pendingJobs = model.pendingJobs;
-          final completedJobs = model.completedJobs;
-          final runningJobs = model.runningJobs;
-          final isAllEmpty =
-              pendingJobs.isEmpty &&
-              completedJobs.isEmpty &&
-              runningJobs.isEmpty;
-
-          return CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                expandedHeight: kToolbarHeight * 1.2,
-                collapsedHeight: kToolbarHeight,
-                flexibleSpace: FlexibleSpaceBar(
-                  centerTitle: true,
-                  title: Text(
-                    context.l10n.jobManager,
-                  ),
-                ),
-                pinned: true,
-                backgroundColor: context.theme.scaffoldBackgroundColor,
-              ),
-              if (runningJobs.isNotEmpty) ...[
-                SliverToBoxAdapter(child: Spacing.v16),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: Spacing.d16,
-                    ),
-                    child: Text(
-                      context.l10n.running,
-                      style: context.theme.textTheme.labelLarge?.copyWith(
-                        color: context.theme.colorScheme.primary,
+          return TripleStreamBuilder<
+            List<ConvertJob>,
+            List<ConvertJob>,
+            List<ConvertJob>
+          >(
+            streams: (
+              model.pendingJobsStream,
+              model.completedJobsStream,
+              model.runningJobsStream,
+            ),
+            builder: (context, data) {
+              final List<ConvertJob> pendingJobs = data.$1 ?? [];
+              final List<ConvertJob> completedJobs = data.$2 ?? [];
+              final List<ConvertJob> runningJobs = data.$3 ?? [];
+              final isAllEmpty =
+                  pendingJobs.isEmpty &&
+                  completedJobs.isEmpty &&
+                  runningJobs.isEmpty;
+              return CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    expandedHeight: kToolbarHeight * 1.2,
+                    collapsedHeight: kToolbarHeight,
+                    flexibleSpace: FlexibleSpaceBar(
+                      centerTitle: true,
+                      title: Text(
+                        context.l10n.jobManager,
                       ),
                     ),
+                    pinned: true,
+                    backgroundColor: context.theme.scaffoldBackgroundColor,
                   ),
-                ),
-                SliverToBoxAdapter(child: Spacing.v8),
-                SliverList.separated(
-                  itemCount: runningJobs.length,
-                  separatorBuilder: (_, _) => Spacing.v8,
-                  itemBuilder: (BuildContext context, int index) {
-                    final job = runningJobs[index];
-                    return JobItem(
-                      job,
-                      onRemoveItem: () => _handleRemoveItem(context, job),
-                      onOpenLogs: () => _handleOpenLogs(context, job),
-                      onStop: () => _handleStop(context, job),
-                    );
-                  },
-                ),
-              ],
-              if (pendingJobs.isNotEmpty) ...[
-                SliverToBoxAdapter(child: Spacing.v16),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: Spacing.d16,
-                    ),
-                    child: Text(
-                      context.l10n.pending,
-                      style: context.theme.textTheme.labelLarge?.copyWith(
-                        color: context.theme.colorScheme.primary,
+                  if (runningJobs.isNotEmpty) ...[
+                    SliverToBoxAdapter(child: Spacing.v16),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Spacing.d16,
+                        ),
+                        child: Text(
+                          context.l10n.running,
+                          style: context.theme.textTheme.labelLarge?.copyWith(
+                            color: context.theme.colorScheme.primary,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                SliverToBoxAdapter(child: Spacing.v8),
-                SliverList.separated(
-                  itemCount: pendingJobs.length,
-                  separatorBuilder: (_, _) => Spacing.v8,
-                  itemBuilder: (BuildContext context, int index) {
-                    final job = pendingJobs[index];
-                    return JobItem(
-                      job,
-                      onRemoveItem: () => _handleRemoveItem(context, job),
-                      onOpenLogs: () => _handleOpenLogs(context, job),
-                    );
-                  },
-                ),
-              ],
-              if (completedJobs.isNotEmpty) ...[
-                SliverToBoxAdapter(child: Spacing.v16),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: Spacing.d16,
+                    SliverToBoxAdapter(child: Spacing.v8),
+                    SliverList.separated(
+                      itemCount: runningJobs.length,
+                      separatorBuilder: (_, _) => Spacing.v8,
+                      itemBuilder: (BuildContext context, int index) {
+                        final job = runningJobs[index];
+                        return JobItem(
+                          job,
+                          onRemoveItem: () => _handleRemoveItem(context, job),
+                          onOpenLogs: () => _handleOpenLogs(context, job),
+                          onStop: () => _handleStop(context, job),
+                        );
+                      },
                     ),
-                    child: Text(
-                      context.l10n.finished,
-                      style: context.theme.textTheme.labelLarge?.copyWith(
-                        color: context.theme.colorScheme.primary,
+                  ],
+                  if (pendingJobs.isNotEmpty) ...[
+                    SliverToBoxAdapter(child: Spacing.v16),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Spacing.d16,
+                        ),
+                        child: Text(
+                          context.l10n.pending,
+                          style: context.theme.textTheme.labelLarge?.copyWith(
+                            color: context.theme.colorScheme.primary,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                SliverToBoxAdapter(child: Spacing.v8),
-                SliverList.separated(
-                  itemCount: completedJobs.length,
-                  separatorBuilder: (_, _) => Spacing.v8,
-                  itemBuilder: (BuildContext context, int index) {
-                    final job = completedJobs[index];
-                    final isSuccess = job.status == JobStatus.completed;
-                    return JobItem(
-                      job,
-                      onRemoveItem: () => _handleRemoveItem(context, job),
-                      onOpenLogs: () => _handleOpenLogs(context, job),
-                      onShare: !isSuccess
-                          ? null
-                          : () => _handleShare(context, job),
-                      onDelete: !isSuccess
-                          ? null
-                          : () => _handleDelete(context, job),
-                      onRestart: isSuccess
-                          ? null
-                          : () => _handleRestart(context, job),
-                    );
-                  },
-                ),
-              ],
-              if (!isAllEmpty) ...[
-                SliverToBoxAdapter(
-                  child: Spacing.vertical(Spacing.d56),
-                ),
-                const SliverToBoxAdapter(
-                  child: BottomSpacer(),
-                ),
-              ],
-              if (isAllEmpty) ...[
-                SliverFillRemaining(
-                  child: Center(
-                    child: EmptyWidget(
-                      icon: Assets.hugeicons.bulk.smileyEmojis.smile,
-                      title: context.l10n.thereIsNothingHere,
-                      subtitle: context.l10n.tapCreateToBegin,
+                    SliverToBoxAdapter(child: Spacing.v8),
+                    SliverList.separated(
+                      itemCount: pendingJobs.length,
+                      separatorBuilder: (_, _) => Spacing.v8,
+                      itemBuilder: (BuildContext context, int index) {
+                        final job = pendingJobs[index];
+                        return JobItem(
+                          job,
+                          onRemoveItem: () => _handleRemoveItem(context, job),
+                          onOpenLogs: () => _handleOpenLogs(context, job),
+                        );
+                      },
                     ),
-                  ),
-                ),
-              ],
-            ],
+                  ],
+                  if (completedJobs.isNotEmpty) ...[
+                    SliverToBoxAdapter(child: Spacing.v16),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Spacing.d16,
+                        ),
+                        child: Text(
+                          context.l10n.finished,
+                          style: context.theme.textTheme.labelLarge?.copyWith(
+                            color: context.theme.colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SliverToBoxAdapter(child: Spacing.v8),
+                    SliverList.separated(
+                      itemCount: completedJobs.length,
+                      separatorBuilder: (_, _) => Spacing.v8,
+                      itemBuilder: (BuildContext context, int index) {
+                        final job = completedJobs[index];
+                        final isSuccess = job.status == JobStatus.completed;
+                        return JobItem(
+                          job,
+                          onRemoveItem: () => _handleRemoveItem(context, job),
+                          onOpenLogs: () => _handleOpenLogs(context, job),
+                          onShare: !isSuccess
+                              ? null
+                              : () => _handleShare(context, job),
+                          onDelete: !isSuccess
+                              ? null
+                              : () => _handleDelete(context, job),
+                          onRestart: isSuccess
+                              ? null
+                              : () => _handleRestart(context, job),
+                        );
+                      },
+                    ),
+                  ],
+                  if (!isAllEmpty) ...[
+                    SliverToBoxAdapter(
+                      child: Spacing.vertical(Spacing.d56),
+                    ),
+                    const SliverToBoxAdapter(
+                      child: BottomSpacer(),
+                    ),
+                  ],
+                  if (isAllEmpty) ...[
+                    SliverFillRemaining(
+                      child: Center(
+                        child: EmptyWidget(
+                          icon: Assets.hugeicons.bulk.smileyEmojis.smile,
+                          title: context.l10n.thereIsNothingHere,
+                          subtitle: context.l10n.tapCreateToBegin,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              );
+            },
           );
         },
       ),
