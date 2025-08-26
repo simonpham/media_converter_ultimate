@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:converter/converter.dart';
-import 'package:core/core.dart' show ConvertJob, EasyBox, injector;
+import 'package:core/core.dart' show ConvertJob, Disposable, EasyBox, injector;
 import 'package:flutter/foundation.dart';
 
-class LogData extends EasyBox {
+class LogData extends EasyBox implements Disposable {
   @override
   String get boxKey => 'log_data';
 
@@ -11,6 +13,11 @@ class LogData extends EasyBox {
   factory LogData.create() => LogData._();
 
   LogData._();
+
+  @override
+  Future<void> onDispose() async {
+    await box.close();
+  }
 }
 
 extension LogDataBoxExt on LogData {

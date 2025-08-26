@@ -12,6 +12,10 @@ dependencies:
 
   core:
     path: ../../packages/core
+  core_storage_base:
+    path: ../../packages/core_storage_base
+  core_storage_isar:
+    path: ../../packages/core_storage_isar
   design_system:
     path: ../../packages/design_system
   platform_utils:
