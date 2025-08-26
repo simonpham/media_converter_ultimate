@@ -3,9 +3,18 @@ import 'dart:async';
 import 'package:core/core.dart';
 import 'package:core_storage_base/core_storage_base.dart';
 import 'package:core_storage_isar/core_storage_isar.dart';
+import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
 
 class ConvertJobIsarStorage extends ConvertJobStorage {
+  static Future<Isar> createIsarInstance() async {
+    final dataFolder = await FileUtils.getAppDataDirectory();
+    return await Isar.open(
+      [IsarConvertJobSchema],
+      directory: dataFolder.path,
+    );
+  }
+
   final Isar isar;
 
   const ConvertJobIsarStorage({
@@ -52,5 +61,10 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
       return isar.isarConvertJobs.put(convertedItem);
     });
     return null;
+  }
+
+  @override
+  void onDispose() {
+    isar.close();
   }
 }
