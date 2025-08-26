@@ -106,6 +106,14 @@ class FileUtils {
     return true;
   }
 
+  static Future<Directory> getAppDataDirectory() async {
+    final tempFolder = await path_provider.getApplicationDocumentsDirectory();
+    final dataFolder = Directory(
+      path.join(tempFolder.path, kDataFolderName),
+    );
+    return dataFolder.createIfNotExists();
+  }
+
   static Future<Directory> getConvertTemporaryDirectory() async {
     final tempFolder = await path_provider.getTemporaryDirectory();
     final convertTempFolder = Directory(
