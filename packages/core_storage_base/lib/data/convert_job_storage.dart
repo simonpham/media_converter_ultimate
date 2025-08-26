@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:core/core.dart';
+import 'package:core_storage_base/core_storage_base.dart';
 
-abstract class ConvertJobStorage {
+abstract class ConvertJobStorage implements BaseStorage<ConvertJob> {
   const ConvertJobStorage();
-
-  FutureOr<List<ConvertJob>> getJobs(Pagination pagination);
 }
