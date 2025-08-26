@@ -5,7 +5,9 @@ abstract class ConvertJobStorage
     implements BaseStorage<ConvertJob>, Disposable {
   const ConvertJobStorage();
 
-  static ConvertJobStorage get get => injector<ConvertJobStorage>();
+  static ConvertJobStorage getInstance() => injector<ConvertJobStorage>();
+
+  Stream<int> watchJobCount();
 
   Stream<List<ConvertJob>> watchPendingJobs();
 

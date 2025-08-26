@@ -11,7 +11,11 @@ abstract interface class BaseStorage<T> {
 
   FutureOr<Failure?> update(T item);
 
+  FutureOr<T?> get(String id);
+
   FutureOr<List<T>> list(Pagination pagination);
 
   FutureOr<Failure?> delete(String id);
+
+  FutureOr<int> count();
 }
