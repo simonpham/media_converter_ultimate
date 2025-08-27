@@ -191,7 +191,7 @@ class _JobMakerState extends State<JobMaker> {
     context.router.pop(convertJobs);
   }
 
-  void _handleBack(BuildContext context) {
+  Future<void> _handleBack(BuildContext context) async {
     final currentPage = _pageController.page?.toInt();
     if (currentPage == null) {
       return;
@@ -200,7 +200,19 @@ class _JobMakerState extends State<JobMaker> {
     final isFirstPage = currentPage == 0;
     final hasSelectedFiles = _viewModel.selectedFiles.isNotEmpty;
     if (isFirstPage && hasSelectedFiles) {
-      // TODO: confirm popup.
+      final action = await ConfirmDialog.show(
+        context,
+        title: context.l10n.jobMakerConfirmGoBackTitle,
+        message: context.l10n.jobMakerConfirmGoBackMessage,
+        positiveText: context.l10n.cancel,
+        negativeText: context.l10n.goBack,
+      );
+
+      final hasGoBackConfirmed = action == ConfirmAction.negative;
+      if (!hasGoBackConfirmed) {
+        return;
+      }
+
       context.router.pop();
       return;
     }
@@ -210,9 +222,11 @@ class _JobMakerState extends State<JobMaker> {
       return;
     }
 
-    _pageController.previousPage(
-      duration: Durations.medium4,
-      curve: Curves.easeOut,
+    unawaited(
+      _pageController.previousPage(
+        duration: Durations.medium4,
+        curve: Curves.easeOut,
+      ),
     );
   }
 }
