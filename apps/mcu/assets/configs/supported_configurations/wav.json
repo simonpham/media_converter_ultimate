@@ -62,6 +62,24 @@
         { "label": "configs.common.sampling_rate.192000", "value": "192000" },
         { "label": "configs.common.sampling_rate.352800", "value": "352800" }
       ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.wav.audio_channel",
+      "label": "configs.common.audio_channel.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-ac",
+      "default": "2",
+      "options": [
+        {
+          "label": "configs.common.audio_channel.mono",
+          "value": "1"
+        },
+        {
+          "label": "configs.common.audio_channel.stereo",
+          "value": "2"
+        }
+      ]
     }
   ]
 }
