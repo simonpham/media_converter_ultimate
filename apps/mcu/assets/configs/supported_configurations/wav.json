@@ -41,6 +41,27 @@
           "value": "pcm_u8"
         }
       ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.wav.sampling_rate",
+      "label": "configs.common.sampling_rate",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-ar",
+      "default": "48000",
+      "options": [
+        { "label": "configs.common.sampling_rate.8000", "value": "8000" },
+        { "label": "configs.common.sampling_rate.11025", "value": "11025" },
+        { "label": "configs.common.sampling_rate.16000", "value": "16000" },
+        { "label": "configs.common.sampling_rate.22050", "value": "22050" },
+        { "label": "configs.common.sampling_rate.44100", "value": "44100" },
+        { "label": "configs.common.sampling_rate.48000", "value": "48000" },
+        { "label": "configs.common.sampling_rate.88200", "value": "88200" },
+        { "label": "configs.common.sampling_rate.96000", "value": "96000" },
+        { "label": "configs.common.sampling_rate.176400", "value": "176400" },
+        { "label": "configs.common.sampling_rate.192000", "value": "192000" },
+        { "label": "configs.common.sampling_rate.352800", "value": "352800" }
+      ]
     }
   ]
 }
