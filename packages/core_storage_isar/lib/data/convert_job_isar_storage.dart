@@ -141,6 +141,8 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
         .statusEqualTo(JobStatus.preparing)
         .or()
         .statusEqualTo(JobStatus.ready)
+        .or()
+        .statusEqualTo(JobStatus.cleaning)
         .sortByCreatedAtDesc()
         .watch(fireImmediately: true)
         .map(

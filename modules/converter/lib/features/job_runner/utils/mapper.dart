@@ -7,7 +7,7 @@ extension FfmpegSessionStateMapper on SessionState {
       SessionState.created => JobStatus.ready,
       SessionState.running => JobStatus.running,
       SessionState.failed => JobStatus.failed,
-      SessionState.completed => JobStatus.completed,
+      SessionState.completed => JobStatus.cleaning,
     };
   }
 }

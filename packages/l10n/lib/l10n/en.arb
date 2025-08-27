@@ -9,6 +9,7 @@
   "create": "Create",
   "customizeConfigs": "Customize configs",
   "failedStatus": "Failed",
+  "cleaningStatus": "Cleaning",
   "finished": "Finished",
   "inputFile": "Input: {file}",
   "jobManager": "Job manager",
