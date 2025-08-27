@@ -11,7 +11,7 @@ extension BuildContextToastExtension on BuildContext {
 
 extension FailureExtension on Failure {
   String localized(BuildContext context) {
-    return switch (this) {
+    final localizedMessage = switch (this) {
       DirectoryNotWritableFailure _ => context.l10n.failureDirectoryNotWritable,
       InvalidStatusFailure _ => context.l10n.failureInvalidStatus,
       NoFilesSelectedFailure _ => context.l10n.failureNoFileSelected,
@@ -29,7 +29,15 @@ extension FailureExtension on Failure {
       ),
       OutputFileAlreadyExistsFailure f =>
         context.l10n.failureOutputFileAlreadyExists(f.path),
-      _ => context.l10n.failureUnknown,
+      _ => null,
     };
+
+    if (localizedMessage == null) {
+      printLog(
+        '⚠️ [FailureExtension]: Failure [$runtimeType] is not localized',
+      );
+    }
+
+    return localizedMessage ?? context.l10n.failureUnknown;
   }
 }
