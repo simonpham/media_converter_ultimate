@@ -40,7 +40,7 @@ class FileUtils {
     }
   }
 
-  /// Return folder path and folder name.
+  /// Return folder path.
   static Future<(String?, Failure?)> chooseSavePath(
     BuildContext context, {
     String? initialPath,

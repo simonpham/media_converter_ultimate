@@ -113,13 +113,13 @@ class JobMakerPreview extends StatelessWidget {
     final viewModel = context.read<JobMakerViewModel>();
     final currentPath = viewModel.outputDirectoryPath;
 
-    final (path, error) = await FileUtils.chooseSavePath(
+    final (path, failure) = await FileUtils.chooseSavePath(
       context,
       initialPath: currentPath,
     );
 
-    if (error != null) {
-      context.toast(error, type: MessageType.error);
+    if (failure != null) {
+      context.toastFailure(failure);
     }
 
     if (path == null) {
