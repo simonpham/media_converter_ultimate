@@ -14,20 +14,16 @@ class JobManager extends StatelessWidget {
     return Scaffold(
       body: Consumer<JobManagerViewModel>(
         builder: (context, model, _) {
-          return TripleStreamBuilder<
-            List<ConvertJob>,
-            List<ConvertJob>,
-            List<ConvertJob>
-          >(
-            streams: (
+          return MultiStreamBuilder<List<ConvertJob>>(
+            streams: [
               model.pendingJobsStream,
               model.completedJobsStream,
               model.runningJobsStream,
-            ),
+            ],
             builder: (context, data) {
-              final List<ConvertJob> pendingJobs = data.$1 ?? [];
-              final List<ConvertJob> completedJobs = data.$2 ?? [];
-              final List<ConvertJob> runningJobs = data.$3 ?? [];
+              final List<ConvertJob> pendingJobs = data[0] ?? [];
+              final List<ConvertJob> completedJobs = data[1] ?? [];
+              final List<ConvertJob> runningJobs = data[2] ?? [];
               final isAllEmpty =
                   pendingJobs.isEmpty &&
                   completedJobs.isEmpty &&
@@ -188,7 +184,7 @@ class JobManager extends StatelessWidget {
   Future<void> _handleCreateJob(BuildContext context) async {
     final jobs = await JobMaker.cook(context);
     final viewModel = context.read<JobManagerViewModel>();
-    viewModel.addJobs(jobs);
+    await viewModel.addJobs(jobs);
   }
 
   void _handleRemoveItem(BuildContext context, ConvertJob job) {
