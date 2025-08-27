@@ -144,4 +144,12 @@ class JobManagerViewModel extends ChangeNotifier {
       await runJob(job);
     }
   }
+
+  Future<void> removeJob(ConvertJob job) async {
+    if (job.status.isProcessing) {
+      // Not allowed to remove running job.
+      return;
+    }
+    await _jobStorage.delete(job.id);
+  }
 }

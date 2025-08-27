@@ -188,7 +188,11 @@ class JobManager extends StatelessWidget {
   }
 
   void _handleRemoveItem(BuildContext context, ConvertJob job) {
-    // TODO: Implement.
+    if (job.status.isProcessing) {
+      // TODO: show prompt before removing.
+      return;
+    }
+    context.read<JobManagerViewModel>().removeJob(job);
   }
 
   void _handleOpenLogs(BuildContext context, ConvertJob job) {
