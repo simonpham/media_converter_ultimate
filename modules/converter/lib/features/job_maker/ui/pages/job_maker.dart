@@ -183,12 +183,16 @@ class _JobMakerState extends State<JobMaker> {
       return;
     }
 
-    final convertJobs = await _viewModel.cook();
-    if (convertJobs.isEmpty) {
-      return;
-    }
+    try {
+      final convertJobs = await _viewModel.cook();
+      if (convertJobs.isEmpty) {
+        return;
+      }
 
-    context.router.pop(convertJobs);
+      context.router.pop(convertJobs);
+    } on Failure catch (failure) {
+      context.toastFailure(failure);
+    }
   }
 
   Future<void> _handleBack(BuildContext context) async {

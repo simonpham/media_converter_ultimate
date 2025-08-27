@@ -26,8 +26,8 @@ class JobMakerViewModel extends ChangeNotifier {
 
   String? _outputDirectoryPath = SettingsBox().lastOutputDirectoryPath;
 
-  Set<String> _errorPaths = {};
-  Set<String> get errorPaths => _errorPaths;
+  Map<String, Failure> _errorPaths = {};
+  Map<String, Failure> get errorPaths => _errorPaths;
 
   Map<String, String?> get outputFileNames => _outputFileNames;
   FormatEntry? get selectedFormatEntry => _selectedFormatEntry;
@@ -173,29 +173,29 @@ class JobMakerViewModel extends ChangeNotifier {
     final formatEntry = _selectedFormatEntry;
     final selectedValues = _selectedValues;
     final outputDirectoryPath = _outputDirectoryPath;
-    if (formatEntry == null || outputDirectoryPath == null) {
-      printLog(
-        '[JobMakerViewModel]: Output format or directory is null',
-      );
-      return [];
+
+    if (formatEntry == null) {
+      throw const NoOutputFormatFailure();
+    }
+
+    if (outputDirectoryPath == null) {
+      throw const NoOutputFolderFailure();
     }
 
     final convertTempFolder = await FileUtils.getConvertTemporaryDirectory();
     final outputFileNames = {..._outputFileNames};
-    printLog('[JobMakerViewModel]: Finding invalid paths...');
     final errorPaths = await findInvalidPaths(
       selectedPaths: outputFileNames,
       outputDirectoryPath: outputDirectoryPath,
     );
     if (errorPaths.isNotEmpty) {
-      printLog('[JobMakerViewModel]: Selected path is invalid: $errorPaths');
-      return [];
+      throw errorPaths.values.first;
     }
 
     return outputFileNames.keys.map((inputFilePath) {
       final fileName = outputFileNames[inputFilePath];
       if (fileName == null) {
-        throw Exception('File name is null');
+        throw FileNameIsNotSetFailure(inputFilePath);
       }
       final outputFilePath = CommandBuilder.getOutputFilePath(
         inputFilePath: inputFilePath,
@@ -222,11 +222,11 @@ class JobMakerViewModel extends ChangeNotifier {
     }).toList();
   }
 
-  Future<Set<String>> findInvalidPaths({
+  Future<Map<String, Failure>> findInvalidPaths({
     required Map<String, String?> selectedPaths,
     required String outputDirectoryPath,
   }) async {
-    final Set<String> errorPaths = {};
+    final Map<String, Failure> errorPaths = {};
     final Set<String> outputPaths = {};
     for (final entry in selectedPaths.entries) {
       final filePath = entry.key;
@@ -239,7 +239,7 @@ class JobMakerViewModel extends ChangeNotifier {
 
       /// Check for input file existence.
       if (!await FileUtils.isFileExist(filePath)) {
-        errorPaths.add(filePath);
+        errorPaths[filePath] = InputFileNotExistFailure(filePath);
         printLog('[JobMakerViewModel]: File not exist: $filePath');
         continue;
       }
@@ -257,7 +257,7 @@ class JobMakerViewModel extends ChangeNotifier {
 
         /// Check for duplicated file path.
         if (outputPaths.contains(outputFilePath)) {
-          errorPaths.add(filePath);
+          errorPaths[filePath] = DuplicatedFilePathFailure(outputFilePath);
           printLog(
             '[JobMakerViewModel]: Duplicated file path: $outputFilePath',
           );
@@ -267,7 +267,7 @@ class JobMakerViewModel extends ChangeNotifier {
 
         /// Check if output file already exists.
         if (await FileUtils.isFileExist(outputFilePath)) {
-          errorPaths.add(filePath);
+          errorPaths[filePath] = OutputFileAlreadyExistsFailure(outputFilePath);
           printLog(
             '[JobMakerViewModel]: Output file already exists: $outputFilePath',
           );

@@ -39,3 +39,35 @@ class NoOutputConfigFailure extends Failure {
 class NoOutputFolderFailure extends Failure {
   const NoOutputFolderFailure() : super('No output folder selected.');
 }
+
+@immutable
+class FileNameIsNotSetFailure extends Failure {
+  final String path;
+
+  const FileNameIsNotSetFailure(this.path)
+    : super('File name is not set for $path.');
+}
+
+@immutable
+class InputFileNotExistFailure extends Failure {
+  final String path;
+
+  const InputFileNotExistFailure(this.path)
+    : super('Input file not exist: $path.');
+}
+
+@immutable
+class DuplicatedFilePathFailure extends Failure {
+  final String path;
+
+  const DuplicatedFilePathFailure(this.path)
+    : super('Duplicated file path: $path.');
+}
+
+@immutable
+class OutputFileAlreadyExistsFailure extends Failure {
+  final String path;
+
+  const OutputFileAlreadyExistsFailure(this.path)
+    : super('Output file already exists: $path.');
+}

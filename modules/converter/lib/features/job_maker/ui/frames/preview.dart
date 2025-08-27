@@ -95,7 +95,9 @@ class JobMakerPreview extends StatelessWidget {
                     file,
                     outputFormat: formatEntry,
                     outputFileName: outputFileName,
-                    hasError: errorPaths.contains(filePath),
+                    failure: errorPaths.containsKey(filePath)
+                        ? errorPaths[filePath]
+                        : null,
                     onRenamePressed: () {
                       _handleRenameOutputFilePressed(context, file);
                     },
