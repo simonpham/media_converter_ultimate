@@ -13,6 +13,27 @@
           "value": "-c:a libvorbis"
         }
       ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.ogg.audio_quality",
+      "label": "configs.common.audio_quality.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-q:a",
+      "default": "3",
+      "options": [
+        { "label": "configs.ogg.audio_quality.10", "value": "10" },
+        { "label": "configs.ogg.audio_quality.9", "value": "9" },
+        { "label": "configs.ogg.audio_quality.8", "value": "8" },
+        { "label": "configs.ogg.audio_quality.7", "value": "7" },
+        { "label": "configs.ogg.audio_quality.6", "value": "6" },
+        { "label": "configs.ogg.audio_quality.5", "value": "5" },
+        { "label": "configs.ogg.audio_quality.4", "value": "4" },
+        { "label": "configs.ogg.audio_quality.3", "value": "3" },
+        { "label": "configs.ogg.audio_quality.2", "value": "2" },
+        { "label": "configs.ogg.audio_quality.1", "value": "1" },
+        { "label": "configs.ogg.audio_quality.0", "value": "0" }
+      ]
     }
   ]
 }
