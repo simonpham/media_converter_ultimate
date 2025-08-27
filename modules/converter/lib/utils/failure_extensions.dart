@@ -1,6 +1,7 @@
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/widgets.dart';
+import 'package:utils/utils.dart';
 
 extension BuildContextToastExtension on BuildContext {
   void toastFailure(Failure failure) {
@@ -17,6 +18,17 @@ extension FailureExtension on Failure {
       NoOutputFormatFailure _ => context.l10n.failureNoOutputFormat,
       NoOutputConfigFailure _ => context.l10n.failureNoOutputConfig,
       NoOutputFolderFailure _ => context.l10n.failureNoOutputFolder,
+      FileNameIsNotSetFailure f => context.l10n.failureFileNameIsNotSet(
+        basename(f.path),
+      ),
+      InputFileNotExistFailure f => context.l10n.failureInputFileNotExist(
+        basename(f.path),
+      ),
+      DuplicatedFilePathFailure f => context.l10n.failureDuplicatedFilePath(
+        f.path,
+      ),
+      OutputFileAlreadyExistsFailure f =>
+        context.l10n.failureOutputFileAlreadyExists(f.path),
       _ => context.l10n.failureUnknown,
     };
   }

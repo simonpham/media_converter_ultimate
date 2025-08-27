@@ -10,7 +10,7 @@ class OutputFileItem extends StatelessWidget {
   final FormatEntry outputFormat;
   final String outputFileName;
 
-  final bool hasError;
+  final Failure? failure;
 
   final VoidCallback? onRenamePressed;
 
@@ -19,76 +19,84 @@ class OutputFileItem extends StatelessWidget {
     super.key,
     required this.outputFormat,
     required this.outputFileName,
-    this.hasError = false,
+    this.failure,
     this.onRenamePressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: ShapeDecoration(
-        color: context.theme.colorScheme.surface,
-        shape: const SmoothRectangleBorder(
-          borderRadius: SmoothBorderRadius.all(
-            SmoothRadius(
-              cornerRadius: 12.0,
-              cornerSmoothing: 1.0,
+    final hasError = failure != null;
+    return Tappable(
+      behavior: HitTestBehavior.translucent,
+      onTap: switch (failure) {
+        Failure f => () => context.toastFailure(f),
+        _ => null,
+      },
+      child: Container(
+        decoration: ShapeDecoration(
+          color: context.theme.colorScheme.surface,
+          shape: const SmoothRectangleBorder(
+            borderRadius: SmoothBorderRadius.all(
+              SmoothRadius(
+                cornerRadius: 12.0,
+                cornerSmoothing: 1.0,
+              ),
             ),
           ),
         ),
-      ),
-      padding: EdgeInsets.symmetric(
-        vertical: Spacing.d12,
-      ),
-      child: Row(
-        children: [
-          Spacing.h16,
-          Column(
-            children: [
-              FileIcon(file),
-              Text(
-                outputFormat.outputExtension.toUpperCase(),
-              ),
-            ],
-          ),
-          Spacing.h8,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        padding: EdgeInsets.symmetric(
+          vertical: Spacing.d12,
+        ),
+        child: Row(
+          children: [
+            Spacing.h16,
+            Column(
               children: [
+                FileIcon(file),
                 Text(
-                  outputFileName,
-                  style: context.theme.textTheme.titleSmall?.copyWith(
-                    color: hasError ? context.theme.colorScheme.error : null,
-                  ),
-                ),
-                Text(
-                  context.l10n.originalFile(basename(file.path)),
-                  style: context.theme.textTheme.bodySmall,
+                  outputFormat.outputExtension.toUpperCase(),
                 ),
               ],
             ),
-          ),
-          Spacing.h8,
-          Tappable(
-            behavior: HitTestBehavior.translucent,
-            tooltip: context.l10n.rename,
-            onTap: onRenamePressed,
-            child: Container(
-              padding: EdgeInsets.all(
-                Spacing.d12,
-              ),
-              child: ImageView(
-                Assets.hugeicons.stroke.editFormatting.edit02,
-                color: hasError
-                    ? context.theme.colorScheme.error
-                    : context.theme.colorScheme.primary,
-                size: Spacing.d20,
+            Spacing.h8,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    outputFileName,
+                    style: context.theme.textTheme.titleSmall?.copyWith(
+                      color: hasError ? context.theme.colorScheme.error : null,
+                    ),
+                  ),
+                  Text(
+                    context.l10n.originalFile(basename(file.path)),
+                    style: context.theme.textTheme.bodySmall,
+                  ),
+                ],
               ),
             ),
-          ),
-          Spacing.h4,
-        ],
+            Spacing.h8,
+            Tappable(
+              behavior: HitTestBehavior.translucent,
+              tooltip: context.l10n.rename,
+              onTap: onRenamePressed,
+              child: Container(
+                padding: EdgeInsets.all(
+                  Spacing.d12,
+                ),
+                child: ImageView(
+                  Assets.hugeicons.stroke.editFormatting.edit02,
+                  color: hasError
+                      ? context.theme.colorScheme.error
+                      : context.theme.colorScheme.primary,
+                  size: Spacing.d20,
+                ),
+              ),
+            ),
+            Spacing.h4,
+          ],
+        ),
       ),
     );
   }
