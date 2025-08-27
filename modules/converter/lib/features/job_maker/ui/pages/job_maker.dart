@@ -167,7 +167,7 @@ class _JobMakerState extends State<JobMaker> {
     final currentStep = JobMakerSteps.values.elementAt(currentPage);
     final error = _viewModel.checkError(currentStep);
     if (error != null) {
-      // TODO: show error message.
+      context.toastFailure(error);
       return;
     }
 

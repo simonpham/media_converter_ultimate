@@ -289,7 +289,7 @@ class JobMakerViewModel extends ChangeNotifier {
 
   Failure? _checkPickFilesError() {
     if (_selectedFiles.isEmpty) {
-      return const Failure('No files selected.');
+      return const NoFilesSelectedFailure();
     }
 
     return null;
@@ -297,7 +297,7 @@ class JobMakerViewModel extends ChangeNotifier {
 
   Failure? _checkOutputFormatError() {
     if (_selectedFormatEntry == null) {
-      return const Failure('No output format selected.');
+      return const NoOutputFormatFailure();
     }
 
     return null;
@@ -305,7 +305,7 @@ class JobMakerViewModel extends ChangeNotifier {
 
   Failure? _checkOutputConfigError() {
     if (_selectedValues.isEmpty) {
-      return const Failure('No output config selected.');
+      return const NoOutputConfigFailure();
     }
 
     return null;
@@ -313,7 +313,7 @@ class JobMakerViewModel extends ChangeNotifier {
 
   Failure? _checkPreviewError() {
     if (_outputDirectoryPath == null) {
-      return const Failure('Output directory is null.');
+      return const NoOutputFolderFailure();
     }
 
     return null;
