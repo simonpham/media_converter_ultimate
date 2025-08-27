@@ -13,6 +13,21 @@
           "value": "-c:v mpeg4"
         }
       ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.mp4.video_quality",
+      "label": "configs.common.video_quality.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-q:v",
+      "default": "6",
+      "options": [
+        { "label": "configs.mp4.video_quality.2", "value": "2" },
+        { "label": "configs.mp4.video_quality.6", "value": "6" },
+        { "label": "configs.mp4.video_quality.12", "value": "12" },
+        { "label": "configs.mp4.video_quality.18", "value": "18" },
+        { "label": "configs.mp4.video_quality.26", "value": "26" }
+      ]
     }
   ]
 }
