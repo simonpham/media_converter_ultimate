@@ -60,7 +60,7 @@ class FfmpegJobRunnerService implements JobRunnerService {
         final status = exitCode == null
             ? state.toJobStatus()
             : exitCode.isValueSuccess()
-            ? JobStatus.completed
+            ? JobStatus.cleaning
             : exitCode.isValueCancel()
             ? JobStatus.cancelled
             : exitCode.isValueError()

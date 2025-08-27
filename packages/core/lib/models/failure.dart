@@ -14,3 +14,8 @@ class Failure {
 class DirectoryNotWritableFailure extends Failure {
   const DirectoryNotWritableFailure() : super('Directory is not writable.');
 }
+
+@immutable
+class InvalidStatusFailure extends Failure {
+  const InvalidStatusFailure() : super('Invalid status.');
+}

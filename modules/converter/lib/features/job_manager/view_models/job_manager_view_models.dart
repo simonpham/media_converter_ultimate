@@ -66,11 +66,41 @@ class JobManagerViewModel extends ChangeNotifier {
   }
 
   Future<void> _handleJobUpdate(ConvertJob job) async {
-    await _updateJobInList(job);
+    final updatedJob = await _updateJobInList(job);
 
-    if (job.status.isDone) {
-      await _completeJob(job);
+    if (updatedJob.status.isFailure) {
+      await _cleanFailedJob(updatedJob);
+      return;
     }
+
+    if (updatedJob.status != JobStatus.cleaning) {
+      return;
+    }
+
+    final failure = await _completeJob(updatedJob);
+    if (failure != null) {
+      final failedJob = updatedJob.copyWith(
+        status: const Some(JobStatus.failed),
+      );
+      await _handleJobUpdate(failedJob);
+    }
+
+    await _handleJobUpdate(
+      updatedJob.copyWith(
+        status: const Some(JobStatus.completed),
+      ),
+    );
+  }
+
+  Future<void> _cleanFailedJob(ConvertJob job) async {
+    if (!job.status.isFailure) {
+      return;
+    }
+
+    await FileUtils.cleanUpTempFile(
+      fileName: job.outputFileName,
+      path: job.outputDirectoryPath,
+    );
   }
 
   void _handleLogUpdate(JobLog event) {
@@ -80,7 +110,7 @@ class JobManagerViewModel extends ChangeNotifier {
     LogData().appendLog(jobId, message);
   }
 
-  Future<void> _updateJobInList(ConvertJob job) async {
+  Future<ConvertJob> _updateJobInList(ConvertJob job) async {
     final currentJob = await _jobStorage.get(job.id);
     if (currentJob != null && currentJob.status.isDone) {
       job = job.copyWith(
@@ -89,21 +119,24 @@ class JobManagerViewModel extends ChangeNotifier {
     }
 
     await _jobStorage.update(job);
+    return job;
   }
 
-  Future<void> _completeJob(ConvertJob job) async {
-    if (job.status != JobStatus.completed) {
-      await FileUtils.cleanUpTempFile(
-        fileName: job.outputFileName,
-        path: job.outputDirectoryPath,
-      );
-      return;
+  Future<Failure?> _completeJob(ConvertJob job) async {
+    if (job.status != JobStatus.cleaning) {
+      return const InvalidStatusFailure();
     }
 
-    await FileUtils.moveTempFileToPath(
+    // Move completed job to output directory.
+    final success = await FileUtils.moveTempFileToPath(
       fileName: job.outputFileName,
       path: job.outputDirectoryPath,
     );
+    if (!success) {
+      return const DirectoryNotWritableFailure();
+    }
+
+    return null;
   }
 
   Future<void> _runPendingJobs(List<ConvertJob> pendingJobs) async {
