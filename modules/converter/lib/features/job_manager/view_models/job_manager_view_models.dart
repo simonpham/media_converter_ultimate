@@ -150,6 +150,7 @@ class JobManagerViewModel extends ChangeNotifier {
       // Not allowed to remove running job.
       return;
     }
+    job.clearLog();
     await _jobStorage.delete(job.id);
   }
 }
