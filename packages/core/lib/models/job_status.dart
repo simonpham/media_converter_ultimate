@@ -44,14 +44,14 @@ enum JobStatus {
 
   String getLabel(BuildContext context) {
     return switch (this) {
-      JobStatus.pending => context.l10n.pendingStatus,
-      JobStatus.preparing => context.l10n.preparingStatus,
-      JobStatus.ready => context.l10n.readyStatus,
-      JobStatus.running => context.l10n.runningStatus,
-      JobStatus.cancelled => context.l10n.cancelledStatus,
-      JobStatus.failed => context.l10n.failedStatus,
-      JobStatus.cleaning => context.l10n.cleaningStatus,
-      JobStatus.completed => context.l10n.completedStatus,
+      JobStatus.pending => context.l10n.jobStatusPending,
+      JobStatus.preparing => context.l10n.jobStatusPreparing,
+      JobStatus.ready => context.l10n.jobStatusReady,
+      JobStatus.running => context.l10n.jobStatusRunning,
+      JobStatus.cancelled => context.l10n.jobStatusCancelled,
+      JobStatus.failed => context.l10n.jobStatusFailed,
+      JobStatus.cleaning => context.l10n.jobStatusCleaning,
+      JobStatus.completed => context.l10n.jobStatusCompleted,
     };
   }
 }
