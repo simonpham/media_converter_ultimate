@@ -174,6 +174,20 @@ class JobMakerViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void resetConfigurations() {
+    final formatEntry = _selectedFormatEntry;
+    if (formatEntry == null) {
+      return;
+    }
+    _selectedValues = {
+      ..._getDefaultConfigValue(
+        _configControls,
+        formatEntry,
+      ),
+    };
+    notifyListeners();
+  }
+
   Future<void> _loadConfigModel() async {
     final formatEntry = _selectedFormatEntry;
     if (formatEntry == null) {

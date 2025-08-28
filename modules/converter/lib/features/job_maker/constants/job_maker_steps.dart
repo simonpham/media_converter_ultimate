@@ -31,6 +31,9 @@ enum JobMakerSteps {
             onRememberConfigsChanged: (remember) {
               model.setRememberConfigs(remember);
             },
+            onResetConfigs: () {
+              model.resetConfigurations();
+            },
           );
         },
       ),
