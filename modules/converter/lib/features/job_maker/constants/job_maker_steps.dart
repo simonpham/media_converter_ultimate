@@ -24,8 +24,12 @@ enum JobMakerSteps {
           return JobMakerConfigCustomizer(
             availableControls: availableControls,
             selectedValues: model.selectedValues,
+            shouldRememberConfigs: model.shouldRememberConfigs,
             onChanged: (name, value) {
               model.setSelectedValue(name, value);
+            },
+            onRememberConfigsChanged: (remember) {
+              model.setRememberConfigs(remember);
             },
           );
         },

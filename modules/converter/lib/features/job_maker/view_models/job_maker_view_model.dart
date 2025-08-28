@@ -29,12 +29,20 @@ class JobMakerViewModel extends ChangeNotifier {
   Map<String, Failure> _errorPaths = {};
   Map<String, Failure> get errorPaths => _errorPaths;
 
-  Map<String, String?> get outputFileNames => _outputFileNames;
   FormatEntry? get selectedFormatEntry => _selectedFormatEntry;
+
+  bool _shouldRememberConfigs = false;
+  bool get shouldRememberConfigs => _shouldRememberConfigs;
+  void setRememberConfigs(bool value) {
+    _shouldRememberConfigs = value;
+    notifyListeners();
+  }
+
   Map<String, List<ConfigControl>> get configControls => _configControls;
   Map<String, String> get selectedValues => _selectedValues;
 
   String? get outputDirectoryPath => _outputDirectoryPath;
+  Map<String, String?> get outputFileNames => _outputFileNames;
 
   void setSelectedValue(String name, String value) {
     final clone = {..._selectedValues};
@@ -155,10 +163,14 @@ class JobMakerViewModel extends ChangeNotifier {
     _outputFileNames = outputFileNames;
 
     // Initialize selected config state to defaults.
-    _selectedValues = _getDefaultConfigValue(
-      _configControls,
-      formatEntry,
-    );
+    // Then overwrite with last known configurations.
+    _selectedValues = {
+      ..._getDefaultConfigValue(
+        _configControls,
+        formatEntry,
+      ),
+      ...formatEntry.lastKnownConfigurations,
+    };
     notifyListeners();
   }
 
@@ -197,7 +209,7 @@ class JobMakerViewModel extends ChangeNotifier {
       throw errorPaths.values.first;
     }
 
-    return outputFileNames.keys.map((inputFilePath) {
+    final result = outputFileNames.keys.map((inputFilePath) {
       final fileName = outputFileNames[inputFilePath];
       if (fileName == null) {
         throw FileNameIsNotSetFailure(inputFilePath);
@@ -225,6 +237,12 @@ class JobMakerViewModel extends ChangeNotifier {
         createdAt: DateTime.now(),
       );
     }).toList();
+
+    if (shouldRememberConfigs) {
+      formatEntry.setLastKnownConfigurations(selectedValues);
+    }
+
+    return result;
   }
 
   Future<Map<String, Failure>> findInvalidPaths({
