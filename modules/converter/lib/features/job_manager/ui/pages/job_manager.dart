@@ -235,6 +235,8 @@ class JobManager extends StatelessWidget {
     }
 
     context.toastSuccess(context.l10n.outputFileHasBeenDeleted(fileName));
+
+    await _handleRemoveItem(context, job);
   }
 
   void _handleStop(BuildContext context, ConvertJob job) {
