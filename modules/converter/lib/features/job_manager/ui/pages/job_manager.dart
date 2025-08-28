@@ -187,9 +187,29 @@ class JobManager extends StatelessWidget {
     await viewModel.addJobs(jobs);
   }
 
+  void _handleOpenLogs(BuildContext context, ConvertJob job) {
+    job.openLogs(context);
+  }
+
+  Future<void> _handleShare(BuildContext context, ConvertJob job) async {
+    final file = job.outputFile;
+    await file.share();
+  }
+
   Future<void> _handleRemoveItem(BuildContext context, ConvertJob job) async {
     if (job.status.isProcessing) {
-      // TODO: show prompt before removing.
+      return;
+    }
+
+    final failure = await context.read<JobManagerViewModel>().removeJob(job);
+    if (failure != null) {
+      context.toastFailure(failure);
+      return;
+    }
+  }
+
+  Future<void> _handleDelete(BuildContext context, ConvertJob job) async {
+    if (job.status.isProcessing) {
       return;
     }
 
@@ -206,36 +226,15 @@ class JobManager extends StatelessWidget {
     }
 
     final fileName = job.outputFileName;
-    final failure = await context.read<JobManagerViewModel>().removeJob(job);
+    final failure = await context.read<JobManagerViewModel>().deleteOutputFile(
+      job,
+    );
     if (failure != null) {
       context.toastFailure(failure);
       return;
     }
 
     context.toastSuccess(context.l10n.outputFileHasBeenDeleted(fileName));
-  }
-
-  void _handleOpenLogs(BuildContext context, ConvertJob job) {
-    job.openLogs(context);
-  }
-
-  Future<void> _handleShare(BuildContext context, ConvertJob job) async {
-    final file = job.outputFile;
-    await file.share();
-  }
-
-  Future<void> _handleDelete(BuildContext context, ConvertJob job) async {
-    // final file = await job.outputFile;
-    // if (file == null || !file.isFile) {
-    //   return;
-    // }
-    // final success = await file.delete();
-    // if (!success) {
-    //   // TODO: Show error.
-    //   return;
-    // }
-
-    _handleRemoveItem(context, job);
   }
 
   void _handleStop(BuildContext context, ConvertJob job) {
