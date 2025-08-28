@@ -145,12 +145,22 @@ class JobManagerViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> removeJob(ConvertJob job) async {
+  Future<Failure?> removeJob(ConvertJob job) async {
     if (job.status.isProcessing) {
       // Not allowed to remove running job.
-      return;
+      return const InvalidStatusFailure();
     }
+
+    final outputFile = job.outputFile;
+    try {
+      await outputFile.delete();
+    } catch (err) {
+      LogData().appendLog(job.id, err.toString());
+      return FileDeleteFailure(outputFile.path);
+    }
+
     job.clearLog();
     await _jobStorage.delete(job.id);
+    return null;
   }
 }

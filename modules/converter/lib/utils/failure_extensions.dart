@@ -4,6 +4,10 @@ import 'package:flutter/widgets.dart';
 import 'package:utils/utils.dart';
 
 extension BuildContextToastExtension on BuildContext {
+  void toastSuccess(String message) {
+    toast(message, type: MessageType.success);
+  }
+
   void toastFailure(Failure failure) {
     toastError(failure.localized(this));
   }
@@ -29,6 +33,7 @@ extension FailureExtension on Failure {
       ),
       OutputFileAlreadyExistsFailure f =>
         context.l10n.failureOutputFileAlreadyExists(f.path),
+      FileDeleteFailure f => context.l10n.failureFileDelete(f.path),
       _ => null,
     };
 

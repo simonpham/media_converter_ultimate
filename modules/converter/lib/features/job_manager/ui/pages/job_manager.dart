@@ -187,12 +187,32 @@ class JobManager extends StatelessWidget {
     await viewModel.addJobs(jobs);
   }
 
-  void _handleRemoveItem(BuildContext context, ConvertJob job) {
+  Future<void> _handleRemoveItem(BuildContext context, ConvertJob job) async {
     if (job.status.isProcessing) {
       // TODO: show prompt before removing.
       return;
     }
-    context.read<JobManagerViewModel>().removeJob(job);
+
+    final action = await ConfirmDialog.show(
+      context,
+      title: context.l10n.deleteFileConfirmationTitle,
+      message: context.l10n.deleteFileConfirmationMessage,
+      negativeText: context.l10n.delete,
+      positiveText: context.l10n.cancel,
+    );
+
+    if (action != ConfirmAction.negative) {
+      return;
+    }
+
+    final fileName = job.outputFileName;
+    final failure = await context.read<JobManagerViewModel>().removeJob(job);
+    if (failure != null) {
+      context.toastFailure(failure);
+      return;
+    }
+
+    context.toastSuccess(context.l10n.outputFileHasBeenDeleted(fileName));
   }
 
   void _handleOpenLogs(BuildContext context, ConvertJob job) {
