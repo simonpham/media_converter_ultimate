@@ -143,13 +143,18 @@ class JobMakerViewModel extends ChangeNotifier {
 
   void _initOutputConfig() {
     final formatEntry = _selectedFormatEntry;
-    if (formatEntry == null) return;
+    if (formatEntry == null) {
+      return;
+    }
+
+    // Clear all file names.
     final outputFileNames = {..._outputFileNames};
     for (final key in outputFileNames.keys) {
       outputFileNames[key] = null;
     }
     _outputFileNames = outputFileNames;
-    // Initialize selected config state to defaults (if needed)
+
+    // Initialize selected config state to defaults.
     _selectedValues = _getDefaultConfigValue(
       _configControls,
       formatEntry,
