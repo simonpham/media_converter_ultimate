@@ -22,6 +22,7 @@ Future<void> main() async {
   await SettingsBox().init();
 
   await LogData().init();
+  await JobConfigurationData().init();
 
   runApp(
     const MediaConverterUltimate(),

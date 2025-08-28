@@ -9,6 +9,10 @@ class ConverterInjector {
       () => LogData.create(),
     );
 
+    injector.registerLazySingleton<JobConfigurationData>(
+      () => JobConfigurationData.create(),
+    );
+
     final isarInstance = await ConvertJobIsarStorage.createIsarInstance();
     injector.registerLazySingleton<ConvertJobStorage>(
       () => ConvertJobIsarStorage(isar: isarInstance),
