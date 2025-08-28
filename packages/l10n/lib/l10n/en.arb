@@ -7,6 +7,7 @@
   "rememberConfigsTitle": "Remember my preferences",
   "rememberConfigsEnabledSubtitle": "Your preferences will be saved for future conversions.",
   "rememberConfigsDisabledSubtitle": "Changes you make this time won't be saved.",
+  "resetToDefault": "Reset to default",
   "failureDirectoryNotWritable": "Directory is not writable.",
   "failureInvalidStatus": "Invalid status.",
   "failureUnknown": "Unknown error. Please try again.",

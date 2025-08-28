@@ -12,6 +12,8 @@ class JobMakerConfigCustomizer extends StatelessWidget {
   final bool shouldRememberConfigs;
   final ValueChanged<bool>? onRememberConfigsChanged;
 
+  final VoidCallback? onResetConfigs;
+
   const JobMakerConfigCustomizer({
     super.key,
     required this.availableControls,
@@ -19,6 +21,7 @@ class JobMakerConfigCustomizer extends StatelessWidget {
     this.onChanged,
     required this.shouldRememberConfigs,
     this.onRememberConfigsChanged,
+    this.onResetConfigs,
   });
 
   @override
@@ -47,6 +50,19 @@ class JobMakerConfigCustomizer extends StatelessWidget {
                     }
                     onRememberConfigsChanged?.call(value);
                   },
+                ),
+              ),
+              SliverPadding(
+                padding: EdgeInsets.symmetric(
+                  vertical: Spacing.d8,
+                  horizontal: Spacing.d16,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: Button(
+                    variant: ButtonVariant.ghost,
+                    label: context.l10n.resetToDefault,
+                    onPressed: onResetConfigs,
+                  ),
                 ),
               ),
               const SliverToBoxAdapter(
