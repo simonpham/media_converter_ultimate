@@ -9,11 +9,16 @@ class JobMakerConfigCustomizer extends StatelessWidget {
   final Map<String, String> selectedValues;
   final void Function(String, String)? onChanged;
 
+  final bool shouldRememberConfigs;
+  final ValueChanged<bool>? onRememberConfigsChanged;
+
   const JobMakerConfigCustomizer({
     super.key,
     required this.availableControls,
     required this.selectedValues,
     this.onChanged,
+    required this.shouldRememberConfigs,
+    this.onRememberConfigsChanged,
   });
 
   @override
@@ -26,6 +31,27 @@ class JobMakerConfigCustomizer extends StatelessWidget {
         Expanded(
           child: CustomScrollView(
             slivers: [
+              SliverToBoxAdapter(
+                child: CheckboxListTile(
+                  title: Text(context.l10n.rememberConfigsTitle),
+                  subtitle: Text(
+                    shouldRememberConfigs
+                        ? context.l10n.rememberConfigsEnabledSubtitle
+                        : context.l10n.rememberConfigsDisabledSubtitle,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  value: shouldRememberConfigs,
+                  onChanged: (value) {
+                    if (value == null) {
+                      return;
+                    }
+                    onRememberConfigsChanged?.call(value);
+                  },
+                ),
+              ),
+              const SliverToBoxAdapter(
+                child: Divider(),
+              ),
               SliverList.separated(
                 separatorBuilder: (context, index) => const Divider(),
                 itemCount: visibleControls.length,

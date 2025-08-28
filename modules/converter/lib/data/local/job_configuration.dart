@@ -24,7 +24,10 @@ extension JobConfigurationDataBoxExt on JobConfigurationData {
     return get(formatName, defaultValue: <String, String>{});
   }
 
-  void setLog(String formatName, Map<String, String>? value) {
+  void setLastKnownConfigurations(
+    String formatName,
+    Map<String, String>? value,
+  ) {
     put(formatName, value);
   }
 
@@ -36,6 +39,10 @@ extension JobConfigurationDataBoxExt on JobConfigurationData {
 extension FormatEntryExt on FormatEntry {
   Map<String, String> get lastKnownConfigurations {
     return JobConfigurationData().getLastKnownConfigurations(name);
+  }
+
+  void setLastKnownConfigurations(Map<String, String> value) {
+    JobConfigurationData().setLastKnownConfigurations(name, value);
   }
 
   void clearConfigurations() {
