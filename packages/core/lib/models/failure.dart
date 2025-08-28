@@ -71,3 +71,10 @@ class OutputFileAlreadyExistsFailure extends Failure {
   const OutputFileAlreadyExistsFailure(this.path)
     : super('Output file already exists: $path.');
 }
+
+@immutable
+class FileDeleteFailure extends Failure {
+  final String path;
+
+  const FileDeleteFailure(this.path) : super('Failed to delete file at $path.');
+}
