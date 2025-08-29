@@ -8,6 +8,7 @@
   "rememberConfigsEnabledSubtitle": "Your preferences will be saved for future conversions.",
   "rememberConfigsDisabledSubtitle": "Changes you make this time won't be saved.",
   "resetToDefault": "Reset to default",
+  "setAsDefault": "Set as default",
   "deleteFileConfirmationTitle": "Delete file?",
   "deleteFileConfirmationMessage": "Are you sure you want to delete this file? This action cannot be undone.",
   "delete": "Delete",
