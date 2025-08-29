@@ -170,7 +170,11 @@ class JobMakerPreview extends StatelessWidget {
       confirmText: context.l10n.ok,
     );
 
-    final trimmedNewName = newName?.trim() ?? '';
+    if (newName == null) {
+      return;
+    }
+
+    final trimmedNewName = newName.trim();
     if (!isValidFilename(trimmedNewName)) {
       context.toastError(context.l10n.failureFileNameIsNotValid);
       return;
