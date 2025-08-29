@@ -35,19 +35,13 @@ class JobMakerConfigCustomizer extends StatelessWidget {
           child: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
-                child: CheckboxListTile(
-                  title: Text(context.l10n.rememberConfigsTitle),
-                  subtitle: Text(
-                    shouldRememberConfigs
-                        ? context.l10n.rememberConfigsEnabledSubtitle
-                        : context.l10n.rememberConfigsDisabledSubtitle,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                child: CheckBoxListTile(
+                  title: context.l10n.rememberConfigsTitle,
+                  subtitle: shouldRememberConfigs
+                      ? context.l10n.rememberConfigsEnabledSubtitle
+                      : context.l10n.rememberConfigsDisabledSubtitle,
                   value: shouldRememberConfigs,
                   onChanged: (value) {
-                    if (value == null) {
-                      return;
-                    }
                     onRememberConfigsChanged?.call(value);
                   },
                 ),
