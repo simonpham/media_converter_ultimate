@@ -109,13 +109,14 @@ class JobMakerPreview extends StatelessWidget {
                   vertical: Spacing.d16,
                 ),
                 itemCount: selectedPaths.length,
-                separatorBuilder: (_, _) => Spacing.v4,
+                separatorBuilder: (_, _) => Spacing.v8,
                 itemBuilder: (context, index) {
                   final filePath = selectedPaths.elementAt(index).path;
                   final outputFileName = outputFileNames[filePath] ?? '';
                   final file = File(filePath);
                   return OutputFileItem(
                     file,
+                    index: index + 1,
                     outputFormat: formatEntry,
                     outputFileName: outputFileName,
                     failure: errorPaths.containsKey(filePath)
