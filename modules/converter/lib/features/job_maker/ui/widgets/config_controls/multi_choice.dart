@@ -17,40 +17,35 @@ class MultiChoiceWidget extends StatelessWidget {
     final List<String> selectedValuesList = List<String>.from(
       jsonDecode(selectedValues[control.name] ?? '[]'),
     );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (final option in control.options) ...[
-          Builder(
-            builder: (context) {
-              final value = option.value;
-              final isSelected = selectedValuesList.contains(value);
-              return CheckboxListTile(
-                title: Text(context.configL10n(option.label)),
-                subtitle: option.description == null
-                    ? null
-                    : Text(
-                        context.configL10n('${option.description}'),
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                value: isSelected,
-                onChanged: (_) {
-                  if (value.isEmpty) {
-                    return;
-                  }
-                  final newValues = [...selectedValuesList];
-                  if (newValues.contains(value)) {
-                    newValues.remove(value);
-                  } else {
-                    newValues.add(value);
-                  }
-                  onChanged?.call(control.name, jsonEncode(newValues));
-                },
-              );
-            },
-          ),
-        ],
-      ],
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      itemCount: control.options.length,
+      itemBuilder: (context, index) {
+        final option = control.options[index];
+        final value = option.value;
+        final isSelected = selectedValuesList.contains(value);
+        return CheckBoxListTile(
+          value: isSelected,
+          title: context.configL10n(option.label),
+          subtitle: option.description == null
+              ? null
+              : context.configL10n('${option.description}'),
+          onChanged: (_) {
+            if (value.isEmpty) {
+              return;
+            }
+            final newValues = [...selectedValuesList];
+            if (newValues.contains(value)) {
+              newValues.remove(value);
+            } else {
+              newValues.add(value);
+            }
+            onChanged?.call(control.name, jsonEncode(newValues));
+          },
+        );
+      },
     );
   }
 }
