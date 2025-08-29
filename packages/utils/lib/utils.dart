@@ -9,4 +9,5 @@ export 'constants.dart';
 export 'hash.dart';
 export 'hex_color_utils.dart';
 export 'iterable_extensions.dart';
+export 'legalize.dart';
 export 'some.dart';
