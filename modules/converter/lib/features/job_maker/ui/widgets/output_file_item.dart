@@ -7,6 +7,7 @@ import 'package:platform_utils/platform_utils.dart';
 class OutputFileItem extends StatelessWidget {
   final File file;
 
+  final int index;
   final FormatEntry outputFormat;
   final String outputFileName;
 
@@ -17,6 +18,7 @@ class OutputFileItem extends StatelessWidget {
   const OutputFileItem(
     this.file, {
     super.key,
+    required this.index,
     required this.outputFormat,
     required this.outputFileName,
     this.failure,
@@ -28,6 +30,10 @@ class OutputFileItem extends StatelessWidget {
     final hasError = failure != null;
     return Tappable(
       behavior: HitTestBehavior.translucent,
+      tooltip:
+          '$outputFileName'
+          '\n'
+          '${context.l10n.originalFile(basename(file.path))}',
       onTap: switch (failure) {
         Failure f => () => context.toastFailure(f),
         _ => null,
@@ -44,19 +50,16 @@ class OutputFileItem extends StatelessWidget {
             ),
           ),
         ),
-        padding: EdgeInsets.symmetric(
-          vertical: Spacing.d12,
-        ),
         child: Row(
           children: [
             Spacing.h16,
-            Column(
-              children: [
-                FileIcon(file),
-                Text(
-                  outputFormat.outputExtension.toUpperCase(),
-                ),
-              ],
+            Text(
+              '$index',
+              style: context.theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: hasError ? context.theme.colorScheme.error : null,
+              ),
+              maxLines: 1,
             ),
             Spacing.h8,
             Expanded(
@@ -65,13 +68,11 @@ class OutputFileItem extends StatelessWidget {
                 children: [
                   Text(
                     outputFileName,
-                    style: context.theme.textTheme.titleSmall?.copyWith(
+                    style: context.theme.textTheme.bodyMedium?.copyWith(
                       color: hasError ? context.theme.colorScheme.error : null,
                     ),
-                  ),
-                  Text(
-                    context.l10n.originalFile(basename(file.path)),
-                    style: context.theme.textTheme.bodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
