@@ -19,6 +19,7 @@
   "failureNoOutputConfig": "No output config selected.",
   "failureNoOutputFolder": "No output folder selected.",
   "failureFileNameIsNotSet": "File name is not set for {path}.",
+  "failureFileNameIsNotValid": "File name is invalid. Please try a different name.",
   "failureInputFileNotExist": "Input file not exist: {path}.",
   "failureDuplicatedFilePath": "Duplicated file path: {path}.",
   "failureOutputFileAlreadyExists": "Output file already exists: {path}.",

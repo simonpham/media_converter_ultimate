@@ -3,6 +3,7 @@ import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:platform_utils/platform_utils.dart';
+import 'package:utils/utils.dart';
 
 class JobMakerPreview extends StatelessWidget {
   const JobMakerPreview({
@@ -147,10 +148,12 @@ class JobMakerPreview extends StatelessWidget {
       confirmText: context.l10n.ok,
     );
 
-    if (newName == null) {
+    final trimmedNewName = newName?.trim() ?? '';
+    if (!isValidFilename(trimmedNewName)) {
+      context.toastError(context.l10n.failureFileNameIsNotValid);
       return;
     }
 
-    viewModel.setOutputFileName(file.path, newName);
+    viewModel.setOutputFileName(file.path, trimmedNewName);
   }
 }
