@@ -4,10 +4,17 @@ import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:platform_utils/platform_utils.dart';
 
-class JobManager extends StatelessWidget {
+class JobManager extends StatefulWidget {
   const JobManager({
     super.key,
   });
+
+  @override
+  State<JobManager> createState() => _JobManagerState();
+}
+
+class _JobManagerState extends State<JobManager> {
+  final MenuController _menuController = MenuController();
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +28,8 @@ class JobManager extends StatelessWidget {
               model.runningJobsStream,
             ],
             builder: (context, data) {
+              final direction = Directionality.of(context);
+
               final List<ConvertJob> pendingJobs = data[0] ?? [];
               final List<ConvertJob> completedJobs = data[1] ?? [];
               final List<ConvertJob> runningJobs = data[2] ?? [];
@@ -41,6 +50,61 @@ class JobManager extends StatelessWidget {
                     ),
                     pinned: true,
                     backgroundColor: context.theme.scaffoldBackgroundColor,
+                    actions: [
+                      Container(
+                        margin: EdgeInsets.symmetric(
+                          horizontal: Spacing.d16,
+                        ),
+                        child: Directionality(
+                          textDirection: switch (direction) {
+                            TextDirection.ltr => TextDirection.rtl,
+                            TextDirection.rtl => TextDirection.ltr,
+                          },
+                          child: MenuAnchor(
+                            controller: _menuController,
+                            alignmentOffset: Offset(0, Spacing.d4),
+                            menuChildren: [
+                              Directionality(
+                                textDirection: direction,
+                                child: ListItem(
+                                  leading: ImageView(
+                                    Assets
+                                        .hugeicons
+                                        .stroke
+                                        .addRemoveDelete
+                                        .delete01,
+                                    size: Spacing.d24,
+                                    color: context.theme.colorScheme.onSurface,
+                                  ),
+                                  title: context.l10n.clearFinishedJobs,
+                                  onTap: () {
+                                    _menuController.close();
+                                    _handleClearFinishedJobs(context);
+                                  },
+                                ),
+                              ),
+                            ],
+                            builder: (context, controller, _) => Button(
+                              variant: ButtonVariant.ghost,
+                              padding: EdgeInsets.all(Spacing.d8),
+                              child: ImageView(
+                                Assets.hugeicons.stroke.moreMenu.moreVertical,
+                                size: Spacing.d24,
+                                color: context.theme.colorScheme.onSurface,
+                              ),
+                              onPressed: () {
+                                if (controller.isOpen) {
+                                  controller.close();
+                                  return;
+                                }
+
+                                controller.open();
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   if (runningJobs.isNotEmpty) ...[
                     SliverToBoxAdapter(child: Spacing.v16),
@@ -247,4 +311,6 @@ class JobManager extends StatelessWidget {
     // TODO: check existing file.
     context.read<JobManagerViewModel>().restartJob(job);
   }
+
+  void _handleClearFinishedJobs(BuildContext context) {}
 }
