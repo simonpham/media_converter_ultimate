@@ -12,6 +12,7 @@
   "deleteFileConfirmationTitle": "Delete file?",
   "deleteFileConfirmationMessage": "Are you sure you want to delete this file? This action cannot be undone.",
   "delete": "Delete",
+  "clearFinishedJobs": "Clear finished jobs",
   "failureDirectoryNotWritable": "Directory is not writable.",
   "failureInvalidStatus": "Invalid status.",
   "failureUnknown": "Unknown error. Please try again.",
