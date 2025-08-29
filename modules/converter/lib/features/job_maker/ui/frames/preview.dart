@@ -35,12 +35,34 @@ class JobMakerPreview extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SectionTitle(
-              context.l10n.outputFolder,
+            Container(
+              padding: EdgeInsets.only(
+                left: Spacing.d16,
+                right: Spacing.d16,
+                top: Spacing.d4,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: SectionTitle(
+                      context.l10n.outputFolder,
+                      padding: EdgeInsets.zero,
+                    ),
+                  ),
+                  CheckBoxListTile(
+                    style: CheckBoxListTileStyle.compact,
+                    alignment: CheckBoxAlignment.left,
+                    title: context.l10n.setAsDefault,
+                    value: model.shouldRememberOutputFolder,
+                    onChanged: (value) {
+                      model.setRememberOutputFolder(value);
+                    },
+                  ),
+                ],
+              ),
             ),
             Padding(
               padding: EdgeInsets.only(
-                top: Spacing.d16,
                 left: Spacing.d16,
                 right: Spacing.d16,
               ),

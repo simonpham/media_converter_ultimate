@@ -38,6 +38,13 @@ class JobMakerViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _shouldRememberOutputFolder = false;
+  bool get shouldRememberOutputFolder => _shouldRememberOutputFolder;
+  void setRememberOutputFolder(bool value) {
+    _shouldRememberOutputFolder = value;
+    notifyListeners();
+  }
+
   Map<String, List<ConfigControl>> get configControls => _configControls;
   Map<String, String> get selectedValues => _selectedValues;
 
@@ -53,7 +60,6 @@ class JobMakerViewModel extends ChangeNotifier {
 
   void setOutputDirectoryPath(String? path) {
     _outputDirectoryPath = path;
-    SettingsBox().lastOutputDirectoryPath = path;
     notifyListeners();
 
     refreshOutputFileNames();
@@ -254,6 +260,9 @@ class JobMakerViewModel extends ChangeNotifier {
 
     if (shouldRememberConfigs) {
       formatEntry.setLastKnownConfigurations(selectedValues);
+    }
+    if (shouldRememberOutputFolder) {
+      SettingsBox().lastOutputDirectoryPath = outputDirectoryPath;
     }
 
     return result;
