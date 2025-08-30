@@ -5,10 +5,23 @@ import 'package:flutter/material.dart';
 import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
 
-class JobMakerPreview extends StatelessWidget {
+class JobMakerPreview extends StatefulWidget {
   const JobMakerPreview({
     super.key,
   });
+
+  @override
+  State<JobMakerPreview> createState() => _JobMakerPreviewState();
+}
+
+class _JobMakerPreviewState extends State<JobMakerPreview> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,30 +131,34 @@ class JobMakerPreview extends StatelessWidget {
               context.l10n.outputFiles,
             ),
             Expanded(
-              child: ListView.separated(
-                padding: EdgeInsets.symmetric(
-                  horizontal: Spacing.d16,
-                  vertical: Spacing.d16,
+              child: Scrollbar(
+                controller: _scrollController,
+                child: ListView.separated(
+                  controller: _scrollController,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Spacing.d16,
+                    vertical: Spacing.d16,
+                  ),
+                  itemCount: selectedPaths.length,
+                  separatorBuilder: (_, _) => Spacing.v8,
+                  itemBuilder: (context, index) {
+                    final filePath = selectedPaths.elementAt(index).path;
+                    final outputFileName = outputFileNames[filePath] ?? '';
+                    final file = File(filePath);
+                    return OutputFileItem(
+                      file,
+                      index: index + 1,
+                      outputFormat: formatEntry,
+                      outputFileName: outputFileName,
+                      failure: errorPaths.containsKey(filePath)
+                          ? errorPaths[filePath]
+                          : null,
+                      onRenamePressed: () {
+                        _handleRenameOutputFilePressed(context, file);
+                      },
+                    );
+                  },
                 ),
-                itemCount: selectedPaths.length,
-                separatorBuilder: (_, _) => Spacing.v8,
-                itemBuilder: (context, index) {
-                  final filePath = selectedPaths.elementAt(index).path;
-                  final outputFileName = outputFileNames[filePath] ?? '';
-                  final file = File(filePath);
-                  return OutputFileItem(
-                    file,
-                    index: index + 1,
-                    outputFormat: formatEntry,
-                    outputFileName: outputFileName,
-                    failure: errorPaths.containsKey(filePath)
-                        ? errorPaths[filePath]
-                        : null,
-                    onRenamePressed: () {
-                      _handleRenameOutputFilePressed(context, file);
-                    },
-                  );
-                },
               ),
             ),
           ],
