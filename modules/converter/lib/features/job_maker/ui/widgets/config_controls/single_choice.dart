@@ -14,26 +14,25 @@ class SingleChoiceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (final option in control.options) ...[
-          CheckboxListTile(
-            title: Text(context.configL10n(option.label)),
-            subtitle: option.description == null
-                ? null
-                : Text(
-                    context.configL10n('${option.description}'),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-            value: selectedValues[control.name] == option.value,
-            onChanged: (value) {
-              if (value == null) return;
-              onChanged?.call(control.name, value ? option.value : '');
-            },
-          ),
-        ],
-      ],
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      itemCount: control.options.length,
+      itemBuilder: (context, index) {
+        final option = control.options[index];
+        return RadioIconListTile<String>(
+          title: context.configL10n(option.label),
+          subtitle: option.description == null
+              ? null
+              : context.configL10n('${option.description}'),
+          groupValue: selectedValues[control.name],
+          value: option.value,
+          onChanged: (value) {
+            onChanged?.call(control.name, value);
+          },
+        );
+      },
     );
   }
 }
