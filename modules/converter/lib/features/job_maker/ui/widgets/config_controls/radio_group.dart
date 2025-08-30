@@ -14,27 +14,26 @@ class RadioGroupWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (final option in control.options) ...[
-          RadioListTile<String>(
-            title: Text(context.configL10n(option.label)),
-            subtitle: option.description == null
-                ? null
-                : Text(
-                    context.configL10n('${option.description}'),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-            value: option.value,
-            groupValue: selectedValues[control.name],
-            onChanged: (value) {
-              if (value == null) return;
-              onChanged?.call(control.name, value);
-            },
-          ),
-        ],
-      ],
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      itemCount: control.options.length,
+      itemBuilder: (context, index) {
+        final option = control.options[index];
+        return RadioIconListTile(
+          alignment: RadioIconAlignment.left,
+          value: option.value,
+          groupValue: selectedValues[control.name],
+          title: context.configL10n(option.label),
+          subtitle: option.description == null
+              ? null
+              : context.configL10n('${option.description}'),
+          onChanged: (value) {
+            onChanged?.call(control.name, value);
+          },
+        );
+      },
     );
   }
 }
