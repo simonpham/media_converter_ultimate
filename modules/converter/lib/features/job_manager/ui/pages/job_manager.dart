@@ -323,6 +323,7 @@ class _JobManagerState extends State<JobManager> {
       useHtmlMessage: true,
       cancelText: context.l10n.cancel,
       confirmText: context.l10n.clearHistory,
+      initialValue: ClearFinishedJobsOption.everything,
       values: ClearFinishedJobsOption.values,
       itemLabelBuilder: (option) {
         return option.getLabel(context);
