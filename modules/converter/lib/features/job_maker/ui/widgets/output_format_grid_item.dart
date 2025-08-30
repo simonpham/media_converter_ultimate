@@ -54,14 +54,36 @@ class OutputFormatGridItem extends StatelessWidget {
                   ]
                 : null,
           ),
-          child: Center(
-            child: Text(
-              format.outputExtension.toUpperCase(),
-              style: context.theme.textTheme.labelMedium?.copyWith(
-                color: Colors.white,
-                fontSize: Spacing.d20,
+          child: Stack(
+            children: [
+              AnimatedScale(
+                scale: isSelected ? 1 : 0,
+                curve: Curves.easeOut,
+                duration: Durations.medium1,
+                alignment: Alignment.center,
+                child: Container(
+                  margin: EdgeInsets.only(
+                    left: Spacing.d8,
+                    top: Spacing.d8,
+                  ),
+                  width: Spacing.d12,
+                  height: Spacing.d12,
+                  decoration: BoxDecoration(
+                    color: context.theme.colorScheme.surface,
+                    shape: BoxShape.circle,
+                  ),
+                ),
               ),
-            ),
+              Center(
+                child: Text(
+                  format.outputExtension.toUpperCase(),
+                  style: context.theme.textTheme.labelMedium?.copyWith(
+                    color: Colors.white,
+                    fontSize: Spacing.d20,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
