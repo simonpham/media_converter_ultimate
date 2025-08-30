@@ -21,7 +21,18 @@ class JobConfigurationData extends EasyBox implements Disposable {
 
 extension JobConfigurationDataBoxExt on JobConfigurationData {
   Map<String, String> getLastKnownConfigurations(String formatName) {
-    return get(formatName, defaultValue: <String, String>{});
+    final Map<String, String> result = {};
+    final rawData = get(formatName, defaultValue: <String, String>{});
+    if (rawData is! Map) {
+      return result;
+    }
+    for (final MapEntry(:key, :value) in rawData.entries) {
+      if (key is! String || value is! String) {
+        continue;
+      }
+      result[key] = value;
+    }
+    return result;
   }
 
   void setLastKnownConfigurations(
