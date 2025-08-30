@@ -19,7 +19,7 @@ class FileItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: ShapeDecoration(
-        color: context.theme.colorScheme.surface,
+        color: context.theme.cardColor,
         shape: const SmoothRectangleBorder(
           borderRadius: SmoothBorderRadius.all(
             SmoothRadius(

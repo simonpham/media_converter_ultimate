@@ -40,7 +40,7 @@ class OutputFileItem extends StatelessWidget {
       },
       child: Container(
         decoration: ShapeDecoration(
-          color: context.theme.colorScheme.surface,
+          color: context.theme.cardColor,
           shape: const SmoothRectangleBorder(
             borderRadius: SmoothBorderRadius.all(
               SmoothRadius(

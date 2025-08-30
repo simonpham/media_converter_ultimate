@@ -55,23 +55,23 @@ class ConfigControlWidget extends StatelessWidget {
       ),
     };
 
-    if ([ConfigControlType.dropdown].contains(control.type)) {
-      return Padding(
-        padding: EdgeInsets.only(
-          left: Spacing.d16,
-          right: Spacing.d16,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            labelWidget,
-            Spacing.h16,
-            Expanded(child: controlWidget),
-          ],
-        ),
-      );
-    }
+    // if ([ConfigControlType.dropdown].contains(control.type)) {
+    //   return Padding(
+    //     padding: EdgeInsets.only(
+    //       left: Spacing.d16,
+    //       right: Spacing.d16,
+    //     ),
+    //     child: Row(
+    //       crossAxisAlignment: CrossAxisAlignment.baseline,
+    //       textBaseline: TextBaseline.alphabetic,
+    //       children: [
+    //         labelWidget,
+    //         Spacing.h16,
+    //         Expanded(child: controlWidget),
+    //       ],
+    //     ),
+    //   );
+    // }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
