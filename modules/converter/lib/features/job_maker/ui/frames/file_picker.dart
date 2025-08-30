@@ -72,6 +72,7 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                                       .editFormatting
                                       .verticalDragDrop,
                                   size: Spacing.d20,
+                                  color: context.theme.colorScheme.onSurface,
                                 ),
                                 onRemove: () {
                                   context.read<JobMakerViewModel>().removeFile(

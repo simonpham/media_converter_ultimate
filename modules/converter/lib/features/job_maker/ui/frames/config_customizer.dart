@@ -35,42 +35,73 @@ class JobMakerConfigCustomizer extends StatelessWidget {
           child: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
-                child: CheckBoxListTile(
-                  title: context.l10n.rememberConfigsTitle,
-                  subtitle: shouldRememberConfigs
-                      ? context.l10n.rememberConfigsEnabledSubtitle
-                      : context.l10n.rememberConfigsDisabledSubtitle,
-                  value: shouldRememberConfigs,
-                  onChanged: (value) {
-                    onRememberConfigsChanged?.call(value);
-                  },
-                ),
-              ),
-              SliverPadding(
-                padding: EdgeInsets.symmetric(
-                  vertical: Spacing.d8,
-                  horizontal: Spacing.d16,
-                ),
-                sliver: SliverToBoxAdapter(
-                  child: Button(
-                    variant: ButtonVariant.ghost,
-                    label: context.l10n.resetToDefault,
-                    onPressed: onResetConfigs,
+                child: RoundCard(
+                  margin: EdgeInsets.symmetric(
+                    horizontal: Spacing.d16,
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    vertical: Spacing.d12,
+                  ),
+                  child: Column(
+                    children: [
+                      CheckBoxListTile(
+                        alignment: CheckBoxAlignment.left,
+                        title: context.l10n.rememberConfigsTitle,
+                        subtitle: shouldRememberConfigs
+                            ? context.l10n.rememberConfigsEnabledSubtitle
+                            : context.l10n.rememberConfigsDisabledSubtitle,
+                        value: shouldRememberConfigs,
+                        onChanged: (value) {
+                          onRememberConfigsChanged?.call(value);
+                        },
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: Spacing.d8,
+                          horizontal: Spacing.d16,
+                        ),
+                        child: Button(
+                          variant: ButtonVariant.ghost,
+                          label: context.l10n.resetToDefault,
+                          onPressed: onResetConfigs,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              const SliverToBoxAdapter(
-                child: Divider(),
+              SliverToBoxAdapter(
+                child: Spacing.v16,
               ),
               SliverList.separated(
-                separatorBuilder: (context, index) => const Divider(),
+                separatorBuilder: (context, index) => Spacing.v16,
                 itemCount: visibleControls.length,
                 itemBuilder: (context, index) {
                   final control = visibleControls.elementAt(index);
-                  return ConfigControlWidget(
-                    control,
-                    selectedValues: selectedValues,
-                    onChanged: onChanged,
+                  return Container(
+                    margin: EdgeInsets.symmetric(
+                      horizontal: Spacing.d16,
+                    ),
+                    padding: EdgeInsets.only(
+                      top: Spacing.d8,
+                      bottom: Spacing.d12,
+                    ),
+                    decoration: ShapeDecoration(
+                      color: context.theme.cardColor,
+                      shape: const SmoothRectangleBorder(
+                        borderRadius: SmoothBorderRadius.all(
+                          SmoothRadius(
+                            cornerRadius: 12.0,
+                            cornerSmoothing: 1.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                    child: ConfigControlWidget(
+                      control,
+                      selectedValues: selectedValues,
+                      onChanged: onChanged,
+                    ),
                   );
                 },
               ),

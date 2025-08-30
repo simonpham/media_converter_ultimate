@@ -35,67 +35,82 @@ class JobMakerPreview extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: EdgeInsets.only(
-                left: Spacing.d16,
-                right: Spacing.d16,
-                top: Spacing.d4,
+            RoundCard(
+              margin: EdgeInsets.symmetric(
+                horizontal: Spacing.d16,
               ),
-              child: Row(
+              padding: EdgeInsets.only(
+                bottom: Spacing.d16,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: SectionTitle(
-                      context.l10n.outputFolder,
-                      padding: EdgeInsets.zero,
+                  Container(
+                    padding: EdgeInsets.only(
+                      left: Spacing.d16,
+                      right: Spacing.d16,
+                      top: Spacing.d4,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: SectionTitle(
+                            context.l10n.outputFolder,
+                            padding: EdgeInsets.zero,
+                          ),
+                        ),
+                        CheckBoxListTile(
+                          style: CheckBoxListTileStyle.compact,
+                          alignment: CheckBoxAlignment.left,
+                          title: context.l10n.setAsDefault,
+                          value: model.shouldRememberOutputFolder,
+                          onChanged: (value) {
+                            model.setRememberOutputFolder(value);
+                          },
+                        ),
+                      ],
                     ),
                   ),
-                  CheckBoxListTile(
-                    style: CheckBoxListTileStyle.compact,
-                    alignment: CheckBoxAlignment.left,
-                    title: context.l10n.setAsDefault,
-                    value: model.shouldRememberOutputFolder,
-                    onChanged: (value) {
-                      model.setRememberOutputFolder(value);
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(
-                left: Spacing.d16,
-                right: Spacing.d16,
-              ),
-              child: Button(
-                tooltip: model.outputDirectoryPath,
-                variant: ButtonVariant.ghost,
-                padding: EdgeInsets.symmetric(
-                  horizontal: Spacing.d16,
-                  vertical: Spacing.d12,
-                ),
-                icon: Padding(
-                  padding: EdgeInsets.only(right: Spacing.d4),
-                  child: ImageView(
-                    Assets.hugeicons.stroke.filesFolders.folder01,
-                    color: context.theme.primaryColor,
-                    size: Spacing.d24,
-                  ),
-                ),
-                label: outputDirectoryName ?? context.l10n.selectFolder,
-                labelTextAlign: TextAlign.start,
-                expandTitle: true,
-                trailingIcon: !isFolderSelected
-                    ? null
-                    : Text(
-                        context.l10n.selectFolder,
-                        style: context.theme.textTheme.labelSmall?.copyWith(
-                          color: context.theme.colorScheme.primary,
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: Spacing.d16,
+                      right: Spacing.d16,
+                    ),
+                    child: Button(
+                      tooltip: model.outputDirectoryPath,
+                      variant: ButtonVariant.ghost,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Spacing.d16,
+                        vertical: Spacing.d12,
+                      ),
+                      icon: Padding(
+                        padding: EdgeInsets.only(right: Spacing.d4),
+                        child: ImageView(
+                          Assets.hugeicons.stroke.filesFolders.folder01,
+                          color: context.theme.primaryColor,
+                          size: Spacing.d24,
                         ),
                       ),
-                mainAxisAlignment: MainAxisAlignment.start,
-                onPressed: () {
-                  _handleChooseOutputDirectoryPressed(context);
-                },
+                      label: outputDirectoryName ?? context.l10n.selectFolder,
+                      labelTextAlign: TextAlign.start,
+                      expandTitle: true,
+                      trailingIcon: !isFolderSelected
+                          ? null
+                          : Text(
+                              context.l10n.selectFolder,
+                              style: context.theme.textTheme.labelSmall
+                                  ?.copyWith(
+                                    color: context.theme.colorScheme.primary,
+                                  ),
+                            ),
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      onPressed: () {
+                        _handleChooseOutputDirectoryPressed(context);
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
             Spacing.v8,

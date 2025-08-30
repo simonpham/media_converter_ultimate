@@ -17,6 +17,7 @@ class DropdownWidget extends StatelessWidget {
     final isDark = context.theme.brightness == Brightness.dark;
     return Container(
       margin: EdgeInsets.symmetric(
+        horizontal: Spacing.d16,
         vertical: Spacing.d8,
       ),
       decoration: ShapeDecoration(

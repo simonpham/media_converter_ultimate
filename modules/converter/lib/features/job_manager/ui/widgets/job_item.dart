@@ -38,7 +38,7 @@ class JobItem extends StatelessWidget {
         horizontal: Spacing.d16,
       ),
       decoration: ShapeDecoration(
-        color: context.theme.colorScheme.surface,
+        color: context.theme.cardColor,
         shape: const SmoothRectangleBorder(
           borderRadius: SmoothBorderRadius.all(
             SmoothRadius(
