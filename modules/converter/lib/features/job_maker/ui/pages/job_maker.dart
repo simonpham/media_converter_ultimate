@@ -61,6 +61,7 @@ class _JobMakerState extends State<JobMaker> {
     translations: widget.translations,
   );
 
+  final MenuController _menuController = MenuController();
   final PageController _pageController = PageController();
   final ValueNotifier<int> _currentStepNotifier = ValueNotifier(0);
 
@@ -73,6 +74,7 @@ class _JobMakerState extends State<JobMaker> {
 
   @override
   Widget build(BuildContext context) {
+    final direction = Directionality.of(context);
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (bool didPop, _) {
@@ -87,31 +89,120 @@ class _JobMakerState extends State<JobMaker> {
         child: Builder(
           builder: (BuildContext context) {
             return Scaffold(
-              appBar: AppBar(
-                centerTitle: true,
-                title: ValueListenableBuilder(
-                  valueListenable: _currentStepNotifier,
-                  builder: (context, currentStep, child) {
-                    final step = JobMakerSteps.values.elementAt(currentStep);
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          step.getTitle(context),
-                          style: context.theme.textTheme.titleMedium,
-                        ),
-                        Spacing.v4,
-                        StepperWidget(
-                          stepCount: JobMakerSteps.values.length,
-                          currentStep: currentStep,
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
               body: Column(
                 children: [
+                  ValueListenableBuilder(
+                    valueListenable: _currentStepNotifier,
+                    builder: (context, currentStep, child) {
+                      final step = JobMakerSteps.values.elementAt(currentStep);
+                      return AppBar(
+                        centerTitle: true,
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              step.getTitle(context),
+                              style: context.theme.textTheme.titleMedium,
+                            ),
+                            Spacing.v4,
+                            StepperWidget(
+                              stepCount: JobMakerSteps.values.length,
+                              currentStep: currentStep,
+                            ),
+                          ],
+                        ),
+                        actions: step != JobMakerSteps.customizeConfigs
+                            ? null
+                            : [
+                                Container(
+                                  margin: EdgeInsets.symmetric(
+                                    horizontal: Spacing.d16,
+                                  ),
+                                  child: Directionality(
+                                    textDirection: switch (direction) {
+                                      TextDirection.ltr => TextDirection.rtl,
+                                      TextDirection.rtl => TextDirection.ltr,
+                                    },
+                                    child: Consumer<JobMakerViewModel>(
+                                      builder: (context, model, child) {
+                                        return MenuAnchor(
+                                          controller: _menuController,
+                                          alignmentOffset: Offset(
+                                            0,
+                                            Spacing.d4,
+                                          ),
+                                          menuChildren: [
+                                            Directionality(
+                                              textDirection: direction,
+                                              child: ListItem(
+                                                leading: ImageView(
+                                                  Assets
+                                                      .hugeicons
+                                                      .stroke
+                                                      .settings
+                                                      .setup02,
+                                                  size: Spacing.d24,
+                                                  color: context
+                                                      .theme
+                                                      .colorScheme
+                                                      .error,
+                                                ),
+                                                child: Text(
+                                                  context.l10n.resetToDefault,
+                                                  style: context
+                                                      .theme
+                                                      .textTheme
+                                                      .bodyLarge
+                                                      ?.copyWith(
+                                                        color: context
+                                                            .theme
+                                                            .colorScheme
+                                                            .error,
+                                                      ),
+                                                ),
+                                                onTap: () {
+                                                  _menuController.close();
+                                                  model.resetConfigurations();
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                          builder: (context, controller, _) =>
+                                              Button(
+                                                variant: ButtonVariant.ghost,
+                                                padding: EdgeInsets.all(
+                                                  Spacing.d8,
+                                                ),
+                                                child: ImageView(
+                                                  Assets
+                                                      .hugeicons
+                                                      .stroke
+                                                      .moreMenu
+                                                      .moreVertical,
+                                                  size: Spacing.d24,
+                                                  color: context
+                                                      .theme
+                                                      .colorScheme
+                                                      .onSurface,
+                                                ),
+                                                onPressed: () {
+                                                  if (controller.isOpen) {
+                                                    controller.close();
+                                                    return;
+                                                  }
+
+                                                  controller.open();
+                                                },
+                                              ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                      );
+                    },
+                  ),
                   Expanded(
                     child: PageView.builder(
                       controller: _pageController,

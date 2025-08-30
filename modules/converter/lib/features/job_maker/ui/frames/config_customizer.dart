@@ -12,8 +12,6 @@ class JobMakerConfigCustomizer extends StatefulWidget {
   final bool shouldRememberConfigs;
   final ValueChanged<bool>? onRememberConfigsChanged;
 
-  final VoidCallback? onResetConfigs;
-
   const JobMakerConfigCustomizer({
     super.key,
     required this.availableControls,
@@ -21,7 +19,6 @@ class JobMakerConfigCustomizer extends StatefulWidget {
     this.onChanged,
     required this.shouldRememberConfigs,
     this.onRememberConfigsChanged,
-    this.onResetConfigs,
   });
 
   @override
@@ -59,31 +56,16 @@ class _JobMakerConfigCustomizerState extends State<JobMakerConfigCustomizer> {
                     padding: EdgeInsets.symmetric(
                       vertical: Spacing.d12,
                     ),
-                    child: Column(
-                      children: [
-                        CheckBoxListTile(
-                          alignment: CheckBoxAlignment.left,
-                          title: context.l10n.rememberConfigsTitle,
-                          subtitle: widget.shouldRememberConfigs
-                              ? context.l10n.rememberConfigsEnabledSubtitle
-                              : context.l10n.rememberConfigsDisabledSubtitle,
-                          value: widget.shouldRememberConfigs,
-                          onChanged: (value) {
-                            widget.onRememberConfigsChanged?.call(value);
-                          },
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: Spacing.d8,
-                            horizontal: Spacing.d16,
-                          ),
-                          child: Button(
-                            variant: ButtonVariant.ghost,
-                            label: context.l10n.resetToDefault,
-                            onPressed: widget.onResetConfigs,
-                          ),
-                        ),
-                      ],
+                    child: CheckBoxListTile(
+                      alignment: CheckBoxAlignment.left,
+                      title: context.l10n.rememberConfigsTitle,
+                      subtitle: widget.shouldRememberConfigs
+                          ? context.l10n.rememberConfigsEnabledSubtitle
+                          : context.l10n.rememberConfigsDisabledSubtitle,
+                      value: widget.shouldRememberConfigs,
+                      onChanged: (value) {
+                        widget.onRememberConfigsChanged?.call(value);
+                      },
                     ),
                   ),
                 ),
