@@ -34,6 +34,7 @@ extension FailureExtension on Failure {
       OutputFileAlreadyExistsFailure f =>
         context.l10n.failureOutputFileAlreadyExists(f.path),
       FileDeleteFailure f => context.l10n.failureFileDelete(f.path),
+      FailedToClearJobsFailure _ => context.l10n.failureFailedToClearJobs,
       _ => null,
     };
 

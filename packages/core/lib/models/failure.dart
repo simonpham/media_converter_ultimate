@@ -78,3 +78,8 @@ class FileDeleteFailure extends Failure {
 
   const FileDeleteFailure(this.path) : super('Failed to delete file at $path.');
 }
+
+@immutable
+class FailedToClearJobsFailure extends Failure {
+  const FailedToClearJobsFailure() : super('Failed to clear finished jobs.');
+}
