@@ -460,4 +460,19 @@ class JobMakerViewModel extends ChangeNotifier {
     notifyListeners();
     _validateSelectedPaths();
   }
+
+  void loadPreviousConfigurations() {
+    final formatEntry = _selectedFormatEntry;
+    if (formatEntry == null) {
+      return;
+    }
+    _selectedValues = {
+      ..._getDefaultConfigValue(
+        _configControls,
+        formatEntry,
+      ),
+      ...formatEntry.lastKnownConfigurations,
+    };
+    notifyListeners();
+  }
 }
