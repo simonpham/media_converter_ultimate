@@ -3,6 +3,7 @@ import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:platform_utils/platform_utils.dart';
+import 'package:utils/utils.dart';
 
 class JobManager extends StatefulWidget {
   const JobManager({
@@ -76,7 +77,7 @@ class _JobManagerState extends State<JobManager> {
                                     size: Spacing.d24,
                                     color: context.theme.colorScheme.onSurface,
                                   ),
-                                  title: context.l10n.clearFinishedJobs,
+                                  title: context.l10n.clearConversionHistory,
                                   onTap: () {
                                     _menuController.close();
                                     _handleClearFinishedJobs(context);
@@ -312,5 +313,36 @@ class _JobManagerState extends State<JobManager> {
     context.read<JobManagerViewModel>().restartJob(job);
   }
 
-  void _handleClearFinishedJobs(BuildContext context) {}
+  Future<void> _handleClearFinishedJobs(BuildContext context) async {
+    final result = await RadioOptionsDialog.show<ClearFinishedJobsOption>(
+      context,
+      title: context.l10n.clearHistory,
+      message: context.l10n.clearConversionHistoryConfirmationMessage(
+        Colors.orange.toWebHex(),
+      ),
+      useHtmlMessage: true,
+      cancelText: context.l10n.cancel,
+      confirmText: context.l10n.clearHistory,
+      values: ClearFinishedJobsOption.values,
+      itemLabelBuilder: (option) {
+        return option.getLabel(context);
+      },
+    );
+
+    if (result == null) {
+      return;
+    }
+
+    final failure = await context.read<JobManagerViewModel>().clearFinishedJobs(
+      result,
+    );
+    if (failure != null) {
+      context.toastFailure(failure);
+      return;
+    }
+
+    context.toastSuccess(
+      result.getSuccessMessage(context),
+    );
+  }
 }

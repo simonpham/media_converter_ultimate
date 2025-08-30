@@ -172,4 +172,18 @@ class JobManagerViewModel extends ChangeNotifier {
     await _jobStorage.delete(job.id);
     return null;
   }
+
+  Future<Failure?> clearFinishedJobs(ClearFinishedJobsOption result) async {
+    final success = switch (result) {
+      ClearFinishedJobsOption.everything =>
+        await _jobStorage.removeAllFinishedJobs(),
+      _ => await _jobStorage.removeOlderFinishedJobs(result.dayCount),
+    };
+
+    if (!success) {
+      return const FailedToClearJobsFailure();
+    }
+
+    return null;
+  }
 }
