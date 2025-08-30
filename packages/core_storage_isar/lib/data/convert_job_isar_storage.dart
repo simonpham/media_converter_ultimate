@@ -152,4 +152,48 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
               .toList(),
         );
   }
+
+  @override
+  Future<bool> removeAllFinishedJobs() async {
+    try {
+      await isar.writeTxn(() {
+        return isar.isarConvertJobs
+            .where()
+            .statusEqualTo(JobStatus.completed)
+            .or()
+            .statusEqualTo(JobStatus.failed)
+            .or()
+            .statusEqualTo(JobStatus.cancelled)
+            .deleteAll();
+      });
+      return true;
+    } catch (err, trace) {
+      printError(err, trace);
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> removeOlderFinishedJobs(int dayCount) async {
+    final now = DateTime.now();
+    final cutoff = now.subtract(Duration(days: dayCount));
+    try {
+      await isar.writeTxn(() {
+        return isar.isarConvertJobs
+            .where()
+            .statusEqualTo(JobStatus.completed)
+            .or()
+            .statusEqualTo(JobStatus.failed)
+            .or()
+            .statusEqualTo(JobStatus.cancelled)
+            .filter()
+            .createdAtLessThan(cutoff)
+            .deleteAll();
+      });
+      return true;
+    } catch (err, trace) {
+      printError(err, trace);
+      return false;
+    }
+  }
 }
