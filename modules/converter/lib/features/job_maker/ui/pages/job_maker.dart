@@ -139,6 +139,32 @@ class _JobMakerState extends State<JobMaker> {
                                                   Assets
                                                       .hugeicons
                                                       .stroke
+                                                      .arrowsRound
+                                                      .arrowTurnBackwardRound,
+                                                  size: Spacing.d24,
+                                                  color: context
+                                                      .theme
+                                                      .colorScheme
+                                                      .onSurface,
+                                                ),
+                                                title: context
+                                                    .l10n
+                                                    .loadPreviousConfigs,
+                                                onTap: () {
+                                                  _menuController.close();
+                                                  model
+                                                      .loadPreviousConfigurations();
+                                                },
+                                              ),
+                                            ),
+                                            const Divider(),
+                                            Directionality(
+                                              textDirection: direction,
+                                              child: ListItem(
+                                                leading: ImageView(
+                                                  Assets
+                                                      .hugeicons
+                                                      .stroke
                                                       .settings
                                                       .setup02,
                                                   size: Spacing.d24,
