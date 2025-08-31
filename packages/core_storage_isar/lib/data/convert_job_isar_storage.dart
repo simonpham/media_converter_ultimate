@@ -156,6 +156,21 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   }
 
   @override
+  Stream<List<ConvertJob>> watchActionRequiredJobs() {
+    return isar.isarConvertJobs
+        .where()
+        .statusEqualTo(JobStatus.actionRequired)
+        .sortByUpdatedAtDesc()
+        .watch(fireImmediately: true)
+        .map(
+          (list) => list
+              .whereType<IsarConvertJob>()
+              .map((e) => e.toOriginalModel())
+              .toList(),
+        );
+  }
+
+  @override
   Future<bool> removeAllFinishedJobs() async {
     try {
       await isar.writeTxn(() {

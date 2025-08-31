@@ -31,6 +31,8 @@ class JobManagerViewModel extends ChangeNotifier {
       _jobStorage.watchRunningJobs();
   Stream<List<ConvertJob>> get completedJobsStream =>
       _jobStorage.watchCompletedJobs();
+  Stream<List<ConvertJob>> get actionRequiredJobsStream =>
+      _jobStorage.watchActionRequiredJobs();
 
   @override
   void dispose() {
