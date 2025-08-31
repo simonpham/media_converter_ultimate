@@ -308,9 +308,24 @@ class _JobManagerState extends State<JobManager> {
     context.read<JobManagerViewModel>().removeRunningJob(job);
   }
 
-  void _handleRestart(BuildContext context, ConvertJob job) {
-    // TODO: check existing file.
-    context.read<JobManagerViewModel>().restartJob(job);
+  Future<void> _handleRestart(BuildContext context, ConvertJob job) async {
+    final model = context.read<JobManagerViewModel>();
+    final isOutputFileExists = await model.isOutputFileExists(job);
+    if (isOutputFileExists) {
+      final confirmOverwrite = await ConfirmDialog.show(
+        context,
+        title: context.l10n.outputFileExists,
+        message: context.l10n.outputFileExistsConfirmationMessage,
+        negativeText: context.l10n.cancel,
+        positiveText: context.l10n.overwrite,
+      );
+      if (confirmOverwrite != ConfirmAction.positive) {
+        return;
+      }
+      await model.deleteOutputFile(job);
+    }
+
+    await model.restartJob(job);
   }
 
   Future<void> _handleClearFinishedJobs(BuildContext context) async {
