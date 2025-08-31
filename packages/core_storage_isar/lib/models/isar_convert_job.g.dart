@@ -52,6 +52,11 @@ const IsarConvertJobSchema = CollectionSchema(
       type: IsarType.string,
       enumMap: _IsarConvertJobstatusEnumValueMap,
     ),
+    r'updatedAt': PropertySchema(
+      id: 10,
+      name: r'updatedAt',
+      type: IsarType.dateTime,
+    ),
   },
 
   estimateSize: _isarConvertJobEstimateSize,
@@ -68,6 +73,19 @@ const IsarConvertJobSchema = CollectionSchema(
       properties: [
         IndexPropertySchema(
           name: r'createdAt',
+          type: IndexType.value,
+          caseSensitive: false,
+        ),
+      ],
+    ),
+    r'updatedAt': IndexSchema(
+      id: -6238191080293565125,
+      name: r'updatedAt',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'updatedAt',
           type: IndexType.value,
           caseSensitive: false,
         ),
@@ -127,6 +145,7 @@ void _isarConvertJobSerialize(
   writer.writeLong(offsets[7], object.progress);
   writer.writeLong(offsets[8], object.sessionId);
   writer.writeString(offsets[9], object.status.name);
+  writer.writeDateTime(offsets[10], object.updatedAt);
 }
 
 IsarConvertJob _isarConvertJobDeserialize(
@@ -150,6 +169,7 @@ IsarConvertJob _isarConvertJobDeserialize(
           offsets[9],
         )] ??
         JobStatus.pending,
+    updatedAt: reader.readDateTime(offsets[10]),
   );
   return object;
 }
@@ -185,6 +205,8 @@ P _isarConvertJobDeserializeProp<P>(
               )] ??
               JobStatus.pending)
           as P;
+    case 10:
+      return (reader.readDateTime(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -198,6 +220,7 @@ const _IsarConvertJobstatusEnumValueMap = {
   r'cleaning': r'cleaning',
   r'cancelled': r'cancelled',
   r'failed': r'failed',
+  r'actionRequired': r'actionRequired',
   r'completed': r'completed',
 };
 const _IsarConvertJobstatusValueEnumMap = {
@@ -208,6 +231,7 @@ const _IsarConvertJobstatusValueEnumMap = {
   r'cleaning': JobStatus.cleaning,
   r'cancelled': JobStatus.cancelled,
   r'failed': JobStatus.failed,
+  r'actionRequired': JobStatus.actionRequired,
   r'completed': JobStatus.completed,
 };
 
@@ -237,6 +261,14 @@ extension IsarConvertJobQueryWhereSort
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         const IndexWhereClause.any(indexName: r'createdAt'),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterWhere> anyUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'updatedAt'),
       );
     });
   }
@@ -407,6 +439,106 @@ extension IsarConvertJobQueryWhere
           lower: [lowerCreatedAt],
           includeLower: includeLower,
           upper: [upperCreatedAt],
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterWhereClause>
+  updatedAtEqualTo(DateTime updatedAt) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(indexName: r'updatedAt', value: [updatedAt]),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterWhereClause>
+  updatedAtNotEqualTo(DateTime updatedAt) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'updatedAt',
+                lower: [],
+                upper: [updatedAt],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'updatedAt',
+                lower: [updatedAt],
+                includeLower: false,
+                upper: [],
+              ),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'updatedAt',
+                lower: [updatedAt],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'updatedAt',
+                lower: [],
+                upper: [updatedAt],
+                includeUpper: false,
+              ),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterWhereClause>
+  updatedAtGreaterThan(DateTime updatedAt, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'updatedAt',
+          lower: [updatedAt],
+          includeLower: include,
+          upper: [],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterWhereClause>
+  updatedAtLessThan(DateTime updatedAt, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'updatedAt',
+          lower: [],
+          upper: [updatedAt],
+          includeUpper: include,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterWhereClause>
+  updatedAtBetween(
+    DateTime lowerUpdatedAt,
+    DateTime upperUpdatedAt, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'updatedAt',
+          lower: [lowerUpdatedAt],
+          includeLower: includeLower,
+          upper: [upperUpdatedAt],
           includeUpper: includeUpper,
         ),
       );
@@ -1645,6 +1777,61 @@ extension IsarConvertJobQueryFilter
       );
     });
   }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  updatedAtEqualTo(DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'updatedAt', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  updatedAtGreaterThan(DateTime value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'updatedAt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  updatedAtLessThan(DateTime value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'updatedAt',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  updatedAtBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'updatedAt',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
 }
 
 extension IsarConvertJobQueryObject
@@ -1784,6 +1971,19 @@ extension IsarConvertJobQuerySortBy
   sortByStatusDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'status', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy> sortByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  sortByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
     });
   }
 }
@@ -1934,6 +2134,19 @@ extension IsarConvertJobQuerySortThenBy
       return query.addSortBy(r'status', Sort.desc);
     });
   }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy> thenByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  thenByUpdatedAtDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'updatedAt', Sort.desc);
+    });
+  }
 }
 
 extension IsarConvertJobQueryWhereDistinct
@@ -2017,6 +2230,13 @@ extension IsarConvertJobQueryWhereDistinct
       return query.addDistinctBy(r'status', caseSensitive: caseSensitive);
     });
   }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QDistinct>
+  distinctByUpdatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'updatedAt');
+    });
+  }
 }
 
 extension IsarConvertJobQueryProperty
@@ -2087,6 +2307,12 @@ extension IsarConvertJobQueryProperty
   QueryBuilder<IsarConvertJob, JobStatus, QQueryOperations> statusProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'status');
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, DateTime, QQueryOperations> updatedAtProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'updatedAt');
     });
   }
 }

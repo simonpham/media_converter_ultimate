@@ -16,6 +16,8 @@ class IsarConvertJob {
 
   @Index()
   final DateTime createdAt;
+  @Index()
+  final DateTime updatedAt;
 
   final int? sessionId;
   @Index()
@@ -31,6 +33,7 @@ class IsarConvertJob {
     required this.outputDirectoryPath,
     required this.command,
     required this.createdAt,
+    required this.updatedAt,
     this.sessionId,
     this.status = JobStatus.pending,
     this.progress,

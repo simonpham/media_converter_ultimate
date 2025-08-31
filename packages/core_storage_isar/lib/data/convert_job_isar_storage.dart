@@ -63,7 +63,7 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
     };
     final jobs = await isar.isarConvertJobs
         .where()
-        .sortByCreatedAtDesc()
+        .sortByUpdatedAtDesc()
         .offset(offset)
         .limit(limit)
         .findAll();
@@ -72,7 +72,9 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
 
   @override
   Future<Failure?> update(ConvertJob item) async {
-    final convertedItem = item.toIsarModel();
+    final convertedItem = item
+        .copyWith(updatedAt: Some(DateTime.now()))
+        .toIsarModel();
     await isar.writeTxn(() {
       return isar.isarConvertJobs.put(convertedItem);
     });
@@ -107,7 +109,7 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
         .statusEqualTo(JobStatus.failed)
         .or()
         .statusEqualTo(JobStatus.cancelled)
-        .sortByCreatedAtDesc()
+        .sortByUpdatedAtDesc()
         .watch(fireImmediately: true)
         .map(
           (list) => list
@@ -122,7 +124,7 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
     return isar.isarConvertJobs
         .where()
         .statusEqualTo(JobStatus.pending)
-        .sortByCreatedAtDesc()
+        .sortByUpdatedAtDesc()
         .watch(fireImmediately: true)
         .map(
           (list) => list
@@ -143,7 +145,7 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
         .statusEqualTo(JobStatus.ready)
         .or()
         .statusEqualTo(JobStatus.cleaning)
-        .sortByCreatedAtDesc()
+        .sortByUpdatedAtDesc()
         .watch(fireImmediately: true)
         .map(
           (list) => list
@@ -187,7 +189,7 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
             .or()
             .statusEqualTo(JobStatus.cancelled)
             .filter()
-            .createdAtLessThan(cutoff)
+            .updatedAtLessThan(cutoff)
             .deleteAll();
       });
       return true;

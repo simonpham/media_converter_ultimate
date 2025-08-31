@@ -20,6 +20,7 @@ class ConvertJob {
   final String command;
 
   final DateTime createdAt;
+  final DateTime updatedAt;
 
   final int? sessionId;
   final JobStatus status;
@@ -33,6 +34,7 @@ class ConvertJob {
     required this.outputDirectoryPath,
     required this.command,
     required this.createdAt,
+    required this.updatedAt,
     this.sessionId,
     this.status = JobStatus.pending,
     this.progress,
@@ -51,6 +53,7 @@ class ConvertJob {
     'outputDirectoryPath': outputDirectoryPath,
     'command': command,
     'createdAt': createdAt.toIso8601String(),
+    'updatedAt': updatedAt.toIso8601String(),
     'sessionId': sessionId,
     'status': status.name,
     'progress': progress,
@@ -64,6 +67,7 @@ class ConvertJob {
     Some<String>? outputDirectoryPath,
     Some<String>? command,
     Some<DateTime>? createdAt,
+    Some<DateTime>? updatedAt,
     Some<int?>? sessionId,
     Some<JobStatus>? status,
     Some<int?>? progress,
@@ -81,6 +85,7 @@ class ConvertJob {
         : this.outputDirectoryPath,
     command: command != null ? command.value : this.command,
     createdAt: createdAt != null ? createdAt.value : this.createdAt,
+    updatedAt: updatedAt != null ? updatedAt.value : this.updatedAt,
     sessionId: sessionId != null ? sessionId.value : this.sessionId,
     status: status != null ? status.value : this.status,
     progress: progress != null ? progress.value : this.progress,
