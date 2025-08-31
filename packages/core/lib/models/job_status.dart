@@ -32,12 +32,12 @@ enum JobStatus {
   Color getColor() {
     return switch (this) {
       JobStatus.pending => Colors.grey,
-      JobStatus.preparing => Colors.orange,
+      JobStatus.preparing => Colors.lightBlue,
       JobStatus.ready => Colors.green,
       JobStatus.running => Colors.blue,
       JobStatus.cancelled => Colors.red,
       JobStatus.failed => Colors.red,
-      JobStatus.cleaning => Colors.orange,
+      JobStatus.cleaning => Colors.lightBlue,
       JobStatus.completed => Colors.green,
     };
   }
