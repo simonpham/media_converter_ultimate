@@ -58,7 +58,7 @@ class FileUtils {
 
       final isWritable = await isDirectoryWritable(dir);
       if (!isWritable) {
-        return (null, const DirectoryNotWritableFailure());
+        return (null, DirectoryNotWritableFailure(path));
       }
 
       return (path, null);
@@ -72,22 +72,27 @@ class FileUtils {
     required String fileName,
     required String path,
   }) async {
-    final tempDir = await FileUtils.getConvertTemporaryDirectory();
-    final tempFile = File(
-      join(tempDir.path, fileName),
-    );
-    if (!await tempFile.exists()) {
+    try {
+      final tempDir = await FileUtils.getConvertTemporaryDirectory();
+      final tempFile = File(
+        join(tempDir.path, fileName),
+      );
+      if (!await tempFile.exists()) {
+        return false;
+      }
+
+      final dir = Directory(path);
+      await dir.createIfNotExists();
+
+      await tempFile.copy(
+        join(dir.path, fileName),
+      );
+      await tempFile.delete();
+      return true;
+    } catch (err, trace) {
+      printError(err, trace);
       return false;
     }
-
-    final dir = Directory(path);
-    await dir.createIfNotExists();
-
-    await tempFile.copy(
-      join(dir.path, fileName),
-    );
-    await tempFile.delete();
-    return true;
   }
 
   static Future<bool> cleanUpTempFile({

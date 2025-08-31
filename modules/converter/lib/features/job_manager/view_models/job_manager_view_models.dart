@@ -83,6 +83,7 @@ class JobManagerViewModel extends ChangeNotifier {
         status: const Some(JobStatus.failed),
       );
       await _handleJobUpdate(failedJob);
+      LogData().appendLog(failedJob.id, failure.toString());
     }
 
     await _handleJobUpdate(
@@ -133,7 +134,7 @@ class JobManagerViewModel extends ChangeNotifier {
       path: job.outputDirectoryPath,
     );
     if (!success) {
-      return const DirectoryNotWritableFailure();
+      return DirectoryNotWritableFailure(job.outputDirectoryPath);
     }
 
     return null;
@@ -153,8 +154,12 @@ class JobManagerViewModel extends ChangeNotifier {
 
     final outputFile = job.outputFile;
     try {
+      printLog(
+        '[JobManagerViewModel]: Removing output file: ${outputFile.path}',
+      );
       await outputFile.delete();
-    } catch (err) {
+    } catch (err, trace) {
+      printError(err, trace);
       LogData().appendLog(job.id, err.toString());
       return FileDeleteFailure(outputFile.path);
     }
@@ -185,5 +190,16 @@ class JobManagerViewModel extends ChangeNotifier {
     }
 
     return null;
+  }
+
+  Future<bool> isOutputFileExists(ConvertJob job) async {
+    try {
+      final file = job.outputFile;
+      return await file.exists();
+    } catch (err, trace) {
+      printError(err, trace);
+      LogData().appendLog(job.id, err.toString());
+      return false;
+    }
   }
 }

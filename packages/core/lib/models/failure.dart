@@ -12,7 +12,10 @@ class Failure {
 
 @immutable
 class DirectoryNotWritableFailure extends Failure {
-  const DirectoryNotWritableFailure() : super('Directory is not writable.');
+  final String path;
+
+  const DirectoryNotWritableFailure(this.path)
+    : super('Directory is not writable: $path');
 }
 
 @immutable
