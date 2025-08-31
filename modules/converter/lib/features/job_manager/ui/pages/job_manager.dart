@@ -27,6 +27,7 @@ class _JobManagerState extends State<JobManager> {
               model.pendingJobsStream,
               model.completedJobsStream,
               model.runningJobsStream,
+              model.actionRequiredJobsStream,
             ],
             builder: (context, data) {
               final direction = Directionality.of(context);
@@ -34,10 +35,12 @@ class _JobManagerState extends State<JobManager> {
               final List<ConvertJob> pendingJobs = data[0] ?? [];
               final List<ConvertJob> completedJobs = data[1] ?? [];
               final List<ConvertJob> runningJobs = data[2] ?? [];
+              final List<ConvertJob> actionRequiredJobs = data[3] ?? [];
               final isAllEmpty =
                   pendingJobs.isEmpty &&
                   completedJobs.isEmpty &&
-                  runningJobs.isEmpty;
+                  runningJobs.isEmpty &&
+                  actionRequiredJobs.isEmpty;
               return CustomScrollView(
                 slivers: [
                   SliverAppBar(
@@ -107,6 +110,37 @@ class _JobManagerState extends State<JobManager> {
                       ),
                     ],
                   ),
+                  if (actionRequiredJobs.isNotEmpty) ...[
+                    SliverToBoxAdapter(child: Spacing.v16),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: Spacing.d16,
+                        ),
+                        child: Text(
+                          context.l10n.actionRequired,
+                          style: context.theme.textTheme.labelLarge?.copyWith(
+                            color: context.theme.colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SliverToBoxAdapter(child: Spacing.v8),
+                    SliverList.separated(
+                      itemCount: actionRequiredJobs.length,
+                      separatorBuilder: (_, _) => Spacing.v8,
+                      itemBuilder: (BuildContext context, int index) {
+                        final job = actionRequiredJobs[index];
+                        return JobItem(
+                          job,
+                          onOpenLogs: () => _handleOpenLogs(context, job),
+                          onRemoveItem: () => _handleRemoveItem(context, job),
+                          // TODO: handle save.
+                          // TODO: handle rename output file.
+                        );
+                      },
+                    ),
+                  ],
                   if (runningJobs.isNotEmpty) ...[
                     SliverToBoxAdapter(child: Spacing.v16),
                     SliverToBoxAdapter(
