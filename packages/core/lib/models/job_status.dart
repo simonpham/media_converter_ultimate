@@ -26,6 +26,7 @@ enum JobStatus {
   cleaning, // FFmpeg session is completed.
   cancelled, // FFmpeg session is cancelled.
   failed, // FFmpeg session is failed.
+  actionRequired, // Conversion success, but needs user action to finalize.
   completed // Conversion job is completed.
   ;
 
@@ -39,6 +40,7 @@ enum JobStatus {
       JobStatus.failed => Colors.red,
       JobStatus.cleaning => Colors.lightBlue,
       JobStatus.completed => Colors.green,
+      JobStatus.actionRequired => Colors.amber,
     };
   }
 
@@ -51,6 +53,7 @@ enum JobStatus {
       JobStatus.cancelled => context.l10n.jobStatusCancelled,
       JobStatus.failed => context.l10n.jobStatusFailed,
       JobStatus.cleaning => context.l10n.jobStatusCleaning,
+      JobStatus.actionRequired => context.l10n.jobStatusActionRequired,
       JobStatus.completed => context.l10n.jobStatusCompleted,
     };
   }
