@@ -248,13 +248,15 @@ class JobMakerViewModel extends ChangeNotifier {
         outputFilePath: outputFilePath,
       );
 
+      final now = DateTime.now();
       return ConvertJob(
         id: kUuid.v4(),
         inputFilePath: inputFilePath,
         outputFileName: fileName,
         outputDirectoryPath: outputDirectoryPath,
         command: command,
-        createdAt: DateTime.now(),
+        createdAt: now,
+        updatedAt: now,
       );
     }).toList();
 
