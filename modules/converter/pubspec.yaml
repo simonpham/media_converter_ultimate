@@ -18,6 +18,10 @@ dependencies:
     path: ../../packages/core_storage_isar
   design_system:
     path: ../../packages/design_system
+  mobile_ads:
+    path: ../../packages/mobile_ads
+  mobile_ads_google:
+    path: ../../packages/mobile_ads_google
   platform_utils:
     path: ../../packages/platform_utils
   utils:

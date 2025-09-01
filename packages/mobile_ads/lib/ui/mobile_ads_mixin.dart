@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 mixin MobileAdsMixin<T extends StatefulWidget> on State<T> {
   bool get isAdLoaded;
 
-  FutureOr<void> loadAd();
+  FutureOr<void> loadAd(BuildContext context);
 
   Widget? getAdWidget(BoxConstraints constraint);
 }

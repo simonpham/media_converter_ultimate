@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:mobile_ads/mobile_ads.dart';
 
-mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin {
+mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin<T> {
   NativeAd? _nativeAd;
   bool _nativeAdIsLoaded = false;
 
   String get adUnitId => 'ca-app-pub-3940256099942544/2247696110';
+
+  TemplateType get templateType => TemplateType.small;
 
   @override
   bool get isAdLoaded => _nativeAdIsLoaded;
@@ -21,7 +23,8 @@ mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin {
   }
 
   @override
-  FutureOr<void> loadAd() {
+  FutureOr<void> loadAd(BuildContext context) {
+    final theme = Theme.of(context);
     _nativeAd = NativeAd(
       adUnitId: adUnitId,
       listener: NativeAdListener(
@@ -40,35 +43,32 @@ mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin {
         },
       ),
       request: const AdRequest(),
-      // Styling
       nativeTemplateStyle: NativeTemplateStyle(
-        // Required: Choose a template.
-        templateType: TemplateType.medium,
-        // Optional: Customize the ad's style.
-        mainBackgroundColor: Colors.purple,
-        cornerRadius: 10.0,
+        templateType: templateType,
+        mainBackgroundColor: theme.colorScheme.surface,
+        cornerRadius: 12.0,
         callToActionTextStyle: NativeTemplateTextStyle(
-          textColor: Colors.cyan,
-          backgroundColor: Colors.red,
-          style: NativeTemplateFontStyle.monospace,
+          textColor: Colors.white,
+          backgroundColor: theme.colorScheme.primary,
+          style: NativeTemplateFontStyle.normal,
           size: 16.0,
         ),
         primaryTextStyle: NativeTemplateTextStyle(
-          textColor: Colors.red,
-          backgroundColor: Colors.cyan,
-          style: NativeTemplateFontStyle.italic,
-          size: 16.0,
-        ),
-        secondaryTextStyle: NativeTemplateTextStyle(
-          textColor: Colors.green,
-          backgroundColor: Colors.black,
+          textColor: theme.colorScheme.primary,
+          backgroundColor: theme.colorScheme.surface,
           style: NativeTemplateFontStyle.bold,
           size: 16.0,
         ),
-        tertiaryTextStyle: NativeTemplateTextStyle(
-          textColor: Colors.brown,
-          backgroundColor: Colors.amber,
+        secondaryTextStyle: NativeTemplateTextStyle(
+          textColor: theme.colorScheme.onSurface,
+          backgroundColor: theme.colorScheme.surface,
           style: NativeTemplateFontStyle.normal,
+          size: 14.0,
+        ),
+        tertiaryTextStyle: NativeTemplateTextStyle(
+          textColor: theme.colorScheme.onSurface,
+          backgroundColor: theme.colorScheme.surface,
+          style: NativeTemplateFontStyle.italic,
           size: 16.0,
         ),
       ),
