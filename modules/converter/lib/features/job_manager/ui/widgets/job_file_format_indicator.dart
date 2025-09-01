@@ -1,24 +1,20 @@
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
-import 'package:platform_utils/platform_utils.dart';
 
 class JobFileFormatIndicator extends StatelessWidget {
-  final String outputFileName;
+  final String outputFileExtension;
   final JobStatus status;
 
   const JobFileFormatIndicator({
     super.key,
-    required this.outputFileName,
+    required this.outputFileExtension,
     required this.status,
   });
 
   @override
   Widget build(BuildContext context) {
-    final fileExtension = extension(outputFileName).toUpperCase();
-    final fileExtensionWithoutDot = fileExtension.startsWith('.')
-        ? fileExtension.substring(1)
-        : fileExtension;
+    final fileExtension = outputFileExtension.toUpperCase();
     return Container(
       decoration: ShapeDecoration(
         color: status.getColor(),
@@ -37,7 +33,7 @@ class JobFileFormatIndicator extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          fileExtensionWithoutDot,
+          fileExtension,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 12,

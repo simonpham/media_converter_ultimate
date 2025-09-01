@@ -65,7 +65,7 @@ class JobItem extends StatelessWidget {
             child: Row(
               children: [
                 JobFileFormatIndicator(
-                  outputFileName: job.outputFileName,
+                  outputFileExtension: job.outputExtension,
                   status: job.status,
                 ),
                 Spacing.h8,
