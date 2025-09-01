@@ -1,5 +1,6 @@
 import 'package:converter/converter.dart';
 import 'package:core/core.dart';
+import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
 class MainPage extends StatefulWidget {
@@ -14,10 +15,13 @@ class MainPage extends StatefulWidget {
   State<MainPage> createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
-  final JobManagerViewModel _jobManagerViewModel = JobManagerViewModel(
-    FfmpegJobRunnerService(),
-  );
+class _MainPageState extends State<MainPage> with AfterLayoutMixin {
+  final JobManagerViewModel _jobManagerViewModel = JobManagerViewModel();
+
+  @override
+  void afterFirstLayout(BuildContext context) {
+    _jobManagerViewModel.restartPendingJobs();
+  }
 
   @override
   Widget build(BuildContext context) {

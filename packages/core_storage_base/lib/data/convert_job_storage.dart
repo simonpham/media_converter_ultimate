@@ -20,4 +20,6 @@ abstract class ConvertJobStorage
   Future<bool> removeAllFinishedJobs();
 
   Future<bool> removeOlderFinishedJobs(int dayCount);
+
+  Future<List<ConvertJob>> fixInvalidJobs();
 }

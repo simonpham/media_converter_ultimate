@@ -12,6 +12,7 @@ export 'router.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FileUtils.cleanConvertTemporaryDirectory();
+  await FileUtils.getConvertTemporaryDirectory();
   await ThemeConfigs().init();
 
   await injector.reset();
@@ -23,7 +24,6 @@ Future<void> main() async {
 
   await LogData().init();
   await JobConfigurationData().init();
-
   runApp(
     const MediaConverterUltimate(),
   );
