@@ -81,7 +81,10 @@ class JobManagerViewModel extends ChangeNotifier {
 
     final failure = await _completeJob(updatedJob);
     if (failure != null) {
-      final (newPath, copyFailure) = await FileUtils.copyTempOutputFileToConverted(
+      final (
+        newPath,
+        copyFailure,
+      ) = await FileUtils.copyTempOutputFileToConverted(
         jobId: job.id,
         convertedFilePath: job.convertedFilePath,
       );
@@ -110,6 +113,7 @@ class JobManagerViewModel extends ChangeNotifier {
         status: const Some(JobStatus.completed),
       ),
     );
+    await FileUtils.cleanUpInputFile(jobId: updatedJob.id);
   }
 
   Future<void> _cleanFailedJob(ConvertJob job) async {
@@ -190,8 +194,14 @@ class JobManagerViewModel extends ChangeNotifier {
       return const InvalidStatusFailure();
     }
 
+    final jobId = job.id;
+    final convertedFilePath = job.convertedFilePath;
+
     job.clearLog();
-    await _jobStorage.delete(job.id);
+    await _jobStorage.delete(jobId);
+
+    await FileUtils.cleanUpInputFile(jobId: jobId);
+    await FileUtils.deleteFileAtPath(convertedFilePath);
     return null;
   }
 
