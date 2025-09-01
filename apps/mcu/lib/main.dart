@@ -12,7 +12,7 @@ export 'router.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FileUtils.cleanConvertTemporaryDirectory();
-  await FileUtils.getConvertTemporaryDirectory();
+  await FileUtils.getConvertTemporaryDirectory(null);
   await ThemeConfigs().init();
 
   await injector.reset();

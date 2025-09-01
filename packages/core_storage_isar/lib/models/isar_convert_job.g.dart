@@ -18,42 +18,52 @@ const IsarConvertJobSchema = CollectionSchema(
   id: -7484796388435112245,
   properties: {
     r'command': PropertySchema(id: 0, name: r'command', type: IsarType.string),
-    r'createdAt': PropertySchema(
+    r'convertedFilePath': PropertySchema(
       id: 1,
+      name: r'convertedFilePath',
+      type: IsarType.string,
+    ),
+    r'createdAt': PropertySchema(
+      id: 2,
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
-    r'duration': PropertySchema(id: 2, name: r'duration', type: IsarType.long),
-    r'id': PropertySchema(id: 3, name: r'id', type: IsarType.string),
+    r'duration': PropertySchema(id: 3, name: r'duration', type: IsarType.long),
+    r'id': PropertySchema(id: 4, name: r'id', type: IsarType.string),
     r'inputFilePath': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'inputFilePath',
       type: IsarType.string,
     ),
     r'outputDirectoryPath': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'outputDirectoryPath',
       type: IsarType.string,
     ),
+    r'outputExtension': PropertySchema(
+      id: 7,
+      name: r'outputExtension',
+      type: IsarType.string,
+    ),
     r'outputFileName': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'outputFileName',
       type: IsarType.string,
     ),
-    r'progress': PropertySchema(id: 7, name: r'progress', type: IsarType.long),
+    r'progress': PropertySchema(id: 9, name: r'progress', type: IsarType.long),
     r'sessionId': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'sessionId',
       type: IsarType.long,
     ),
     r'status': PropertySchema(
-      id: 9,
+      id: 11,
       name: r'status',
       type: IsarType.string,
       enumMap: _IsarConvertJobstatusEnumValueMap,
     ),
     r'updatedAt': PropertySchema(
-      id: 10,
+      id: 12,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
@@ -121,9 +131,11 @@ int _isarConvertJobEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.command.length * 3;
+  bytesCount += 3 + object.convertedFilePath.length * 3;
   bytesCount += 3 + object.id.length * 3;
   bytesCount += 3 + object.inputFilePath.length * 3;
   bytesCount += 3 + object.outputDirectoryPath.length * 3;
+  bytesCount += 3 + object.outputExtension.length * 3;
   bytesCount += 3 + object.outputFileName.length * 3;
   bytesCount += 3 + object.status.name.length * 3;
   return bytesCount;
@@ -136,16 +148,18 @@ void _isarConvertJobSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.command);
-  writer.writeDateTime(offsets[1], object.createdAt);
-  writer.writeLong(offsets[2], object.duration);
-  writer.writeString(offsets[3], object.id);
-  writer.writeString(offsets[4], object.inputFilePath);
-  writer.writeString(offsets[5], object.outputDirectoryPath);
-  writer.writeString(offsets[6], object.outputFileName);
-  writer.writeLong(offsets[7], object.progress);
-  writer.writeLong(offsets[8], object.sessionId);
-  writer.writeString(offsets[9], object.status.name);
-  writer.writeDateTime(offsets[10], object.updatedAt);
+  writer.writeString(offsets[1], object.convertedFilePath);
+  writer.writeDateTime(offsets[2], object.createdAt);
+  writer.writeLong(offsets[3], object.duration);
+  writer.writeString(offsets[4], object.id);
+  writer.writeString(offsets[5], object.inputFilePath);
+  writer.writeString(offsets[6], object.outputDirectoryPath);
+  writer.writeString(offsets[7], object.outputExtension);
+  writer.writeString(offsets[8], object.outputFileName);
+  writer.writeLong(offsets[9], object.progress);
+  writer.writeLong(offsets[10], object.sessionId);
+  writer.writeString(offsets[11], object.status.name);
+  writer.writeDateTime(offsets[12], object.updatedAt);
 }
 
 IsarConvertJob _isarConvertJobDeserialize(
@@ -156,20 +170,22 @@ IsarConvertJob _isarConvertJobDeserialize(
 ) {
   final object = IsarConvertJob(
     command: reader.readString(offsets[0]),
-    createdAt: reader.readDateTime(offsets[1]),
-    duration: reader.readLongOrNull(offsets[2]),
-    id: reader.readString(offsets[3]),
-    inputFilePath: reader.readString(offsets[4]),
-    outputDirectoryPath: reader.readString(offsets[5]),
-    outputFileName: reader.readString(offsets[6]),
-    progress: reader.readLongOrNull(offsets[7]),
-    sessionId: reader.readLongOrNull(offsets[8]),
+    convertedFilePath: reader.readString(offsets[1]),
+    createdAt: reader.readDateTime(offsets[2]),
+    duration: reader.readLongOrNull(offsets[3]),
+    id: reader.readString(offsets[4]),
+    inputFilePath: reader.readString(offsets[5]),
+    outputDirectoryPath: reader.readString(offsets[6]),
+    outputExtension: reader.readString(offsets[7]),
+    outputFileName: reader.readString(offsets[8]),
+    progress: reader.readLongOrNull(offsets[9]),
+    sessionId: reader.readLongOrNull(offsets[10]),
     status:
         _IsarConvertJobstatusValueEnumMap[reader.readStringOrNull(
-          offsets[9],
+          offsets[11],
         )] ??
         JobStatus.pending,
-    updatedAt: reader.readDateTime(offsets[10]),
+    updatedAt: reader.readDateTime(offsets[12]),
   );
   return object;
 }
@@ -184,11 +200,11 @@ P _isarConvertJobDeserializeProp<P>(
     case 0:
       return (reader.readString(offset)) as P;
     case 1:
-      return (reader.readDateTime(offset)) as P;
-    case 2:
-      return (reader.readLongOrNull(offset)) as P;
-    case 3:
       return (reader.readString(offset)) as P;
+    case 2:
+      return (reader.readDateTime(offset)) as P;
+    case 3:
+      return (reader.readLongOrNull(offset)) as P;
     case 4:
       return (reader.readString(offset)) as P;
     case 5:
@@ -196,16 +212,20 @@ P _isarConvertJobDeserializeProp<P>(
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 9:
+      return (reader.readLongOrNull(offset)) as P;
+    case 10:
+      return (reader.readLongOrNull(offset)) as P;
+    case 11:
       return (_IsarConvertJobstatusValueEnumMap[reader.readStringOrNull(
                 offset,
               )] ??
               JobStatus.pending)
           as P;
-    case 10:
+    case 12:
       return (reader.readDateTime(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -738,6 +758,147 @@ extension IsarConvertJobQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.greaterThan(property: r'command', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  convertedFilePathEqualTo(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'convertedFilePath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  convertedFilePathGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'convertedFilePath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  convertedFilePathLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'convertedFilePath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  convertedFilePathBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'convertedFilePath',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  convertedFilePathStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'convertedFilePath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  convertedFilePathEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'convertedFilePath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  convertedFilePathContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'convertedFilePath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  convertedFilePathMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'convertedFilePath',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  convertedFilePathIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'convertedFilePath', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  convertedFilePathIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'convertedFilePath', value: ''),
       );
     });
   }
@@ -1351,6 +1512,147 @@ extension IsarConvertJobQueryFilter
   }
 
   QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputExtensionEqualTo(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'outputExtension',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputExtensionGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'outputExtension',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputExtensionLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'outputExtension',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputExtensionBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'outputExtension',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputExtensionStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'outputExtension',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputExtensionEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'outputExtension',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputExtensionContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'outputExtension',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputExtensionMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'outputExtension',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputExtensionIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'outputExtension', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputExtensionIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'outputExtension', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
   outputFileNameEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -1855,6 +2157,20 @@ extension IsarConvertJobQuerySortBy
     });
   }
 
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  sortByConvertedFilePath() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'convertedFilePath', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  sortByConvertedFilePathDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'convertedFilePath', Sort.desc);
+    });
+  }
+
   QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy> sortByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
@@ -1918,6 +2234,20 @@ extension IsarConvertJobQuerySortBy
   sortByOutputDirectoryPathDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'outputDirectoryPath', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  sortByOutputExtension() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'outputExtension', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  sortByOutputExtensionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'outputExtension', Sort.desc);
     });
   }
 
@@ -2003,6 +2333,20 @@ extension IsarConvertJobQuerySortThenBy
     });
   }
 
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  thenByConvertedFilePath() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'convertedFilePath', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  thenByConvertedFilePathDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'convertedFilePath', Sort.desc);
+    });
+  }
+
   QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy> thenByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.asc);
@@ -2079,6 +2423,20 @@ extension IsarConvertJobQuerySortThenBy
   thenByOutputDirectoryPathDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'outputDirectoryPath', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  thenByOutputExtension() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'outputExtension', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  thenByOutputExtensionDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'outputExtension', Sort.desc);
     });
   }
 
@@ -2160,6 +2518,16 @@ extension IsarConvertJobQueryWhereDistinct
   }
 
   QueryBuilder<IsarConvertJob, IsarConvertJob, QDistinct>
+  distinctByConvertedFilePath({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(
+        r'convertedFilePath',
+        caseSensitive: caseSensitive,
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QDistinct>
   distinctByCreatedAt() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'createdAt');
@@ -2195,6 +2563,16 @@ extension IsarConvertJobQueryWhereDistinct
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(
         r'outputDirectoryPath',
+        caseSensitive: caseSensitive,
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QDistinct>
+  distinctByOutputExtension({bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(
+        r'outputExtension',
         caseSensitive: caseSensitive,
       );
     });
@@ -2253,6 +2631,13 @@ extension IsarConvertJobQueryProperty
     });
   }
 
+  QueryBuilder<IsarConvertJob, String, QQueryOperations>
+  convertedFilePathProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'convertedFilePath');
+    });
+  }
+
   QueryBuilder<IsarConvertJob, DateTime, QQueryOperations> createdAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'createdAt');
@@ -2282,6 +2667,13 @@ extension IsarConvertJobQueryProperty
   outputDirectoryPathProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'outputDirectoryPath');
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, String, QQueryOperations>
+  outputExtensionProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'outputExtension');
     });
   }
 

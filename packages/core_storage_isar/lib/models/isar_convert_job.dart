@@ -9,10 +9,12 @@ class IsarConvertJob {
   Id get isarId => fastHash(id);
 
   final String id;
-  final String outputFileName;
   final String inputFilePath;
+  final String outputFileName;
+  final String outputExtension;
   final String outputDirectoryPath;
   final String command;
+  final String convertedFilePath;
 
   @Index()
   final DateTime createdAt;
@@ -30,8 +32,10 @@ class IsarConvertJob {
     required this.id,
     required this.inputFilePath,
     required this.outputFileName,
+    required this.outputExtension,
     required this.outputDirectoryPath,
     required this.command,
+    required this.convertedFilePath,
     required this.createdAt,
     required this.updatedAt,
     this.sessionId,

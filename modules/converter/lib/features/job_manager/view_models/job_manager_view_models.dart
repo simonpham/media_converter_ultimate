@@ -81,8 +81,24 @@ class JobManagerViewModel extends ChangeNotifier {
 
     final failure = await _completeJob(updatedJob);
     if (failure != null) {
+      final (newPath, copyFailure) = await FileUtils.copyTempOutputFileToConverted(
+        jobId: job.id,
+        convertedFilePath: job.convertedFilePath,
+      );
+
+      if (newPath == null || copyFailure != null) {
+        // Hết cứu.
+        final failedJob = updatedJob.copyWith(
+          status: const Some(JobStatus.failed),
+        );
+        await _handleJobUpdate(failedJob);
+        LogData().appendLog(failedJob.id, failure.toString());
+        return;
+      }
+
       final failedJob = updatedJob.copyWith(
         status: const Some(JobStatus.actionRequired),
+        convertedFilePath: Some(newPath),
       );
       await _handleJobUpdate(failedJob);
       LogData().appendLog(failedJob.id, failure.toString());
@@ -101,10 +117,7 @@ class JobManagerViewModel extends ChangeNotifier {
       return;
     }
 
-    await FileUtils.cleanUpTempFile(
-      fileName: job.outputFileName,
-      path: job.outputDirectoryPath,
-    );
+    await FileUtils.prepareConvertTempFolder(jobId: job.id);
   }
 
   void _handleLogUpdate(JobLog event) {
@@ -132,12 +145,13 @@ class JobManagerViewModel extends ChangeNotifier {
     }
 
     // Move completed job to output directory.
-    final success = await FileUtils.moveTempFileToPath(
-      fileName: job.outputFileName,
-      path: job.outputDirectoryPath,
+    final failure = await FileUtils.moveConvertedFileToPath(
+      convertedFilePath: job.convertedFilePath,
+      outputFileName: job.outputFileName,
+      outputFilePath: job.outputDirectoryPath,
     );
-    if (!success) {
-      return DirectoryNotWritableFailure(job.outputDirectoryPath);
+    if (failure != null) {
+      return failure;
     }
 
     return null;

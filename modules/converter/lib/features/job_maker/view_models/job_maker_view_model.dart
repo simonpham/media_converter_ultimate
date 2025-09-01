@@ -219,7 +219,9 @@ class JobMakerViewModel extends ChangeNotifier {
       throw const NoOutputFolderFailure();
     }
 
-    final convertTempFolder = await FileUtils.getConvertTemporaryDirectory();
+    final convertTempFolder = await FileUtils.getConvertTemporaryDirectory(
+      null,
+    );
     final outputFileNames = {..._outputFileNames};
     final errorPaths = await findInvalidPaths(
       selectedPaths: outputFileNames,
@@ -230,6 +232,7 @@ class JobMakerViewModel extends ChangeNotifier {
     }
 
     final result = outputFileNames.keys.map((inputFilePath) {
+      final jobId = kUuid.v4();
       final fileName = outputFileNames[inputFilePath];
       if (fileName == null) {
         throw FileNameIsNotSetFailure(inputFilePath);
@@ -237,7 +240,7 @@ class JobMakerViewModel extends ChangeNotifier {
       final outputFilePath = CommandBuilder.getOutputFilePath(
         inputFilePath: inputFilePath,
         formatEntry: formatEntry,
-        outputDirectoryPath: convertTempFolder.path,
+        outputDirectoryPath: join(convertTempFolder.path, jobId),
         overrideFileName: fileName,
       );
       final command = CommandBuilder.buildCommand(
@@ -250,11 +253,13 @@ class JobMakerViewModel extends ChangeNotifier {
 
       final now = DateTime.now();
       return ConvertJob(
-        id: kUuid.v4(),
+        id: jobId,
         inputFilePath: inputFilePath,
         outputFileName: fileName,
+        outputExtension: formatEntry.outputExtension,
         outputDirectoryPath: outputDirectoryPath,
         command: command,
+        convertedFilePath: outputFilePath,
         createdAt: now,
         updatedAt: now,
       );

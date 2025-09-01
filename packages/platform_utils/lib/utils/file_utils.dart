@@ -68,67 +68,106 @@ class FileUtils {
     }
   }
 
-  static Future<bool> moveTempFileToPath({
-    required String fileName,
-    required String path,
+  static Future<Failure?> moveConvertedFileToPath({
+    required String convertedFilePath,
+    required String outputFileName,
+    required String outputFilePath,
   }) async {
     try {
-      final tempDir = await FileUtils.getConvertTemporaryDirectory();
-      final tempFile = File(
-        join(tempDir.path, fileName),
-      );
+      final tempFile = File(convertedFilePath);
       if (!await tempFile.exists()) {
-        return false;
+        return InputFileNotExistFailure(convertedFilePath);
       }
 
-      final dir = Directory(path);
+      final dir = Directory(outputFilePath);
       await dir.createIfNotExists();
 
-      await tempFile.copy(
-        join(dir.path, fileName),
-      );
+      final outputPath = join(dir.path, outputFileName);
+      if (await File(outputPath).exists()) {
+        return OutputFileAlreadyExistsFailure(outputPath);
+      }
+
+      await tempFile.copy(outputPath);
       await tempFile.delete();
-      return true;
+      return null;
     } catch (err, trace) {
       printError(err, trace);
-      return false;
+      return Failure(err.toString());
     }
   }
 
-  static Future<bool> cleanUpTempFile({
-    required String fileName,
-    required String path,
+  static Future<(String?, Failure?)> copyTempOutputFileToConverted({
+    required String jobId,
+    required String convertedFilePath,
   }) async {
-    final tempDir = await FileUtils.getConvertTemporaryDirectory();
-    final tempFile = File(
-      join(tempDir.path, fileName),
-    );
-    if (!await tempFile.exists()) {
-      return false;
+    try {
+      final fileName = basename(convertedFilePath);
+      final inputFile = File(convertedFilePath);
+      if (!await inputFile.exists()) {
+        return (null, InputFileNotExistFailure(convertedFilePath));
+      }
+      final convertedFolder = await FileUtils.getConvertedDirectory(jobId);
+      final outputFile = File(
+        join(convertedFolder.path, fileName),
+      );
+      await inputFile.copy(outputFile.path);
+      return (outputFile.path, null);
+    } catch (err, trace) {
+      printError(err, trace);
+      return (null, Failure(err.toString()));
+    }
+  }
+
+  static Future<void> prepareConvertTempFolder({
+    required String jobId,
+  }) async {
+    final tempDir = await FileUtils.getConvertTemporaryDirectory(jobId);
+    if (await tempDir.exists()) {
+      await tempDir.delete(recursive: true);
     }
 
-    await tempFile.delete();
-    return true;
+    await tempDir.create(recursive: true);
   }
 
   static Future<Directory> getAppDataDirectory() async {
-    final tempFolder = await path_provider.getApplicationDocumentsDirectory();
+    final docFolder = await path_provider.getApplicationDocumentsDirectory();
     final dataFolder = Directory(
-      path.join(tempFolder.path, kDataFolderName),
+      path.join(docFolder.path, kDataFolderName),
     );
     return dataFolder.createIfNotExists();
   }
 
-  static Future<Directory> getConvertTemporaryDirectory() async {
+  /// Return a Directory used for [JobStatus.actionRequired].
+  /// Successful conversion but failed to copy to output folder
+  /// will be moved to [getConvertedDirectory].
+  static Future<Directory> getConvertedDirectory(String prefix) async {
+    final docFolder = await path_provider.getApplicationDocumentsDirectory();
+    final convertedFolder = Directory(
+      path.join(
+        docFolder.path,
+        kConvertDataFolderName,
+        kConvertedFolderName,
+        prefix,
+      ),
+    );
+    return convertedFolder.createIfNotExists();
+  }
+
+  static Future<Directory> getConvertTemporaryDirectory(String? prefix) async {
     final tempFolder = await path_provider.getTemporaryDirectory();
     final convertTempFolder = Directory(
-      path.join(tempFolder.path, kConvertTempFolderName),
+      path.join(
+        tempFolder.path,
+        kConvertDataFolderName,
+        kConvertTempFolderName,
+        prefix,
+      ),
     );
     return convertTempFolder.createIfNotExists();
   }
 
   static Future<void> cleanConvertTemporaryDirectory() async {
-    final tempFolder = await getConvertTemporaryDirectory();
+    final tempFolder = await getConvertTemporaryDirectory(null);
     await tempFolder.delete(recursive: true);
   }
 
