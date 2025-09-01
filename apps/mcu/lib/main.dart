@@ -19,7 +19,7 @@ Future<void> main() async {
   await Injector.init();
   await ConverterInjector.init();
 
-  await EasyBox.initialize(subDir: kAppDataDir);
+  await EasyBox.initialize(subDir: kDataFolderName);
   await SettingsBox().init();
 
   await LogData().init();
