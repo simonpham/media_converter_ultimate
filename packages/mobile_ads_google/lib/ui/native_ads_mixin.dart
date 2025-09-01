@@ -8,6 +8,7 @@ import 'package:mobile_ads/mobile_ads.dart';
 mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin<T> {
   NativeAd? _nativeAd;
   bool _nativeAdIsLoaded = false;
+  bool _isNativeAdLoadFailed = false;
 
   String get adUnitId => 'ca-app-pub-3940256099942544/2247696110';
 
@@ -15,6 +16,9 @@ mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin<T> {
 
   @override
   bool get isAdLoaded => _nativeAdIsLoaded;
+
+  @override
+  bool get isAdLoadFailed => _isNativeAdLoadFailed;
 
   @override
   void dispose() {
@@ -40,6 +44,9 @@ mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin<T> {
             StackTrace.current,
           );
           ad.dispose();
+          setState(() {
+            _isNativeAdLoadFailed = true;
+          });
         },
       ),
       request: const AdRequest(),
