@@ -84,5 +84,6 @@
   "video": "Video",
   "outputFileNameHasBeenChanged": "Output file name has been changed to {fileName}.",
   "outputFolderHasBeenChanged": "Output folder has been changed to {path}.",
+  "adLabel": "Sponsored",
   "itsTheEnd": "of the world"
 }

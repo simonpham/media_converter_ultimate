@@ -1,4 +1,5 @@
 import 'package:converter/constants/google_ad_units.dart';
+import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -32,57 +33,68 @@ class _JobAdItemState extends State<JobAdItem>
 
   @override
   Widget build(BuildContext context) {
-    if (!isAdLoaded) {
-      return const SizedBox.shrink();
-    }
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Spacing.v16,
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: Spacing.d16,
-          ),
-          child: Text(
-            'Ad',
-            style: context.theme.textTheme.labelLarge?.copyWith(
-              color: context.theme.colorScheme.primary,
-            ),
-          ),
-        ),
-        Spacing.v8,
-        Container(
-          margin: EdgeInsets.symmetric(
-            horizontal: Spacing.d16,
-          ),
-          decoration: ShapeDecoration(
-            color: context.theme.cardColor,
-            shape: const SmoothRectangleBorder(
-              borderRadius: SmoothBorderRadius.all(
-                SmoothRadius(
-                  cornerRadius: 12.0,
-                  cornerSmoothing: 1.0,
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+      child: isAdLoadFailed
+          ? const SizedBox(width: double.infinity)
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Spacing.v16,
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Spacing.d16,
+                  ),
+                  child: Text(
+                    context.l10n.adLabel,
+                    style: context.theme.textTheme.labelLarge?.copyWith(
+                      color: context.theme.colorScheme.primary,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-          padding: EdgeInsets.symmetric(
-            vertical: Spacing.d16,
-            horizontal: Spacing.d16,
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final widget = getAdWidget(
-                constraints.copyWith(
-                  maxHeight: Spacing.d96,
+                Spacing.v8,
+                Container(
+                  margin: EdgeInsets.symmetric(
+                    horizontal: Spacing.d16,
+                  ),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (!isAdLoaded) {
+                        return LoadingBox(
+                          width: constraints.maxWidth,
+                          height: Spacing.d96 + 2 * Spacing.d16,
+                        );
+                      }
+                      final widget = Container(
+                        decoration: ShapeDecoration(
+                          color: context.theme.cardColor,
+                          shape: const SmoothRectangleBorder(
+                            borderRadius: SmoothBorderRadius.all(
+                              SmoothRadius(
+                                cornerRadius: 12.0,
+                                cornerSmoothing: 1.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          vertical: Spacing.d16,
+                          horizontal: Spacing.d16,
+                        ),
+                        child: getAdWidget(
+                          constraints.copyWith(
+                            maxHeight: Spacing.d96,
+                          ),
+                        ),
+                      );
+                      return widget;
+                    },
+                  ),
                 ),
-              );
-              return widget ?? const SizedBox();
-            },
-          ),
-        ),
-      ],
+              ],
+            ),
     );
   }
 }
