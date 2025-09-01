@@ -195,20 +195,25 @@ class FileUtils {
     return true;
   }
 
+  static Future<Directory> getInputDirectory(String prefix) async {
+    final docFolder = await path_provider.getApplicationDocumentsDirectory();
+    final inputFolder = Directory(
+      path.join(
+        docFolder.path,
+        kConvertDataFolderName,
+        kInputFolderName,
+        prefix,
+      ),
+    );
+    return inputFolder.createIfNotExists();
+  }
+
   static Future<String?> movePickedFileToInputFolder({
     required String jobId,
     required String inputFilePath,
   }) async {
     try {
-      final docFolder = await path_provider.getApplicationDocumentsDirectory();
-      final inputFolder = await Directory(
-        path.join(
-          docFolder.path,
-          kConvertDataFolderName,
-          kInputFolderName,
-          jobId,
-        ),
-      ).createIfNotExists();
+      final inputFolder = await getInputDirectory(jobId);
       final inputFile = File(inputFilePath);
       final inputFileName = basename(inputFilePath);
       final newInputFilePath = path.join(
@@ -221,6 +226,25 @@ class FileUtils {
     } catch (err, trace) {
       printError(err, trace);
       return null;
+    }
+  }
+
+  static Future<void> cleanUpInputFile({
+    required String jobId,
+  }) async {
+    try {
+      final inputDir = await getInputDirectory(jobId);
+      await inputDir.delete(recursive: true);
+    } catch (err, trace) {
+      printError(err, trace);
+    }
+  }
+
+  static Future<void> deleteFileAtPath(String convertedFilePath) async {
+    try {
+      await File(convertedFilePath).delete();
+    } catch (err, trace) {
+      printError(err, trace);
     }
   }
 }
