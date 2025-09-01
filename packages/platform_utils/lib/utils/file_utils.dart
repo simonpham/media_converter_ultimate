@@ -166,8 +166,8 @@ class FileUtils {
     return convertTempFolder.createIfNotExists();
   }
 
-  static Future<void> cleanConvertTemporaryDirectory() async {
-    final tempFolder = await getConvertTemporaryDirectory(null);
+  static Future<void> cleanTemporaryDirectory() async {
+    final tempFolder = await getTemporaryDirectory();
     await tempFolder.delete(recursive: true);
   }
 
@@ -193,6 +193,35 @@ class FileUtils {
     }
 
     return true;
+  }
+
+  static Future<String?> movePickedFileToInputFolder({
+    required String jobId,
+    required String inputFilePath,
+  }) async {
+    try {
+      final docFolder = await path_provider.getApplicationDocumentsDirectory();
+      final inputFolder = await Directory(
+        path.join(
+          docFolder.path,
+          kConvertDataFolderName,
+          kInputFolderName,
+          jobId,
+        ),
+      ).createIfNotExists();
+      final inputFile = File(inputFilePath);
+      final inputFileName = basename(inputFilePath);
+      final newInputFilePath = path.join(
+        inputFolder.path,
+        inputFileName,
+      );
+      await inputFile.copy(newInputFilePath);
+      await inputFile.delete();
+      return newInputFilePath;
+    } catch (err, trace) {
+      printError(err, trace);
+      return null;
+    }
   }
 }
 
