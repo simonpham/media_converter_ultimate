@@ -173,6 +173,9 @@ class _JobManagerState extends State<JobManager> {
                       },
                     ),
                   ],
+                  const SliverToBoxAdapter(
+                    child: JobAdItem(),
+                  ),
                   if (pendingJobs.isNotEmpty) ...[
                     SliverToBoxAdapter(child: Spacing.v16),
                     SliverToBoxAdapter(
