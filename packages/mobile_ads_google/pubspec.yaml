@@ -1,0 +1,22 @@
+name: mobile_ads_google
+publish_to: "none"
+
+environment:
+  sdk: ^3.8.1
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: "flutter"
+
+  core:
+    path: ../core
+  mobile_ads:
+    path: ../mobile_ads
+  platform_utils:
+    path: ../platform_utils
+  utils:
+    path: ../utils
+
+  google_mobile_ads: ^6.0.0

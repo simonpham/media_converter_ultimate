@@ -7,5 +7,5 @@ mixin MobileAdsMixin<T extends StatefulWidget> on State<T> {
 
   FutureOr<void> loadAd();
 
-  Widget? getAdWidget();
+  Widget? getAdWidget(BoxConstraints constraint);
 }
