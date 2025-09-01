@@ -8,11 +8,11 @@ import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
 
 class JobManagerViewModel extends ChangeNotifier {
-  final JobRunnerService _jobRunnerService;
+  JobRunnerService get _jobRunnerService => injector<JobRunnerService>();
 
   ConvertJobStorage get _jobStorage => ConvertJobStorage.getInstance();
 
-  JobManagerViewModel(this._jobRunnerService) {
+  JobManagerViewModel() {
     _jobSubscription = _jobRunnerService.onJobUpdate.listen(
       _handleJobUpdate,
     );
@@ -246,5 +246,10 @@ class JobManagerViewModel extends ChangeNotifier {
       LogData().appendLog(job.id, err.toString());
       return false;
     }
+  }
+
+  Future<void> restartPendingJobs() async {
+    final pendingJobs = await _jobStorage.fixInvalidJobs();
+    await _runPendingJobs(pendingJobs);
   }
 }

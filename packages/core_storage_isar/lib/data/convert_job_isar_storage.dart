@@ -213,4 +213,40 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
       return false;
     }
   }
+
+  @override
+  Future<List<ConvertJob>> fixInvalidJobs() async {
+    try {
+      final invalidIsarJobs = await isar.isarConvertJobs
+          .where()
+          .statusEqualTo(JobStatus.pending)
+          .or()
+          .statusEqualTo(JobStatus.running)
+          .or()
+          .statusEqualTo(JobStatus.ready)
+          .or()
+          .statusEqualTo(JobStatus.cleaning)
+          .or()
+          .statusEqualTo(JobStatus.preparing)
+          .findAll();
+      final fixedJobs = invalidIsarJobs
+          .map(
+            (e) => e.toOriginalModel().copyWith(
+              status: const Some(JobStatus.pending),
+            ),
+          )
+          .toList();
+
+      final fixedIsarJobs = fixedJobs.map((e) => e.toIsarModel()).toList();
+      await isar.writeTxn(() async {
+        await isar.isarConvertJobs.putAll(fixedIsarJobs);
+      });
+
+      return fixedJobs;
+    } catch (err, trace) {
+      printError(err, trace);
+    }
+
+    return [];
+  }
 }
