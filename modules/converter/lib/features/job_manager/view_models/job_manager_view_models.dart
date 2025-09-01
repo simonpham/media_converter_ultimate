@@ -82,10 +82,11 @@ class JobManagerViewModel extends ChangeNotifier {
     final failure = await _completeJob(updatedJob);
     if (failure != null) {
       final failedJob = updatedJob.copyWith(
-        status: const Some(JobStatus.failed),
+        status: const Some(JobStatus.actionRequired),
       );
       await _handleJobUpdate(failedJob);
       LogData().appendLog(failedJob.id, failure.toString());
+      return;
     }
 
     await _handleJobUpdate(
@@ -191,6 +192,48 @@ class JobManagerViewModel extends ChangeNotifier {
       return const FailedToClearJobsFailure();
     }
 
+    return null;
+  }
+
+  Future<Failure?> handleJobRenameAction(
+    ConvertJob job,
+    String newName,
+  ) async {
+    if (job.status != JobStatus.actionRequired) {
+      return const InvalidStatusFailure();
+    }
+
+    final newJob = job.copyWith(
+      outputFileName: Some(newName),
+      status: const Some(JobStatus.cleaning),
+    );
+
+    if (await isOutputFileExists(newJob)) {
+      return OutputFileAlreadyExistsFailure(newJob.outputFile.path);
+    }
+
+    await _handleJobUpdate(newJob);
+    return null;
+  }
+
+  Future<Failure?> handleJobChooseAnotherPathAction(
+    ConvertJob job,
+    String newPath,
+  ) async {
+    if (job.status != JobStatus.actionRequired) {
+      return const InvalidStatusFailure();
+    }
+
+    final newJob = job.copyWith(
+      outputDirectoryPath: Some(newPath),
+      status: const Some(JobStatus.cleaning),
+    );
+
+    if (await isOutputFileExists(newJob)) {
+      return OutputFileAlreadyExistsFailure(newJob.outputFile.path);
+    }
+
+    await _handleJobUpdate(newJob);
     return null;
   }
 

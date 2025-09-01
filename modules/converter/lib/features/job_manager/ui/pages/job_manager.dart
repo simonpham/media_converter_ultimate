@@ -135,8 +135,10 @@ class _JobManagerState extends State<JobManager> {
                           job,
                           onOpenLogs: () => _handleOpenLogs(context, job),
                           onRemoveItem: () => _handleRemoveItem(context, job),
-                          // TODO: handle save.
-                          // TODO: handle rename output file.
+                          onRenameOutputFile: () =>
+                              _handleRenameOutputFile(context, job),
+                          onSelectNewOutputPath: () =>
+                              _handleSelectNewOutputPath(context, job),
                         );
                       },
                     ),
@@ -393,6 +395,73 @@ class _JobManagerState extends State<JobManager> {
 
     context.toastSuccess(
       result.getSuccessMessage(context),
+    );
+  }
+
+  Future<void> _handleRenameOutputFile(
+    BuildContext context,
+    ConvertJob job,
+  ) async {
+    final outputFileName = job.outputFileName;
+    final newName = await InputTextDialog.show(
+      context,
+      initialValue: outputFileName,
+      title: context.l10n.outputFileName,
+      labelText: context.l10n.fileName,
+      hintText: context.l10n.enterNewName,
+      cancelText: context.l10n.cancel,
+      confirmText: context.l10n.ok,
+    );
+
+    if (newName == null) {
+      return;
+    }
+
+    final trimmedNewName = newName.trim();
+    if (!isValidFilename(trimmedNewName)) {
+      context.toastError(context.l10n.failureFileNameIsNotValid);
+      return;
+    }
+
+    final model = context.read<JobManagerViewModel>();
+    final failure = await model.handleJobRenameAction(job, trimmedNewName);
+    if (failure != null) {
+      context.toastFailure(failure);
+      return;
+    }
+
+    context.toastSuccess(
+      context.l10n.outputFileNameHasBeenChanged(trimmedNewName),
+    );
+  }
+
+  Future<void> _handleSelectNewOutputPath(
+    BuildContext context,
+    ConvertJob job,
+  ) async {
+    final currentPath = job.outputDirectoryPath;
+
+    final (path, pickFailure) = await FileUtils.chooseSavePath(
+      context,
+      initialPath: currentPath,
+    );
+
+    if (pickFailure != null) {
+      context.toastFailure(pickFailure);
+    }
+
+    if (path == null) {
+      return;
+    }
+    final model = context.read<JobManagerViewModel>();
+    final failure = await model.handleJobChooseAnotherPathAction(job, path);
+    if (failure != null) {
+      context.toastFailure(failure);
+      return;
+    }
+
+    context.toastSuccess(
+      context.l10n.outputFolderHasBeenChanged(path),
     );
   }
 }

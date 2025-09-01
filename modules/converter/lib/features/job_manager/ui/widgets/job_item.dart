@@ -17,6 +17,8 @@ class JobItem extends StatelessWidget {
   final VoidCallback? onDelete;
   final VoidCallback? onStop;
   final VoidCallback? onRestart;
+  final VoidCallback? onRenameOutputFile;
+  final VoidCallback? onSelectNewOutputPath;
 
   const JobItem(
     this.job, {
@@ -28,6 +30,8 @@ class JobItem extends StatelessWidget {
     this.onDelete,
     this.onStop,
     this.onRestart,
+    this.onRenameOutputFile,
+    this.onSelectNewOutputPath,
     super.key,
   });
 
@@ -162,6 +166,8 @@ class JobItem extends StatelessWidget {
               onDelete: onDelete,
               onStop: onStop,
               onRestart: onRestart,
+              onRenameOutputFile: onRenameOutputFile,
+              onSelectNewOutputPath: onSelectNewOutputPath,
             ),
           ),
         ],
