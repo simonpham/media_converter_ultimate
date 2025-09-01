@@ -1,0 +1,19 @@
+name: mobile_ads
+publish_to: "none"
+
+environment:
+  sdk: ^3.8.1
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: "flutter"
+
+  core:
+    path: ../core
+  platform_utils:
+    path: ../platform_utils
+  utils:
+    path: ../utils
+

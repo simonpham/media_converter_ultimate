@@ -8,6 +8,7 @@ workspace:
   - packages/core_storage_base
   - packages/core_storage_isar
   - packages/l10n
+  - packages/mobile_ads
   - packages/platform_utils
   - packages/utils
 
