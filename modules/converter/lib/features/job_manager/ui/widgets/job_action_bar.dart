@@ -10,6 +10,8 @@ class JobActionBar extends StatelessWidget {
   final VoidCallback? onDelete;
   final VoidCallback? onStop;
   final VoidCallback? onRestart;
+  final VoidCallback? onRenameOutputFile;
+  final VoidCallback? onSelectNewOutputPath;
 
   const JobActionBar({
     this.onOpenLogs,
@@ -19,6 +21,8 @@ class JobActionBar extends StatelessWidget {
     this.onDelete,
     this.onStop,
     this.onRestart,
+    this.onRenameOutputFile,
+    this.onSelectNewOutputPath,
     super.key,
   });
 
@@ -138,6 +142,46 @@ class JobActionBar extends StatelessWidget {
               ),
             ),
             onPressed: onRestart,
+          ),
+        ],
+        if (onRenameOutputFile != null) ...[
+          Spacing.h8,
+          Button(
+            mainAxisSize: MainAxisSize.min,
+            variant: ButtonVariant.ghost,
+            padding: EdgeInsets.all(Spacing.d8),
+            icon: ImageView(
+              Assets.hugeicons.stroke.editFormatting.edit02,
+              size: Spacing.d16,
+              color: context.theme.colorScheme.onSurface,
+            ),
+            child: Text(
+              context.l10n.rename,
+              style: context.theme.textTheme.bodyMedium?.copyWith(
+                color: context.theme.colorScheme.onSurface,
+              ),
+            ),
+            onPressed: onRenameOutputFile,
+          ),
+        ],
+        if (onSelectNewOutputPath != null) ...[
+          Spacing.h8,
+          Button(
+            mainAxisSize: MainAxisSize.min,
+            variant: ButtonVariant.ghost,
+            padding: EdgeInsets.all(Spacing.d8),
+            icon: ImageView(
+              Assets.hugeicons.stroke.filesFolders.folderOpen,
+              size: Spacing.d16,
+              color: context.theme.colorScheme.onSurface,
+            ),
+            child: Text(
+              context.l10n.selectFolder,
+              style: context.theme.textTheme.bodyMedium?.copyWith(
+                color: context.theme.colorScheme.onSurface,
+              ),
+            ),
+            onPressed: onSelectNewOutputPath,
           ),
         ],
       ],

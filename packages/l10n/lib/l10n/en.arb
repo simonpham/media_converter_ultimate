@@ -81,5 +81,8 @@
   "tapAddFilesToBegin": "Tap Add Files to begin",
   "thereIsNothingHere": "There is nothing here",
   "tapCreateToBegin": "Tap (+) Create to begin",
-  "video": "Video"
+  "video": "Video",
+  "outputFileNameHasBeenChanged": "Output file name has been changed to {fileName}.",
+  "outputFolderHasBeenChanged": "Output folder has been changed to {path}.",
+  "itsTheEnd": "of the world"
 }
