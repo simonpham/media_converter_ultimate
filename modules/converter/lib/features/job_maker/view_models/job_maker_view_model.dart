@@ -231,20 +231,31 @@ class JobMakerViewModel extends ChangeNotifier {
       throw errorPaths.values.first;
     }
 
-    final result = outputFileNames.keys.map((inputFilePath) {
+    final List<ConvertJob> result = [];
+    for (final inputFilePath in outputFileNames.keys) {
       final jobId = kUuid.v4();
       final fileName = outputFileNames[inputFilePath];
       if (fileName == null) {
         throw FileNameIsNotSetFailure(inputFilePath);
       }
-      final outputFilePath = CommandBuilder.getOutputFilePath(
+
+      final newInputFilePath = await FileUtils.movePickedFileToInputFolder(
+        jobId: jobId,
         inputFilePath: inputFilePath,
+      );
+
+      if (newInputFilePath == null) {
+        throw InputFileNotExistFailure(inputFilePath);
+      }
+
+      final outputFilePath = CommandBuilder.getOutputFilePath(
+        inputFilePath: newInputFilePath,
         formatEntry: formatEntry,
         outputDirectoryPath: join(convertTempFolder.path, jobId),
         overrideFileName: fileName,
       );
       final command = CommandBuilder.buildCommand(
-        inputFilePath: inputFilePath,
+        inputFilePath: newInputFilePath,
         formatEntry: formatEntry,
         selectedValues: selectedValues,
         availableControls: availableControls,
@@ -252,9 +263,9 @@ class JobMakerViewModel extends ChangeNotifier {
       );
 
       final now = DateTime.now();
-      return ConvertJob(
+      final job = ConvertJob(
         id: jobId,
-        inputFilePath: inputFilePath,
+        inputFilePath: newInputFilePath,
         outputFileName: fileName,
         outputExtension: formatEntry.outputExtension,
         outputDirectoryPath: outputDirectoryPath,
@@ -263,7 +274,8 @@ class JobMakerViewModel extends ChangeNotifier {
         createdAt: now,
         updatedAt: now,
       );
-    }).toList();
+      result.add(job);
+    }
 
     if (shouldRememberConfigs) {
       formatEntry.setLastKnownConfigurations(selectedValues);
