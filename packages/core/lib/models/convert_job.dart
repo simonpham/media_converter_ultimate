@@ -16,8 +16,10 @@ class ConvertJob {
   final String id;
   final String outputFileName;
   final String inputFilePath;
+  final String outputExtension;
   final String outputDirectoryPath;
   final String command;
+  final String convertedFilePath;
 
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -31,8 +33,10 @@ class ConvertJob {
     required this.id,
     required this.inputFilePath,
     required this.outputFileName,
+    required this.outputExtension,
     required this.outputDirectoryPath,
     required this.command,
+    required this.convertedFilePath,
     required this.createdAt,
     required this.updatedAt,
     this.sessionId,
@@ -50,8 +54,10 @@ class ConvertJob {
     'id': id,
     'inputFilePath': inputFilePath,
     'outputFileName': outputFileName,
+    'outputExtension': outputExtension,
     'outputDirectoryPath': outputDirectoryPath,
     'command': command,
+    'convertedFilePath': convertedFilePath,
     'createdAt': createdAt.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),
     'sessionId': sessionId,
@@ -64,8 +70,10 @@ class ConvertJob {
     Some<String>? id,
     Some<String>? inputFilePath,
     Some<String>? outputFileName,
+    Some<String>? outputExtension,
     Some<String>? outputDirectoryPath,
     Some<String>? command,
+    Some<String>? convertedFilePath,
     Some<DateTime>? createdAt,
     Some<DateTime>? updatedAt,
     Some<int?>? sessionId,
@@ -80,10 +88,16 @@ class ConvertJob {
     outputFileName: outputFileName != null
         ? outputFileName.value
         : this.outputFileName,
+    outputExtension: outputExtension != null
+        ? outputExtension.value
+        : this.outputExtension,
     outputDirectoryPath: outputDirectoryPath != null
         ? outputDirectoryPath.value
         : this.outputDirectoryPath,
     command: command != null ? command.value : this.command,
+    convertedFilePath: convertedFilePath != null
+        ? convertedFilePath.value
+        : this.convertedFilePath,
     createdAt: createdAt != null ? createdAt.value : this.createdAt,
     updatedAt: updatedAt != null ? updatedAt.value : this.updatedAt,
     sessionId: sessionId != null ? sessionId.value : this.sessionId,

@@ -43,6 +43,8 @@ class FfmpegJobRunnerService implements JobRunnerService {
     final duration =
         ((double.tryParse('${mediaInfo?.getDuration()}') ?? 0) * 1000).toInt();
 
+    await FileUtils.prepareConvertTempFolder(jobId: job.id);
+
     _jobController.add(
       job.copyWith(
         status: const Some(JobStatus.ready),

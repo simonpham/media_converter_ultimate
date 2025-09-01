@@ -1,3 +1,5 @@
 const String kDataFolderName = '.sofluffy_converter';
 
-const String kConvertTempFolderName = '.sofluffy_converter_temp';
+const String kConvertDataFolderName = '.sofluffy_converter_data';
+const String kConvertTempFolderName = 'temp';
+const String kConvertedFolderName = 'converted';
