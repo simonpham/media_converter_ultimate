@@ -1,4 +1,5 @@
 import 'package:converter/constants/google_ad_units.dart';
+import 'package:converter/data/local/ads_settings.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/foundation.dart';
@@ -17,6 +18,9 @@ class PreviewPageAdItem extends StatefulWidget {
 
 class _PreviewPageAdItemState extends State<PreviewPageAdItem>
     with MobileAdsMixin, NativeAdsMixin, AfterLayoutMixin {
+  @override
+  bool get isAdEnabled => SettingsBox().successConversionCount >= 1;
+
   @override
   String get adUnitId {
     if (kDebugMode) {
