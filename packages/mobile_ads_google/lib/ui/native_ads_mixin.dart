@@ -28,6 +28,9 @@ mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin<T> {
 
   @override
   FutureOr<void> loadAd(BuildContext context) {
+    if (!isAdEnabled) {
+      return null;
+    }
     final theme = Theme.of(context);
     _nativeAd = NativeAd(
       adUnitId: adUnitId,
@@ -85,7 +88,7 @@ mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin<T> {
   @override
   Widget? getAdWidget(BoxConstraints constraint) {
     final nativeAd = _nativeAd;
-    if (!isAdLoaded || nativeAd == null) {
+    if (!isAdLoaded || nativeAd == null || !isAdEnabled) {
       return null;
     }
 
