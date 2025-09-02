@@ -25,121 +25,130 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<JobMakerViewModel>(
-      builder: (context, model, _) {
-        final selectedPaths = model.selectedFiles;
-        final outputFileNames = model.outputFileNames;
-        final formatEntry = model.selectedFormatEntry;
-        final outputDirectoryName = switch (model.outputDirectoryPath) {
-          String path => basename(path),
-          _ => null,
-        };
-        final isFolderSelected = model.outputDirectoryPath != null;
+    return Scrollbar(
+      controller: _scrollController,
+      child: Consumer<JobMakerViewModel>(
+        builder: (context, model, _) {
+          final selectedPaths = model.selectedFiles;
+          final outputFileNames = model.outputFileNames;
+          final formatEntry = model.selectedFormatEntry;
+          final outputDirectoryName = switch (model.outputDirectoryPath) {
+            String path => basename(path),
+            _ => null,
+          };
+          final isFolderSelected = model.outputDirectoryPath != null;
 
-        if (selectedPaths.isEmpty) {
-          return Text(context.l10n.noFilesSelected);
-        }
+          if (selectedPaths.isEmpty) {
+            return Text(context.l10n.noFilesSelected);
+          }
 
-        if (formatEntry == null) {
-          return Text(context.l10n.noOutputFormatSelected);
-        }
+          if (formatEntry == null) {
+            return Text(context.l10n.noOutputFormatSelected);
+          }
 
-        final errorPaths = model.errorPaths;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const PreviewPageAdItem(),
-            RoundCard(
-              margin: EdgeInsets.symmetric(
-                horizontal: Spacing.d16,
+          final errorPaths = model.errorPaths;
+          return CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              const SliverToBoxAdapter(
+                child: PreviewPageAdItem(),
               ),
-              padding: EdgeInsets.only(
-                bottom: Spacing.d16,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: EdgeInsets.only(
-                      left: Spacing.d16,
-                      right: Spacing.d16,
-                      top: Spacing.d4,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: SectionTitle(
-                            context.l10n.outputFolder,
-                            padding: EdgeInsets.zero,
-                          ),
+              SliverToBoxAdapter(
+                child: RoundCard(
+                  margin: EdgeInsets.symmetric(
+                    horizontal: Spacing.d16,
+                  ),
+                  padding: EdgeInsets.only(
+                    bottom: Spacing.d16,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.only(
+                          left: Spacing.d16,
+                          right: Spacing.d16,
+                          top: Spacing.d4,
                         ),
-                        CheckBoxListTile(
-                          style: CheckBoxListTileStyle.compact,
-                          alignment: CheckBoxAlignment.left,
-                          title: context.l10n.setAsDefault,
-                          value: model.shouldRememberOutputFolder,
-                          onChanged: (value) {
-                            model.setRememberOutputFolder(value);
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: SectionTitle(
+                                context.l10n.outputFolder,
+                                padding: EdgeInsets.zero,
+                              ),
+                            ),
+                            CheckBoxListTile(
+                              style: CheckBoxListTileStyle.compact,
+                              alignment: CheckBoxAlignment.left,
+                              title: context.l10n.setAsDefault,
+                              value: model.shouldRememberOutputFolder,
+                              onChanged: (value) {
+                                model.setRememberOutputFolder(value);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: Spacing.d16,
+                          right: Spacing.d16,
+                        ),
+                        child: Button(
+                          tooltip: model.outputDirectoryPath,
+                          variant: ButtonVariant.ghost,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: Spacing.d16,
+                            vertical: Spacing.d12,
+                          ),
+                          icon: Padding(
+                            padding: EdgeInsets.only(right: Spacing.d4),
+                            child: ImageView(
+                              Assets.hugeicons.stroke.filesFolders.folder01,
+                              color: context.theme.primaryColor,
+                              size: Spacing.d24,
+                            ),
+                          ),
+                          label:
+                              outputDirectoryName ?? context.l10n.selectFolder,
+                          labelTextAlign: TextAlign.start,
+                          expandTitle: true,
+                          trailingIcon: !isFolderSelected
+                              ? null
+                              : Text(
+                                  context.l10n.selectFolder,
+                                  style: context.theme.textTheme.labelSmall
+                                      ?.copyWith(
+                                        color:
+                                            context.theme.colorScheme.primary,
+                                      ),
+                                ),
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          onPressed: () {
+                            _handleChooseOutputDirectoryPressed(context);
                           },
                         ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      left: Spacing.d16,
-                      right: Spacing.d16,
-                    ),
-                    child: Button(
-                      tooltip: model.outputDirectoryPath,
-                      variant: ButtonVariant.ghost,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: Spacing.d16,
-                        vertical: Spacing.d12,
                       ),
-                      icon: Padding(
-                        padding: EdgeInsets.only(right: Spacing.d4),
-                        child: ImageView(
-                          Assets.hugeicons.stroke.filesFolders.folder01,
-                          color: context.theme.primaryColor,
-                          size: Spacing.d24,
-                        ),
-                      ),
-                      label: outputDirectoryName ?? context.l10n.selectFolder,
-                      labelTextAlign: TextAlign.start,
-                      expandTitle: true,
-                      trailingIcon: !isFolderSelected
-                          ? null
-                          : Text(
-                              context.l10n.selectFolder,
-                              style: context.theme.textTheme.labelSmall
-                                  ?.copyWith(
-                                    color: context.theme.colorScheme.primary,
-                                  ),
-                            ),
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      onPressed: () {
-                        _handleChooseOutputDirectoryPressed(context);
-                      },
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-            Spacing.v8,
-            SectionTitle(
-              context.l10n.outputFiles,
-            ),
-            Expanded(
-              child: Scrollbar(
-                controller: _scrollController,
-                child: ListView.separated(
-                  controller: _scrollController,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Spacing.d16,
-                    vertical: Spacing.d16,
-                  ),
+              SliverToBoxAdapter(
+                child: Spacing.v8,
+              ),
+              SliverToBoxAdapter(
+                child: SectionTitle(
+                  context.l10n.outputFiles,
+                ),
+              ),
+              SliverPadding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: Spacing.d16,
+                  vertical: Spacing.d16,
+                ),
+                sliver: SliverList.separated(
                   itemCount: selectedPaths.length,
                   separatorBuilder: (_, _) => Spacing.v8,
                   itemBuilder: (context, index) {
@@ -161,10 +170,10 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                   },
                 ),
               ),
-            ),
-          ],
-        );
-      },
+            ],
+          );
+        },
+      ),
     );
   }
 
