@@ -27,10 +27,15 @@ class SettingsItem extends StatelessWidget {
           child: ImageView(
             item.appIcon,
             size: Spacing.d24,
+            color: context.theme.colorScheme.onSurface,
           ),
         ),
         title: item.getLabel(context),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: ImageView(
+          Assets.hugeicons.stroke.arrowsRound.arrowRight01Round,
+          size: Spacing.d24,
+          color: context.theme.colorScheme.onSurface,
+        ),
         onTap: () {
           SettingsChild.go(context, item);
         },

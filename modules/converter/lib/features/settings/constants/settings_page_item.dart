@@ -73,29 +73,21 @@ extension SettingsPageItemExtensions on SettingsPageItem {
   }
 
   String get appIcon {
+    final icons = Assets.hugeicons.stroke;
     return switch (this) {
-      SettingsPageItem.defaultOutputFolder =>
-        Assets.hugeicons.stroke.filesFolders.folder01,
-      SettingsPageItem.defaultOutputFormat =>
-        Assets.hugeicons.stroke.filesFolders.fileExport,
-      SettingsPageItem.overwriteBehavior =>
-        Assets.hugeicons.stroke.addRemoveDelete.deleteThrow,
-      SettingsPageItem.appTheme => Assets.hugeicons.stroke.settings.customize,
-      SettingsPageItem.showFileThumbnails =>
-        Assets.hugeicons.stroke.imageCameraVideo.image01,
-      SettingsPageItem.defaultSorting =>
-        Assets.hugeicons.stroke.filterSorting.sorting01,
-      SettingsPageItem.clearCache =>
-        Assets.hugeicons.stroke.addRemoveDelete.delete04,
-      SettingsPageItem.managePermissions =>
-        Assets.hugeicons.stroke.security.securityLock,
-      SettingsPageItem.helpAndFaq =>
-        Assets.hugeicons.stroke.alertNotification.helpCircle,
-      SettingsPageItem.contactUs =>
-        Assets.hugeicons.stroke.communications.message01,
-      SettingsPageItem.legal => Assets.hugeicons.stroke.legal.legalDocument01,
+      SettingsPageItem.defaultOutputFolder => icons.filesFolders.folder01,
+      SettingsPageItem.defaultOutputFormat => icons.filesFolders.fileExport,
+      SettingsPageItem.overwriteBehavior => icons.addRemoveDelete.deleteThrow,
+      SettingsPageItem.appTheme => icons.settings.customize,
+      SettingsPageItem.showFileThumbnails => icons.imageCameraVideo.image01,
+      SettingsPageItem.defaultSorting => icons.filterSorting.sorting01,
+      SettingsPageItem.clearCache => icons.addRemoveDelete.delete04,
+      SettingsPageItem.managePermissions => icons.security.securityLock,
+      SettingsPageItem.helpAndFaq => icons.alertNotification.helpCircle,
+      SettingsPageItem.contactUs => icons.communications.message01,
+      SettingsPageItem.legal => icons.legal.legalDocument01,
       SettingsPageItem.supportTheDeveloper =>
-        Assets.hugeicons.stroke.businessAndFinance.dollarCircle,
+        icons.businessAndFinance.dollarCircle,
     };
   }
 }
