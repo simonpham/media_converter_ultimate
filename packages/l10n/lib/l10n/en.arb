@@ -85,5 +85,16 @@
   "outputFileNameHasBeenChanged": "Output file name has been changed to {fileName}.",
   "outputFolderHasBeenChanged": "Output folder has been changed to {path}.",
   "adLabel": "Sponsored",
+  "settingsTitle": "Settings",
+  "categoryAboutAndSupportSettings": "About & Support",
+  "categoryAppManagementSettings": "App Management",
+  "categoryConversionSettings": "Conversion & Output",
+  "categoryDisplaySettings": "Display & UI",
+  "categoryMonetizationSettings": "Monetization",
+  "displayAppTheme": "App Theme",
+  "displayAppThemeDescription": "Choose the app's color scheme.",
+  "displayAppThemeSystem": "System",
+  "displayAppThemeLight": "Light",
+  "displayAppThemeDark": "Dark",
   "itsTheEnd": "of the world"
 }
