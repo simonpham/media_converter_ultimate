@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
@@ -24,9 +26,14 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
 
   @override
   Widget build(BuildContext context) {
+    int? adPosition;
+    const minimumFilesToDisplayAd = 5;
     return Selector<JobMakerViewModel, List<File>>(
       selector: (context, model) => model.selectedFiles,
       builder: (context, files, _) {
+        if (files.length >= minimumFilesToDisplayAd) {
+          adPosition ??= Random().nextInt(minimumFilesToDisplayAd);
+        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -58,7 +65,7 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                         delegate: ReorderableSliverChildBuilderDelegate(
                           (context, index) {
                             final file = files.elementAt(index);
-                            return Padding(
+                            final fileWidget = Padding(
                               padding: EdgeInsets.symmetric(
                                 vertical: Spacing.d4,
                               ),
@@ -81,6 +88,18 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                                 },
                               ),
                             );
+
+                            if (adPosition == index) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const FileAdItem(),
+                                  fileWidget,
+                                ]
+                              );
+                            }
+
+                            return fileWidget;
                           },
                           childCount: files.length,
                         ),

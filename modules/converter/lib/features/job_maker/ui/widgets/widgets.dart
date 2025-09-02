@@ -1,4 +1,5 @@
 export 'config_control_widget.dart';
+export 'file_ad_item.dart';
 export 'file_icon.dart';
 export 'file_item.dart';
 export 'output_file_item.dart';
