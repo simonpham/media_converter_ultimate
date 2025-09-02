@@ -48,6 +48,7 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const PreviewPageAdItem(),
             RoundCard(
               margin: EdgeInsets.symmetric(
                 horizontal: Spacing.d16,
