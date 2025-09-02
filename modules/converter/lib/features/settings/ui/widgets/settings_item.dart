@@ -12,19 +12,27 @@ class SettingsItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListItem(
-      leading: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: Spacing.d4,
-        ),
-        child: ImageView(
-          item.appIcon,
-          size: Spacing.d24,
-        ),
+    return RoundCard(
+      margin: EdgeInsets.only(
+        top: Spacing.d8,
+        left: Spacing.d16,
+        right: Spacing.d16,
       ),
-      title: item.getLabel(context),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () {},
+      child: ListItem(
+        leading: Container(
+          alignment: Alignment.center,
+          padding: EdgeInsets.symmetric(
+            vertical: Spacing.d8,
+          ),
+          child: ImageView(
+            item.appIcon,
+            size: Spacing.d24,
+          ),
+        ),
+        title: item.getLabel(context),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () {},
+      ),
     );
   }
 }
