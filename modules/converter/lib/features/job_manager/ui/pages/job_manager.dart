@@ -110,6 +110,10 @@ class _JobManagerState extends State<JobManager> {
                       ),
                     ],
                   ),
+                  const SliverToBoxAdapter(
+                    key: ValueKey('job_manager_ad_item'),
+                    child: JobAdItem(),
+                  ),
                   if (actionRequiredJobs.isNotEmpty) ...[
                     SliverToBoxAdapter(child: Spacing.v16),
                     SliverToBoxAdapter(
@@ -173,9 +177,6 @@ class _JobManagerState extends State<JobManager> {
                       },
                     ),
                   ],
-                  const SliverToBoxAdapter(
-                    child: JobAdItem(),
-                  ),
                   if (pendingJobs.isNotEmpty) ...[
                     SliverToBoxAdapter(child: Spacing.v16),
                     SliverToBoxAdapter(
