@@ -31,7 +31,9 @@ class SettingsItem extends StatelessWidget {
         ),
         title: item.getLabel(context),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () {},
+        onTap: () {
+          SettingsChild.go(context, item);
+        },
       ),
     );
   }
