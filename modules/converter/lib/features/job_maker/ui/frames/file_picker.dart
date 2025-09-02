@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
@@ -26,22 +24,11 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
 
   @override
   Widget build(BuildContext context) {
-    int? adPosition;
-    const minimumFilesToDisplayAd = 5;
     return Selector<JobMakerViewModel, List<File>>(
       selector: (context, model) => model.selectedFiles,
       builder: (context, files, _) {
-        if (files.length >= minimumFilesToDisplayAd) {
-          adPosition ??= Random().nextInt(minimumFilesToDisplayAd);
-        }
         return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (files.isNotEmpty) ...[
-              SectionTitle(
-                context.l10n.selectedFiles(files.length),
-              ),
-            ],
             Expanded(
               child: Scrollbar(
                 controller: _scrollController,
@@ -49,10 +36,31 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                 child: CustomScrollView(
                   controller: _scrollController,
                   slivers: [
+                    const SliverToBoxAdapter(
+                      child: FileAdItem(),
+                    ),
+                    if (files.isNotEmpty) ...[
+                      SliverToBoxAdapter(
+                        child: Spacing.v8,
+                      ),
+                      PinnedHeaderSliver(
+                        child: ColoredBox(
+                          color: context.theme.colorScheme.surface,
+                          child: SectionTitle(
+                            context.l10n.selectedFiles(files.length),
+                            padding: EdgeInsets.only(
+                              left: Spacing.d16,
+                              right: Spacing.d16,
+                              top: Spacing.d8,
+                              bottom: Spacing.d8,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                     SliverPadding(
                       padding: EdgeInsets.symmetric(
                         horizontal: Spacing.d16,
-                        vertical: Spacing.d12,
                       ),
                       sliver: ReorderableSliverList(
                         controller: _scrollController,
@@ -65,12 +73,12 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                         delegate: ReorderableSliverChildBuilderDelegate(
                           (context, index) {
                             final file = files.elementAt(index);
-                            final fileWidget = Padding(
+                            return Padding(
+                              key: ValueKey(file.path),
                               padding: EdgeInsets.symmetric(
                                 vertical: Spacing.d4,
                               ),
                               child: FileItem(
-                                key: ValueKey(file.path),
                                 file,
                                 leading: ImageView(
                                   Assets
@@ -88,18 +96,6 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                                 },
                               ),
                             );
-
-                            if (adPosition == index) {
-                              return Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const FileAdItem(),
-                                  fileWidget,
-                                ]
-                              );
-                            }
-
-                            return fileWidget;
                           },
                           childCount: files.length,
                         ),
