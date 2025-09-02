@@ -1,3 +1,4 @@
+import 'package:converter/features/settings/ui/pages/settings_child.dart';
 import 'package:core/core.dart';
 import 'package:design_system/assets.gen.dart';
 import 'package:flutter/foundation.dart';
@@ -7,7 +8,7 @@ enum SettingsPageItem {
   defaultOutputFolder,
   defaultOutputFormat,
   overwriteBehavior,
-  appTheme,
+  appTheme(routeName: 'app-theme'),
   showFileThumbnails,
   defaultSorting,
   clearCache,
@@ -17,6 +18,12 @@ enum SettingsPageItem {
   legal,
   supportTheDeveloper;
 
+  final String? routeName;
+
+  const SettingsPageItem({
+    this.routeName,
+  });
+
   static List<SettingsPageItem> get availableOptions => kDebugMode
       ? values
       : [
@@ -25,6 +32,23 @@ enum SettingsPageItem {
 }
 
 extension SettingsPageItemExtensions on SettingsPageItem {
+  GoRouterWidgetBuilder? get routerBuilder {
+    return switch (this) {
+      SettingsPageItem.defaultOutputFolder => null,
+      SettingsPageItem.defaultOutputFormat => null,
+      SettingsPageItem.overwriteBehavior => null,
+      SettingsPageItem.appTheme => (_, _) => const AppThemeSettingsChild(),
+      SettingsPageItem.showFileThumbnails => null,
+      SettingsPageItem.defaultSorting => null,
+      SettingsPageItem.clearCache => null,
+      SettingsPageItem.managePermissions => null,
+      SettingsPageItem.helpAndFaq => null,
+      SettingsPageItem.contactUs => null,
+      SettingsPageItem.legal => null,
+      SettingsPageItem.supportTheDeveloper => null,
+    };
+  }
+
   String getLabel(BuildContext context) {
     return switch (this) {
       SettingsPageItem.defaultOutputFolder =>
