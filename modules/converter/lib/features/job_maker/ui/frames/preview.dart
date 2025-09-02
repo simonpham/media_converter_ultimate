@@ -54,99 +54,117 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                 child: PreviewPageAdItem(),
               ),
               SliverToBoxAdapter(
-                child: RoundCard(
-                  margin: EdgeInsets.symmetric(
-                    horizontal: Spacing.d16,
-                  ),
+                child: Divider(
+                  height: Spacing.d16,
+                ),
+              ),
+              PinnedHeaderSliver(
+                child: Container(
+                  color: context.theme.colorScheme.surface,
                   padding: EdgeInsets.only(
-                    bottom: Spacing.d16,
+                    top: Spacing.d8,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.only(
-                          left: Spacing.d16,
-                          right: Spacing.d16,
-                          top: Spacing.d4,
+                  child: RoundCard(
+                    margin: EdgeInsets.symmetric(
+                      horizontal: Spacing.d16,
+                    ),
+                    padding: EdgeInsets.only(
+                      bottom: Spacing.d16,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.only(
+                            left: Spacing.d16,
+                            right: Spacing.d16,
+                            top: Spacing.d4,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: SectionTitle(
+                                  context.l10n.outputFolder,
+                                  padding: EdgeInsets.zero,
+                                ),
+                              ),
+                              CheckBoxListTile(
+                                style: CheckBoxListTileStyle.compact,
+                                alignment: CheckBoxAlignment.left,
+                                title: context.l10n.setAsDefault,
+                                value: model.shouldRememberOutputFolder,
+                                onChanged: (value) {
+                                  model.setRememberOutputFolder(value);
+                                },
+                              ),
+                            ],
+                          ),
                         ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: SectionTitle(
-                                context.l10n.outputFolder,
-                                padding: EdgeInsets.zero,
+                        Padding(
+                          padding: EdgeInsets.only(
+                            left: Spacing.d16,
+                            right: Spacing.d16,
+                          ),
+                          child: Button(
+                            tooltip: model.outputDirectoryPath,
+                            variant: ButtonVariant.ghost,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: Spacing.d16,
+                              vertical: Spacing.d12,
+                            ),
+                            icon: Padding(
+                              padding: EdgeInsets.only(right: Spacing.d4),
+                              child: ImageView(
+                                Assets.hugeicons.stroke.filesFolders.folder01,
+                                color: context.theme.primaryColor,
+                                size: Spacing.d24,
                               ),
                             ),
-                            CheckBoxListTile(
-                              style: CheckBoxListTileStyle.compact,
-                              alignment: CheckBoxAlignment.left,
-                              title: context.l10n.setAsDefault,
-                              value: model.shouldRememberOutputFolder,
-                              onChanged: (value) {
-                                model.setRememberOutputFolder(value);
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          left: Spacing.d16,
-                          right: Spacing.d16,
-                        ),
-                        child: Button(
-                          tooltip: model.outputDirectoryPath,
-                          variant: ButtonVariant.ghost,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: Spacing.d16,
-                            vertical: Spacing.d12,
+                            label:
+                                outputDirectoryName ??
+                                context.l10n.selectFolder,
+                            labelTextAlign: TextAlign.start,
+                            expandTitle: true,
+                            trailingIcon: !isFolderSelected
+                                ? null
+                                : Text(
+                                    context.l10n.selectFolder,
+                                    style: context.theme.textTheme.labelSmall
+                                        ?.copyWith(
+                                          color:
+                                              context.theme.colorScheme.primary,
+                                        ),
+                                  ),
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            onPressed: () {
+                              _handleChooseOutputDirectoryPressed(context);
+                            },
                           ),
-                          icon: Padding(
-                            padding: EdgeInsets.only(right: Spacing.d4),
-                            child: ImageView(
-                              Assets.hugeicons.stroke.filesFolders.folder01,
-                              color: context.theme.primaryColor,
-                              size: Spacing.d24,
-                            ),
-                          ),
-                          label:
-                              outputDirectoryName ?? context.l10n.selectFolder,
-                          labelTextAlign: TextAlign.start,
-                          expandTitle: true,
-                          trailingIcon: !isFolderSelected
-                              ? null
-                              : Text(
-                                  context.l10n.selectFolder,
-                                  style: context.theme.textTheme.labelSmall
-                                      ?.copyWith(
-                                        color:
-                                            context.theme.colorScheme.primary,
-                                      ),
-                                ),
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          onPressed: () {
-                            _handleChooseOutputDirectoryPressed(context);
-                          },
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-              SliverToBoxAdapter(
-                child: Spacing.v8,
-              ),
-              SliverToBoxAdapter(
-                child: SectionTitle(
-                  context.l10n.outputFiles,
+              PinnedHeaderSliver(
+                child: ColoredBox(
+                  color: context.theme.colorScheme.surface,
+                  child: SectionTitle(
+                    context.l10n.outputFiles,
+                    padding: EdgeInsets.only(
+                      left: Spacing.d16,
+                      right: Spacing.d16,
+                      top: Spacing.d16,
+                      bottom: Spacing.d8,
+                    ),
+                  ),
                 ),
               ),
               SliverPadding(
                 padding: EdgeInsets.symmetric(
                   horizontal: Spacing.d16,
-                  vertical: Spacing.d16,
+                  vertical: Spacing.d8,
                 ),
                 sliver: SliverList.separated(
                   itemCount: selectedPaths.length,

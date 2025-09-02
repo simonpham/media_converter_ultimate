@@ -86,7 +86,7 @@ class _PreviewPageAdItemState extends State<PreviewPageAdItem>
                       return widget;
                     },
                   ),
-                  Spacing.v16,
+                  Spacing.v8,
                 ],
               ),
             ),
