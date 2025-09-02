@@ -55,7 +55,7 @@ mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin<T> {
       request: const AdRequest(),
       nativeTemplateStyle: NativeTemplateStyle(
         templateType: templateType,
-        mainBackgroundColor: theme.colorScheme.surface,
+        mainBackgroundColor: Colors.white,
         cornerRadius: 12.0,
         callToActionTextStyle: NativeTemplateTextStyle(
           textColor: Colors.white,
@@ -65,19 +65,19 @@ mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin<T> {
         ),
         primaryTextStyle: NativeTemplateTextStyle(
           textColor: theme.colorScheme.primary,
-          backgroundColor: theme.colorScheme.surface,
+          backgroundColor:  Colors.white,
           style: NativeTemplateFontStyle.bold,
           size: 16.0,
         ),
         secondaryTextStyle: NativeTemplateTextStyle(
-          textColor: theme.colorScheme.onSurface,
-          backgroundColor: theme.colorScheme.surface,
+          textColor: Colors.black54,
+          backgroundColor:  Colors.white,
           style: NativeTemplateFontStyle.normal,
           size: 14.0,
         ),
         tertiaryTextStyle: NativeTemplateTextStyle(
-          textColor: theme.colorScheme.onSurface,
-          backgroundColor: theme.colorScheme.surface,
+          textColor: Colors.black54,
+          backgroundColor:  Colors.white,
           style: NativeTemplateFontStyle.italic,
           size: 16.0,
         ),
