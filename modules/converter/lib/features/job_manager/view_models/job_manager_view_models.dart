@@ -114,6 +114,10 @@ class JobManagerViewModel extends ChangeNotifier {
       ),
     );
     await FileUtils.cleanUpInputFile(jobId: updatedJob.id);
+    SettingsBox().successConversionCount++;
+    printLog(
+      '[AdsSettings] successConversionCount increased: ${SettingsBox().successConversionCount}',
+    );
   }
 
   Future<void> _cleanFailedJob(ConvertJob job) async {

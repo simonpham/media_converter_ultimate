@@ -17,6 +17,15 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
   final ScrollController _scrollController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+    SettingsBox().filePickerAccessCount++;
+    printLog(
+      '[AdsSettings] filePickerAccessCount increased: ${SettingsBox().filePickerAccessCount}',
+    );
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();

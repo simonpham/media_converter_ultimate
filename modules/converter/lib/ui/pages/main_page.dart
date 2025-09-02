@@ -19,6 +19,15 @@ class _MainPageState extends State<MainPage> with AfterLayoutMixin {
   final JobManagerViewModel _jobManagerViewModel = JobManagerViewModel();
 
   @override
+  void initState() {
+    super.initState();
+    SettingsBox().appLaunchCount++;
+    printLog(
+      '[AdsSettings] appLaunchCount increased: ${SettingsBox().appLaunchCount}',
+    );
+  }
+
+  @override
   void afterFirstLayout(BuildContext context) {
     _jobManagerViewModel.restartPendingJobs();
   }

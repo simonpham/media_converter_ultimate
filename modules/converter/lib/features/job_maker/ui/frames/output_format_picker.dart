@@ -3,10 +3,26 @@ import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
-class JobMakerOutputFormatPicker extends StatelessWidget {
+class JobMakerOutputFormatPicker extends StatefulWidget {
   const JobMakerOutputFormatPicker({
     super.key,
   });
+
+  @override
+  State<JobMakerOutputFormatPicker> createState() =>
+      _JobMakerOutputFormatPickerState();
+}
+
+class _JobMakerOutputFormatPickerState
+    extends State<JobMakerOutputFormatPicker> {
+  @override
+  void initState() {
+    super.initState();
+    SettingsBox().outputFormatPickerAccessCount++;
+    printLog(
+      '[AdsSettings] outputFormatPickerAccessCount increased: ${SettingsBox().outputFormatPickerAccessCount}',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
