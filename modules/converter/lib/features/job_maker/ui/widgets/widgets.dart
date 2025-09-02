@@ -5,3 +5,4 @@ export 'file_item.dart';
 export 'output_file_item.dart';
 export 'output_format_ad_item.dart';
 export 'output_format_grid_item.dart';
+export 'preview_page_ad_item.dart';
