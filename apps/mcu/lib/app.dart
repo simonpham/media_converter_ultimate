@@ -10,7 +10,6 @@ class MediaConverterUltimate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.theme.brightness == Brightness.dark;
     return ValueListenableBuilder(
       valueListenable: [
         CoreSettings.language,
@@ -18,8 +17,8 @@ class MediaConverterUltimate extends StatelessWidget {
       ].of(SettingsBox()),
       builder: (context, _, _) {
         return MaterialApp.router(
-          theme: ThemeConfigs().theme.getTheme(isDark: isDark),
-          darkTheme: ThemeConfigs().theme.getTheme(isDark: isDark),
+          theme: ThemeConfigs().theme.getTheme(isDark: false),
+          darkTheme: ThemeConfigs().theme.getTheme(isDark: true),
           themeMode: SettingsBox().appTheme,
           routerConfig: kAppRouter,
           locale: Locale(

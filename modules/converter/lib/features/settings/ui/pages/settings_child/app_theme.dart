@@ -9,7 +9,19 @@ class AppThemeSettingsChild extends SettingsChild {
 
   @override
   Widget builder(BuildContext context) {
-    return Column(children: []);
+    return Column(
+      children: [
+        for (final item in ThemeMode.values)
+          RadioIconListTile(
+            title: item.name,
+            value: item,
+            groupValue: SettingsBox().appTheme,
+            onChanged: (value) {
+              SettingsBox().appTheme = item;
+            },
+          ),
+      ],
+    );
   }
 
   const AppThemeSettingsChild({
