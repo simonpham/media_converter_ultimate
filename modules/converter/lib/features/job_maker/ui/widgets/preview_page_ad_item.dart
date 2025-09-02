@@ -37,6 +37,9 @@ class _PreviewPageAdItemState extends State<PreviewPageAdItem>
 
   @override
   Widget build(BuildContext context) {
+    if (!isAdEnabled) {
+      return const SizedBox.shrink();
+    }
     return AnimatedSize(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOut,

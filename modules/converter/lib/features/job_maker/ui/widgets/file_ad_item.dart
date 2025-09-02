@@ -39,6 +39,9 @@ class _FileAdItemState extends State<FileAdItem>
 
   @override
   Widget build(BuildContext context) {
+    if (!isAdEnabled) {
+      return const SizedBox.shrink();
+    }
     return AnimatedSize(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOut,
