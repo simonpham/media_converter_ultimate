@@ -1,4 +1,5 @@
 import 'package:converter/constants/google_ad_units.dart';
+import 'package:converter/data/local/ads_settings.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/foundation.dart';
@@ -17,6 +18,11 @@ class JobAdItem extends StatefulWidget {
 
 class _JobAdItemState extends State<JobAdItem>
     with MobileAdsMixin, NativeAdsMixin, AfterLayoutMixin {
+  @override
+  bool get isAdEnabled =>
+      SettingsBox().successConversionCount >= 1 &&
+      SettingsBox().appLaunchCount >= 3;
+
   @override
   String get adUnitId {
     if (kDebugMode) {
