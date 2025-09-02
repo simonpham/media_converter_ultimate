@@ -12,6 +12,7 @@ final List<GoRoute> kConverterRoutes = [
         path: JobMaker.routePath,
         builder: (_, state) => JobMaker.fromRouterState(state),
       ),
+      ...kSettingsRoutes,
     ],
   ),
 ];
