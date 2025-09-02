@@ -33,6 +33,7 @@ class JobMakerOutputFormatPicker extends StatelessWidget {
                   horizontal: Spacing.d16,
                 ),
                 children: [
+                  const OutputFormatAdItem(),
                   _buildGridCategory(
                     context,
                     context.l10n.video,
