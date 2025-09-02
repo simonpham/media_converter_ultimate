@@ -72,6 +72,22 @@ class _JobManagerState extends State<JobManager> {
                                 textDirection: direction,
                                 child: ListItem(
                                   leading: ImageView(
+                                    Assets.hugeicons.stroke.settings.setting01,
+                                    size: Spacing.d24,
+                                    color: context.theme.colorScheme.onSurface,
+                                  ),
+                                  title: context.l10n.settingsTitle,
+                                  onTap: () {
+                                    _menuController.close();
+                                    SettingsPage.go(context);
+                                  },
+                                ),
+                              ),
+                              const Divider(),
+                              Directionality(
+                                textDirection: direction,
+                                child: ListItem(
+                                  leading: ImageView(
                                     Assets
                                         .hugeicons
                                         .stroke
