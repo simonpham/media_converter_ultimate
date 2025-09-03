@@ -8,13 +8,12 @@ part 'settings_child/app_theme.dart';
 abstract class SettingsChild extends StatelessWidget {
   SettingsPageItem get settings;
 
-  List<Enum> get settingsBoxKeys;
-
   Widget builder(BuildContext context);
 
   static void go(BuildContext context, SettingsPageItem settings) {
     final routeName = settings.routeName;
     if (routeName == null) {
+      settings.handleOpen(context);
       return;
     }
     context.router.goNamed(routeName);
@@ -32,12 +31,15 @@ abstract class SettingsChild extends StatelessWidget {
           settings.getLabel(context),
         ),
       ),
-      body: ValueListenableBuilder(
-        valueListenable: settingsBoxKeys.of(SettingsBox()),
-        builder: (context, _, _) {
-          return builder(context);
-        },
-      ),
+      body: switch (settings.settingsKeys) {
+        List<Enum> keys when keys.isNotEmpty => ValueListenableBuilder(
+          valueListenable: keys.of(SettingsBox()),
+          builder: (context, _, _) {
+            return builder(context);
+          },
+        ),
+        _ => builder(context),
+      },
     );
   }
 }
