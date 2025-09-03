@@ -13,7 +13,7 @@ class AppThemeSettingsChild extends SettingsChild {
       children: [
         for (final item in ThemeMode.values)
           RadioIconListTile(
-            title: item.name,
+            title: item.getLabel(context),
             value: item,
             groupValue: SettingsBox().appTheme,
             onChanged: (value) {
@@ -27,4 +27,14 @@ class AppThemeSettingsChild extends SettingsChild {
   const AppThemeSettingsChild({
     super.key,
   });
+}
+
+extension on ThemeMode {
+  String getLabel(BuildContext context) {
+    return switch (this) {
+      ThemeMode.system => context.l10n.appThemeSystem,
+      ThemeMode.light => context.l10n.appThemeLight,
+      ThemeMode.dark => context.l10n.appThemeDark,
+    };
+  }
 }
