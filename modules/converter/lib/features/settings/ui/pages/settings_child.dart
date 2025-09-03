@@ -4,6 +4,7 @@ import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
 part 'settings_child/app_theme.dart';
+part 'settings_child/default_output_format.dart';
 
 abstract class SettingsChild extends StatelessWidget {
   SettingsPageItem get settings;
