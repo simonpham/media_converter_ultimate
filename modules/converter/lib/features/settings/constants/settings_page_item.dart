@@ -1,4 +1,4 @@
-import 'package:converter/features/settings/ui/pages/settings_child.dart';
+import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:design_system/assets.gen.dart';
 import 'package:flutter/foundation.dart';
@@ -80,6 +80,31 @@ extension SettingsPageItemExtensions on SettingsPageItem {
       SettingsPageItem.legal => context.l10n.aboutLegal,
       SettingsPageItem.supportTheDeveloper =>
         context.l10n.monetizationSupportTheDeveloper,
+    };
+  }
+
+  String? getDescription(BuildContext context) {
+    return switch (this) {
+      SettingsPageItem.defaultOutputFolder =>
+        SettingsBox().lastOutputDirectoryPath,
+      SettingsPageItem.defaultOutputFormat =>
+        context.l10n.conversionDefaultOutputFormatDescription,
+      SettingsPageItem.overwriteBehavior =>
+        context.l10n.conversionOverwriteBehaviorDescription,
+      SettingsPageItem.appTheme => context.l10n.displayAppThemeDescription,
+      SettingsPageItem.showFileThumbnails =>
+        context.l10n.displayShowFileThumbnailsDescription,
+      SettingsPageItem.defaultSorting =>
+        context.l10n.displayDefaultSortingDescription,
+      SettingsPageItem.clearCache =>
+        context.l10n.appManagementClearCacheDescription,
+      SettingsPageItem.managePermissions =>
+        context.l10n.appManagementManagePermissionsDescription,
+      SettingsPageItem.helpAndFaq => null,
+      SettingsPageItem.contactUs => null,
+      SettingsPageItem.legal => context.l10n.aboutLegalDescription,
+      SettingsPageItem.supportTheDeveloper =>
+        context.l10n.monetizationSupportTheDeveloperDescription,
     };
   }
 

@@ -1,0 +1,66 @@
+import 'package:converter/converter.dart';
+import 'package:core/core.dart';
+import 'package:flutter/widgets.dart';
+import 'package:platform_utils/platform_utils.dart';
+
+extension SettingsHandlers on SettingsPageItem {
+  void handleOpen(BuildContext context) {
+    switch (this) {
+      case SettingsPageItem.defaultOutputFolder:
+        _handleDefaultOutputFolder(context);
+        break;
+      case SettingsPageItem.defaultOutputFormat:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case SettingsPageItem.overwriteBehavior:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case SettingsPageItem.appTheme:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case SettingsPageItem.showFileThumbnails:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case SettingsPageItem.defaultSorting:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case SettingsPageItem.clearCache:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case SettingsPageItem.managePermissions:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case SettingsPageItem.helpAndFaq:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case SettingsPageItem.contactUs:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case SettingsPageItem.legal:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case SettingsPageItem.supportTheDeveloper:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+    }
+  }
+
+  Future<void> _handleDefaultOutputFolder(BuildContext context) async {
+    final currentPath = SettingsBox().lastOutputDirectoryPath;
+
+    final (path, failure) = await FileUtils.chooseSavePath(
+      context,
+      initialPath: currentPath,
+    );
+
+    if (failure != null) {
+      context.toastFailure(failure);
+    }
+
+    if (path == null) {
+      return;
+    }
+
+    SettingsBox().lastOutputDirectoryPath = path;
+  }
+}

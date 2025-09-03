@@ -1,4 +1,5 @@
 import 'package:converter/converter.dart';
+import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +13,18 @@ class SettingsItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return switch (item.settingsKeys) {
+      List<Enum> keys when keys.isNotEmpty => ValueListenableBuilder(
+        valueListenable: keys.of(SettingsBox()),
+        builder: (context, _, _) {
+          return builder(context);
+        },
+      ),
+      _ => builder(context),
+    };
+  }
+
+  Widget builder(BuildContext context) {
     return RoundCard(
       margin: EdgeInsets.only(
         top: Spacing.d8,
@@ -31,6 +44,7 @@ class SettingsItem extends StatelessWidget {
           ),
         ),
         title: item.getLabel(context),
+        subtitle: item.getDescription(context),
         trailing: ImageView(
           Assets.hugeicons.stroke.arrowsRound.arrowRight01Round,
           size: Spacing.d24,
