@@ -5,10 +5,19 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 enum SettingsPageItem {
-  defaultOutputFolder,
+  defaultOutputFolder(
+    settingsKeys: [
+      JobMakerSettings.lastOutputDirectoryPath,
+    ],
+  ),
   defaultOutputFormat,
   overwriteBehavior,
-  appTheme(routeName: 'app-theme'),
+  appTheme(
+    routeName: 'app-theme',
+    settingsKeys: [
+      CoreSettings.appTheme,
+    ],
+  ),
   showFileThumbnails,
   defaultSorting,
   clearCache,
@@ -19,9 +28,11 @@ enum SettingsPageItem {
   supportTheDeveloper;
 
   final String? routeName;
+  final List<Enum>? settingsKeys;
 
   const SettingsPageItem({
     this.routeName,
+    this.settingsKeys,
   });
 
   static List<SettingsPageItem> get availableOptions => kDebugMode
