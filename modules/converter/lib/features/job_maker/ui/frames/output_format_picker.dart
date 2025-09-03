@@ -2,6 +2,7 @@ import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:utils/utils.dart';
 
 class JobMakerOutputFormatPicker extends StatefulWidget {
   const JobMakerOutputFormatPicker({
@@ -13,8 +14,8 @@ class JobMakerOutputFormatPicker extends StatefulWidget {
       _JobMakerOutputFormatPickerState();
 }
 
-class _JobMakerOutputFormatPickerState
-    extends State<JobMakerOutputFormatPicker> {
+class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
+    with AfterLayoutMixin {
   @override
   void initState() {
     super.initState();
@@ -22,6 +23,22 @@ class _JobMakerOutputFormatPickerState
     printLog(
       '[AdsSettings] outputFormatPickerAccessCount increased: ${SettingsBox().outputFormatPickerAccessCount}',
     );
+  }
+
+  @override
+  void afterFirstLayout(BuildContext context) {
+    final model = context.read<JobMakerViewModel>();
+    if (model.selectedFormatEntry != null) {
+      return;
+    }
+
+    final formatConfigModel = model.formatConfigModel;
+    final defaultFormat = formatConfigModel.formats.firstWhereOrNull(
+      (e) => e.name == SettingsBox().defaultOutputFormat,
+    );
+    if (defaultFormat != null) {
+      model.setSelectedFormatEntry(defaultFormat);
+    }
   }
 
   @override
