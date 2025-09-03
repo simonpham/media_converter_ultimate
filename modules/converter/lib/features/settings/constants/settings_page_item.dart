@@ -38,6 +38,7 @@ enum SettingsPageItem {
   static List<SettingsPageItem> get availableOptions => kDebugMode
       ? values
       : [
+          defaultOutputFolder,
           appTheme,
         ];
 }
