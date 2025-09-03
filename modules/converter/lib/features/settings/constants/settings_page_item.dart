@@ -10,7 +10,12 @@ enum SettingsPageItem {
       JobMakerSettings.lastOutputDirectoryPath,
     ],
   ),
-  defaultOutputFormat,
+  defaultOutputFormat(
+    routeName: 'default-output-format',
+    settingsKeys: [
+      JobMakerSettings.defaultOutputFormat,
+    ],
+  ),
   overwriteBehavior,
   appTheme(
     routeName: 'app-theme',
@@ -39,6 +44,7 @@ enum SettingsPageItem {
       ? values
       : [
           defaultOutputFolder,
+          defaultOutputFormat,
           appTheme,
         ];
 }
@@ -47,7 +53,8 @@ extension SettingsPageItemExtensions on SettingsPageItem {
   GoRouterWidgetBuilder? get routerBuilder {
     return switch (this) {
       SettingsPageItem.defaultOutputFolder => null,
-      SettingsPageItem.defaultOutputFormat => null,
+      SettingsPageItem.defaultOutputFormat =>
+        (_, _) => const DefaultOutputFormatSettingsChild(),
       SettingsPageItem.overwriteBehavior => null,
       SettingsPageItem.appTheme => (_, _) => const AppThemeSettingsChild(),
       SettingsPageItem.showFileThumbnails => null,

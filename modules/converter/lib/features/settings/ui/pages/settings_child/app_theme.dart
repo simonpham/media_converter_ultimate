@@ -4,6 +4,10 @@ class AppThemeSettingsChild extends SettingsChild {
   @override
   SettingsPageItem get settings => SettingsPageItem.appTheme;
 
+  const AppThemeSettingsChild({
+    super.key,
+  });
+
   @override
   Widget builder(BuildContext context) {
     return Column(
@@ -20,10 +24,6 @@ class AppThemeSettingsChild extends SettingsChild {
       ],
     );
   }
-
-  const AppThemeSettingsChild({
-    super.key,
-  });
 }
 
 extension on ThemeMode {
