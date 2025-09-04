@@ -38,4 +38,6 @@ flutter:
     - assets/configs/
     - assets/configs/l10n/
     - assets/configs/supported_configurations/
+    - assets/html/
+    - assets/html/support_developer_content/
     - assets/themes/
