@@ -1,3 +1,6 @@
+const String kAppWebsiteUrl = 'https://mcu.sofluffy.io';
+const String kPrivacyPolicyUrl = '$kAppWebsiteUrl/privacy-policy';
+
 const String kDefaultLocale = 'en';
 
 const String kDefaultOutputDirectoryName = 'MediaConverterPro';

@@ -37,8 +37,8 @@ extension SettingsHandlers on SettingsPageItem {
         // TODO: Handle this case.
         throw UnimplementedError();
       case SettingsPageItem.legal:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        _handleLegal(context);
+        break;
       case SettingsPageItem.supportTheDeveloper:
         // TODO: Handle this case.
         throw UnimplementedError();
@@ -62,5 +62,9 @@ extension SettingsHandlers on SettingsPageItem {
     }
 
     SettingsBox().lastOutputDirectoryPath = path;
+  }
+  void _handleLegal(BuildContext context) {
+    final uri = Uri.parse(kPrivacyPolicyUrl);
+    launchUrl(uri);
   }
 }
