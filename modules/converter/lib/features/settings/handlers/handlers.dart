@@ -1,5 +1,6 @@
 import 'package:converter/converter.dart';
 import 'package:core/core.dart';
+import 'package:design_system/design_system.dart';
 import 'package:flutter/widgets.dart';
 import 'package:platform_utils/platform_utils.dart';
 
@@ -40,8 +41,8 @@ extension SettingsHandlers on SettingsPageItem {
         _handleLegal(context);
         break;
       case SettingsPageItem.supportTheDeveloper:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        _handleSupportTheDeveloper(context);
+        break;
     }
   }
 
@@ -63,8 +64,25 @@ extension SettingsHandlers on SettingsPageItem {
 
     SettingsBox().lastOutputDirectoryPath = path;
   }
+
   void _handleLegal(BuildContext context) {
     final uri = Uri.parse(kPrivacyPolicyUrl);
     launchUrl(uri);
+  }
+
+  Future<void> _handleSupportTheDeveloper(BuildContext context) async {
+    const supportedLanguages = ['en', 'vi'];
+    final language = supportedLanguages.contains(SettingsBox().language)
+        ? SettingsBox().language
+        : kDefaultLanguage;
+    final content = await DefaultAssetBundle.of(context).loadString(
+      'assets/html/support_developer_content/$language.html',
+    );
+    await ContentDialog.show(
+      context,
+      content: content,
+      closeText: context.l10n.ok,
+      useHtmlWidget: true,
+    );
   }
 }
