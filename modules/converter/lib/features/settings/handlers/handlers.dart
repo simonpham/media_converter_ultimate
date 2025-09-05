@@ -74,7 +74,15 @@ extension SettingsHandlers on SettingsPageItem {
   }
 
   Future<void> _handleSupportTheDeveloper(BuildContext context) async {
-    const supportedLanguages = ['en', 'vi'];
+    final supportedLanguages = [
+      kDefaultLanguage,
+      'de',
+      'es',
+      'id',
+      'it',
+      'ja',
+      'vi',
+    ];
     final language = supportedLanguages.contains(SettingsBox().language)
         ? SettingsBox().language
         : kDefaultLanguage;

@@ -17,6 +17,26 @@ const kSupportedLanguages = {
     'icon': 'assets/svg/flags/vn.svg',
     'title': 'Tiếng Việt',
   },
+  'de': {
+    'icon': 'assets/svg/flags/de.svg',
+    'title': 'Deutsch',
+  },
+  'es': {
+    'icon': 'assets/svg/flags/es.svg',
+    'title': 'Español',
+  },
+  'id': {
+    'icon': 'assets/svg/flags/id.svg',
+    'title': 'Bahasa Indonesia',
+  },
+  'it': {
+    'icon': 'assets/svg/flags/it.svg',
+    'title': 'Italiano',
+  },
+  'ja': {
+    'icon': 'assets/svg/flags/ja.svg',
+    'title': '日本語',
+  },
 };
 
 const String kDefaultOutputDirectoryName = 'MediaConverterPro';
