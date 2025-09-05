@@ -83,7 +83,12 @@ class LanguagesSettingsChild extends SettingsChild {
                     WidgetSpan(
                       alignment: PlaceholderAlignment.middle,
                       child: Tappable(
-                        onTap: () {},
+                        onTap: () {
+                          ContactUtils().sendEmail(
+                            context,
+                            subject: '[$kAppName] Language Support Request',
+                          );
+                        },
                         child: Text(
                           'Contact us',
                           style: context.theme.textTheme.titleMedium?.copyWith(
