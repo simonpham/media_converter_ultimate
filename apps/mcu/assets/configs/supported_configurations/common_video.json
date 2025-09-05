@@ -1,18 +1,28 @@
 {
   "common_video": [
     {
+      "type": "single_choice",
+      "name": "configs.common.recommended_args.hide_banner",
+      "label": "configs.common.recommended_args.hide_banner",
+      "is_visible": false,
+      "should_add_to_args": true,
+      "default": "-hide_banner",
+      "options": [
+        {
+          "label": "",
+          "value": "-hide_banner"
+        }
+      ]
+    },
+    {
       "type": "multi_choice",
       "name": "configs.common.video.recommended_args",
       "label": "configs.common.recommended_args.label",
       "description": "configs.common.recommended_args.desc",
       "should_add_to_args": true,
       "ffmpeg_flag": null,
-      "default": "[\"-hide_banner\", \"-map_metadata 0:g\", \"-map 0:v\", \"-map '0:a?'\", \"-map '0:s?'\"]",
+      "default": "[\"-map_metadata 0:g\", \"-map 0:v\", \"-map '0:a?'\", \"-map '0:s?'\"]",
       "options": [
-        {
-          "label": "configs.common.recommended_args.hide_banner",
-          "ffmpeg_arg": "-hide_banner"
-        },
         {
           "label": "configs.common.recommended_args.map_metadata",
           "ffmpeg_arg": "-map_metadata 0:g"
