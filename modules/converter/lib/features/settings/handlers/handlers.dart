@@ -16,6 +16,9 @@ extension SettingsHandlers on SettingsPageItem {
       case SettingsPageItem.overwriteBehavior:
         // TODO: Handle this case.
         throw UnimplementedError();
+      case SettingsPageItem.languages:
+        // TODO: Handle this case.
+        throw UnimplementedError();
       case SettingsPageItem.appTheme:
         // TODO: Handle this case.
         throw UnimplementedError();

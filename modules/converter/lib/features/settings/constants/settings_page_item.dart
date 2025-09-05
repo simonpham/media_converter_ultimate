@@ -17,6 +17,12 @@ enum SettingsPageItem {
     ],
   ),
   overwriteBehavior,
+  languages(
+    routeName: 'languages',
+    settingsKeys: [
+      CoreSettings.language,
+    ],
+  ),
   appTheme(
     routeName: 'app-theme',
     settingsKeys: [
@@ -45,6 +51,7 @@ enum SettingsPageItem {
       : [
           defaultOutputFolder,
           defaultOutputFormat,
+          languages,
           appTheme,
           contactUs,
           legal,
@@ -59,6 +66,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
       SettingsPageItem.defaultOutputFormat =>
         (_, _) => const DefaultOutputFormatSettingsChild(),
       SettingsPageItem.overwriteBehavior => null,
+      SettingsPageItem.languages => (_, _) => const LanguagesSettingsChild(),
       SettingsPageItem.appTheme => (_, _) => const AppThemeSettingsChild(),
       SettingsPageItem.showFileThumbnails => null,
       SettingsPageItem.defaultSorting => null,
@@ -79,6 +87,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
         context.l10n.conversionDefaultOutputFormat,
       SettingsPageItem.overwriteBehavior =>
         context.l10n.conversionOverwriteBehavior,
+      SettingsPageItem.languages => context.l10n.languages,
       SettingsPageItem.appTheme => context.l10n.displayAppTheme,
       SettingsPageItem.showFileThumbnails =>
         context.l10n.displayShowFileThumbnails,
@@ -102,6 +111,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
         context.l10n.conversionDefaultOutputFormatDescription,
       SettingsPageItem.overwriteBehavior =>
         context.l10n.conversionOverwriteBehaviorDescription,
+      SettingsPageItem.languages => null,
       SettingsPageItem.appTheme => context.l10n.displayAppThemeDescription,
       SettingsPageItem.showFileThumbnails =>
         context.l10n.displayShowFileThumbnailsDescription,
@@ -125,6 +135,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
       SettingsPageItem.defaultOutputFolder => icons.filesFolders.folder01,
       SettingsPageItem.defaultOutputFormat => icons.filesFolders.fileExport,
       SettingsPageItem.overwriteBehavior => icons.addRemoveDelete.deleteThrow,
+      SettingsPageItem.languages => icons.education.globe,
       SettingsPageItem.appTheme => icons.settings.customize,
       SettingsPageItem.showFileThumbnails => icons.imageCameraVideo.image01,
       SettingsPageItem.defaultSorting => icons.filterSorting.sorting01,
