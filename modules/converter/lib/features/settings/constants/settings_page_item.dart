@@ -46,6 +46,7 @@ enum SettingsPageItem {
           defaultOutputFolder,
           defaultOutputFormat,
           appTheme,
+          contactUs,
           legal,
           supportTheDeveloper,
         ];
