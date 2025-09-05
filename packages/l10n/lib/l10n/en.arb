@@ -90,6 +90,8 @@
   "appThemeDark": "Dark",
   "settingsDefaultOutputFormatChanged": "Default output format has been changed to {format}.",
   "settingsTitle": "Settings",
+  "languages": "Languages",
+  "changedLanguageTo": "Changed language to {language}",
   "categoryAboutAndSupportSettings": "About & Support",
   "categoryAppManagementSettings": "App Management",
   "categoryConversionSettings": "Conversion & Output",

@@ -8,6 +8,16 @@ const String kAppName = 'Media Converter Ultimate';
 const String kSupportEmailSubject = '[MCU] Support request';
 
 const String kDefaultLocale = 'en';
+const kSupportedLanguages = {
+  'en': {
+    'icon': 'assets/svg/flags/gb.svg',
+    'title': 'English',
+  },
+  'vi': {
+    'icon': 'assets/svg/flags/vn.svg',
+    'title': 'Tiếng Việt',
+  },
+};
 
 const String kDefaultOutputDirectoryName = 'MediaConverterPro';
 const String kDefaultOutputDirectoryPath =

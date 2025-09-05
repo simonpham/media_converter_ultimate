@@ -13,6 +13,7 @@ enum SettingsCategory {
   ),
   displayAndUi(
     items: [
+      SettingsPageItem.languages,
       SettingsPageItem.appTheme,
       SettingsPageItem.showFileThumbnails,
       SettingsPageItem.defaultSorting,

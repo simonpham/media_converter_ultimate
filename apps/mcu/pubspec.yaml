@@ -41,4 +41,6 @@ flutter:
     - assets/html/
     - assets/html/contact_us_content/
     - assets/html/support_developer_content/
+    - assets/svg/
+    - assets/svg/flags/
     - assets/themes/
