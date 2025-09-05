@@ -46,7 +46,10 @@ enum SettingsCategory {
   static List<SettingsCategory> get availableOptions => kDebugMode
       ? values
       : [
+          conversionAndOutput,
           displayAndUi,
+          aboutAndSupport,
+          monetization,
         ];
 }
 

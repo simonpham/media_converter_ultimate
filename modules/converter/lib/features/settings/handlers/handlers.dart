@@ -35,8 +35,8 @@ extension SettingsHandlers on SettingsPageItem {
         // TODO: Handle this case.
         throw UnimplementedError();
       case SettingsPageItem.contactUs:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        _handleContactUs(context);
+        break;
       case SettingsPageItem.legal:
         _handleLegal(context);
         break;
@@ -80,9 +80,59 @@ extension SettingsHandlers on SettingsPageItem {
     );
     await ContentDialog.show(
       context,
+      title: context.l10n.monetizationSupportTheDeveloper,
       content: content,
-      closeText: context.l10n.ok,
+      neutralText: context.l10n.ok,
       useHtmlWidget: true,
     );
+  }
+
+  Future<void> _handleContactUs(BuildContext context) async {
+    const supportedLanguages = ['en', 'vi'];
+    final language = supportedLanguages.contains(SettingsBox().language)
+        ? SettingsBox().language
+        : kDefaultLanguage;
+    final content = await DefaultAssetBundle.of(context).loadString(
+      'assets/html/contact_us_content/$language.html',
+    );
+    final result = await ContentDialog.show(
+      context,
+      title: context.l10n.aboutContactUs,
+      content: content,
+      useHtmlWidget: true,
+      negativeText: context.l10n.cancel,
+      positiveText: context.l10n.ok,
+    );
+    if (result != ConfirmAction.positive) {
+      return;
+    }
+
+    final deviceInfo = await DeviceInfoPlugin().deviceInfo;
+    final packageInfo = await PackageInfo.fromPlatform();
+    final deviceModel = switch (deviceInfo) {
+      AndroidDeviceInfo deviceInfo => deviceInfo.model,
+      IosDeviceInfo deviceInfo => deviceInfo.model,
+      _ => '',
+    };
+    final osVersion = switch (deviceInfo) {
+      AndroidDeviceInfo deviceInfo => deviceInfo.version.release,
+      IosDeviceInfo deviceInfo => deviceInfo.systemVersion,
+      _ => '',
+    };
+    final appVersion = packageInfo.version;
+
+    const emailSubject = '[$kAppName] Support Request';
+    final emailBody =
+        '''
+$kAppName version: $appVersion
+Device model: $deviceModel
+OS version: $osVersion
+
+''';
+
+    final Uri uri = Uri.parse(
+      'mailto:$kSupportEmail?subject=$emailSubject&body=$emailBody',
+    );
+    await launchUrl(uri);
   }
 }
