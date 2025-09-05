@@ -1,0 +1,13 @@
+[
+  {
+    "label": "Run Media Converter Pro",
+    "command": "cd apps/mcu && flutter run",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "reveal_target": "dock",
+    "hide": "never",
+    "shell": "system",
+    "tags": ["flutter", "run"]
+  }
+]
