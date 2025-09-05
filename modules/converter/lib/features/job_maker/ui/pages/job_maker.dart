@@ -20,6 +20,7 @@ class JobMaker extends StatefulWidget {
 
     final Map<String, String?> translations = await ConfigTranslations.get(
       context,
+      locale: SettingsBox().language,
     );
 
     SettingsBox().lastOutputDirectoryPath ??=
