@@ -6,17 +6,9 @@ const kSupportedLanguages = {
     'icon': 'assets/svg/flags/gb.svg',
     'title': 'English',
   },
-  'vi': {
-    'icon': 'assets/svg/flags/vn.svg',
-    'title': 'Tiếng Việt',
-  },
   'de': {
     'icon': 'assets/svg/flags/de.svg',
     'title': 'Deutsch',
-  },
-  'es': {
-    'icon': 'assets/svg/flags/es.svg',
-    'title': 'Español',
   },
   'id': {
     'icon': 'assets/svg/flags/id.svg',
@@ -26,9 +18,21 @@ const kSupportedLanguages = {
     'icon': 'assets/svg/flags/it.svg',
     'title': 'Italiano',
   },
+  'es': {
+    'icon': 'assets/svg/flags/es.svg',
+    'title': 'Español',
+  },
   'ja': {
     'icon': 'assets/svg/flags/ja.svg',
     'title': '日本語',
+  },
+  'tr': {
+    'icon': 'assets/svg/flags/tr.svg',
+    'title': 'Türkçe',
+  },
+  'vi': {
+    'icon': 'assets/svg/flags/vn.svg',
+    'title': 'Tiếng Việt',
   },
 };
 

@@ -74,18 +74,7 @@ extension SettingsHandlers on SettingsPageItem {
   }
 
   Future<void> _handleSupportTheDeveloper(BuildContext context) async {
-    final supportedLanguages = [
-      kDefaultLanguage,
-      'de',
-      'es',
-      'id',
-      'it',
-      'ja',
-      'vi',
-    ];
-    final language = supportedLanguages.contains(SettingsBox().language)
-        ? SettingsBox().language
-        : kDefaultLanguage;
+    final language = SettingsBox().language;
     final content = await DefaultAssetBundle.of(context).loadString(
       'assets/html/support_developer_content/$language.html',
     );
