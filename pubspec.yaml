@@ -7,6 +7,7 @@ workspace:
   - packages/core
   - packages/core_storage_base
   - packages/core_storage_isar
+  - packages/icons
   - packages/l10n
   - packages/mobile_ads
   - packages/mobile_ads_google

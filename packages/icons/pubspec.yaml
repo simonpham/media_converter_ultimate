@@ -1,0 +1,30 @@
+name: icons
+publish_to: "none"
+
+environment:
+  sdk: ^3.8.1
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  build_runner:
+  flutter_gen_runner:
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/
+
+flutter_gen:
+  output: lib/
+  integrations:
+    image: false
+    flutter_svg: false
+    rive: false
+    lottie: false

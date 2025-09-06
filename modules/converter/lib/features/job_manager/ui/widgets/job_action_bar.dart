@@ -1,6 +1,7 @@
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:icons/icons.dart';
 
 class JobActionBar extends StatelessWidget {
   final VoidCallback? onOpenLogs;
@@ -36,7 +37,7 @@ class JobActionBar extends StatelessWidget {
             variant: ButtonVariant.ghost,
             padding: EdgeInsets.all(Spacing.d8),
             child: ImageView(
-              Assets.hugeicons.stroke.noteTask.note01,
+              Assets.note01,
               size: Spacing.d16,
               color: context.theme.colorScheme.onSurface,
             ),
@@ -52,7 +53,7 @@ class JobActionBar extends StatelessWidget {
             variant: ButtonVariant.ghost,
             padding: EdgeInsets.all(Spacing.d8),
             child: ImageView(
-              Assets.hugeicons.stroke.linkUnlink.share01,
+              Assets.share01,
               size: Spacing.d16,
               color: context.theme.colorScheme.onSurface,
             ),
@@ -66,7 +67,7 @@ class JobActionBar extends StatelessWidget {
             variant: ButtonVariant.ghost,
             padding: EdgeInsets.all(Spacing.d8),
             child: ImageView(
-              Assets.hugeicons.stroke.linkUnlink.share05,
+              Assets.share05,
               size: Spacing.d16,
               color: context.theme.colorScheme.onSurface,
             ),
@@ -80,7 +81,7 @@ class JobActionBar extends StatelessWidget {
             variant: ButtonVariant.ghost,
             padding: EdgeInsets.all(Spacing.d8),
             child: ImageView(
-              Assets.hugeicons.stroke.filesFolders.folderOpen,
+              Assets.folderOpen,
               size: Spacing.d16,
               color: context.theme.colorScheme.onSurface,
             ),
@@ -94,7 +95,7 @@ class JobActionBar extends StatelessWidget {
             variant: ButtonVariant.ghost,
             padding: EdgeInsets.all(Spacing.d8),
             child: ImageView(
-              Assets.hugeicons.stroke.addRemoveDelete.delete01,
+              Assets.delete01,
               size: Spacing.d16,
               color: context.theme.colorScheme.error,
             ),
@@ -111,7 +112,7 @@ class JobActionBar extends StatelessWidget {
               horizontal: Spacing.d8,
             ),
             icon: ImageView(
-              Assets.hugeicons.stroke.media.stop,
+              Assets.stop,
               size: Spacing.d16,
               color: context.theme.colorScheme.error,
             ),
@@ -131,7 +132,7 @@ class JobActionBar extends StatelessWidget {
             variant: ButtonVariant.ghost,
             padding: EdgeInsets.all(Spacing.d8),
             icon: ImageView(
-              Assets.hugeicons.stroke.editFormatting.reload,
+              Assets.reload,
               size: Spacing.d16,
               color: JobStatus.completed.getColor(),
             ),
@@ -151,7 +152,7 @@ class JobActionBar extends StatelessWidget {
             variant: ButtonVariant.ghost,
             padding: EdgeInsets.all(Spacing.d8),
             icon: ImageView(
-              Assets.hugeicons.stroke.editFormatting.edit02,
+              Assets.edit02,
               size: Spacing.d16,
               color: context.theme.colorScheme.onSurface,
             ),
@@ -171,7 +172,7 @@ class JobActionBar extends StatelessWidget {
             variant: ButtonVariant.ghost,
             padding: EdgeInsets.all(Spacing.d8),
             icon: ImageView(
-              Assets.hugeicons.stroke.filesFolders.folderOpen,
+              Assets.folderOpen,
               size: Spacing.d16,
               color: context.theme.colorScheme.onSurface,
             ),

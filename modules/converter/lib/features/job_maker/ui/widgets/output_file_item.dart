@@ -2,6 +2,7 @@ import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:icons/icons.dart';
 import 'package:platform_utils/platform_utils.dart';
 
 class OutputFileItem extends StatelessWidget {
@@ -87,7 +88,7 @@ class OutputFileItem extends StatelessWidget {
                   Spacing.d12,
                 ),
                 child: ImageView(
-                  Assets.hugeicons.stroke.editFormatting.edit02,
+                  Assets.edit02,
                   color: hasError
                       ? context.theme.colorScheme.error
                       : context.theme.colorScheme.primary,

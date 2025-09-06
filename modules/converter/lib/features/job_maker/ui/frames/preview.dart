@@ -2,6 +2,7 @@ import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:icons/icons.dart';
 import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
 
@@ -116,7 +117,7 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                             icon: Padding(
                               padding: EdgeInsets.only(right: Spacing.d4),
                               child: ImageView(
-                                Assets.hugeicons.stroke.filesFolders.folder01,
+                                Assets.folder01,
                                 color: context.theme.primaryColor,
                                 size: Spacing.d24,
                               ),

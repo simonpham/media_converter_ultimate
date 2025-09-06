@@ -2,6 +2,7 @@ import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:icons/icons.dart';
 import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
 
@@ -72,7 +73,7 @@ class _JobManagerState extends State<JobManager> {
                                 textDirection: direction,
                                 child: ListItem(
                                   leading: ImageView(
-                                    Assets.hugeicons.stroke.settings.setting01,
+                                    Assets.setting01,
                                     size: Spacing.d24,
                                     color: context.theme.colorScheme.onSurface,
                                   ),
@@ -88,11 +89,7 @@ class _JobManagerState extends State<JobManager> {
                                 textDirection: direction,
                                 child: ListItem(
                                   leading: ImageView(
-                                    Assets
-                                        .hugeicons
-                                        .stroke
-                                        .addRemoveDelete
-                                        .delete01,
+                                    Assets.delete01,
                                     size: Spacing.d24,
                                     color: context.theme.colorScheme.onSurface,
                                   ),
@@ -108,7 +105,7 @@ class _JobManagerState extends State<JobManager> {
                               variant: ButtonVariant.ghost,
                               padding: EdgeInsets.all(Spacing.d8),
                               child: ImageView(
-                                Assets.hugeicons.stroke.moreMenu.moreVertical,
+                                Assets.moreVertical,
                                 size: Spacing.d24,
                                 color: context.theme.colorScheme.onSurface,
                               ),
@@ -273,7 +270,7 @@ class _JobManagerState extends State<JobManager> {
                     SliverFillRemaining(
                       child: Center(
                         child: EmptyWidget(
-                          icon: Assets.hugeicons.bulk.smileyEmojis.smile,
+                          icon: Assets.smileBulk,
                           title: context.l10n.thereIsNothingHere,
                           subtitle: context.l10n.tapCreateToBegin,
                         ),
@@ -290,7 +287,7 @@ class _JobManagerState extends State<JobManager> {
         mainAxisSize: MainAxisSize.min,
         variant: ButtonVariant.primary,
         icon: ImageView(
-          Assets.hugeicons.stroke.addRemoveDelete.add01,
+          Assets.add01,
           size: Spacing.d24,
           color: context.theme.colorScheme.onPrimary,
         ),

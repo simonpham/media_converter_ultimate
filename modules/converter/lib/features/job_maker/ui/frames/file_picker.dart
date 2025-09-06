@@ -2,6 +2,7 @@ import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:icons/icons.dart';
 import 'package:platform_utils/platform_utils.dart';
 
 class JobMakerFilePicker extends StatefulWidget {
@@ -90,11 +91,7 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                               child: FileItem(
                                 file,
                                 leading: ImageView(
-                                  Assets
-                                      .hugeicons
-                                      .stroke
-                                      .editFormatting
-                                      .verticalDragDrop,
+                                  Assets.verticalDragDrop,
                                   size: Spacing.d20,
                                   color: context.theme.colorScheme.onSurface,
                                 ),
@@ -120,7 +117,7 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                       SliverFillRemaining(
                         child: Center(
                           child: EmptyWidget(
-                            icon: Assets.hugeicons.bulk.filesFolders.fileAdd,
+                            icon: Assets.fileAddBulk,
                             title: context.l10n.noFilesSelected,
                             subtitle: context.l10n.tapAddFilesToBegin,
                           ),

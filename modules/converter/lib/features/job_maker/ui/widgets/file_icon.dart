@@ -1,6 +1,7 @@
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:icons/icons.dart';
 import 'package:platform_utils/platform_utils.dart';
 
 class FileIcon extends StatelessWidget {
@@ -23,9 +24,9 @@ class FileIcon extends StatelessWidget {
 
   String getFileIcon(FileContentType type) {
     return switch (type) {
-      FileContentType.audio => Assets.hugeicons.stroke.filesFolders.fileAudio,
-      FileContentType.video => Assets.hugeicons.stroke.filesFolders.fileVideo,
-      _ => Assets.hugeicons.stroke.filesFolders.file02,
+      FileContentType.audio => Assets.fileAudio,
+      FileContentType.video => Assets.fileVideo,
+      _ => Assets.file02,
     };
   }
 

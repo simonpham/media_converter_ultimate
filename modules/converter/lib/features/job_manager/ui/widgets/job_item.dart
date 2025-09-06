@@ -4,6 +4,7 @@ import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:icons/icons.dart';
 import 'package:utils/utils.dart';
 
 class JobItem extends StatelessWidget {
@@ -84,7 +85,7 @@ class JobItem extends StatelessWidget {
                   variant: ButtonVariant.ghost,
                   padding: EdgeInsets.all(Spacing.d8),
                   child: ImageView(
-                    Assets.hugeicons.stroke.addRemoveDelete.cancel01,
+                    Assets.cancel01,
                     size: Spacing.d16,
                     color: context.theme.colorScheme.onSurface,
                   ),
