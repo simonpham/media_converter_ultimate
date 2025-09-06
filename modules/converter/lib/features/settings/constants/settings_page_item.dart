@@ -1,8 +1,8 @@
 import 'package:converter/converter.dart';
 import 'package:core/core.dart';
-import 'package:design_system/assets.gen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:icons/icons.dart';
 
 enum SettingsPageItem {
   defaultOutputFolder(
@@ -130,22 +130,20 @@ extension SettingsPageItemExtensions on SettingsPageItem {
   }
 
   String get appIcon {
-    final icons = Assets.hugeicons.stroke;
     return switch (this) {
-      SettingsPageItem.defaultOutputFolder => icons.filesFolders.folder01,
-      SettingsPageItem.defaultOutputFormat => icons.filesFolders.fileExport,
-      SettingsPageItem.overwriteBehavior => icons.addRemoveDelete.deleteThrow,
-      SettingsPageItem.languages => icons.education.globe,
-      SettingsPageItem.appTheme => icons.settings.customize,
-      SettingsPageItem.showFileThumbnails => icons.imageCameraVideo.image01,
-      SettingsPageItem.defaultSorting => icons.filterSorting.sorting01,
-      SettingsPageItem.clearCache => icons.addRemoveDelete.delete04,
-      SettingsPageItem.managePermissions => icons.security.securityLock,
-      SettingsPageItem.helpAndFaq => icons.alertNotification.helpCircle,
-      SettingsPageItem.contactUs => icons.communications.message01,
-      SettingsPageItem.legal => icons.legal.legalDocument01,
-      SettingsPageItem.supportTheDeveloper =>
-        icons.businessAndFinance.dollarCircle,
+      SettingsPageItem.defaultOutputFolder => Assets.folder01,
+      SettingsPageItem.defaultOutputFormat => Assets.fileExport,
+      SettingsPageItem.overwriteBehavior => Assets.deleteThrow,
+      SettingsPageItem.languages => Assets.globe,
+      SettingsPageItem.appTheme => Assets.customize,
+      SettingsPageItem.showFileThumbnails => Assets.image01,
+      SettingsPageItem.defaultSorting => Assets.sorting01,
+      SettingsPageItem.clearCache => Assets.delete04,
+      SettingsPageItem.managePermissions => Assets.securityLock,
+      SettingsPageItem.helpAndFaq => Assets.helpCircle,
+      SettingsPageItem.contactUs => Assets.message01,
+      SettingsPageItem.legal => Assets.legalDocument01,
+      SettingsPageItem.supportTheDeveloper => Assets.dollarCircle,
     };
   }
 }

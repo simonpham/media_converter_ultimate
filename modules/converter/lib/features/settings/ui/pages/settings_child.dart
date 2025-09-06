@@ -2,6 +2,7 @@ import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:icons/icons.dart';
 
 part 'settings_child/app_theme.dart';
 part 'settings_child/default_output_format.dart';

@@ -4,6 +4,7 @@ import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:icons/icons.dart';
 
 class JobMaker extends StatefulWidget {
   static const String routeName = 'job-maker';
@@ -137,11 +138,7 @@ class _JobMakerState extends State<JobMaker> {
                                               textDirection: direction,
                                               child: ListItem(
                                                 leading: ImageView(
-                                                  Assets
-                                                      .hugeicons
-                                                      .stroke
-                                                      .arrowsRound
-                                                      .arrowTurnBackwardRound,
+                                                  Assets.arrowTurnBackwardRound,
                                                   size: Spacing.d24,
                                                   color: context
                                                       .theme
@@ -163,11 +160,7 @@ class _JobMakerState extends State<JobMaker> {
                                               textDirection: direction,
                                               child: ListItem(
                                                 leading: ImageView(
-                                                  Assets
-                                                      .hugeicons
-                                                      .stroke
-                                                      .settings
-                                                      .setup02,
+                                                  Assets.setup02,
                                                   size: Spacing.d24,
                                                   color: context
                                                       .theme
@@ -201,11 +194,7 @@ class _JobMakerState extends State<JobMaker> {
                                                   Spacing.d8,
                                                 ),
                                                 child: ImageView(
-                                                  Assets
-                                                      .hugeicons
-                                                      .stroke
-                                                      .moreMenu
-                                                      .moreVertical,
+                                                  Assets.moreVertical,
                                                   size: Spacing.d24,
                                                   color: context
                                                       .theme

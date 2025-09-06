@@ -46,7 +46,7 @@ class LanguagesSettingsChild extends SettingsChild {
                   title: kSupportedLanguages[lang]?['title'] ?? '',
                   trailing: isSelected
                       ? ImageView(
-                          Assets.hugeicons.stroke.checkValidation.tick02,
+                          Assets.tick02,
                           color: context.theme.primaryColor,
                           size: Spacing.d24,
                         )

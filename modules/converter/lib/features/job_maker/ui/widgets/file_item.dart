@@ -1,6 +1,7 @@
 import 'package:converter/converter.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:icons/icons.dart';
 import 'package:platform_utils/platform_utils.dart';
 
 class FileItem extends StatelessWidget {
@@ -55,7 +56,7 @@ class FileItem extends StatelessWidget {
               variant: ButtonVariant.ghost,
               padding: EdgeInsets.all(Spacing.d8),
               child: ImageView(
-                Assets.hugeicons.stroke.addRemoveDelete.cancel01,
+                Assets.cancel01,
                 size: Spacing.d16,
                 color: context.theme.colorScheme.error,
               ),
