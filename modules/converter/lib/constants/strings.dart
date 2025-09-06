@@ -2,6 +2,8 @@ const String kAppDomain = 'sofluffy.io';
 const String kAppWebsiteUrl = 'https://mcu.$kAppDomain';
 const String kPrivacyPolicyUrl = '$kAppWebsiteUrl/privacy-policy';
 const String kSupportEmail = 'support@$kAppDomain';
+const String kAppPlayStoreUrl =
+    'https://play.google.com/store/apps/details?id=com.github.khangnt.mcp';
 
 const String kAppName = 'Media Converter Ultimate';
 
