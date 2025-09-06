@@ -48,7 +48,7 @@ android {
         create("release") {
             keyAlias = envProps.getProperty("androidKeyAlias")
             keyPassword = envProps.getProperty("androidKeyPassword")
-            storeFile = rootProject.file("../../../assets/" + envProps.getProperty("androidStoreFile"))
+            storeFile = rootProject.file("../../../.assets/" + envProps.getProperty("androidStoreFile"))
             storePassword = envProps.getProperty("androidStoreFilePassword")
             enableV2Signing = true
         }
