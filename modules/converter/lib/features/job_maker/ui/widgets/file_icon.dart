@@ -17,7 +17,7 @@ class FileIcon extends StatelessWidget {
     return ImageView(
       getFileIcon(type),
       size: Spacing.d24,
-      color: getFileIconColor(type),
+      color: getFileIconColor(context, type),
     );
   }
 
@@ -25,15 +25,15 @@ class FileIcon extends StatelessWidget {
     return switch (type) {
       FileContentType.audio => Assets.hugeicons.stroke.filesFolders.fileAudio,
       FileContentType.video => Assets.hugeicons.stroke.filesFolders.fileVideo,
-      _ => Assets.hugeicons.stroke.filesFolders.file01,
+      _ => Assets.hugeicons.stroke.filesFolders.file02,
     };
   }
 
-  Color getFileIconColor(FileContentType type) {
+  Color getFileIconColor(BuildContext context, FileContentType type) {
     return switch (type) {
       FileContentType.audio => Colors.green,
       FileContentType.video => Colors.blue,
-      _ => Colors.black,
+      _ => context.theme.colorScheme.onSurface,
     };
   }
 }
