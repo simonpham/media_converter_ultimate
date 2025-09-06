@@ -89,13 +89,21 @@ extension SettingsHandlers on SettingsPageItem {
     final content = await DefaultAssetBundle.of(context).loadString(
       'assets/html/support_developer_content/$language.html',
     );
-    await ContentDialog.show(
+    final result = await ContentDialog.show(
       context,
       title: context.l10n.monetizationSupportTheDeveloper,
       content: content,
-      neutralText: context.l10n.ok,
+      negativeText: context.l10n.goBack,
+      positiveText: context.l10n.aboutRateTheApp,
       useHtmlWidget: true,
     );
+
+    if (result != ConfirmAction.positive) {
+      return;
+    }
+
+    final uri = Uri.parse(kAppPlayStoreUrl);
+    await launchUrl(uri);
   }
 
   void _handleContactUs(BuildContext context) {
