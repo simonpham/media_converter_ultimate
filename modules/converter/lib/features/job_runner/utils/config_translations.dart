@@ -13,7 +13,7 @@ extension ConfigTranslationsExtension on BuildContext {
 class ConfigTranslations {
   static Future<Map<String, String?>> get(
     BuildContext context, {
-    String locale = kDefaultLocale,
+    String locale = kDefaultLanguage,
   }) async {
     final Map<String, String?> translations = {};
 

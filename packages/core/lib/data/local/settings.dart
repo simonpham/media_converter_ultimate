@@ -1,4 +1,6 @@
-import 'package:core/core.dart' show injector, kDeviceLanguage;
+import 'package:core/constants/constants.dart';
+import 'package:core/core.dart'
+    show injector, kDeviceLanguage, kSupportedLanguages;
 import 'package:easy_hive/easy_hive.dart';
 import 'package:flutter/material.dart';
 
@@ -19,8 +21,16 @@ class SettingsBox extends EasyBox {
 }
 
 extension LocalSettingsExt on SettingsBox {
-  String get language =>
-      get(CoreSettings.language, defaultValue: kDeviceLanguage);
+  String get language {
+    final String savedLanguage = get(
+      CoreSettings.language,
+      defaultValue: kDeviceLanguage,
+    );
+    if (!kSupportedLanguages.keys.contains(savedLanguage)) {
+      return kDefaultLanguage;
+    }
+    return savedLanguage;
+  }
 
   set language(String value) => put(CoreSettings.language, value);
 
