@@ -9,7 +9,7 @@ class ContactUtils {
     BuildContext context, {
     required String subject,
   }) async {
-    final content = await HtmlContentUtils.load(
+    final content = await ContentUtils.load(
       context,
       name: 'contact_us_content',
     );
