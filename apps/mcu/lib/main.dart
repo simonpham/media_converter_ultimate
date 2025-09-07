@@ -24,6 +24,8 @@ Future<void> main() async {
 
   await LogData().init();
   await JobConfigurationData().init();
+
+  FlutterForegroundTask.initCommunicationPort();
   runApp(
     const MediaConverterUltimate(),
   );

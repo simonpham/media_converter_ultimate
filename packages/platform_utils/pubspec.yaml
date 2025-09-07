@@ -14,8 +14,8 @@ dependencies:
     path: ../core
 
   ffmpeg_kit_flutter_new: ^3.1.0-full-gpl
-  flutter_background_service: ^5.1.0
   flutter_local_notifications: ^19.4.1
+  flutter_foreground_task: ^9.1.0
 
   mime: ^2.0.0
   path: ^1.9.1
@@ -28,3 +28,9 @@ dependencies:
 
   device_info_plus: ^11.5.0
   package_info_plus: ^8.3.1
+
+dependency_overrides:
+  flutter_foreground_task:
+    git:
+      url: https://github.com/simonpham/flutter_foreground_task.git
+      ref: 348d7ccfa9e8e4ce3b322bd022ab644709aef4e5

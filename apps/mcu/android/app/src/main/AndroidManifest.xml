@@ -32,7 +32,8 @@
         </activity>
 
         <service
-            android:name="id.flutter.flutter_background_service.BackgroundService"
+            android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
+            android:exported="false"
             android:stopWithTask="false"
             android:foregroundServiceType="mediaProcessing"
         />
