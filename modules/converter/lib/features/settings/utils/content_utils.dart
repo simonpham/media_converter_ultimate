@@ -1,19 +1,26 @@
 import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 
-class HtmlContentUtils {
+class ContentUtils {
   static Future<String?> load(
     BuildContext context, {
     required String name,
+    String extension = 'html',
   }) async {
     final language = SettingsBox().language;
-    final content = await _load(context, name: name, language: language);
+    final content = await _load(
+      context,
+      name: name,
+      language: language,
+      extension: extension,
+    );
     if (content == null) {
       // Retry with default language.
       return _load(
         context,
         name: name,
         language: kDefaultLanguage,
+        extension: extension,
       );
     }
 
@@ -24,10 +31,11 @@ class HtmlContentUtils {
     BuildContext context, {
     required String name,
     required String language,
+    required String extension,
   }) async {
     try {
       final content = await DefaultAssetBundle.of(context).loadString(
-        'assets/html/$name/$language.html',
+        'assets/html/$name/$language.$extension',
       );
       return content;
     } catch (err, trace) {
