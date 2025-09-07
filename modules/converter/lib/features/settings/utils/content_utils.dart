@@ -35,7 +35,7 @@ class ContentUtils {
   }) async {
     try {
       final content = await DefaultAssetBundle.of(context).loadString(
-        'assets/html/$name/$language.$extension',
+        'assets/content/$name/$language.$extension',
       );
       return content;
     } catch (err, trace) {

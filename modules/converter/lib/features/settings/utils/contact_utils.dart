@@ -11,7 +11,7 @@ class ContactUtils {
   }) async {
     final content = await ContentUtils.load(
       context,
-      name: 'contact_us_content',
+      name: 'contact_us',
     );
     final result = await ContentDialog.show(
       context,
