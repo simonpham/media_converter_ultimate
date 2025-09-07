@@ -9,5 +9,16 @@
     "hide": "never",
     "shell": "system",
     "tags": ["flutter", "run"]
-  }
+  },
+  {
+    "label": "get all",
+    "command": "./get.sh",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "never",
+    "reveal_target": "dock",
+    "hide": "always",
+    "shell": "system",
+    "tags": ["get-all"]
+  },
 ]
