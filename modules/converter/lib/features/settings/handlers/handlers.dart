@@ -74,14 +74,13 @@ extension SettingsHandlers on SettingsPageItem {
   }
 
   Future<void> _handleSupportTheDeveloper(BuildContext context) async {
-    final language = SettingsBox().language;
-    final content = await DefaultAssetBundle.of(context).loadString(
-      'assets/html/support_developer_content/$language.html',
+    final content = await HtmlContentUtils.load(
+      context, name: 'support_developer_content',
     );
     final result = await ContentDialog.show(
       context,
       title: context.l10n.monetizationSupportTheDeveloper,
-      content: content,
+      content: content ?? '',
       negativeText: context.l10n.goBack,
       positiveText: context.l10n.aboutRateTheApp,
       useHtmlWidget: true,
