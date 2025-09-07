@@ -34,6 +34,9 @@ extension SettingsHandlers on SettingsPageItem {
       case SettingsPageItem.managePermissions:
         // TODO: Handle this case.
         throw UnimplementedError();
+      case SettingsPageItem.changelog:
+        _handleViewChangelog(context);
+        break;
       case SettingsPageItem.helpAndFaq:
         // TODO: Handle this case.
         throw UnimplementedError();
@@ -75,7 +78,8 @@ extension SettingsHandlers on SettingsPageItem {
 
   Future<void> _handleSupportTheDeveloper(BuildContext context) async {
     final content = await ContentUtils.load(
-      context, name: 'support_developer_content',
+      context,
+      name: 'support_developer_content',
     );
     final result = await ContentDialog.show(
       context,
@@ -98,6 +102,20 @@ extension SettingsHandlers on SettingsPageItem {
     ContactUtils().sendEmail(
       context,
       subject: '[$kAppName] Support Request',
+    );
+  }
+
+  Future<void> _handleViewChangelog(BuildContext context) async {
+    final content = await ContentUtils.load(
+      context,
+      name: 'changelog',
+    );
+    await ContentDialog.show(
+      context,
+      title: context.l10n.changelog,
+      content: content ?? '',
+      neutralText: context.l10n.ok,
+      useHtmlWidget: true,
     );
   }
 }

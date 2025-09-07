@@ -27,6 +27,7 @@ enum SettingsCategory {
   ),
   aboutAndSupport(
     items: [
+      SettingsPageItem.changelog,
       SettingsPageItem.helpAndFaq,
       SettingsPageItem.contactUs,
       SettingsPageItem.legal,

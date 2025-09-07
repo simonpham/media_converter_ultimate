@@ -33,6 +33,7 @@ enum SettingsPageItem {
   defaultSorting,
   clearCache,
   managePermissions,
+  changelog,
   helpAndFaq,
   contactUs,
   legal,
@@ -53,6 +54,7 @@ enum SettingsPageItem {
           defaultOutputFormat,
           languages,
           appTheme,
+          changelog,
           contactUs,
           legal,
           supportTheDeveloper,
@@ -72,6 +74,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
       SettingsPageItem.defaultSorting => null,
       SettingsPageItem.clearCache => null,
       SettingsPageItem.managePermissions => null,
+      SettingsPageItem.changelog => null,
       SettingsPageItem.helpAndFaq => null,
       SettingsPageItem.contactUs => null,
       SettingsPageItem.legal => null,
@@ -96,6 +99,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
       SettingsPageItem.managePermissions =>
         context.l10n.appManagementManagePermissions,
       SettingsPageItem.helpAndFaq => context.l10n.aboutHelpAndFaq,
+      SettingsPageItem.changelog => context.l10n.viewChangelog,
       SettingsPageItem.contactUs => context.l10n.aboutContactUs,
       SettingsPageItem.legal => context.l10n.aboutLegal,
       SettingsPageItem.supportTheDeveloper =>
@@ -121,6 +125,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
         context.l10n.appManagementClearCacheDescription,
       SettingsPageItem.managePermissions =>
         context.l10n.appManagementManagePermissionsDescription,
+      SettingsPageItem.changelog => null,
       SettingsPageItem.helpAndFaq => null,
       SettingsPageItem.contactUs => null,
       SettingsPageItem.legal => context.l10n.aboutLegalDescription,
@@ -140,6 +145,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
       SettingsPageItem.defaultSorting => Assets.sorting01,
       SettingsPageItem.clearCache => Assets.delete04,
       SettingsPageItem.managePermissions => Assets.securityLock,
+      SettingsPageItem.changelog => Assets.file02,
       SettingsPageItem.helpAndFaq => Assets.helpCircle,
       SettingsPageItem.contactUs => Assets.message01,
       SettingsPageItem.legal => Assets.legalDocument01,
