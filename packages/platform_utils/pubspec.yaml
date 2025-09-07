@@ -13,7 +13,6 @@ dependencies:
   core:
     path: ../core
 
-  workmanager: ^0.6.0
   ffmpeg_kit_flutter_new: ^3.1.0-full-gpl
 
   mime: ^2.0.0
