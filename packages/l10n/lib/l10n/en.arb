@@ -124,5 +124,7 @@
   "displayShowFileThumbnailsDescription": "Show image and video previews in the file picker.",
   "monetizationSupportTheDeveloper": "Support the Developer",
   "monetizationSupportTheDeveloperDescription": "Learn more about how to support the app.",
+  "changelog": "Changelog",
+  "viewChangelog": "View Changelog",
   "itsTheEnd": "of the world"
 }

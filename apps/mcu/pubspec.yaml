@@ -39,6 +39,7 @@ flutter:
     - assets/configs/l10n/
     - assets/configs/supported_configurations/
     - assets/html/
+    - assets/html/changelog/
     - assets/html/contact_us_content/
     - assets/html/support_developer_content/
     - assets/svg/
