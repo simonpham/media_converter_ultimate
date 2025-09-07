@@ -26,6 +26,10 @@ class ConverterInjector {
       () => FfmpegJobRunnerService(),
     );
 
+    injector.registerLazySingleton<JobNotificationService>(
+      () => JobNotificationServiceImpl(),
+    );
+
     final mobileAdsService = GoogleMobileAdsService();
     unawaited(mobileAdsService.initialize());
     injector.registerSingleton<MobileAdsService>(mobileAdsService);
