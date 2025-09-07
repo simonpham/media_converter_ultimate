@@ -9,14 +9,14 @@ class ContactUtils {
     BuildContext context, {
     required String subject,
   }) async {
-    final language = SettingsBox().language;
-    final content = await DefaultAssetBundle.of(context).loadString(
-      'assets/html/contact_us_content/$language.html',
+    final content = await HtmlContentUtils.load(
+      context,
+      name: 'contact_us_content',
     );
     final result = await ContentDialog.show(
       context,
       title: context.l10n.aboutContactUs,
-      content: content,
+      content: content ?? '',
       useHtmlWidget: true,
       negativeText: context.l10n.cancel,
       positiveText: context.l10n.ok,
