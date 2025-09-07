@@ -79,7 +79,7 @@ extension SettingsHandlers on SettingsPageItem {
   Future<void> _handleSupportTheDeveloper(BuildContext context) async {
     final content = await ContentUtils.load(
       context,
-      name: 'support_developer_content',
+      name: 'support_developer',
     );
     final result = await ContentDialog.show(
       context,
