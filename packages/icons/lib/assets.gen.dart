@@ -27,6 +27,7 @@ class Assets {
   static const String file02 = 'assets/file-02.svg';
   static const String fileAddBulk = 'assets/file-add-bulk.svg';
   static const String fileAudio = 'assets/file-audio.svg';
+  static const String fileBlock = 'assets/file-block.svg';
   static const String fileExport = 'assets/file-export.svg';
   static const String fileVideo = 'assets/file-video.svg';
   static const String folder01 = 'assets/folder-01.svg';
@@ -38,6 +39,7 @@ class Assets {
   static const String message01 = 'assets/message-01.svg';
   static const String moreVertical = 'assets/more-vertical.svg';
   static const String note01 = 'assets/note-01.svg';
+  static const String notification02 = 'assets/notification-02.svg';
   static const String reload = 'assets/reload.svg';
   static const String securityLock = 'assets/security-lock.svg';
   static const String setting01 = 'assets/setting-01.svg';
@@ -66,6 +68,7 @@ class Assets {
     file02,
     fileAddBulk,
     fileAudio,
+    fileBlock,
     fileExport,
     fileVideo,
     folder01,
@@ -77,6 +80,7 @@ class Assets {
     message01,
     moreVertical,
     note01,
+    notification02,
     reload,
     securityLock,
     setting01,
