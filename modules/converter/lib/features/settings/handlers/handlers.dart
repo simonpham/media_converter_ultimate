@@ -16,6 +16,8 @@ extension SettingsHandlers on SettingsPageItem {
       case SettingsPageItem.overwriteBehavior:
         // TODO: Handle this case.
         throw UnimplementedError();
+      case SettingsPageItem.excludeFileExtensions:
+        break;
       case SettingsPageItem.languages:
         // TODO: Handle this case.
         throw UnimplementedError();

@@ -9,6 +9,7 @@ enum SettingsCategory {
       SettingsPageItem.defaultOutputFolder,
       SettingsPageItem.defaultOutputFormat,
       SettingsPageItem.overwriteBehavior,
+      SettingsPageItem.excludeFileExtensions,
     ],
   ),
   displayAndUi(

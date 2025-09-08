@@ -6,6 +6,7 @@ import 'package:icons/icons.dart';
 
 part 'settings_child/app_theme.dart';
 part 'settings_child/default_output_format.dart';
+part 'settings_child/exclude_file_extensions.dart';
 part 'settings_child/languages.dart';
 
 abstract class SettingsChild extends StatelessWidget {

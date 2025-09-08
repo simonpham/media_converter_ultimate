@@ -17,6 +17,12 @@ enum SettingsPageItem {
     ],
   ),
   overwriteBehavior,
+  excludeFileExtensions(
+    routeName: 'exclude-file-extensions',
+    settingsKeys: [
+      JobMakerSettings.excludedFileExtensions,
+    ],
+  ),
   languages(
     routeName: 'languages',
     settingsKeys: [
@@ -68,6 +74,8 @@ extension SettingsPageItemExtensions on SettingsPageItem {
       SettingsPageItem.defaultOutputFormat =>
         (_, _) => const DefaultOutputFormatSettingsChild(),
       SettingsPageItem.overwriteBehavior => null,
+      SettingsPageItem.excludeFileExtensions =>
+        (_, _) => const ExcludeFileExtensionsSettingsChild(),
       SettingsPageItem.languages => (_, _) => const LanguagesSettingsChild(),
       SettingsPageItem.appTheme => (_, _) => const AppThemeSettingsChild(),
       SettingsPageItem.showFileThumbnails => null,
@@ -90,6 +98,8 @@ extension SettingsPageItemExtensions on SettingsPageItem {
         context.l10n.conversionDefaultOutputFormat,
       SettingsPageItem.overwriteBehavior =>
         context.l10n.conversionOverwriteBehavior,
+      SettingsPageItem.excludeFileExtensions =>
+        context.l10n.excludeFileExtensions,
       SettingsPageItem.languages => context.l10n.languages,
       SettingsPageItem.appTheme => context.l10n.displayAppTheme,
       SettingsPageItem.showFileThumbnails =>
@@ -115,6 +125,8 @@ extension SettingsPageItemExtensions on SettingsPageItem {
         context.l10n.conversionDefaultOutputFormatDescription,
       SettingsPageItem.overwriteBehavior =>
         context.l10n.conversionOverwriteBehaviorDescription,
+      SettingsPageItem.excludeFileExtensions =>
+        context.l10n.excludedFilesDescription,
       SettingsPageItem.languages => null,
       SettingsPageItem.appTheme => context.l10n.displayAppThemeDescription,
       SettingsPageItem.showFileThumbnails =>
@@ -139,6 +151,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
       SettingsPageItem.defaultOutputFolder => Assets.folder01,
       SettingsPageItem.defaultOutputFormat => Assets.fileExport,
       SettingsPageItem.overwriteBehavior => Assets.deleteThrow,
+      SettingsPageItem.excludeFileExtensions => Assets.fileBlock,
       SettingsPageItem.languages => Assets.globe,
       SettingsPageItem.appTheme => Assets.customize,
       SettingsPageItem.showFileThumbnails => Assets.image01,
