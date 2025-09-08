@@ -11,31 +11,34 @@ class MediaConverterUltimate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return JobNotificationWrapper(
-      child: ValueListenableBuilder(
-        valueListenable: [
-          CoreSettings.language,
-          CoreSettings.appTheme,
-        ].of(SettingsBox()),
-        builder: (context, _, _) {
-          return MaterialApp.router(
-            theme: ThemeConfigs().theme.getTheme(isDark: false),
-            darkTheme: ThemeConfigs().theme.getTheme(isDark: true),
-            themeMode: SettingsBox().appTheme,
-            routerConfig: kAppRouter,
-            locale: Locale(
-              SettingsBox().language,
-            ),
-            localizationsDelegates: [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: AppLocalizations.supportedLocales,
-          );
-        },
-      ),
+    return ValueListenableBuilder(
+      valueListenable: [
+        CoreSettings.language,
+        CoreSettings.appTheme,
+      ].of(SettingsBox()),
+      builder: (context, _, _) {
+        return MaterialApp.router(
+          theme: ThemeConfigs().theme.getTheme(isDark: false),
+          darkTheme: ThemeConfigs().theme.getTheme(isDark: true),
+          themeMode: SettingsBox().appTheme,
+          builder: (context, child) {
+            return JobNotificationWrapper(
+              child: child!,
+            );
+          },
+          routerConfig: kAppRouter,
+          locale: Locale(
+            SettingsBox().language,
+          ),
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+        );
+      },
     );
   }
 }
