@@ -18,6 +18,9 @@ class JobMakerViewModel extends ChangeNotifier {
   List<File> _selectedFiles = [];
   List<File> get selectedFiles => _selectedFiles;
 
+  List<File> _excludedFiles = [];
+  List<File> get excludedFiles => _excludedFiles;
+
   /// Map of output file names.
   Map<String, String?> _outputFileNames = const {};
   FormatEntry? _selectedFormatEntry;
@@ -65,18 +68,36 @@ class JobMakerViewModel extends ChangeNotifier {
     refreshOutputFileNames();
   }
 
+  void clearExcludedFiles() {
+    _excludedFiles = [];
+    notifyListeners();
+  }
+
   void addFiles(final List<File> files) {
+    final excludedFileExtensions = SettingsBox().excludedFileExtensions;
     final clone = [
       ..._selectedFiles,
     ];
+    final List<File> excludedFilesClone = [
+      ..._excludedFiles,
+    ];
     final List<String> selectedPaths = clone.map((e) => e.path).toList();
     for (final file in files) {
+      final fileExtension = file.fileExtension;
+      if (excludedFileExtensions.contains(fileExtension)) {
+        printLog(
+          '[FilePicker]: File ${file.path} extension is excluded: $fileExtension. Skipping.',
+        );
+        excludedFilesClone.add(file);
+        continue;
+      }
       if (selectedPaths.contains(file.path)) {
         continue;
       }
       clone.add(file);
     }
     _selectedFiles = clone;
+    _excludedFiles = excludedFilesClone;
     notifyListeners();
     refreshOutputFileNames();
   }

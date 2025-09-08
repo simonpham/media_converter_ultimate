@@ -22,3 +22,23 @@ const List<String> kStoragePaths = [
   '/storage/sdcard1',
   '/storage/extSdCard',
 ];
+
+const List<String> kDefaultExcludedFileExtensions = [
+  'pdf',
+  'docx',
+  'txt',
+  'pptx',
+  'csv',
+  'xlsx',
+  'zip',
+  'rar',
+  '7z',
+  'exe',
+  'msi',
+  'dll',
+  'sys',
+  'tmp',
+  'apk',
+  'dat',
+  'db',
+];

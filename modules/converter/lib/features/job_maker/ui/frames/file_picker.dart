@@ -37,8 +37,96 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
     return Selector<JobMakerViewModel, List<File>>(
       selector: (context, model) => model.selectedFiles,
       builder: (context, files, _) {
+        final excludedFiles = context.select(
+          (JobMakerViewModel model) => model.excludedFiles,
+        );
         return Column(
           children: [
+            if (excludedFiles.isNotEmpty) ...[
+              RoundCard(
+                margin: EdgeInsets.symmetric(
+                  horizontal: Spacing.d16,
+                  vertical: Spacing.d8,
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: Spacing.d16,
+                  vertical: Spacing.d8,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        ImageView(
+                          Assets.file01,
+                          size: Spacing.d16,
+                          color: context.theme.colorScheme.onSurface,
+                        ),
+                        Spacing.h8,
+                        Text(
+                          context.l10n.excludedFiles(
+                            excludedFiles.length,
+                          ),
+                          style: context.theme.textTheme.titleSmall,
+                        ),
+                      ],
+                    ),
+                    Spacing.v8,
+                    Text(
+                      context.l10n.excludedFilesDescription,
+                      style: context.theme.textTheme.labelSmall,
+                    ),
+                    Spacing.v8,
+                    Row(
+                      children: [
+                        Button(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: Spacing.d16,
+                            vertical: Spacing.d4,
+                          ),
+                          variant: ButtonVariant.ghost,
+                          label: context.l10n.view,
+                          onPressed: () {
+                            ContentDialog.show(
+                              context,
+                              title: context.l10n.excludedFiles(''),
+                              content: excludedFiles
+                                  .map(
+                                    (file) => '•  ${file.fileName}',
+                                  )
+                                  .join('\n'),
+                              neutralText: context.l10n.ok,
+                            );
+                          },
+                        ),
+                        const Spacer(),
+                        Button(
+                          padding: EdgeInsets.only(
+                            left: Spacing.d12,
+                            top: Spacing.d4,
+                            bottom: Spacing.d4,
+                            right: Spacing.d16,
+                          ),
+                          variant: ButtonVariant.primary,
+                          icon: ImageView(
+                            Assets.cancel01,
+                            size: Spacing.d16,
+                            color: context.theme.colorScheme.onSurface,
+                          ),
+                          label: context.l10n.ignore,
+                          onPressed: () {
+                            context
+                                .read<JobMakerViewModel>()
+                                .clearExcludedFiles();
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
             Expanded(
               child: Scrollbar(
                 controller: _scrollController,
