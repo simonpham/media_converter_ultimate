@@ -260,9 +260,11 @@ class JobMakerViewModel extends ChangeNotifier {
         throw FileNameIsNotSetFailure(inputFilePath);
       }
 
+      final appCachedDir = await getApplicationCacheDirectory();
       final newInputFilePath = await FileUtils.movePickedFileToInputFolder(
         jobId: jobId,
         inputFilePath: inputFilePath,
+        appCachedPath: appCachedDir.path,
       );
 
       if (newInputFilePath == null) {

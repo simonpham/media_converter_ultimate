@@ -211,7 +211,14 @@ class FileUtils {
   static Future<String?> movePickedFileToInputFolder({
     required String jobId,
     required String inputFilePath,
+    required String appCachedPath,
   }) async {
+    if (!inputFilePath.startsWith('$appCachedPath/file_picker/')) {
+      printLog(
+        '[FileUtils] movePickedFileToInputFolder: file not in file_picker cache. Skipping.',
+      );
+      return inputFilePath;
+    }
     try {
       final inputFolder = await getInputDirectory(jobId);
       final inputFile = File(inputFilePath);
