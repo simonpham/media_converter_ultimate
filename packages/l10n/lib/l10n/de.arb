@@ -124,5 +124,22 @@
   "displayShowFileThumbnailsDescription": "Zeigen Sie Vorschauen von Bildern und Videos in der Dateiauswahl an.",
   "monetizationSupportTheDeveloper": "Entwickler unterstützen",
   "monetizationSupportTheDeveloperDescription": "Erfahren Sie mehr darüber, wie Sie die App unterstützen können.",
-  "itsTheEnd": "der Welt"
+  "excludedFiles": "Ausgeschlossene Dateien: {file}",
+  "excludeFileExtensions": "Ausgeschlossene Dateiendungen",
+  "excludeFileExtensionsInputLabel": "Geben Sie eine auszuschlieÖende Dateiendung ein",
+  "excludeFileExtensionsInputHint": "jpg",
+  "add": "Hinzufügen",
+  "view": "Anzeigen",
+  "ignore": "Ignorieren",
+  "excludedFilesDescription": "Diese Dateien werden nicht in die Konvertierung einbezogen.",
+  "keepAppRunning": "App aktiv halten",
+  "keepAppRunningOnDescription": "Die App läuft während der Konvertierung der Dateien im Hintergrund weiter.",
+  "keepAppRunningOffDescription": "Die App wird vom System möglicherweise geschlossen, wenn sie in den Hintergrund verschoben wird",
+  "notificationPermission": "Benachrichtigungserlaubnis",
+  "notificationPermissionPrompt": "Damit die App im Hintergrund weiterlaufen kann, müssen wir eine permanente Benachrichtigung anzeigen. Bitte erlauben Sie Benachrichtigungen.",
+  "enable": "Aktivieren",
+  "changelog": "Änderungsprotokoll",
+  "viewChangelog": "Änderungsprotokoll anzeigen",
+  "notificationChannelDescription": "Diese Benachrichtigung hilft, die App im Hintergrund aktiv zu halten.",
+  "zzzItsTheEnd": "der Welt"
 }

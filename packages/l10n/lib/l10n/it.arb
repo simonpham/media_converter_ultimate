@@ -124,5 +124,22 @@
   "displayShowFileThumbnailsDescription": "Mostra le anteprime di immagini e video nel selettore file.",
   "monetizationSupportTheDeveloper": "Supporta lo sviluppatore",
   "monetizationSupportTheDeveloperDescription": "Maggiori informazioni su come supportare l'app.",
-  "itsTheEnd": "della fine del mondo"
+  "excludedFiles": "File esclusi: {file}",
+  "excludeFileExtensions": "Escludi estensioni file",
+  "excludeFileExtensionsInputLabel": "Inserisci un'estensione file da escludere",
+  "excludeFileExtensionsInputHint": "jpg",
+  "add": "Aggiungi",
+  "view": "Visualizza",
+  "ignore": "Ignora",
+  "excludedFilesDescription": "Questi file non saranno inclusi nella conversione.",
+  "keepAppRunning": "Mantieni app in esecuzione",
+  "keepAppRunningOnDescription": "L'app continuerà a funzionare in background durante la conversione dei file.",
+  "keepAppRunningOffDescription": "L'app potrebbe essere chiusa dal sistema se spostata in background",
+  "notificationPermission": "Autorizzazione notifiche",
+  "notificationPermissionPrompt": "Per mantenere l'app in esecuzione in background, dobbiamo visualizzare una notifica persistente. Si prega di consentire le notifiche.",
+  "enable": "Abilita",
+  "changelog": "Registro delle modifiche",
+  "viewChangelog": "Visualizza registro delle modifiche",
+  "notificationChannelDescription": "Questa notifica aiuta a mantenere l'app in esecuzione in background.",
+  "zzzItsTheEnd": "della fine del mondo"
 }

@@ -124,5 +124,22 @@
   "displayShowFileThumbnailsDescription": "Dosya seçicide resim ve video önizlemelerini gösterin.",
   "monetizationSupportTheDeveloper": "Geliştiriciyi Destekleyin",
   "monetizationSupportTheDeveloperDescription": "Uygulamayı nasıl destekleyeceğiniz hakkında daha fazla bilgi edinin.",
-  "itsTheEnd": "dünyanın"
+  "excludedFiles": "Dışlanan Dosyalar: {file}",
+  "excludeFileExtensions": "Dosya Uzantılarını Dışla",
+  "excludeFileExtensionsInputLabel": "Dışlanacak dosya uzantısını girin",
+  "excludeFileExtensionsInputHint": "jpg",
+  "add": "Ekle",
+  "view": "Görüntüle",
+  "ignore": "Yoksay",
+  "excludedFilesDescription": "Bu dosyalar dönüştürmeye dahil edilmeyecektir.",
+  "keepAppRunning": "Uygulamayı Çalıştırma Durumunda Tut",
+  "keepAppRunningOnDescription": "Dosyalar dönüştürülürken uygulama arka planda çalışmaya devam edecektir.",
+  "keepAppRunningOffDescription": "Arka plana alınırsa uygulama sistem tarafından kapatılabilir",
+  "notificationPermission": "Bildirim İzni",
+  "notificationPermissionPrompt": "Uygulamanın arka planda çalışmaya devam etmesi için kalıcı bir bildirim göstermemiz gerekiyor. Lütfen bildirimlere izin verin.",
+  "enable": "Etkinleştir",
+  "changelog": "Değişiklik Kaydı",
+  "viewChangelog": "Değişiklik Kaydını Görüntüle",
+  "notificationChannelDescription": "Bu bildirim, uygulamanın arka planda çalışmaya devam etmesine yardımcı olur.",
+  "zzzItsTheEnd": "dünyanın"
 }

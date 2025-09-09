@@ -124,5 +124,22 @@
   "displayShowFileThumbnailsDescription": "Hiển thị bản xem trước hình ảnh và video trong trình chọn tệp.",
   "monetizationSupportTheDeveloper": "Hỗ trợ nhà phát triển",
   "monetizationSupportTheDeveloperDescription": "Tìm hiểu thêm về cách hỗ trợ ứng dụng.",
-  "itsTheEnd": "của thế giới"
+  "excludedFiles": "Tệp bị loại trừ: {file}",
+  "excludeFileExtensions": "Loại trừ phần mở rộng tệp",
+  "excludeFileExtensionsInputLabel": "Nhập phần mở rộng tệp cần loại trừ",
+  "excludeFileExtensionsInputHint": "jpg",
+  "add": "Thêm",
+  "view": "Xem",
+  "ignore": "Bỏ qua",
+  "excludedFilesDescription": "Những tệp này sẽ không được bao gồm trong quá trình chuyển đổi.",
+  "keepAppRunning": "Giữ ứng dụng đang chạy",
+  "keepAppRunningOnDescription": "Ứng dụng sẽ tiếp tục chạy nền trong khi chuyển đổi tệp.",
+  "keepAppRunningOffDescription": "Ứng dụng có thể bị hệ thống đóng nếu được chuyển sang nền",
+  "notificationPermission": "Quyền thông báo",
+  "notificationPermissionPrompt": "Để ứng dụng tiếp tục chạy nền, chúng tôi cần hiển thị thông báo liên tục. Vui lòng bật thông báo.",
+  "enable": "Bật",
+  "changelog": "Nhật ký thay đổi",
+  "viewChangelog": "Xem nhật ký thay đổi",
+  "notificationChannelDescription": "Thông báo này giúp ứng dụng tiếp tục chạy nền.",
+  "zzzItsTheEnd": "của thế giới"
 }
