@@ -28,6 +28,7 @@ abstract class JobNotificationService {
   const JobNotificationService();
 
   Future<bool> isServiceRunning();
+  Future<bool> isNotificationPermissionGranted();
 
   Future<void> init(JobNotificationServiceInitParams params);
   Future<void> requestPermission();
@@ -37,6 +38,12 @@ abstract class JobNotificationService {
 
 class JobNotificationServiceImpl implements JobNotificationService {
   bool _initialized = false;
+
+  @override
+  Future<bool> isNotificationPermissionGranted() async {
+    final status = await FlutterForegroundTask.checkNotificationPermission();
+    return status == NotificationPermission.granted;
+  }
 
   @override
   Future<bool> isServiceRunning() {

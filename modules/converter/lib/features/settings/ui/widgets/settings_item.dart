@@ -46,11 +46,21 @@ class SettingsItem extends StatelessWidget {
         ),
         title: item.getLabel(context),
         subtitle: item.getDescription(context),
-        trailing: ImageView(
-          Assets.arrowRight01Round,
-          size: Spacing.d24,
-          color: context.theme.colorScheme.onSurface,
-        ),
+        trailing: item.routeName != null && item.routerBuilder != null
+            ? ImageView(
+                Assets.arrowRight01Round,
+                size: Spacing.d24,
+                color: context.theme.colorScheme.onSurface,
+              )
+            : switch (item.currentValue) {
+                bool value => CheckBox(
+                  value: value,
+                  onChanged: (_) {
+                    SettingsChild.go(context, item);
+                  },
+                ),
+                _ => null,
+              },
         onTap: () {
           SettingsChild.go(context, item);
         },
