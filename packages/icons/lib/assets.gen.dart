@@ -30,6 +30,7 @@ class Assets {
   static const String fileBlock = 'assets/file-block.svg';
   static const String fileExport = 'assets/file-export.svg';
   static const String fileVideo = 'assets/file-video.svg';
+  static const String flash = 'assets/flash.svg';
   static const String folder01 = 'assets/folder-01.svg';
   static const String folderOpen = 'assets/folder-open.svg';
   static const String globe = 'assets/globe.svg';
@@ -71,6 +72,7 @@ class Assets {
     fileBlock,
     fileExport,
     fileVideo,
+    flash,
     folder01,
     folderOpen,
     globe,

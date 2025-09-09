@@ -16,6 +16,9 @@ extension SettingsHandlers on SettingsPageItem {
       case SettingsPageItem.overwriteBehavior:
         // TODO: Handle this case.
         throw UnimplementedError();
+      case SettingsPageItem.keepAppRunning:
+        _handleKeepAppRunningToggle(context);
+        break;
       case SettingsPageItem.excludeFileExtensions:
         break;
       case SettingsPageItem.languages:
@@ -119,5 +122,9 @@ extension SettingsHandlers on SettingsPageItem {
       neutralText: context.l10n.ok,
       useHtmlWidget: true,
     );
+  }
+
+  void _handleKeepAppRunningToggle(BuildContext context) {
+    SettingsBox().keepAppRunning = !SettingsBox().keepAppRunning;
   }
 }
