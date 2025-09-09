@@ -17,6 +17,11 @@ enum SettingsPageItem {
     ],
   ),
   overwriteBehavior,
+  keepAppRunning(
+    settingsKeys: [
+      JobRunnerSettings.keepAppRunning,
+    ],
+  ),
   excludeFileExtensions(
     routeName: 'exclude-file-extensions',
     settingsKeys: [
@@ -58,6 +63,7 @@ enum SettingsPageItem {
       : [
           defaultOutputFolder,
           defaultOutputFormat,
+          keepAppRunning,
           excludeFileExtensions,
           languages,
           appTheme,
@@ -75,6 +81,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
       SettingsPageItem.defaultOutputFormat =>
         (_, _) => const DefaultOutputFormatSettingsChild(),
       SettingsPageItem.overwriteBehavior => null,
+      SettingsPageItem.keepAppRunning => null,
       SettingsPageItem.excludeFileExtensions =>
         (_, _) => const ExcludeFileExtensionsSettingsChild(),
       SettingsPageItem.languages => (_, _) => const LanguagesSettingsChild(),
@@ -99,6 +106,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
         context.l10n.conversionDefaultOutputFormat,
       SettingsPageItem.overwriteBehavior =>
         context.l10n.conversionOverwriteBehavior,
+      SettingsPageItem.keepAppRunning => context.l10n.keepAppRunning,
       SettingsPageItem.excludeFileExtensions =>
         context.l10n.excludeFileExtensions,
       SettingsPageItem.languages => context.l10n.languages,
@@ -126,6 +134,10 @@ extension SettingsPageItemExtensions on SettingsPageItem {
         context.l10n.conversionDefaultOutputFormatDescription,
       SettingsPageItem.overwriteBehavior =>
         context.l10n.conversionOverwriteBehaviorDescription,
+      SettingsPageItem.keepAppRunning => switch (SettingsBox().keepAppRunning) {
+        true => context.l10n.keepAppRunningOnDescription,
+        false => context.l10n.keepAppRunningOffDescription,
+      },
       SettingsPageItem.excludeFileExtensions =>
         context.l10n.excludedFilesDescription,
       SettingsPageItem.languages => null,
@@ -152,6 +164,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
       SettingsPageItem.defaultOutputFolder => Assets.folder01,
       SettingsPageItem.defaultOutputFormat => Assets.fileExport,
       SettingsPageItem.overwriteBehavior => Assets.deleteThrow,
+      SettingsPageItem.keepAppRunning => Assets.flash,
       SettingsPageItem.excludeFileExtensions => Assets.fileBlock,
       SettingsPageItem.languages => Assets.globe,
       SettingsPageItem.appTheme => Assets.customize,
