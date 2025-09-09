@@ -20,8 +20,13 @@ class _JobNotificationWrapperState extends State<JobNotificationWrapper>
   JobNotificationService get _jobNotificationService =>
       injector<JobNotificationService>();
 
+  bool get _isEnabled => SettingsBox().keepAppRunning;
+
   @override
   Future<void> afterFirstLayout(BuildContext context) async {
+    if (!_isEnabled) {
+      return;
+    }
     await _jobNotificationService.requestPermission();
     await _jobNotificationService.init(
       JobNotificationServiceInitParams(
@@ -54,6 +59,10 @@ class _JobNotificationWrapperState extends State<JobNotificationWrapper>
   }
 
   Future<void> _handleAppLifecycleState(AppLifecycleState state) async {
+    if (!_isEnabled) {
+      await _jobNotificationService.stop();
+      return;
+    }
     if (state == AppLifecycleState.paused) {
       // App is going to the background, start the service.
       await _jobNotificationService.start(

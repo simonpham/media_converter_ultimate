@@ -75,6 +75,25 @@ enum SettingsPageItem {
 }
 
 extension SettingsPageItemExtensions on SettingsPageItem {
+  bool? get currentValue => switch (this) {
+    SettingsPageItem.defaultOutputFolder => null,
+    SettingsPageItem.defaultOutputFormat => null,
+    SettingsPageItem.overwriteBehavior => null,
+    SettingsPageItem.keepAppRunning => SettingsBox().keepAppRunning,
+    SettingsPageItem.excludeFileExtensions => null,
+    SettingsPageItem.languages => null,
+    SettingsPageItem.appTheme => null,
+    SettingsPageItem.showFileThumbnails => null,
+    SettingsPageItem.defaultSorting => null,
+    SettingsPageItem.clearCache => null,
+    SettingsPageItem.managePermissions => null,
+    SettingsPageItem.changelog => null,
+    SettingsPageItem.helpAndFaq => null,
+    SettingsPageItem.contactUs => null,
+    SettingsPageItem.legal => null,
+    SettingsPageItem.supportTheDeveloper => null,
+  };
+
   GoRouterWidgetBuilder? get routerBuilder {
     return switch (this) {
       SettingsPageItem.defaultOutputFolder => null,

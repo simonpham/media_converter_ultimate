@@ -124,7 +124,42 @@ extension SettingsHandlers on SettingsPageItem {
     );
   }
 
-  void _handleKeepAppRunningToggle(BuildContext context) {
-    SettingsBox().keepAppRunning = !SettingsBox().keepAppRunning;
+  Future<void> _handleKeepAppRunningToggle(BuildContext context) async {
+    final isEnable = SettingsBox().keepAppRunning;
+    if (isEnable) {
+      SettingsBox().keepAppRunning = false;
+      return;
+    }
+
+    final service = injector<JobNotificationService>();
+
+    final action = await service.isNotificationPermissionGranted()
+        ? ConfirmAction.positive
+        : await ConfirmDialog.show(
+            context,
+            title: context.l10n.notificationPermission,
+            message: context.l10n.notificationPermissionPrompt,
+            negativeText: context.l10n.cancel,
+            positiveText: context.l10n.enable,
+          );
+
+    if (action != ConfirmAction.positive) {
+      SettingsBox().keepAppRunning = false;
+      return;
+    }
+
+    await service.requestPermission();
+    if (!await service.isNotificationPermissionGranted()) {
+      SettingsBox().keepAppRunning = false;
+      return;
+    }
+
+    await service.init(
+      JobNotificationServiceInitParams(
+        channelName: kAppName,
+        channelDescription: context.l10n.notificationChannelDescription,
+      ),
+    );
+    SettingsBox().keepAppRunning = true;
   }
 }
