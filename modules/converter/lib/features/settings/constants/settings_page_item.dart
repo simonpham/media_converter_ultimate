@@ -58,6 +58,7 @@ enum SettingsPageItem {
       : [
           defaultOutputFolder,
           defaultOutputFormat,
+          excludeFileExtensions,
           languages,
           appTheme,
           changelog,
