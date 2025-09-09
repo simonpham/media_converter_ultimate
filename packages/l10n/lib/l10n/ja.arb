@@ -124,5 +124,22 @@
   "displayShowFileThumbnailsDescription": "ファイルピッカーに画像とビデオのプレビューを表示します。",
   "monetizationSupportTheDeveloper": "開発者をサポートする",
   "monetizationSupportTheDeveloperDescription": "アプリのサポート方法について詳しく学びます。",
-  "itsTheEnd": "世界の終わり"
+  "excludedFiles": "除外ファイル: {file}",
+  "excludeFileExtensions": "除外ファイル拡張子",
+  "excludeFileExtensionsInputLabel": "除外するファイル拡張子を入力してください",
+  "excludeFileExtensionsInputHint": "jpg",
+  "add": "追加",
+  "view": "表示",
+  "ignore": "無視",
+  "excludedFilesDescription": "これらのファイルは変換に含まれません。",
+  "keepAppRunning": "アプリの実行を維持",
+  "keepAppRunningOnDescription": "ファイルを変換中にアプリはバックグラウンドで実行し続けます。",
+  "keepAppRunningOffDescription": "バックグラウンドに移動すると、アプリはシステムによって閉じられる可能性があります。",
+  "notificationPermission": "通知権限",
+  "notificationPermissionPrompt": "アプリをバックグラウンドで実行し続けるには、永続的な通知を表示する必要があります。通知を許可してください。",
+  "enable": "有効にする",
+  "changelog": "変更ログ",
+  "viewChangelog": "変更ログを表示",
+  "notificationChannelDescription": "この通知は、アプリをバックグラウンドで実行し続けるのに役立ちます。",
+  "zzzItsTheEnd": "世界の終わり"
 }

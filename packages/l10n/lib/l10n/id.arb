@@ -124,5 +124,22 @@
   "displayShowFileThumbnailsDescription": "Tampilkan pratinjau gambar dan video di pemilih file.",
   "monetizationSupportTheDeveloper": "Dukung Pengembang",
   "monetizationSupportTheDeveloperDescription": "Pelajari lebih lanjut tentang cara mendukung aplikasi.",
-  "itsTheEnd": "dunia"
+  "excludedFiles": "File yang Dikecualikan: {file}",
+  "excludeFileExtensions": "Kecualikan Ekstensi File",
+  "excludeFileExtensionsInputLabel": "Masukkan ekstensi file yang akan dikecualikan",
+  "excludeFileExtensionsInputHint": "jpg",
+  "add": "Tambahkan",
+  "view": "Lihat",
+  "ignore": "Abaikan",
+  "excludedFilesDescription": "File-file ini tidak akan disertakan dalam konversi.",
+  "keepAppRunning": "Jalankan Aplikasi Terus",
+  "keepAppRunningOnDescription": "Aplikasi akan terus berjalan di latar belakang saat mengonversi file.",
+  "keepAppRunningOffDescription": "Aplikasi mungkin ditutup oleh sistem jika dipindahkan ke latar belakang",
+  "notificationPermission": "Izin Notifikasi",
+  "notificationPermissionPrompt": "Agar aplikasi tetap berjalan di latar belakang, kami perlu menampilkan notifikasi yang berkelanjutan. Harap izinkan notifikasi.",
+  "enable": "Aktifkan",
+  "changelog": "Catatan Perubahan",
+  "viewChangelog": "Lihat Catatan Perubahan",
+  "notificationChannelDescription": "Notifikasi ini membantu agar aplikasi tetap berjalan di latar belakang.",
+  "zzzItsTheEnd": "dunia"
 }

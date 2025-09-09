@@ -141,5 +141,5 @@
   "changelog": "Changelog",
   "viewChangelog": "View Changelog",
   "notificationChannelDescription": "This notification helps to keep the app running in the background.",
-  "itsTheEnd": "of the world"
+  "zzzItsTheEnd": "of the world"
 }
