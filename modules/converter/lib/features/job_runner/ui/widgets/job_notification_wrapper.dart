@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:converter/converter.dart';
 import 'package:core/core.dart';
+import 'package:core_storage_base/core_storage_base.dart';
 import 'package:design_system/utils/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +23,13 @@ class _JobNotificationWrapperState extends State<JobNotificationWrapper>
   JobNotificationService get _jobNotificationService =>
       injector<JobNotificationService>();
 
+  ConvertJobStorage get _jobStorage => ConvertJobStorage.getInstance();
+
   bool get _isEnabled => SettingsBox().keepAppRunning;
+
+  StreamSubscription<bool>? _isJobProcessingSubscription;
+
+  bool _isJobProcessing = false;
 
   @override
   Future<void> afterFirstLayout(BuildContext context) async {
@@ -40,10 +49,18 @@ class _JobNotificationWrapperState extends State<JobNotificationWrapper>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _isJobProcessingSubscription = _jobStorage
+        .watchIsJobPendingOrProcessing()
+        .listen(
+          (isProcessing) async {
+            _isJobProcessing = isProcessing;
+          },
+        );
   }
 
   @override
   void dispose() {
+    _isJobProcessingSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -59,11 +76,11 @@ class _JobNotificationWrapperState extends State<JobNotificationWrapper>
   }
 
   Future<void> _handleAppLifecycleState(AppLifecycleState state) async {
-    if (!_isEnabled) {
+    if (!_isEnabled || !_isJobProcessing) {
       await _jobNotificationService.stop();
       return;
     }
-    if (state == AppLifecycleState.paused) {
+    if (state == AppLifecycleState.paused && _isJobProcessing) {
       // App is going to the background, start the service.
       await _jobNotificationService.start(
         JobNotificationServiceStartParams(
@@ -71,7 +88,10 @@ class _JobNotificationWrapperState extends State<JobNotificationWrapper>
           notificationText: context.l10n.notificationChannelDescription,
         ),
       );
-    } else if (state == AppLifecycleState.resumed) {
+      return;
+    }
+
+    if (state == AppLifecycleState.resumed) {
       // App is returning to the foreground, stop the service.
       await _jobNotificationService.stop();
     }

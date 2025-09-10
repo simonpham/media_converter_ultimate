@@ -22,4 +22,6 @@ abstract class ConvertJobStorage
   Future<bool> removeOlderFinishedJobs(int dayCount);
 
   Future<List<ConvertJob>> fixInvalidJobs();
+
+  Stream<bool> watchIsJobPendingOrProcessing();
 }

@@ -249,4 +249,21 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
 
     return [];
   }
+
+  @override
+  Stream<bool> watchIsJobPendingOrProcessing() {
+    return isar.isarConvertJobs
+        .where()
+        .statusEqualTo(JobStatus.pending)
+        .or()
+        .statusEqualTo(JobStatus.running)
+        .or()
+        .statusEqualTo(JobStatus.preparing)
+        .or()
+        .statusEqualTo(JobStatus.ready)
+        .or()
+        .statusEqualTo(JobStatus.cleaning)
+        .watch(fireImmediately: true)
+        .map((list) => list.isNotEmpty);
+  }
 }
