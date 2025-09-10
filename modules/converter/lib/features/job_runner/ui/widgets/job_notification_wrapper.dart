@@ -62,6 +62,7 @@ class _JobNotificationWrapperState extends State<JobNotificationWrapper>
   void dispose() {
     _isJobProcessingSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
+    _jobNotificationService.stop();
     super.dispose();
   }
 
