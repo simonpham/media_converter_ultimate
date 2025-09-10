@@ -11,6 +11,8 @@ export 'router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Permission.storage.request();
+
   await FileUtils.cleanTemporaryDirectory();
   await FileUtils.getConvertTemporaryDirectory(null);
   await ThemeConfigs().init();
