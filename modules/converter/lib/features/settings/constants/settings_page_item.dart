@@ -63,7 +63,7 @@ enum SettingsPageItem {
       : [
           defaultOutputFolder,
           defaultOutputFormat,
-          // keepAppRunning,
+          keepAppRunning,
           excludeFileExtensions,
           languages,
           appTheme,
