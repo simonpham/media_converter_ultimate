@@ -300,6 +300,24 @@ class _JobManagerState extends State<JobManager> {
   }
 
   Future<void> _handleCreateJob(BuildContext context) async {
+    final status = await Permission.storage.request();
+    if (!status.isGranted) {
+      await _handlePermissionDenied(context);
+      return;
+    }
+
+    try {
+      final defaultOutputPath =
+          await JobMakerPathUtils.getDefaultOutputDirectoryPath();
+      if (defaultOutputPath == null) {
+        throw Exception('Failed to get default output directory path.');
+      }
+    } catch (_) {
+      context.toastError(
+        context.l10n.failureDirectoryNotWritable,
+      );
+    }
+
     final jobs = await JobMaker.cook(context);
     final viewModel = context.read<JobManagerViewModel>();
     await viewModel.addJobs(jobs);
@@ -480,5 +498,21 @@ class _JobManagerState extends State<JobManager> {
     context.toastSuccess(
       context.l10n.outputFolderHasBeenChanged(path),
     );
+  }
+
+  Future<void> _handlePermissionDenied(BuildContext context) async {
+    final action = await ConfirmDialog.show(
+      context,
+      title: context.l10n.permissionDenied(context.l10n.storage),
+      message: context.l10n.permissionDeniedMessage(context.l10n.storage),
+      negativeText: context.l10n.goBack,
+      positiveText: context.l10n.openSettings,
+    );
+
+    if (action != ConfirmAction.positive) {
+      return;
+    }
+
+    await openAppSettings();
   }
 }
