@@ -300,10 +300,14 @@ class _JobManagerState extends State<JobManager> {
   }
 
   Future<void> _handleCreateJob(BuildContext context) async {
-    final status = await Permission.storage.request();
-    if (!status.isGranted) {
-      await _handlePermissionDenied(context);
-      return;
+    final androidInfo = await DeviceInfoPlugin().androidInfo;
+    final sdkInt = androidInfo.version.sdkInt;
+    if (sdkInt < 33) {
+      final status = await Permission.storage.request();
+      if (!status.isGranted) {
+        await _handlePermissionDenied(context);
+        return;
+      }
     }
 
     try {
