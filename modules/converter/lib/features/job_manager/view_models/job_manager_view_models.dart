@@ -43,7 +43,7 @@ class JobManagerViewModel extends ChangeNotifier {
 
   Future<void> addJobs(final List<ConvertJob> jobs) async {
     await _jobStorage.addAll(jobs);
-    await _runPendingJobs(jobs);
+    await _runPendingJobs();
   }
 
   Future<void> removeRunningJob(ConvertJob job) async {
@@ -72,6 +72,7 @@ class JobManagerViewModel extends ChangeNotifier {
 
     if (updatedJob.status.isFailure) {
       await _cleanFailedJob(updatedJob);
+      await _runPendingJobs(); // Start new pending jobs when a job fails
       return;
     }
 
@@ -118,6 +119,7 @@ class JobManagerViewModel extends ChangeNotifier {
     printLog(
       '[AdsSettings] successConversionCount increased: ${SettingsBox().successConversionCount}',
     );
+    await _runPendingJobs(); // Start new pending jobs when a job completes
   }
 
   Future<void> _cleanFailedJob(ConvertJob job) async {
@@ -165,8 +167,20 @@ class JobManagerViewModel extends ChangeNotifier {
     return null;
   }
 
-  Future<void> _runPendingJobs(List<ConvertJob> pendingJobs) async {
-    for (final job in pendingJobs) {
+  Future<void> _runPendingJobs() async {
+    final concurrencyLimit = SettingsBox().concurrencyLimit;
+    final runningJobs = await _jobStorage.watchRunningJobs().first;
+    final currentRunningCount = runningJobs.length;
+    final availableSlots = concurrencyLimit - currentRunningCount;
+
+    if (availableSlots <= 0) {
+      return; // Already at or over the limit
+    }
+
+    final pendingJobs = await _jobStorage.watchPendingJobs().first;
+    final jobsToStart = pendingJobs.take(availableSlots).toList();
+
+    for (final job in jobsToStart) {
       await runJob(job);
     }
   }
@@ -277,7 +291,7 @@ class JobManagerViewModel extends ChangeNotifier {
   }
 
   Future<void> restartPendingJobs() async {
-    final pendingJobs = await _jobStorage.fixInvalidJobs();
-    await _runPendingJobs(pendingJobs);
+    await _jobStorage.fixInvalidJobs();
+    await _runPendingJobs();
   }
 }
