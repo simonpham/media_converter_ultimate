@@ -17,9 +17,9 @@ enum SettingsPageItem {
     ],
   ),
   overwriteBehavior,
-  concurrentyLimit(
+  concurrencyLimit(
     settingsKeys: [
-      JobRunnerSettings.concurrentyLimit,
+      JobRunnerSettings.concurrencyLimit,
     ],
   ),
   keepAppRunning(
@@ -68,7 +68,7 @@ enum SettingsPageItem {
       : [
           defaultOutputFolder,
           defaultOutputFormat,
-          concurrentyLimit,
+          concurrencyLimit,
           keepAppRunning,
           excludeFileExtensions,
           languages,
@@ -85,7 +85,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
     SettingsPageItem.defaultOutputFolder => null,
     SettingsPageItem.defaultOutputFormat => null,
     SettingsPageItem.overwriteBehavior => null,
-    SettingsPageItem.concurrentyLimit => null,
+    SettingsPageItem.concurrencyLimit => null,
     SettingsPageItem.keepAppRunning => SettingsBox().keepAppRunning,
     SettingsPageItem.excludeFileExtensions => null,
     SettingsPageItem.languages => null,
@@ -107,7 +107,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
       SettingsPageItem.defaultOutputFormat =>
         (_, _) => const DefaultOutputFormatSettingsChild(),
       SettingsPageItem.overwriteBehavior => null,
-      SettingsPageItem.concurrentyLimit => null,
+      SettingsPageItem.concurrencyLimit => null,
       SettingsPageItem.keepAppRunning => null,
       SettingsPageItem.excludeFileExtensions =>
         (_, _) => const ExcludeFileExtensionsSettingsChild(),
@@ -133,7 +133,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
         context.l10n.conversionDefaultOutputFormat,
       SettingsPageItem.overwriteBehavior =>
         context.l10n.conversionOverwriteBehavior,
-      SettingsPageItem.concurrentyLimit => context.l10n.concurrentyLimit,
+      SettingsPageItem.concurrencyLimit => context.l10n.concurrencyLimit,
       SettingsPageItem.keepAppRunning => context.l10n.keepAppRunning,
       SettingsPageItem.excludeFileExtensions =>
         context.l10n.excludeFileExtensions,
@@ -162,9 +162,9 @@ extension SettingsPageItemExtensions on SettingsPageItem {
         context.l10n.conversionDefaultOutputFormatDescription,
       SettingsPageItem.overwriteBehavior =>
         context.l10n.conversionOverwriteBehaviorDescription,
-      SettingsPageItem.concurrentyLimit =>
-        context.l10n.concurrentyLimitDescription(
-          '${SettingsBox().concurrentyLimit}',
+      SettingsPageItem.concurrencyLimit =>
+        context.l10n.concurrencyLimitDescription(
+          '${SettingsBox().concurrencyLimit}',
         ),
       SettingsPageItem.keepAppRunning => switch (SettingsBox().keepAppRunning) {
         true => context.l10n.keepAppRunningOnDescription,
@@ -196,7 +196,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
       SettingsPageItem.defaultOutputFolder => Assets.folder01,
       SettingsPageItem.defaultOutputFormat => Assets.fileExport,
       SettingsPageItem.overwriteBehavior => Assets.deleteThrow,
-      SettingsPageItem.concurrentyLimit => Assets.layersLogoStrokeRounded,
+      SettingsPageItem.concurrencyLimit => Assets.layersLogoStrokeRounded,
       SettingsPageItem.keepAppRunning => Assets.flash,
       SettingsPageItem.excludeFileExtensions => Assets.fileBlock,
       SettingsPageItem.languages => Assets.globe,
