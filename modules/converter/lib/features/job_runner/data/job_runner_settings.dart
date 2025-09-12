@@ -2,6 +2,7 @@ import 'package:core/core.dart';
 
 enum JobRunnerSettings {
   keepAppRunning,
+  concurrentyLimit,
 }
 
 extension JobRunnerSettingsExt on SettingsBox {
@@ -12,6 +13,16 @@ extension JobRunnerSettingsExt on SettingsBox {
 
   set keepAppRunning(bool value) => put(
     JobRunnerSettings.keepAppRunning,
+    value,
+  );
+
+  int get concurrentyLimit => get(
+    JobRunnerSettings.concurrentyLimit,
+    defaultValue: 1,
+  );
+
+  set concurrentyLimit(int value) => put(
+    JobRunnerSettings.concurrentyLimit,
     value,
   );
 }

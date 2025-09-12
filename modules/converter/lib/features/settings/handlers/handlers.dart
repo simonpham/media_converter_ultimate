@@ -16,6 +16,8 @@ extension SettingsHandlers on SettingsPageItem {
       case SettingsPageItem.overwriteBehavior:
         // TODO: Handle this case.
         throw UnimplementedError();
+      case SettingsPageItem.concurrentyLimit:
+        _handleConcurrentyLimit(context);
       case SettingsPageItem.keepAppRunning:
         _handleKeepAppRunningToggle(context);
         break;
@@ -161,5 +163,30 @@ extension SettingsHandlers on SettingsPageItem {
       ),
     );
     SettingsBox().keepAppRunning = true;
+  }
+
+  Future<void> _handleConcurrentyLimit(BuildContext context) async {
+    final currentValue = SettingsBox().concurrentyLimit;
+    const min = 1.0;
+    const max = 8.0;
+    final divisions = (max - min).toInt();
+    final result = await InputSliderDialog.show(
+      context,
+      title: context.l10n.concurrentyLimit,
+      labelBuilder: (value) => value.toStringAsFixed(0),
+      hintBuilder: (_) => context.l10n.concurrentyLimitHint,
+      initialValue: currentValue.toDouble(),
+      min: min,
+      max: max,
+      divisions: divisions,
+      cancelText: context.l10n.cancel,
+      confirmText: context.l10n.ok,
+    );
+
+    if (result == null) {
+      return;
+    }
+
+    SettingsBox().concurrentyLimit = result.toInt();
   }
 }
