@@ -73,7 +73,9 @@ class JobMakerViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addFiles(final List<File> files) {
+  Future<void> addFiles(final List<File> files) async {
+    final shouldExcludeNonMediaFiles = SettingsBox().shouldExcludeNonMediaFiles;
+    final isCheckingCustomExtensions = shouldExcludeNonMediaFiles == false;
     final excludedFileExtensions = SettingsBox().excludedFileExtensions;
     final clone = [
       ..._selectedFiles,
@@ -84,13 +86,26 @@ class JobMakerViewModel extends ChangeNotifier {
     final List<String> selectedPaths = clone.map((e) => e.path).toList();
     for (final file in files) {
       final fileExtension = file.fileExtension;
-      if (excludedFileExtensions.contains(fileExtension)) {
+
+      /// Check file mime type for non-media files.
+      if (shouldExcludeNonMediaFiles && !(await FileUtils.isMediaFile(file))) {
+        printLog(
+          '[FilePicker]: File ${file.path} mime type is not media: $fileExtension. Skipping.',
+        );
+        excludedFilesClone.add(file);
+        continue;
+      }
+
+      /// Check if file extension is excluded.
+      if (isCheckingCustomExtensions &&
+          excludedFileExtensions.contains(fileExtension)) {
         printLog(
           '[FilePicker]: File ${file.path} extension is excluded: $fileExtension. Skipping.',
         );
         excludedFilesClone.add(file);
         continue;
       }
+
       if (selectedPaths.contains(file.path)) {
         continue;
       }
