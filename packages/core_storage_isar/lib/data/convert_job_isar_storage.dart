@@ -171,6 +171,42 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   }
 
   @override
+  Future<List<ConvertJob>> getAllPendingJobs() async {
+    return await isar.isarConvertJobs
+        .where()
+        .statusEqualTo(JobStatus.pending)
+        .sortByUpdatedAtDesc()
+        .findAll()
+        .then(
+          (list) => list
+              .whereType<IsarConvertJob>()
+              .map((e) => e.toOriginalModel())
+              .toList(),
+        );
+  }
+
+  @override
+  Future<List<ConvertJob>> getAllRunningJobs() async {
+    return await isar.isarConvertJobs
+        .where()
+        .statusEqualTo(JobStatus.running)
+        .or()
+        .statusEqualTo(JobStatus.preparing)
+        .or()
+        .statusEqualTo(JobStatus.ready)
+        .or()
+        .statusEqualTo(JobStatus.cleaning)
+        .sortByUpdatedAtDesc()
+        .findAll()
+        .then(
+          (list) => list
+              .whereType<IsarConvertJob>()
+              .map((e) => e.toOriginalModel())
+              .toList(),
+        );
+  }
+
+  @override
   Future<bool> removeAllFinishedJobs() async {
     try {
       await isar.writeTxn(() {
