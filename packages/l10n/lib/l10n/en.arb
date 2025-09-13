@@ -87,6 +87,8 @@
   "selectedFiles": "Selected Files: {file}",
   "excludedFiles": "Excluded Files: {file}",
   "excludeFileExtensions": "Exclude File Extensions",
+  "excludeNonMediaFileExtensions": "Exclude all non-media files.",
+  "excludeCustomFileExtensions": "Exclude custom file extensions.",
   "excludeFileExtensionsInputLabel": "Enter a file extension to exclude",
   "excludeFileExtensionsInputHint": "jpg",
   "add": "Add",
