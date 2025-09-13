@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:converter/converter.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
@@ -166,18 +168,21 @@ extension SettingsHandlers on SettingsPageItem {
   }
 
   Future<void> _handleConcurrencyLimit(BuildContext context) async {
-    final currentValue = SettingsBox().concurrencyLimit;
-    const min = 1.0;
-    const max = 8.0;
-    final divisions = (max - min).toInt();
+    const minValue = 1.0;
+    const maxValue = 4.0;
+    final divisions = (maxValue - minValue).toInt();
+    final currentValue = min(
+      max(SettingsBox().concurrencyLimit, minValue),
+      maxValue,
+    );
     final result = await InputSliderDialog.show(
       context,
       title: context.l10n.concurrencyLimit,
       labelBuilder: (value) => value.toStringAsFixed(0),
       hintBuilder: (_) => context.l10n.concurrencyLimitHint,
       initialValue: currentValue.toDouble(),
-      min: min,
-      max: max,
+      min: minValue,
+      max: maxValue,
       divisions: divisions,
       cancelText: context.l10n.cancel,
       confirmText: context.l10n.ok,

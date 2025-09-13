@@ -73,7 +73,7 @@ class JobManagerViewModel extends ChangeNotifier {
 
     if (updatedJob.status.isFailure) {
       await _cleanFailedJob(updatedJob);
-      await _runPendingJobs(); // Start new pending jobs when a job fails
+      await _runPendingJobs();
       return;
     }
 
@@ -120,7 +120,7 @@ class JobManagerViewModel extends ChangeNotifier {
     printLog(
       '[AdsSettings] successConversionCount increased: ${SettingsBox().successConversionCount}',
     );
-    await _runPendingJobs(); // Start new pending jobs when a job completes
+    await _runPendingJobs();
   }
 
   Future<void> _cleanFailedJob(ConvertJob job) async {
@@ -175,7 +175,7 @@ class JobManagerViewModel extends ChangeNotifier {
     final availableSlots = concurrencyLimit - currentRunningCount;
 
     if (availableSlots <= 0) {
-      return; // Already at or over the limit
+      return;
     }
 
     final pendingJobs = await _jobStorage.getAllPendingJobs();
