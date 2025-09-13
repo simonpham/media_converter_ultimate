@@ -131,13 +131,20 @@ class FfmpegJobRunnerService implements JobRunnerService {
     try {
       final sessions = await FFmpegKit.listSessions();
       if (sessions.isEmpty) {
+        printLog('[JobRunnerService]: No sessions found');
         return false;
       }
 
+      printLog(
+        '[JobRunnerService]: Current sessions: ${sessions.map((e) => e.getSessionId()).join(', ')}',
+      );
       final session = sessions.firstWhereOrNull(
         (element) => element.getSessionId() == job.sessionId,
       );
       if (session == null) {
+        printLog(
+          '[JobRunnerService]: Session ${job.sessionId} not found. Cancel anyway.',
+        );
         return false;
       }
 

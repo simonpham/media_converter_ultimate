@@ -49,6 +49,7 @@ class JobManagerViewModel extends ChangeNotifier {
   Future<void> removeRunningJob(ConvertJob job) async {
     final sessionId = job.sessionId;
     if (sessionId == null) {
+      printLog('[JobManagerViewModel]: Session id is null');
       return;
     }
 
