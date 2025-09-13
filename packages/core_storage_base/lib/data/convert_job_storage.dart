@@ -17,6 +17,10 @@ abstract class ConvertJobStorage
 
   Stream<List<ConvertJob>> watchActionRequiredJobs();
 
+  Future<List<ConvertJob>> getAllPendingJobs();
+
+  Future<List<ConvertJob>> getAllRunningJobs();
+
   Future<bool> removeAllFinishedJobs();
 
   Future<bool> removeOlderFinishedJobs(int dayCount);
