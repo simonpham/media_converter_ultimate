@@ -24,6 +24,8 @@ const List<String> kStoragePaths = [
 ];
 
 const List<String> kDefaultExcludedFileExtensions = [
+  'lrc',
+  'cue',
   'pdf',
   'docx',
   'txt',
