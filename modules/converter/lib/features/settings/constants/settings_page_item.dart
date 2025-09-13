@@ -73,6 +73,7 @@ enum SettingsPageItem {
           excludeFileExtensions,
           languages,
           appTheme,
+          managePermissions,
           changelog,
           contactUs,
           legal,

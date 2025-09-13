@@ -37,6 +37,7 @@
   "failureFileDelete": "Failed to delete file at {path}.",
   "failureFailedToClearJobs": "Failed to clear conversion history.",
   "outputFileHasBeenDeleted": "Output file has been deleted: {fileName}.",
+  "appManagementFailedToOpenSettings": "Failed to open app settings.",
   "loadPreviousConfigs": "Load Previous Configs",
   "jobStatusActionRequired": "Action Required",
   "jobStatusCancelled": "Cancelled",

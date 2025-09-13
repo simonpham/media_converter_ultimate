@@ -41,8 +41,8 @@ extension SettingsHandlers on SettingsPageItem {
         // TODO: Handle this case.
         throw UnimplementedError();
       case SettingsPageItem.managePermissions:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        _handleManagePermissions(context);
+        break;
       case SettingsPageItem.changelog:
         _handleViewChangelog(context);
         break;
@@ -193,5 +193,12 @@ extension SettingsHandlers on SettingsPageItem {
     }
 
     SettingsBox().concurrencyLimit = result.toInt();
+  }
+
+  Future<void> _handleManagePermissions(BuildContext context) async {
+    final success = await openAppSettings();
+    if (!success) {
+      context.toastError(context.l10n.appManagementFailedToOpenSettings);
+    }
   }
 }
