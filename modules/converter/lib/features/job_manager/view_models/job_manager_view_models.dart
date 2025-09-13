@@ -169,7 +169,7 @@ class JobManagerViewModel extends ChangeNotifier {
 
   Future<void> _runPendingJobs() async {
     final concurrencyLimit = SettingsBox().concurrencyLimit;
-    final runningJobs = await _jobStorage.watchRunningJobs().first;
+    final runningJobs = await _jobStorage.getAllRunningJobs();
     final currentRunningCount = runningJobs.length;
     final availableSlots = concurrencyLimit - currentRunningCount;
 
@@ -177,7 +177,7 @@ class JobManagerViewModel extends ChangeNotifier {
       return; // Already at or over the limit
     }
 
-    final pendingJobs = await _jobStorage.watchPendingJobs().first;
+    final pendingJobs = await _jobStorage.getAllPendingJobs();
     final jobsToStart = pendingJobs.take(availableSlots).toList();
 
     for (final job in jobsToStart) {
