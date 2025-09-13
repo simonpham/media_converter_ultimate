@@ -13,34 +13,74 @@ class ExcludeFileExtensionsSettingsChild extends SettingsChild {
     final excludedFileExtensions = [
       ...SettingsBox().excludedFileExtensions,
     ];
+    final shouldExcludeNonMediaFiles = SettingsBox().shouldExcludeNonMediaFiles;
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        _ExcludeFileExtensionInput(
-          onAdd: (value) {
-            excludedFileExtensions.insert(0, value);
-            SettingsBox().excludedFileExtensions = excludedFileExtensions;
-          },
+        RoundCard(
+          margin: EdgeInsets.symmetric(
+            horizontal: Spacing.d16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioIconListTile(
+                title: context.l10n.excludeNonMediaFileExtensions,
+                groupValue: shouldExcludeNonMediaFiles,
+                value: true,
+                onChanged: (value) {
+                  SettingsBox().shouldExcludeNonMediaFiles = value;
+                },
+              ),
+              RadioIconListTile(
+                title: context.l10n.excludeCustomFileExtensions,
+                groupValue: shouldExcludeNonMediaFiles,
+                value: false,
+                onChanged: (value) {
+                  SettingsBox().shouldExcludeNonMediaFiles = value;
+                },
+              ),
+            ],
+          ),
         ),
         Expanded(
-          child: ListView.separated(
-            itemCount: excludedFileExtensions.length,
-            padding: EdgeInsets.only(
-              top: Spacing.d16,
-              left: Spacing.d16,
-              right: Spacing.d16,
-              bottom: Spacing.d320,
+          child: DisableWidget(
+            disabled: shouldExcludeNonMediaFiles,
+            child: Column(
+              children: [
+                Spacing.v16,
+                _ExcludeFileExtensionInput(
+                  onAdd: (value) {
+                    excludedFileExtensions.insert(0, value);
+                    SettingsBox().excludedFileExtensions =
+                        excludedFileExtensions;
+                  },
+                ),
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: excludedFileExtensions.length,
+                    padding: EdgeInsets.only(
+                      top: Spacing.d16,
+                      left: Spacing.d16,
+                      right: Spacing.d16,
+                      bottom: Spacing.d320,
+                    ),
+                    separatorBuilder: (context, index) => Spacing.v8,
+                    itemBuilder: (context, index) {
+                      final item = excludedFileExtensions[index];
+                      return _ExcludeFileExtensionListItem(
+                        extension: item,
+                        onRemove: () {
+                          excludedFileExtensions.remove(item);
+                          SettingsBox().excludedFileExtensions =
+                              excludedFileExtensions;
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-            separatorBuilder: (context, index) => Spacing.v8,
-            itemBuilder: (context, index) {
-              final item = excludedFileExtensions[index];
-              return _ExcludeFileExtensionListItem(
-                extension: item,
-                onRemove: () {
-                  excludedFileExtensions.remove(item);
-                  SettingsBox().excludedFileExtensions = excludedFileExtensions;
-                },
-              );
-            },
           ),
         ),
       ],
