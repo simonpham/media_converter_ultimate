@@ -30,6 +30,7 @@ enum SettingsPageItem {
   excludeFileExtensions(
     routeName: 'exclude-file-extensions',
     settingsKeys: [
+      JobMakerSettings.shouldExcludeNonMediaFiles,
       JobMakerSettings.excludedFileExtensions,
     ],
   ),

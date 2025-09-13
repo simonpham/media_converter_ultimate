@@ -5,6 +5,7 @@ enum JobMakerSettings {
   defaultOutputFormat,
   lastOutputDirectoryPath,
   excludedFileExtensions,
+  shouldExcludeNonMediaFiles,
 }
 
 extension JobMakerSettingsExt on SettingsBox {
@@ -45,5 +46,15 @@ extension JobMakerSettingsExt on SettingsBox {
   set excludedFileExtensions(List<String> value) => put(
     JobMakerSettings.excludedFileExtensions,
     value.toSet().toList(),
+  );
+
+  bool get shouldExcludeNonMediaFiles => get(
+    JobMakerSettings.shouldExcludeNonMediaFiles,
+    defaultValue: true,
+  );
+
+  set shouldExcludeNonMediaFiles(bool value) => put(
+    JobMakerSettings.shouldExcludeNonMediaFiles,
+    value,
   );
 }
