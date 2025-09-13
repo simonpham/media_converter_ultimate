@@ -145,6 +145,11 @@ class FfmpegJobRunnerService implements JobRunnerService {
         printLog(
           '[JobRunnerService]: Session ${job.sessionId} not found. Cancel anyway.',
         );
+        _jobController.add(
+          job.copyWith(
+            status: const Some(JobStatus.cancelled),
+          ),
+        );
         return false;
       }
 
