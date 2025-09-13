@@ -254,6 +254,22 @@ class FileUtils {
       printError(err, trace);
     }
   }
+
+  static Future<String?> getFileMimeType(File file) async {
+    final headerBytes = await file
+        .openRead(0, defaultMagicNumbersMaxLength)
+        .first;
+    return lookupMimeType(file.path, headerBytes: headerBytes);
+  }
+
+  /// Return true if file mime type is video or audio.
+  static Future<bool> isMediaFile(File file) async {
+    final mimeType = await getFileMimeType(file);
+    if (mimeType == null) {
+      return false;
+    }
+    return mimeType.startsWith('video/') || mimeType.startsWith('audio/');
+  }
 }
 
 extension FileExtension on File {
