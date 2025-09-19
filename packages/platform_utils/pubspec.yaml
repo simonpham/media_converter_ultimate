@@ -13,7 +13,7 @@ dependencies:
   core:
     path: ../core
 
-  ffmpeg_kit_flutter_new: ^3.1.0-full-gpl
+  ffmpeg_kit_flutter_new: ^3.2.0-full-gpl
   flutter_local_notifications: ^19.4.1
   flutter_foreground_task: ^9.1.0
 
