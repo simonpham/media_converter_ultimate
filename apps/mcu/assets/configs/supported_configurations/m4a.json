@@ -1,0 +1,89 @@
+{
+  "m4a": [
+    {
+      "type": "single_choice",
+      "name": "configs.m4a.audio_encoder",
+      "label": "configs.common.audio_encoder",
+      "is_visible": true,
+      "should_add_to_args": false,
+      "default": "configs.m4a.audio_encoder.value.aac",
+      "options": [
+        {
+          "label": "ui_codec_description.aac",
+          "value": "configs.m4a.audio_encoder.value.aac"
+        },
+        {
+          "label": "ui_codec_description.alac",
+          "value": "configs.m4a.audio_encoder.value.alac"
+        }
+      ]
+    }
+  ],
+  "configs.m4a.audio_encoder.value.aac": [
+    {
+      "type": "single_choice",
+      "name": "configs.m4a.audio_encoder.aac",
+      "label": "configs.common.audio_encoder",
+      "is_visible": false,
+      "should_add_to_args": true,
+      "default": "-c:a aac",
+      "options": [
+        {
+          "label": "",
+          "value": "-c:a aac"
+        }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.m4a.bitrate",
+      "label": "configs.common.bitrate.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-b:a",
+      "default": "192k",
+      "options": [
+        {
+          "label": "configs.common.bitrate.320k",
+          "value": "320k"
+        },
+        {
+          "label": "configs.common.bitrate.256k",
+          "value": "256k"
+        },
+        {
+          "label": "configs.common.bitrate.224k",
+          "value": "224k"
+        },
+        {
+          "label": "configs.common.bitrate.192k",
+          "value": "192k"
+        },
+        {
+          "label": "configs.common.bitrate.128k",
+          "value": "128k"
+        },
+        { "label": "configs.common.bitrate.96k", "value": "96k" },
+        { "label": "configs.common.bitrate.80k", "value": "80k" },
+        { "label": "configs.common.bitrate.64k", "value": "64k" },
+        { "label": "configs.common.bitrate.48k", "value": "48k" },
+        { "label": "configs.common.bitrate.32k", "value": "32k" }
+      ]
+    }
+  ],
+  "configs.m4a.audio_encoder.value.alac": [
+    {
+      "type": "single_choice",
+      "name": "configs.m4a.audio_encoder.alac",
+      "label": "configs.common.audio_encoder",
+      "is_visible": false,
+      "should_add_to_args": true,
+      "default": "-c:a alac",
+      "options": [
+        {
+          "label": "",
+          "value": "-c:a alac"
+        }
+      ]
+    }
+  ]
+}
