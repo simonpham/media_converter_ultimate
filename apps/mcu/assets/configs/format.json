@@ -7,6 +7,12 @@
       "should_add_to_args": true
     },
     {
+      "name": "m4a",
+      "output_extension": "m4a",
+      "output_type": "audio",
+      "should_add_to_args": false
+    },
+    {
       "name": "aac",
       "output_extension": "aac",
       "output_type": "audio",
@@ -69,6 +75,7 @@
   ],
   "ui_gradients": {
     "mp3": ["#fc5c7d", "#6a82fb"],
+    "m4a": ["#73c8a9", "#373b44"],
     "aac": ["#11998e", "#38ef7d"],
     "flac": ["#74ebd5", "#ACB6E5"],
     "opus": ["#dce35b", "#45b649"],

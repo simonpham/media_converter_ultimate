@@ -97,6 +97,8 @@
   "configs.mp4.video_quality.12": "Qualità media (~60%)",
   "configs.mp4.video_quality.18": "Bassa qualità (~40%)",
   "configs.mp4.video_quality.26": "Bozza (~15%)",
+  "ui_codec_description.aac": "AAC (Advanced Audio Coding)",
+  "ui_codec_description.alac": "ALAC (Apple Lossless Audio Codec)",
   "ui_codec_description.libmp3lame": "Libmp3lame (Alta qualità)",
   "ui_codec_description.libshine": "Libshine (Alta velocità)",
   "ui_codec_description.pcm_alaw": "A-law PCM (telefonia, 8-bit con companding)",

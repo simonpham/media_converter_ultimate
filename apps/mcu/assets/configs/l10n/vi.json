@@ -97,6 +97,8 @@
   "configs.mp4.video_quality.12": "Chất lượng trung bình (~60%)",
   "configs.mp4.video_quality.18": "Chất lượng thấp (~40%)",
   "configs.mp4.video_quality.26": "Bản nháp (~15%)",
+  "ui_codec_description.aac": "AAC (Mã hóa âm thanh nâng cao)",
+  "ui_codec_description.alac": "ALAC (Bộ mã hóa âm thanh lossless của Apple)",
   "ui_codec_description.libmp3lame": "Libmp3lame (Chất lượng cao)",
   "ui_codec_description.libshine": "Libshine (Tốc độ cao)",
   "ui_codec_description.pcm_alaw": "A-law PCM (điện thoại, 8-bit nén)",
