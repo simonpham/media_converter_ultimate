@@ -53,7 +53,7 @@ class SettingsItem extends StatelessWidget {
                 color: context.theme.colorScheme.onSurface,
               )
             : switch (item.currentValue) {
-                bool value => CheckBox(
+                bool value => SwitchToggle(
                   value: value,
                   onChanged: (_) {
                     SettingsChild.go(context, item);
