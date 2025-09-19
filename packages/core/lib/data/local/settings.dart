@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 enum CoreSettings {
   language,
   appTheme,
+  lastKnownVersion,
 }
 
 class SettingsBox extends EasyBox {
@@ -21,6 +22,17 @@ class SettingsBox extends EasyBox {
 }
 
 extension LocalSettingsExt on SettingsBox {
+  String get lastKnownVersion {
+    final String savedVersion = get(
+      CoreSettings.lastKnownVersion,
+      defaultValue: '',
+    );
+    return savedVersion;
+  }
+
+  set lastKnownVersion(String value) =>
+      put(CoreSettings.lastKnownVersion, value);
+
   String get language {
     final String savedLanguage = get(
       CoreSettings.language,
