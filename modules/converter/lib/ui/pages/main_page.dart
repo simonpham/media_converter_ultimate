@@ -30,6 +30,7 @@ class _MainPageState extends State<MainPage> with AfterLayoutMixin {
   @override
   void afterFirstLayout(BuildContext context) {
     _jobManagerViewModel.restartPendingJobs();
+    ChangelogUtils.check(context);
   }
 
   @override

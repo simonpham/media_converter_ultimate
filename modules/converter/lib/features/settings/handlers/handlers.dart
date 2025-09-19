@@ -115,17 +115,7 @@ extension SettingsHandlers on SettingsPageItem {
   }
 
   Future<void> _handleViewChangelog(BuildContext context) async {
-    final content = await ContentUtils.load(
-      context,
-      name: 'changelog',
-    );
-    await ContentDialog.show(
-      context,
-      title: context.l10n.changelog,
-      content: content ?? '',
-      neutralText: context.l10n.ok,
-      useHtmlWidget: true,
-    );
+    return ChangelogUtils.showChangelogDialog(context);
   }
 
   Future<void> _handleKeepAppRunningToggle(BuildContext context) async {
