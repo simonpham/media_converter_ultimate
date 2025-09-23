@@ -1,40 +1,23 @@
 {
   "common_audio": [
     {
-      "type": "single_choice",
+      "type": "multi_choice",
       "name": "configs.common.recommended_args.hide_banner",
       "label": "configs.common.recommended_args.hide_banner",
       "is_visible": false,
       "should_add_to_args": true,
-      "default": "-hide_banner",
+      "default": "[\"-hide_banner\", \"-map '0:a?'\"]",
       "options": [
         {
           "label": "",
           "value": "-hide_banner"
+        },
+        {
+          "label": "configs.common.recommended_args.map_audio_optional",
+          "ffmpeg_arg": "-map '0:a?'"
         }
       ]
     },
-    {
-      "type": "multi_choice",
-      "name": "configs.common.audio.recommended_args",
-      "label": "configs.common.recommended_args.label",
-      "description": "configs.common.recommended_args.desc",
-      "should_add_to_args": true,
-      "ffmpeg_flag": null,
-      "default": "[\"-map_metadata 0:g\", \"-map 0:a\"]",
-      "options": [
-        {
-          "label": "configs.common.recommended_args.map_metadata",
-          "ffmpeg_arg": "-map_metadata 0:g"
-        },
-        {
-          "label": "configs.common.recommended_args.map_audio",
-          "ffmpeg_arg": "-map 0:a"
-        }
-      ]
-    }
-  ],
-  "-map 0:a": [
     {
       "type": "multi_choice",
       "name": "configs.common.trim_silence",
@@ -47,6 +30,21 @@
         {
           "label": "configs.common.trim_silence.silenceremove",
           "value": "-af silenceremove=start_periods=1:start_duration=0:start_threshold=-50dB:stop_periods=1:stop_duration=1:stop_threshold=-50dB"
+        }
+      ]
+    },
+    {
+      "type": "multi_choice",
+      "name": "configs.common.audio.recommended_args",
+      "label": "configs.common.recommended_args.label",
+      "description": "configs.common.recommended_args.desc",
+      "should_add_to_args": true,
+      "ffmpeg_flag": null,
+      "default": "[\"-map_metadata 0:g\"]",
+      "options": [
+        {
+          "label": "configs.common.recommended_args.map_metadata",
+          "ffmpeg_arg": "-map_metadata 0:g"
         }
       ]
     }
