@@ -12,21 +12,32 @@ export 'router.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await FileUtils.cleanTemporaryDirectory();
-  await FileUtils.getConvertTemporaryDirectory(null);
+  printLog('[main] Cleaning up temporary files...');
+  await catchAll(FileUtils.cleanTemporaryDirectory);
+  printLog('[main] Init new convert temporary folder...');
+  await catchAll(
+    () async => await FileUtils.getConvertTemporaryDirectory(null),
+  );
+
+  printLog('[main] Init ThemeConfigs...');
   await ThemeConfigs().init();
 
+  printLog('[main] Init Injector...');
   await injector.reset();
   await Injector.init();
   await ConverterInjector.init();
 
+  printLog('[main] Init Boxes...');
   await EasyBox.initialize(subDir: kDataFolderName);
   await SettingsBox().init();
 
   await LogData().init();
   await JobConfigurationData().init();
 
+  printLog('[main] Init FlutterForegroundTask...');
   FlutterForegroundTask.initCommunicationPort();
+
+  printLog('[main] Run app...');
   runApp(
     const MediaConverterUltimate(),
   );
