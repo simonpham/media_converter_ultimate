@@ -17,15 +17,19 @@ class ConfigTranslations {
   }) async {
     final Map<String, String?> translations = {};
 
-    final json = await DefaultAssetBundle.of(
-      context,
-    ).loadString('assets/configs/l10n/$locale.json');
+    try {
+      final json = await DefaultAssetBundle.of(
+        context,
+      ).loadString('assets/configs/l10n/$locale.json');
 
-    final Map<String, dynamic> jsonMap = jsonDecode(json);
-    for (final String key in jsonMap.keys) {
-      if (jsonMap[key] case String value) {
-        translations[key] = value;
+      final Map<String, dynamic> jsonMap = jsonDecode(json);
+      for (final String key in jsonMap.keys) {
+        if (jsonMap[key] case String value) {
+          translations[key] = value;
+        }
       }
+    } catch (err, trace) {
+      printError(err, trace);
     }
 
     return translations;

@@ -19,10 +19,16 @@ class JobMaker extends StatefulWidget {
       return const [];
     }
 
-    final Map<String, String?> translations = await ConfigTranslations.get(
-      context,
-      locale: SettingsBox().language,
-    );
+    final Map<String, String?> translations = {
+      ...await ConfigTranslations.get(
+        context,
+        locale: kDefaultLanguage,
+      ),
+      ...await ConfigTranslations.get(
+        context,
+        locale: SettingsBox().language,
+      ),
+    };
 
     SettingsBox().lastOutputDirectoryPath ??=
         await JobMakerPathUtils.getDefaultOutputDirectoryPath();
