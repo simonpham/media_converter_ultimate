@@ -87,6 +87,7 @@ class _JobNotificationWrapperState extends State<JobNotificationWrapper>
         JobNotificationServiceStartParams(
           notificationTitle: kAppName,
           notificationText: context.l10n.notificationChannelDescription,
+          iconBackgroundColor: context.theme.primaryColor,
         ),
       );
       return;
