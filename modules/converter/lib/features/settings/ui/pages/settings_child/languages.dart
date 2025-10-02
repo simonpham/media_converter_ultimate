@@ -11,68 +11,70 @@ class LanguagesSettingsChild extends SettingsChild {
   @override
   Widget builder(BuildContext context) {
     final languages = kSupportedLanguages.keys.toList();
-    return Column(
-      children:
-          List.generate(
-            languages.length,
-            (index) {
-              final lang = languages[index];
-              final icon = kSupportedLanguages[lang]?['icon'];
-              final isSelected = SettingsBox().language == lang;
-              return RoundCard(
-                margin: EdgeInsets.only(
-                  top: Spacing.d16,
-                  left: Spacing.d16,
-                  right: Spacing.d16,
-                ),
-                child: ListItem(
-                  leading: (icon != null)
-                      ? Padding(
-                          padding: EdgeInsets.only(
-                            right: Spacing.d4,
-                            top: Spacing.d8,
-                            bottom: Spacing.d8,
+    return CustomScrollView(
+      slivers: [
+        SliverList.separated(
+          itemCount: languages.length,
+          separatorBuilder: (_, _) => Spacing.v16,
+          itemBuilder: (BuildContext context, int index) {
+            final lang = languages[index];
+            final icon = kSupportedLanguages[lang]?['icon'];
+            final isSelected = SettingsBox().language == lang;
+            return RoundCard(
+              margin: EdgeInsets.only(
+                left: Spacing.d16,
+                right: Spacing.d16,
+              ),
+              child: ListItem(
+                leading: (icon != null)
+                    ? Padding(
+                        padding: EdgeInsets.only(
+                          right: Spacing.d4,
+                          top: Spacing.d8,
+                          bottom: Spacing.d8,
+                        ),
+                        child: ClipOval(
+                          child: ImageView(
+                            icon,
+                            size: Spacing.d24,
+                            fit: BoxFit.cover,
+                            assetPackage: null,
                           ),
-                          child: ClipOval(
-                            child: ImageView(
-                              icon,
-                              size: Spacing.d24,
-                              fit: BoxFit.cover,
-                              assetPackage: null,
-                            ),
-                          ),
-                        )
-                      : null,
-                  title: kSupportedLanguages[lang]?['title'] ?? '',
-                  trailing: isSelected
-                      ? ImageView(
-                          Assets.tick02,
-                          color: context.theme.primaryColor,
-                          size: Spacing.d24,
-                        )
-                      : const SizedBox(),
-                  onTap: isSelected
-                      ? null
-                      : () async {
-                          SettingsBox().language = lang;
-                          await Future.delayed(
-                            const Duration(milliseconds: 100),
-                            () {
-                              context.toastSuccess(
-                                context.l10n.changedLanguageTo(
-                                  '${kSupportedLanguages[lang]?['title']}',
-                                ),
-                              );
-                            },
-                          );
-                          context.navigator.pop();
-                        },
-                ),
-              );
-            },
-          )..add(
-            Padding(
-              padding: EdgeInsets.only(top: Spacing.d24),
+                        ),
+                      )
+                    : null,
+                title: kSupportedLanguages[lang]?['title'] ?? '',
+                trailing: isSelected
+                    ? ImageView(
+                        Assets.tick02,
+                        color: context.theme.primaryColor,
+                        size: Spacing.d24,
+                      )
+                    : const SizedBox(),
+                onTap: isSelected
+                    ? null
+                    : () async {
+                        SettingsBox().language = lang;
+                        await Future.delayed(
+                          const Duration(milliseconds: 100),
+                          () {
+                            context.toastSuccess(
+                              context.l10n.changedLanguageTo(
+                                '${kSupportedLanguages[lang]?['title']}',
+                              ),
+                            );
+                          },
+                        );
+                        context.navigator.pop();
+                      },
+              ),
+            );
+          },
+        ),
+        SliverPadding(
+          padding: EdgeInsets.only(top: Spacing.d24),
+          sliver: SliverToBoxAdapter(
+            child: Center(
               child: Text.rich(
                 TextSpan(
                   text: 'Don\'t see your language? ',
@@ -103,6 +105,11 @@ class LanguagesSettingsChild extends SettingsChild {
               ),
             ),
           ),
+        ),
+        const SliverToBoxAdapter(
+          child: BottomSpacer(),
+        ),
+      ],
     );
   }
 }
