@@ -1,4 +1,6 @@
+import 'package:converter/converter.dart';
 import 'package:core/utils/utils.dart';
+import 'package:flutter/widgets.dart';
 import 'package:platform_utils/platform_utils.dart';
 
 const kJobNotificationServiceId = 999;
@@ -17,10 +19,12 @@ class JobNotificationServiceInitParams {
 class JobNotificationServiceStartParams {
   final String notificationTitle;
   final String notificationText;
+  final Color iconBackgroundColor;
 
   const JobNotificationServiceStartParams({
     required this.notificationTitle,
     required this.notificationText,
+    required this.iconBackgroundColor,
   });
 }
 
@@ -115,6 +119,10 @@ class JobNotificationServiceImpl implements JobNotificationService {
       serviceId: kJobNotificationServiceId,
       notificationTitle: params.notificationTitle,
       notificationText: params.notificationText,
+      notificationIcon: NotificationIcon(
+        metaDataName: 'io.sofluffy.mcu.NOTIFICATION_ICON',
+        backgroundColor: params.iconBackgroundColor,
+      ),
       serviceTypes: [
         ForegroundServiceTypes.mediaProcessing,
       ],
