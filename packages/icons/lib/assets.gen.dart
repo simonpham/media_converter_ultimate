@@ -36,6 +36,8 @@ class Assets {
   static const String globe = 'assets/globe.svg';
   static const String helpCircle = 'assets/help-circle.svg';
   static const String image01 = 'assets/image-01.svg';
+  static const String layers01StrokeRounded =
+      'assets/layers-01-stroke-rounded.svg';
   static const String layersLogoStrokeRounded =
       'assets/layers-logo-stroke-rounded.svg';
   static const String legalDocument01 = 'assets/legal-document-01.svg';
@@ -80,6 +82,7 @@ class Assets {
     globe,
     helpCircle,
     image01,
+    layers01StrokeRounded,
     layersLogoStrokeRounded,
     legalDocument01,
     message01,
