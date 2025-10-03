@@ -48,7 +48,7 @@ class SettingsPage extends StatelessWidget {
                 },
               ),
             ],
-            Spacing.vertical(Spacing.d12 * 20),
+            const BottomSpacer(),
           ],
         ),
       ),
