@@ -22,6 +22,12 @@ enum SettingsPageItem {
       JobRunnerSettings.concurrencyLimit,
     ],
   ),
+  threadCount(
+    routeName: 'thread-count',
+    settingsKeys: [
+      JobRunnerSettings.threadCount,
+    ],
+  ),
   keepAppRunning(
     settingsKeys: [
       JobRunnerSettings.keepAppRunning,
@@ -70,6 +76,7 @@ enum SettingsPageItem {
           defaultOutputFolder,
           defaultOutputFormat,
           concurrencyLimit,
+          threadCount,
           keepAppRunning,
           excludeFileExtensions,
           languages,
@@ -88,6 +95,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
     SettingsPageItem.defaultOutputFormat => null,
     SettingsPageItem.overwriteBehavior => null,
     SettingsPageItem.concurrencyLimit => null,
+    SettingsPageItem.threadCount => null,
     SettingsPageItem.keepAppRunning => SettingsBox().keepAppRunning,
     SettingsPageItem.excludeFileExtensions => null,
     SettingsPageItem.languages => null,
@@ -110,6 +118,8 @@ extension SettingsPageItemExtensions on SettingsPageItem {
         (_, _) => const DefaultOutputFormatSettingsChild(),
       SettingsPageItem.overwriteBehavior => null,
       SettingsPageItem.concurrencyLimit => null,
+      SettingsPageItem.threadCount =>
+        (_, _) => const ThreadCountSettingsChild(),
       SettingsPageItem.keepAppRunning => null,
       SettingsPageItem.excludeFileExtensions =>
         (_, _) => const ExcludeFileExtensionsSettingsChild(),
@@ -136,6 +146,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
       SettingsPageItem.overwriteBehavior =>
         context.l10n.conversionOverwriteBehavior,
       SettingsPageItem.concurrencyLimit => context.l10n.concurrencyLimit,
+      SettingsPageItem.threadCount => context.l10n.threadCountTitle,
       SettingsPageItem.keepAppRunning => context.l10n.keepAppRunning,
       SettingsPageItem.excludeFileExtensions =>
         context.l10n.excludeFileExtensions,
@@ -168,6 +179,12 @@ extension SettingsPageItemExtensions on SettingsPageItem {
         context.l10n.concurrencyLimitDescription(
           '${SettingsBox().concurrencyLimit}',
         ),
+      SettingsPageItem.threadCount => context.l10n.threadCountSubtitle(
+        ThreadCountSettingsChild.getValueLabel(
+          context,
+          SettingsBox().threadCount,
+        ),
+      ),
       SettingsPageItem.keepAppRunning => switch (SettingsBox().keepAppRunning) {
         true => context.l10n.keepAppRunningOnDescription,
         false => context.l10n.keepAppRunningOffDescription,
@@ -199,6 +216,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
       SettingsPageItem.defaultOutputFormat => Assets.fileExport,
       SettingsPageItem.overwriteBehavior => Assets.deleteThrow,
       SettingsPageItem.concurrencyLimit => Assets.layersLogoStrokeRounded,
+      SettingsPageItem.threadCount => Assets.layers01StrokeRounded,
       SettingsPageItem.keepAppRunning => Assets.flash,
       SettingsPageItem.excludeFileExtensions => Assets.fileBlock,
       SettingsPageItem.languages => Assets.globe,

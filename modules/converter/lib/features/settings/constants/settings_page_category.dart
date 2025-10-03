@@ -10,6 +10,7 @@ enum SettingsCategory {
       SettingsPageItem.defaultOutputFormat,
       SettingsPageItem.overwriteBehavior,
       SettingsPageItem.concurrencyLimit,
+      SettingsPageItem.threadCount,
       SettingsPageItem.keepAppRunning,
       SettingsPageItem.excludeFileExtensions,
     ],

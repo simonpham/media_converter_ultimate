@@ -20,6 +20,8 @@ extension SettingsHandlers on SettingsPageItem {
         throw UnimplementedError();
       case SettingsPageItem.concurrencyLimit:
         _handleConcurrencyLimit(context);
+      case SettingsPageItem.threadCount:
+        break;
       case SettingsPageItem.keepAppRunning:
         _handleKeepAppRunningToggle(context);
         break;
