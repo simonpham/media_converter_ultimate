@@ -30,6 +30,10 @@ const kSupportedLanguages = {
     'icon': 'assets/svg/flags/tr.svg',
     'title': 'Türkçe',
   },
+  'pt': {
+    'icon': 'assets/svg/flags/pt.svg',
+    'title': 'Português',
+  },
   'vi': {
     'icon': 'assets/svg/flags/vn.svg',
     'title': 'Tiếng Việt',
