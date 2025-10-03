@@ -12,6 +12,7 @@ class CommandBuilder {
     required List<ConfigControl> availableControls,
     required Map<String, String> selectedValues,
     required String outputFilePath,
+    required int threadCount,
   }) {
     final args = <String>[];
 
@@ -47,6 +48,10 @@ class CommandBuilder {
       '"$inputFilePath"',
       ...args,
       if (formatEntry.shouldAddToArgs) '-f ${formatEntry.name}',
+      ?switch (threadCount) {
+        final int count when count > 0 => '-threads $threadCount',
+        _ => null,
+      },
       '"$outputFilePath"',
     ];
   }
@@ -58,12 +63,14 @@ class CommandBuilder {
     required Map<String, String> selectedValues,
     required String outputFilePath,
     required List<ConfigControl> availableControls,
+    required int threadCount,
   }) {
     final args = buildArgs(
       inputFilePath: inputFilePath,
       formatEntry: formatEntry,
       selectedValues: selectedValues,
       availableControls: availableControls,
+      threadCount: threadCount,
       outputFilePath: outputFilePath,
     );
     return args.join(' ');
