@@ -1,4 +1,3 @@
-import 'package:converter/converter.dart';
 import 'package:core/utils/utils.dart';
 import 'package:flutter/widgets.dart';
 import 'package:platform_utils/platform_utils.dart';
