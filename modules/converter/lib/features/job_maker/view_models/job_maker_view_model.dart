@@ -298,6 +298,7 @@ class JobMakerViewModel extends ChangeNotifier {
         selectedValues: selectedValues,
         availableControls: availableControls,
         outputFilePath: outputFilePath,
+        threadCount: SettingsBox().threadCount,
       );
 
       final now = DateTime.now();
