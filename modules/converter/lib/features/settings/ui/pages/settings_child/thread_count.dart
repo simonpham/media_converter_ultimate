@@ -173,22 +173,36 @@ class ThreadCountSettingsChild extends SettingsChild {
             ],
           ),
         ),
-        BottomContainer(
-          scrollController: scrollController,
-          child: Button(
-            variant: ButtonVariant.primary,
-            onPressed: () {
-              final newValue = threadCountNotifier.value;
-              SettingsBox().threadCount = newValue;
-              context.toastSuccess(
-                context.l10n.threadCountSetTo(
-                  getValueLabel(context, newValue),
+        ValueListenableBuilder<int>(
+          valueListenable: threadCountNotifier,
+          builder: (context, threadCount, _) {
+            final isVisible = threadCount != SettingsBox().threadCount;
+            return AnimatedSize(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+              alignment: Alignment.bottomCenter,
+              child: switch (isVisible) {
+                true => BottomContainer(
+                  scrollController: scrollController,
+                  child: Button(
+                    variant: ButtonVariant.primary,
+                    onPressed: () {
+                      final newValue = threadCountNotifier.value;
+                      SettingsBox().threadCount = newValue;
+                      context.toastSuccess(
+                        context.l10n.threadCountSetTo(
+                          getValueLabel(context, newValue),
+                        ),
+                      );
+                      context.router.pop();
+                    },
+                    label: context.l10n.save,
+                  ),
                 ),
-              );
-              context.router.pop();
-            },
-            label: context.l10n.save,
-          ),
+                false => const SizedBox(width: double.infinity),
+              },
+            );
+          },
         ),
       ],
     );
