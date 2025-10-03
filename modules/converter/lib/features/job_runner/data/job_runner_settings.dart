@@ -3,6 +3,7 @@ import 'package:core/core.dart';
 enum JobRunnerSettings {
   keepAppRunning,
   concurrencyLimit,
+  threadCount,
 }
 
 extension JobRunnerSettingsExt on SettingsBox {
@@ -23,6 +24,16 @@ extension JobRunnerSettingsExt on SettingsBox {
 
   set concurrencyLimit(int value) => put(
     JobRunnerSettings.concurrencyLimit,
+    value,
+  );
+
+  int get threadCount => get(
+    JobRunnerSettings.threadCount,
+    defaultValue: 0,
+  );
+
+  set threadCount(int value) => put(
+    JobRunnerSettings.threadCount,
     value,
   );
 }
