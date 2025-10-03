@@ -8,9 +8,9 @@ enum SettingsCategory {
     items: [
       SettingsPageItem.defaultOutputFolder,
       SettingsPageItem.defaultOutputFormat,
-      SettingsPageItem.overwriteBehavior,
-      SettingsPageItem.concurrencyLimit,
       SettingsPageItem.threadCount,
+      SettingsPageItem.concurrencyLimit,
+      SettingsPageItem.overwriteBehavior,
       SettingsPageItem.keepAppRunning,
       SettingsPageItem.excludeFileExtensions,
     ],
