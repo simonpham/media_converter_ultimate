@@ -168,7 +168,7 @@ class ThreadCountSettingsChild extends SettingsChild {
                 ),
               ),
               const SliverToBoxAdapter(
-                child: BottomSpacer(),
+                child: BottomEmptyArea(),
               ),
             ],
           ),
