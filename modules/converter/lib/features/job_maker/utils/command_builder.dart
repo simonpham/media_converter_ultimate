@@ -46,6 +46,7 @@ class CommandBuilder {
     return [
       '-i',
       '"$inputFilePath"',
+      '-hide_banner',
       ...args,
       if (formatEntry.shouldAddToArgs) '-f ${formatEntry.name}',
       ?switch (threadCount) {

@@ -1,20 +1,6 @@
 {
   "common_video": [
     {
-      "type": "single_choice",
-      "name": "configs.common.recommended_args.hide_banner",
-      "label": "configs.common.recommended_args.hide_banner",
-      "is_visible": false,
-      "should_add_to_args": true,
-      "default": "-hide_banner",
-      "options": [
-        {
-          "label": "",
-          "value": "-hide_banner"
-        }
-      ]
-    },
-    {
       "type": "multi_choice",
       "name": "configs.common.video.recommended_args",
       "label": "configs.common.recommended_args.label",

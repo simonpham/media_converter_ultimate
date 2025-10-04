@@ -6,12 +6,8 @@
       "label": "configs.common.recommended_args.hide_banner",
       "is_visible": false,
       "should_add_to_args": true,
-      "default": "[\"-hide_banner\", \"-map '0:a?'\"]",
+      "default": "[\"-map '0:a?'\"]",
       "options": [
-        {
-          "label": "",
-          "value": "-hide_banner"
-        },
         {
           "label": "configs.common.recommended_args.map_audio_optional",
           "ffmpeg_arg": "-map '0:a?'"
