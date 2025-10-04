@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="icon_bg">#ff141718</color>
+    <color name="icon_fg">#ff673AB7</color>
+    <color name="icon_fg_inner">#ff673AB7</color>
+    <color name="icon_fg_inner_fill">#ffCE96FF</color>
 </resources>
