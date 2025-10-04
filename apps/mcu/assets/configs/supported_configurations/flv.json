@@ -1,0 +1,57 @@
+{
+  "flv": [
+    {
+      "type": "single_choice",
+      "name": "configs.flv.mapping",
+      "label": "",
+      "is_visible": false,
+      "should_add_to_args": true,
+      "default": "[\"-map 0:v:0\", \"-map 0:a:0\"]",
+      "options": [
+        {
+          "label": "",
+          "value": "[\"-map 0:v:0\", \"-map 0:a:0\"]"
+        }
+      ]
+    },
+    {
+      "type": "single_choice",
+      "name": "configs.flv.video_encoder",
+      "label": "configs.common.video_encoder",
+      "is_visible": true,
+      "should_add_to_args": true,
+      "default": "-c:v libx264",
+      "options": [
+        {
+          "label": "ui_codec_description.libx264",
+          "value": "-c:v libx264"
+        },
+        {
+          "label": "ui_codec_description.flv",
+          "value": "-c:v flv"
+        }
+      ]
+    }
+  ],
+  "-c:v libx264": [
+    {
+      "type": "dropdown",
+      "name": "configs.flv.video_preset",
+      "label": "configs.common.preset.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-preset",
+      "default": "medium",
+      "options": [
+        { "label": "configs.mp4.video_preset.ultrafast", "value": "ultrafast" },
+        { "label": "configs.mp4.video_preset.superfast", "value": "superfast" },
+        { "label": "configs.mp4.video_preset.veryfast", "value": "veryfast" },
+        { "label": "configs.mp4.video_preset.faster", "value": "faster" },
+        { "label": "configs.mp4.video_preset.fast", "value": "fast" },
+        { "label": "configs.mp4.video_preset.medium", "value": "medium" },
+        { "label": "configs.mp4.video_preset.slow", "value": "slow" },
+        { "label": "configs.mp4.video_preset.slower", "value": "slower" },
+        { "label": "configs.mp4.video_preset.veryslow", "value": "veryslow" }
+      ]
+    }
+  ]
+}

@@ -110,6 +110,7 @@
   "configs.opus.compression_level.9": "9",
   "ui_codec_description.aac": "AAC (Mã hóa âm thanh nâng cao)",
   "ui_codec_description.alac": "ALAC (Bộ mã hóa âm thanh lossless của Apple)",
+  "ui_codec_description.flv": "FLV (Video Flash)",
   "ui_codec_description.libmp3lame": "Libmp3lame (Chất lượng cao)",
   "ui_codec_description.libshine": "Libshine (Tốc độ cao)",
   "ui_codec_description.libvpx": "libvpx (HD)",
