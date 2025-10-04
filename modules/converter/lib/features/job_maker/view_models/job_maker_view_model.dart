@@ -458,11 +458,15 @@ class JobMakerViewModel extends ChangeNotifier {
       } catch (_) {}
       selectedKeys.add(value);
     }
+
+    final shouldAddCommonConfigs = !kSingleStreamFormats.contains(
+      selectedFormat.name,
+    );
     final List<String> keys = [
       selectedFormat.name,
       ?switch (selectedFormat.outputType) {
-        OutputType.audio => kCommonAudioKey,
-        OutputType.video => kCommonVideoKey,
+        OutputType.audio when shouldAddCommonConfigs => kCommonAudioKey,
+        OutputType.video when shouldAddCommonConfigs => kCommonVideoKey,
         _ => null,
       },
     ];
