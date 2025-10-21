@@ -126,7 +126,7 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                                 outputDirectoryName ??
                                 context.l10n.selectFolder,
                             labelTextAlign: TextAlign.start,
-                            expandTitle: true,
+                            titleExpand: ButtonTitleExpand.expand,
                             trailingIcon: !isFolderSelected
                                 ? null
                                 : Text(
