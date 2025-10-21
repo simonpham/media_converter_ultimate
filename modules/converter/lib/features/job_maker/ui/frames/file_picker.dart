@@ -160,39 +160,34 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                       padding: EdgeInsets.symmetric(
                         horizontal: Spacing.d16,
                       ),
-                      sliver: ReorderableSliverList(
-                        controller: _scrollController,
-                        buildDraggableFeedback: (context, constraints, child) {
-                          return ConstrainedBox(
-                            constraints: constraints,
-                            child: child,
-                          );
-                        },
-                        delegate: ReorderableSliverChildBuilderDelegate(
+                      sliver: SliverReorderableList(
+                        itemCount: files.length,
+                        itemBuilder:
                           (context, index) {
                             final file = files.elementAt(index);
-                            return Padding(
+                            return ReorderableDragStartListener(
                               key: ValueKey(file.path),
-                              padding: EdgeInsets.symmetric(
-                                vertical: Spacing.d4,
-                              ),
-                              child: FileItem(
-                                file,
-                                leading: ImageView(
-                                  Assets.verticalDragDrop,
-                                  size: Spacing.d20,
-                                  color: context.theme.colorScheme.onSurface,
+                              index: index,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: Spacing.d4,
                                 ),
-                                onRemove: () {
-                                  context.read<JobMakerViewModel>().removeFile(
-                                    file,
-                                  );
-                                },
+                                child: FileItem(
+                                  file,
+                                  leading: ImageView(
+                                    Assets.verticalDragDrop,
+                                    size: Spacing.d20,
+                                    color: context.theme.colorScheme.onSurface,
+                                  ),
+                                  onRemove: () {
+                                    context.read<JobMakerViewModel>().removeFile(
+                                      file,
+                                    );
+                                  },
+                                ),
                               ),
                             );
                           },
-                          childCount: files.length,
-                        ),
                         onReorder: (int oldIndex, int newIndex) {
                           context.read<JobMakerViewModel>().reorderFile(
                             oldIndex,
