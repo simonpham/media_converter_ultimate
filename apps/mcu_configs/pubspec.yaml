@@ -1,0 +1,15 @@
+name: mcu_configs
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  json_schema: ^5.2.2
+
+dev_dependencies:
+  lints:
+
+executables:
+  # Makes the package runnable via `dart run mcu_configs`
+  # Maps the executable name `mcu_configs` to `bin/mcu_configs.dart`.
+  mcu_configs: mcu_configs

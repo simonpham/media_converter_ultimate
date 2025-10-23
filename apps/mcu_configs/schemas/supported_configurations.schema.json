@@ -1,0 +1,144 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schemas/supported_configurations.schema.json",
+  "title": "Supported Configurations - per-format UI config",
+  "description": "Schema for files under apps/mcu/assets/configs/supported_configurations/*.json.\nEach top-level key is a format identifier or a conditional trigger key. Each key's value is an array of configuration objects.",
+  "type": "object",
+  "additionalProperties": {
+    "type": "array",
+    "items": {
+      "$ref": "#/definitions/configObject"
+    }
+  },
+  "definitions": {
+    "configObject": {
+      "type": "object",
+      "description": "A UI control / option-group definition.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Widget type, e.g. 'dropdown', 'single_choice', 'multi_choice', 'radio_group', etc."
+        },
+        "name": {
+          "type": "string",
+          "description": "Internal unique key / translation key used as the identifier for this control."
+        },
+        "label": {
+          "type": "string",
+          "description": "Translation key for the control label (user-facing). May be empty."
+        },
+        "description": {
+          "type": "string",
+          "description": "Translation key for help text / description."
+        },
+        "is_visible": {
+          "type": "boolean",
+          "description": "UI hint whether control is shown by default."
+        },
+        "should_add_to_args": {
+          "type": "boolean",
+          "description": "Whether the selected value(s) for this control should be emitted into ffmpeg args."
+        },
+        "ffmpeg_flag": {
+          "anyOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ],
+          "description": "A flag to prefix option values with (e.g. '-b:a'). If null, options must provide full args via 'ffmpeg_arg' or full-valued 'value'."
+        },
+        "default": {
+          "description": "Default selection. For single selection this is a string. For multi_choice it may be a JSON-stringified array or an actual array.",
+          "anyOf": [
+            { "type": "string" },
+            {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            { "type": "null" }
+          ]
+        },
+        "options": {
+          "type": "array",
+          "description": "List of selectable options (not required for all control types, but commonly present).",
+          "items": { "$ref": "#/definitions/optionObject" }
+        }
+      },
+      "required": ["type", "name"],
+      "additionalProperties": true,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": { "enum": ["dropdown", "single_choice", "radio_group", "multi_choice"] }
+            }
+          },
+          "then": {
+            "properties": {
+              "options": { "type": "array", "minItems": 1 }
+            },
+            "required": ["options"]
+          }
+        }
+      ]
+    },
+    "optionObject": {
+      "type": "object",
+      "description": "An option for a choice-style control.",
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Translation key for the option label. May be empty for hidden/internal options."
+        },
+        "value": {
+          "type": "string",
+          "description": "A value that either combines with parent's ffmpeg_flag or represents a full ffmpeg arg or a trigger key (matching a top-level key)."
+        },
+        "ffmpeg_arg": {
+          "type": "string",
+          "description": "When present, this full string is emitted into ffmpeg args directly (used when parent.ffmpeg_flag is null or option needs to provide full argument)."
+        },
+        "description": {
+          "type": "string",
+          "description": "Translation key for option-specific help text."
+        }
+      },
+      "additionalProperties": true,
+      "anyOf": [
+        { "required": ["value"] },
+        { "required": ["ffmpeg_arg"] }
+      ]
+    }
+  },
+  "examples": [
+    {
+      "mp3": [
+        {
+          "type": "dropdown",
+          "name": "configs.mp3.audio_encoder",
+          "label": "configs.common.audio_encoder",
+          "should_add_to_args": true,
+          "ffmpeg_flag": "-c:a",
+          "default": "libmp3lame",
+          "options": [
+            { "label": "ui_codec_description.libmp3lame", "value": "libmp3lame" },
+            { "label": "ui_codec_description.libshine", "value": "libshine" }
+          ]
+        }
+      ],
+      "configs.mp3.bitrate_type.cbr.value": [
+        {
+          "type": "dropdown",
+          "name": "configs.mp3.bitrate",
+          "label": "configs.common.bitrate.label",
+          "should_add_to_args": true,
+          "ffmpeg_flag": "-b:a",
+          "default": "192k",
+          "options": [
+            { "label": "configs.common.bitrate.320k", "value": "320k" },
+            { "label": "configs.common.bitrate.192k", "value": "192k" }
+          ]
+        }
+      ]
+    }
+  ]
+}

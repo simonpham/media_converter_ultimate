@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schemas/format.schema.json",
+  "title": "Format registry schema",
+  "description": "Schema for apps/mcu/assets/configs/format.json. Validates the list of supported formats and UI gradient mapping.",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "array",
+      "description": "Array of supported output formats and their metadata.",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "output_extension",
+          "output_type",
+          "should_add_to_args"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Format identifier (matches supported_configurations filename without extension)."
+          },
+          "output_extension": {
+            "type": "string",
+            "description": "File extension to use for exports (without dot)."
+          },
+          "output_type": {
+            "type": "string",
+            "description": "Logical type of the format.",
+            "enum": [
+              "audio",
+              "video"
+            ]
+          },
+          "should_add_to_args": {
+            "type": "boolean",
+            "description": "Whether the UI/wrapper should add a format-specific argument by default."
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "ui_gradients": {
+      "type": "object",
+      "description": "Mapping of format name -> array of two hex color strings used for UI theming.",
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "string",
+          "pattern": "^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$"
+        }
+      }
+    }
+  },
+  "required": [
+    "format",
+    "ui_gradients"
+  ],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "format": [
+        {
+          "name": "mp3",
+          "output_extension": "mp3",
+          "output_type": "audio",
+          "should_add_to_args": true
+        },
+        {
+          "name": "mp4",
+          "output_extension": "mp4",
+          "output_type": "video",
+          "should_add_to_args": true
+        }
+      ],
+      "ui_gradients": {
+        "mp3": [
+          "#fc5c7d",
+          "#6a82fb"
+        ],
+        "mp4": [
+          "#2980b9",
+          "#2c3e50"
+        ]
+      }
+    }
+  ]
+}
