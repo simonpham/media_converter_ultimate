@@ -23,4 +23,5 @@ export 'package:universal_io/io.dart';
 export 'package:url_launcher/url_launcher.dart';
 
 export 'constants/constants.dart';
+export 'services/services.dart';
 export 'utils/utils.dart';

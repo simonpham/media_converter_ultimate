@@ -8,6 +8,8 @@ import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
 
 class JobManagerViewModel extends ChangeNotifier {
+  FileService get _fileService => injector<FileService>();
+
   JobRunnerService get _jobRunnerService => injector<JobRunnerService>();
 
   ConvertJobStorage get _jobStorage => ConvertJobStorage.getInstance();
@@ -86,7 +88,7 @@ class JobManagerViewModel extends ChangeNotifier {
       final (
         newPath,
         copyFailure,
-      ) = await FileUtils.copyTempOutputFileToConverted(
+      ) = await _fileService.copyTempOutputFileToConverted(
         jobId: job.id,
         convertedFilePath: job.convertedFilePath,
       );
@@ -115,7 +117,8 @@ class JobManagerViewModel extends ChangeNotifier {
         status: const Some(JobStatus.completed),
       ),
     );
-    await FileUtils.cleanUpInputFile(jobId: updatedJob.id);
+    await injector<FileService>().cleanUpInputFile(jobId: updatedJob.id);
+    await _fileService.cleanUpInputFile(jobId: updatedJob.id);
     SettingsBox().successConversionCount++;
     printLog(
       '[AdsSettings] successConversionCount increased: ${SettingsBox().successConversionCount}',
@@ -128,7 +131,7 @@ class JobManagerViewModel extends ChangeNotifier {
       return;
     }
 
-    await FileUtils.prepareConvertTempFolder(jobId: job.id);
+    await injector<FileService>().prepareConvertTempFolder(jobId: job.id);
   }
 
   void _handleLogUpdate(JobLog event) {
@@ -156,7 +159,7 @@ class JobManagerViewModel extends ChangeNotifier {
     }
 
     // Move completed job to output directory.
-    final failure = await FileUtils.moveConvertedFileToPath(
+    final failure = await _fileService.moveConvertedFileToPath(
       convertedFilePath: job.convertedFilePath,
       outputFileName: job.outputFileName,
       outputFilePath: job.outputDirectoryPath,
@@ -219,8 +222,8 @@ class JobManagerViewModel extends ChangeNotifier {
     job.clearLog();
     await _jobStorage.delete(jobId);
 
-    await FileUtils.cleanUpInputFile(jobId: jobId);
-    await FileUtils.deleteFileAtPath(convertedFilePath);
+    await _fileService.cleanUpInputFile(jobId: jobId);
+    await _fileService.deleteFileAtPath(convertedFilePath);
     return null;
   }
 

@@ -12,13 +12,6 @@ export 'router.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  printLog('[main] Cleaning up temporary files...');
-  await catchAll(FileUtils.cleanTemporaryDirectory);
-  printLog('[main] Init new convert temporary folder...');
-  await catchAll(
-    () async => await FileUtils.getConvertTemporaryDirectory(null),
-  );
-
   printLog('[main] Init ThemeConfigs...');
   await ThemeConfigs().init();
 
@@ -26,6 +19,7 @@ Future<void> main() async {
   await injector.reset();
   await Injector.init();
   await ConverterInjector.init();
+  await ConverterInjector.runPostInit();
 
   printLog('[main] Init Boxes...');
   await EasyBox.initialize(subDir: kDataFolderName);

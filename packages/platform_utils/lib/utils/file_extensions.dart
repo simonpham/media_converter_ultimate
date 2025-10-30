@@ -13,4 +13,21 @@ extension FileExtensions on File {
     }
     return ext;
   }
+
+  Future<void> share() async {
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(path)],
+      ),
+    );
+  }
+}
+
+extension DirectoryExtension on Directory {
+  Future<Directory> createIfNotExists() async {
+    if (!await exists()) {
+      await create(recursive: true);
+    }
+    return this;
+  }
 }

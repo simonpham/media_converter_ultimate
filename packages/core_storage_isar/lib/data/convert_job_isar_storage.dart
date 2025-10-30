@@ -8,7 +8,7 @@ import 'package:utils/utils.dart';
 
 class ConvertJobIsarStorage extends ConvertJobStorage {
   static Future<Isar> createIsarInstance() async {
-    final dataFolder = await FileUtils.getAppDataDirectory();
+    final dataFolder = await injector<FileService>().getAppDataDirectory();
     return await Isar.open(
       [IsarConvertJobSchema],
       directory: dataFolder.path,

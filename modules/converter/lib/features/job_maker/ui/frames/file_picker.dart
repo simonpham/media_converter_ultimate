@@ -232,7 +232,7 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
   }
 
   Future<void> _handleChooseFilesPressed(BuildContext context) async {
-    final files = await FileUtils.chooseFiles(context);
+    final files = await injector<FileService>().chooseFiles(context);
     if (files.isEmpty) {
       return;
     }
