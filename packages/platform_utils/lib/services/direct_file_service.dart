@@ -1,15 +1,16 @@
 import 'package:core/core.dart';
-import 'package:flutter/widgets.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:platform_utils/platform_utils.dart';
 
-class FileUtils {
-  static Future<bool> isFileExist(String path) async {
-    return await File(path).exists();
+class DirectFileService implements FileService {
+  @override
+  Future<bool> isFileExist(String filePath) async {
+    return await File(filePath).exists();
   }
 
-  static Future<List<File>> chooseFiles(BuildContext context) async {
+  @override
+  Future<List<File>> chooseFiles(dynamic context) async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.any,
@@ -24,11 +25,11 @@ class FileUtils {
       return files
           .map(
             (file) {
-              final path = file.path;
-              if (path == null || path.isEmpty) {
+              final filePath = file.path;
+              if (filePath == null || filePath.isEmpty) {
                 return null;
               }
-              return File(path);
+              return File(filePath);
             },
           )
           .nonNulls
@@ -40,35 +41,36 @@ class FileUtils {
     }
   }
 
-  /// Return folder path.
-  static Future<(String?, Failure?)> chooseSavePath(
-    BuildContext context, {
+  @override
+  Future<(String?, Failure?)> chooseSavePath(
+    dynamic context, {
     String? initialPath,
   }) async {
     try {
-      final path = await FilePicker.platform.getDirectoryPath(
+      final folderPath = await FilePicker.platform.getDirectoryPath(
         initialDirectory: initialPath,
       );
-      if (path == null || path.isEmpty) {
+      if (folderPath == null || folderPath.isEmpty) {
         return (null, null);
       }
 
-      final dir = Directory(path);
-      await dir.createIfNotExists();
+      final dir = Directory(folderPath);
+      await createIfNotExists(dir);
 
       final isWritable = await isDirectoryWritable(dir);
       if (!isWritable) {
-        return (null, DirectoryNotWritableFailure(path));
+        return (null, DirectoryNotWritableFailure(folderPath));
       }
 
-      return (path, null);
+      return (folderPath, null);
     } catch (err, trace) {
       printError(err, trace);
       return (null, null);
     }
   }
 
-  static Future<Failure?> moveConvertedFileToPath({
+  @override
+  Future<Failure?> moveConvertedFileToPath({
     required String convertedFilePath,
     required String outputFileName,
     required String outputFilePath,
@@ -80,9 +82,9 @@ class FileUtils {
       }
 
       final dir = Directory(outputFilePath);
-      await dir.createIfNotExists();
+      await createIfNotExists(dir);
 
-      final outputPath = join(dir.path, outputFileName);
+      final outputPath = path.join(dir.path, outputFileName);
       if (await File(outputPath).exists()) {
         return OutputFileAlreadyExistsFailure(outputPath);
       }
@@ -96,19 +98,20 @@ class FileUtils {
     }
   }
 
-  static Future<(String?, Failure?)> copyTempOutputFileToConverted({
+  @override
+  Future<(String?, Failure?)> copyTempOutputFileToConverted({
     required String jobId,
     required String convertedFilePath,
   }) async {
     try {
-      final fileName = basename(convertedFilePath);
+      final fileName = path.basename(convertedFilePath);
       final inputFile = File(convertedFilePath);
       if (!await inputFile.exists()) {
         return (null, InputFileNotExistFailure(convertedFilePath));
       }
-      final convertedFolder = await FileUtils.getConvertedDirectory(jobId);
+      final convertedFolder = await getConvertedDirectory(jobId);
       final outputFile = File(
-        join(convertedFolder.path, fileName),
+        path.join(convertedFolder.path, fileName),
       );
       await inputFile.copy(outputFile.path);
       return (outputFile.path, null);
@@ -118,29 +121,28 @@ class FileUtils {
     }
   }
 
-  static Future<void> prepareConvertTempFolder({
+  @override
+  Future<void> prepareConvertTempFolder({
     required String jobId,
   }) async {
-    final tempDir = await FileUtils.getConvertTemporaryDirectory(jobId);
+    final tempDir = await getConvertTemporaryDirectory(jobId);
     if (await tempDir.exists()) {
       await tempDir.delete(recursive: true);
     }
-
     await tempDir.create(recursive: true);
   }
 
-  static Future<Directory> getAppDataDirectory() async {
+  @override
+  Future<Directory> getAppDataDirectory() async {
     final docFolder = await path_provider.getApplicationDocumentsDirectory();
     final dataFolder = Directory(
       path.join(docFolder.path, kDataFolderName),
     );
-    return dataFolder.createIfNotExists();
+    return createIfNotExists(dataFolder);
   }
 
-  /// Return a Directory used for [JobStatus.actionRequired].
-  /// Successful conversion but failed to copy to output folder
-  /// will be moved to [getConvertedDirectory].
-  static Future<Directory> getConvertedDirectory(String prefix) async {
+  @override
+  Future<Directory> getConvertedDirectory(String prefix) async {
     final docFolder = await path_provider.getApplicationDocumentsDirectory();
     final convertedFolder = Directory(
       path.join(
@@ -150,10 +152,11 @@ class FileUtils {
         prefix,
       ),
     );
-    return convertedFolder.createIfNotExists();
+    return createIfNotExists(convertedFolder);
   }
 
-  static Future<Directory> getConvertTemporaryDirectory(String? prefix) async {
+  @override
+  Future<Directory> getConvertTemporaryDirectory(String? prefix) async {
     final tempFolder = await path_provider.getTemporaryDirectory();
     final convertTempFolder = Directory(
       path.join(
@@ -163,15 +166,17 @@ class FileUtils {
         prefix,
       ),
     );
-    return convertTempFolder.createIfNotExists();
+    return createIfNotExists(convertTempFolder);
   }
 
-  static Future<void> cleanTemporaryDirectory() async {
-    final tempFolder = await getTemporaryDirectory();
+  @override
+  Future<void> cleanTemporaryDirectory() async {
+    final tempFolder = await getConvertTemporaryDirectory(null);
     await tempFolder.delete(recursive: true);
   }
 
-  static Future<bool> isDirectoryWritable(Directory dir) async {
+  @override
+  Future<bool> isDirectoryWritable(Directory dir) async {
     try {
       if (!await dir.exists()) {
         return false;
@@ -195,7 +200,8 @@ class FileUtils {
     return true;
   }
 
-  static Future<Directory> getInputDirectory(String prefix) async {
+  @override
+  Future<Directory> getInputDirectory(String prefix) async {
     final docFolder = await path_provider.getApplicationDocumentsDirectory();
     final inputFolder = Directory(
       path.join(
@@ -205,24 +211,25 @@ class FileUtils {
         prefix,
       ),
     );
-    return inputFolder.createIfNotExists();
+    return createIfNotExists(inputFolder);
   }
 
-  static Future<String?> movePickedFileToInputFolder({
+  @override
+  Future<String?> movePickedFileToInputFolder({
     required String jobId,
     required String inputFilePath,
     required String appCachedPath,
   }) async {
     if (!inputFilePath.startsWith('$appCachedPath/file_picker/')) {
       printLog(
-        '[FileUtils] movePickedFileToInputFolder: file not in file_picker cache. Skipping.',
+        '[DirectFileService] movePickedFileToInputFolder: file not in file_picker cache. Skipping.',
       );
       return inputFilePath;
     }
     try {
       final inputFolder = await getInputDirectory(jobId);
       final inputFile = File(inputFilePath);
-      final inputFileName = basename(inputFilePath);
+      final inputFileName = path.basename(inputFilePath);
       final newInputFilePath = path.join(
         inputFolder.path,
         inputFileName,
@@ -236,7 +243,8 @@ class FileUtils {
     }
   }
 
-  static Future<void> cleanUpInputFile({
+  @override
+  Future<void> cleanUpInputFile({
     required String jobId,
   }) async {
     try {
@@ -247,7 +255,8 @@ class FileUtils {
     }
   }
 
-  static Future<void> deleteFileAtPath(String convertedFilePath) async {
+  @override
+  Future<void> deleteFileAtPath(String convertedFilePath) async {
     try {
       await File(convertedFilePath).delete();
     } catch (err, trace) {
@@ -255,38 +264,28 @@ class FileUtils {
     }
   }
 
-  static Future<String?> getFileMimeType(File file) async {
+  @override
+  Future<String?> getFileMimeType(File file) async {
     final headerBytes = await file
         .openRead(0, defaultMagicNumbersMaxLength)
         .first;
     return lookupMimeType(file.path, headerBytes: headerBytes);
   }
 
-  /// Return true if file mime type is video or audio.
-  static Future<bool> isMediaFile(File file) async {
+  @override
+  Future<bool> isMediaFile(File file) async {
     final mimeType = await getFileMimeType(file);
     if (mimeType == null) {
       return false;
     }
     return mimeType.startsWith('video/') || mimeType.startsWith('audio/');
   }
-}
 
-extension FileExtension on File {
-  Future<void> share() async {
-    await SharePlus.instance.share(
-      ShareParams(
-        files: [XFile(this.path)],
-      ),
-    );
-  }
-}
-
-extension DirectoryExtension on Directory {
-  Future<Directory> createIfNotExists() async {
-    if (!await exists()) {
-      await create(recursive: true);
+  // Helper for Directory extension method
+  Future<Directory> createIfNotExists(Directory dir) async {
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
     }
-    return this;
+    return dir;
   }
 }

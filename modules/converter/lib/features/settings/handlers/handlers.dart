@@ -66,7 +66,7 @@ extension SettingsHandlers on SettingsPageItem {
   Future<void> _handleDefaultOutputFolder(BuildContext context) async {
     final currentPath = SettingsBox().lastOutputDirectoryPath;
 
-    final (path, failure) = await FileUtils.chooseSavePath(
+    final (path, failure) = await injector<FileService>().chooseSavePath(
       context,
       initialPath: currentPath,
     );

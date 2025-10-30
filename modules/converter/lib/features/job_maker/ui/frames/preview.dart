@@ -200,7 +200,7 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
     final viewModel = context.read<JobMakerViewModel>();
     final currentPath = viewModel.outputDirectoryPath;
 
-    final (path, failure) = await FileUtils.chooseSavePath(
+    final (path, failure) = await injector<FileService>().chooseSavePath(
       context,
       initialPath: currentPath,
     );

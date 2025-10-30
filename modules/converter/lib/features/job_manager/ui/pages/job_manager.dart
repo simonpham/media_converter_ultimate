@@ -480,7 +480,7 @@ class _JobManagerState extends State<JobManager> {
   ) async {
     final currentPath = job.outputDirectoryPath;
 
-    final (path, pickFailure) = await FileUtils.chooseSavePath(
+    final (path, pickFailure) = await injector<FileService>().chooseSavePath(
       context,
       initialPath: currentPath,
     );

@@ -6,6 +6,7 @@ import 'package:core_storage_base/core_storage_base.dart';
 import 'package:core_storage_isar/core_storage_isar.dart';
 import 'package:mobile_ads/service/service.dart';
 import 'package:mobile_ads_google/service/service.dart';
+import 'package:platform_utils/platform_utils.dart';
 
 class ConverterInjector {
   static Future<void> init() async {
@@ -26,6 +27,10 @@ class ConverterInjector {
       () => FfmpegJobRunnerService(),
     );
 
+    injector.registerLazySingleton<FileService>(
+      () => DirectFileService(),
+    );
+
     injector.registerLazySingleton<JobNotificationService>(
       () => JobNotificationServiceImpl(),
     );
@@ -33,5 +38,16 @@ class ConverterInjector {
     final mobileAdsService = GoogleMobileAdsService();
     unawaited(mobileAdsService.initialize());
     injector.registerSingleton<MobileAdsService>(mobileAdsService);
+  }
+
+  static Future<void> runPostInit() async {
+    printLog('[main] Cleaning up temporary files...');
+    await catchAll(() => injector<FileService>().cleanTemporaryDirectory());
+
+    printLog('[main] Init new convert temporary folder...');
+    await catchAll(
+      () async =>
+          await injector<FileService>().getConvertTemporaryDirectory(null),
+    );
   }
 }

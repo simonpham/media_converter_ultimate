@@ -7,6 +7,8 @@ import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
 
 class JobMakerViewModel extends ChangeNotifier {
+  FileService get _fileService => injector<FileService>();
+
   final FormatConfigModel formatConfigModel;
   final Map<String, String?> translations;
 
@@ -88,7 +90,8 @@ class JobMakerViewModel extends ChangeNotifier {
       final fileExtension = file.fileExtension;
 
       /// Check file mime type for non-media files.
-      if (shouldExcludeNonMediaFiles && !(await FileUtils.isMediaFile(file))) {
+      if (shouldExcludeNonMediaFiles &&
+          !(await _fileService.isMediaFile(file))) {
         printLog(
           '[FilePicker]: File ${file.path} mime type is not media: $fileExtension. Skipping.',
         );
@@ -255,7 +258,7 @@ class JobMakerViewModel extends ChangeNotifier {
       throw const NoOutputFolderFailure();
     }
 
-    final convertTempFolder = await FileUtils.getConvertTemporaryDirectory(
+    final convertTempFolder = await _fileService.getConvertTemporaryDirectory(
       null,
     );
     final outputFileNames = {..._outputFileNames};
@@ -276,7 +279,7 @@ class JobMakerViewModel extends ChangeNotifier {
       }
 
       final appCachedDir = await getApplicationCacheDirectory();
-      final newInputFilePath = await FileUtils.movePickedFileToInputFolder(
+      final newInputFilePath = await _fileService.movePickedFileToInputFolder(
         jobId: jobId,
         inputFilePath: inputFilePath,
         appCachedPath: appCachedDir.path,
@@ -342,7 +345,7 @@ class JobMakerViewModel extends ChangeNotifier {
       }
 
       /// Check for input file existence.
-      if (!await FileUtils.isFileExist(filePath)) {
+      if (!await _fileService.isFileExist(filePath)) {
         errorPaths[filePath] = InputFileNotExistFailure(filePath);
         printLog('[JobMakerViewModel]: File not exist: $filePath');
         continue;
@@ -370,7 +373,7 @@ class JobMakerViewModel extends ChangeNotifier {
         outputPaths.add(outputFilePath);
 
         /// Check if output file already exists.
-        if (await FileUtils.isFileExist(outputFilePath)) {
+        if (await _fileService.isFileExist(outputFilePath)) {
           errorPaths[filePath] = OutputFileAlreadyExistsFailure(outputFilePath);
           printLog(
             '[JobMakerViewModel]: Output file already exists: $outputFilePath',
