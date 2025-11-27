@@ -17,6 +17,8 @@ export 'package:package_info_plus/package_info_plus.dart';
 export 'package:path/path.dart';
 export 'package:path_provider/path_provider.dart';
 export 'package:permission_handler/permission_handler.dart';
+export 'package:saf_stream/saf_stream.dart';
+export 'package:saf_util/saf_util.dart';
 export 'package:share_plus/share_plus.dart';
 export 'package:universal_file/universal_file.dart';
 export 'package:universal_io/io.dart';

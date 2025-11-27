@@ -1,4 +1,5 @@
 import 'package:core/core.dart';
+import 'package:flutter/widgets.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:platform_utils/platform_utils.dart';
@@ -10,7 +11,7 @@ class DirectFileService implements FileService {
   }
 
   @override
-  Future<List<File>> chooseFiles(dynamic context) async {
+  Future<List<File>> chooseFiles(BuildContext context) async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.any,
@@ -43,7 +44,7 @@ class DirectFileService implements FileService {
 
   @override
   Future<(String?, Failure?)> chooseSavePath(
-    dynamic context, {
+    BuildContext context, {
     String? initialPath,
   }) async {
     try {
@@ -266,10 +267,7 @@ class DirectFileService implements FileService {
 
   @override
   Future<String?> getFileMimeType(File file) async {
-    final headerBytes = await file
-        .openRead(0, defaultMagicNumbersMaxLength)
-        .first;
-    return lookupMimeType(file.path, headerBytes: headerBytes);
+    return FileContentType.getMimeType(file);
   }
 
   @override

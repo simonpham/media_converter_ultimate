@@ -1,6 +1,6 @@
 import 'package:platform_utils/platform_utils.dart';
 
-const _headerBytesLength = 1024;
+const headerBytesLength = 1024;
 
 enum FileContentType {
   audio,
@@ -27,10 +27,21 @@ enum FileContentType {
     final raf = file.openSync();
     final length = file.lengthSync();
     final headerBytes = raf.readSync(
-      length < _headerBytesLength ? length : _headerBytesLength,
+      length < headerBytesLength ? length : headerBytesLength,
     );
     raf.closeSync();
     final mimeType = lookupMimeType(file.path, headerBytes: headerBytes);
     return FileContentType.fromMimeType(mimeType);
+  }
+
+  static Future<String?> getMimeType(File file) async {
+    try {
+      final headerBytes = await file
+          .openRead(0, defaultMagicNumbersMaxLength)
+          .first;
+      return lookupMimeType(file.path, headerBytes: headerBytes);
+    } catch (_) {
+      return null;
+    }
   }
 }

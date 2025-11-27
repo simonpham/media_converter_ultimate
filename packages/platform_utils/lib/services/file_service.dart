@@ -1,13 +1,14 @@
 import 'package:core/core.dart' show Failure;
+import 'package:flutter/widgets.dart';
 import 'package:platform_utils/platform_utils.dart' show Directory, File;
 
 abstract class FileService {
   Future<bool> isFileExist(String path);
 
-  Future<List<File>> chooseFiles(dynamic context);
+  Future<List<File>> chooseFiles(BuildContext context);
 
   Future<(String?, Failure?)> chooseSavePath(
-    dynamic context, {
+    BuildContext context, {
     String? initialPath,
   });
 
