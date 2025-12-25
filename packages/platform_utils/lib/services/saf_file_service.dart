@@ -5,24 +5,29 @@ import 'package:core/core.dart' show Failure;
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:platform_utils/platform_utils.dart' show Directory, File, FileService, FileStat, FileSystemEntity;
+import 'package:platform_utils/platform_utils.dart'
+    show
+        Directory,
+        File,
+        FileService,
+        FileStat,
+        FileSystemEntity,
+        kDataFolderName,
+        kConvertDataFolderName,
+        kConvertTempFolderName,
+        kConvertedFolderName,
+        kInputFolderName;
 import 'package:saf_stream/saf_stream.dart';
 import 'package:saf_util/saf_util.dart';
 import 'package:universal_io/io.dart' as io;
-
-const String kDataFolderName = 'data';
-const String kConvertDataFolderName = 'convert_data';
-const String kConvertedFolderName = 'converted';
-const String kConvertTempFolderName = 'temp';
-const String kInputFolderName = 'input';
 
 class SafFileService implements FileService {
   final SafUtil safUtil;
   final SafStream safStream;
 
   SafFileService({SafUtil? safUtil, SafStream? safStream})
-      : safUtil = safUtil ?? SafUtil(),
-        safStream = safStream ?? SafStream();
+    : safUtil = safUtil ?? SafUtil(),
+      safStream = safStream ?? SafStream();
 
   // Helper for Directory extension method
   Future<Directory> _createIfNotExists(Directory dir) async {
@@ -70,15 +75,16 @@ class SafFileService implements FileService {
     try {
       // convertedFilePath is internal path (String)
       // outputFilePath is SAF directory URI (String)
-      
+
       // We use SafStream.pasteLocalFile to copy from internal to SAF
       await safStream.pasteLocalFile(
         convertedFilePath,
         outputFilePath,
         outputFileName,
-        await FileContentType.getMimeType(File(convertedFilePath)) ?? 'application/octet-stream',
+        await FileContentType.getMimeType(File(convertedFilePath)) ??
+            'application/octet-stream',
       );
-      
+
       // Delete original internal file
       await File(convertedFilePath).delete();
       return null;
@@ -102,10 +108,10 @@ class SafFileService implements FileService {
       // jobId seems to be used as a prefix or ID to get the directory?
       // DirectFileService: final convertedFolder = await getConvertedDirectory(jobId);
       // So jobId is just the prefix string.
-      
+
       // So here, we are copying from temp (internal) to converted (internal).
       // So this should be standard file copy.
-      
+
       final fileName = path.basename(convertedFilePath);
       final inputFile = File(convertedFilePath);
       if (!await inputFile.exists()) {
@@ -224,34 +230,34 @@ class SafFileService implements FileService {
       // inputFilePath is a SAF URI (from chooseFiles)
       // jobId is the prefix for input directory (Wait, DirectFileService uses jobId to get input dir)
       // DirectFileService: final inputFolder = await getInputDirectory(jobId);
-      
+
       final inputFolder = await getInputDirectory(jobId);
-      
+
       // We need to copy from SAF URI to Internal Directory
       // Use SafStream.copyToLocalFile
-      
+
       // We need a filename. SAF URI might not have it easily parseable if it's content://
       // But _SafFile might have it? No, _SafFile only has URI.
       // We can try to get name from SafUtil.documentFileFromUri? Or just generate one?
       // Or maybe inputFilePath is just the URI string.
-      
+
       // Let's try to get the name.
       String fileName = 'input_file_${DateTime.now().millisecondsSinceEpoch}';
       try {
-         final docFile = await safUtil.documentFileFromUri(inputFilePath, false);
-         // Analyzer says docFile is not null? Or name?
-         // If docFile is SafDocumentFile?, then check is valid.
-         // If docFile is SafDocumentFile, then check is invalid.
-         // Let's assume analyzer is right.
-         if (docFile != null) {
-            fileName = docFile.name; 
-         }
+        final docFile = await safUtil.documentFileFromUri(inputFilePath, false);
+        // Analyzer says docFile is not null? Or name?
+        // If docFile is SafDocumentFile?, then check is valid.
+        // If docFile is SafDocumentFile, then check is invalid.
+        // Let's assume analyzer is right.
+        if (docFile != null) {
+          fileName = docFile.name;
+        }
       } catch (_) {}
 
       final destPath = path.join(inputFolder.path, fileName);
-      
+
       await safStream.copyToLocalFile(inputFilePath, destPath);
-      
+
       return destPath;
     } catch (_) {
       return null;
@@ -317,80 +323,109 @@ class _SafFile extends FileSystemEntity implements File {
     await SafUtil().delete(_uriString, false);
     return this;
   }
-  
+
   @override
   Future<File> copy(String newPath) async {
-     // newPath in SAF context might be a URI or a path. 
-     // If it's a URI, we can use copyTo.
-     await SafUtil().copyTo(_uriString, false, newPath);
-     return _SafFile(newPath);
+    // newPath in SAF context might be a URI or a path.
+    // If it's a URI, we can use copyTo.
+    await SafUtil().copyTo(_uriString, false, newPath);
+    return _SafFile(newPath);
   }
-  
+
   @override
   Stream<List<int>> openRead([int? start, int? end]) async* {
     final length = (end != null && start != null) ? end - start : -1;
-    // Try 'length' instead of 'count', or just omit if unknown. 
+    // Try 'length' instead of 'count', or just omit if unknown.
     // If 'length' is also wrong, we might need to rely on stream manipulation.
     // For now, let's try 'length'. If that fails, we will remove it and use stream.take.
-    final stream = await SafStream().readFileStream(_uriString, bufferSize: 1024 * 1024, start: start ?? 0);
+    final stream = await SafStream().readFileStream(
+      _uriString,
+      bufferSize: 1024 * 1024,
+      start: start ?? 0,
+    );
     if (length > 0) {
-       // If we can't pass length to native, we take from stream.
-       // Note: Stream<List<int>> means chunks. Taking 'length' bytes is harder on chunks.
-       // But typically we just return the stream.
-       yield* stream; 
+      // If we can't pass length to native, we take from stream.
+      // Note: Stream<List<int>> means chunks. Taking 'length' bytes is harder on chunks.
+      // But typically we just return the stream.
+      yield* stream;
     } else {
-       yield* stream;
+      yield* stream;
     }
   }
-  
+
   @override
   Future<FileStat> stat() async {
-     // We can't get full stat, but we can check existence
-     final exists = await this.exists();
-     if (!exists) return FileStat.statSync(path); // Will return not found
-     // Return a dummy stat
-     return _SafFileStat(DateTime.now(), DateTime.now(), DateTime.now(), io.FileSystemEntityType.file, 0);
+    // We can't get full stat, but we can check existence
+    final exists = await this.exists();
+    if (!exists) return FileStat.statSync(path); // Will return not found
+    // Return a dummy stat
+    return _SafFileStat(
+      DateTime.now(),
+      DateTime.now(),
+      DateTime.now(),
+      io.FileSystemEntityType.file,
+      0,
+    );
   }
 
   @override
   String toString() => 'SafFile($_uriString)';
-  
+
   @override
-  Future<File> writeAsBytes(List<int> bytes, {io.FileMode mode = io.FileMode.write, bool flush = false}) {
+  Future<File> writeAsBytes(
+    List<int> bytes, {
+    io.FileMode mode = io.FileMode.write,
+    bool flush = false,
+  }) {
     throw UnimplementedError();
   }
-  
+
   @override
-  void writeAsBytesSync(List<int> bytes, {io.FileMode mode = io.FileMode.write, bool flush = false}) {
+  void writeAsBytesSync(
+    List<int> bytes, {
+    io.FileMode mode = io.FileMode.write,
+    bool flush = false,
+  }) {
     throw UnimplementedError();
   }
-  
+
   @override
-  Future<File> writeAsString(String contents, {io.FileMode mode = io.FileMode.write, Encoding encoding = utf8, bool flush = false}) {
+  Future<File> writeAsString(
+    String contents, {
+    io.FileMode mode = io.FileMode.write,
+    Encoding encoding = utf8,
+    bool flush = false,
+  }) {
     throw UnimplementedError();
   }
-  
+
   @override
-  void writeAsStringSync(String contents, {io.FileMode mode = io.FileMode.write, Encoding encoding = utf8, bool flush = false}) {
+  void writeAsStringSync(
+    String contents, {
+    io.FileMode mode = io.FileMode.write,
+    Encoding encoding = utf8,
+    bool flush = false,
+  }) {
     throw UnimplementedError();
   }
-  
+
   // Implement other required members with UnimplementedError or basic logic
   @override
-  Future<io.RandomAccessFile> open({io.FileMode mode = io.FileMode.read}) => throw UnimplementedError();
-  
+  Future<io.RandomAccessFile> open({io.FileMode mode = io.FileMode.read}) =>
+      throw UnimplementedError();
+
   @override
   Directory get parent => throw UnimplementedError();
-  
+
   @override
   File get absolute => this;
-  
+
   @override
   Future<File> rename(String newPath) => throw UnimplementedError();
-  
+
   @override
   Future<int> length() => throw UnimplementedError();
-  
+
   @override
   Future<DateTime> lastModified() => throw UnimplementedError();
 
@@ -404,7 +439,8 @@ class _SafFile extends FileSystemEntity implements File {
   File renameSync(String newPath) => throw UnimplementedError();
 
   @override
-  void createSync({bool recursive = false, bool exclusive = false}) => throw UnimplementedError();
+  void createSync({bool recursive = false, bool exclusive = false}) =>
+      throw UnimplementedError();
 
   @override
   void deleteSync({bool recursive = false}) => throw UnimplementedError();
@@ -413,7 +449,8 @@ class _SafFile extends FileSystemEntity implements File {
   bool existsSync() => throw UnimplementedError();
 
   @override
-  io.RandomAccessFile openSync({io.FileMode mode = io.FileMode.read}) => throw UnimplementedError();
+  io.RandomAccessFile openSync({io.FileMode mode = io.FileMode.read}) =>
+      throw UnimplementedError();
 
   @override
   int lengthSync() => throw UnimplementedError();
@@ -431,10 +468,12 @@ class _SafFile extends FileSystemEntity implements File {
   Uint8List readAsBytesSync() => throw UnimplementedError();
 
   @override
-  String readAsStringSync({Encoding encoding = utf8}) => throw UnimplementedError();
+  String readAsStringSync({Encoding encoding = utf8}) =>
+      throw UnimplementedError();
 
   @override
-  List<String> readAsLinesSync({Encoding encoding = utf8}) => throw UnimplementedError();
+  List<String> readAsLinesSync({Encoding encoding = utf8}) =>
+      throw UnimplementedError();
 
   @override
   Future<Uint8List> readAsBytes() async {
@@ -452,7 +491,10 @@ class _SafFile extends FileSystemEntity implements File {
   DateTime lastAccessedSync() => throw UnimplementedError();
 
   @override
-  io.IOSink openWrite({io.FileMode mode = io.FileMode.write, Encoding encoding = utf8}) => throw UnimplementedError();
+  io.IOSink openWrite({
+    io.FileMode mode = io.FileMode.write,
+    Encoding encoding = utf8,
+  }) => throw UnimplementedError();
 
   @override
   Future<List<String>> readAsLines({Encoding encoding = utf8}) async {
@@ -467,8 +509,6 @@ class _SafFile extends FileSystemEntity implements File {
   }
 }
 
-
-
 class _SafFileStat implements FileStat {
   @override
   final DateTime changed;
@@ -481,7 +521,13 @@ class _SafFileStat implements FileStat {
   @override
   final int size;
 
-  _SafFileStat(this.changed, this.modified, this.accessed, this.type, this.size);
+  _SafFileStat(
+    this.changed,
+    this.modified,
+    this.accessed,
+    this.type,
+    this.size,
+  );
 
   @override
   int get mode => 0;

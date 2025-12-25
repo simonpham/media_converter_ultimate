@@ -10,6 +10,10 @@ import 'package:platform_utils/platform_utils.dart';
 
 class ConverterInjector {
   static Future<void> init() async {
+    injector.registerLazySingleton<FileService>(
+      () => SafFileService(),
+    );
+
     injector.registerLazySingleton<LogData>(
       () => LogData.create(),
     );
@@ -25,10 +29,6 @@ class ConverterInjector {
 
     injector.registerLazySingleton<JobRunnerService>(
       () => FfmpegJobRunnerService(),
-    );
-
-    injector.registerLazySingleton<FileService>(
-      () => DirectFileService(),
     );
 
     injector.registerLazySingleton<JobNotificationService>(
