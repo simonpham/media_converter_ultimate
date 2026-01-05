@@ -16,6 +16,11 @@ enum SettingsPageItem {
       JobMakerSettings.defaultOutputFormat,
     ],
   ),
+  fileService(
+    settingsKeys: [
+      JobMakerSettings.useSafFileService,
+    ],
+  ),
   overwriteBehavior,
   concurrencyLimit(
     settingsKeys: [
@@ -73,6 +78,7 @@ enum SettingsPageItem {
   static List<SettingsPageItem> get availableOptions => kDebugMode
       ? values
       : [
+          fileService,
           defaultOutputFolder,
           defaultOutputFormat,
           concurrencyLimit,
@@ -93,6 +99,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
   bool? get currentValue => switch (this) {
     SettingsPageItem.defaultOutputFolder => null,
     SettingsPageItem.defaultOutputFormat => null,
+    SettingsPageItem.fileService => SettingsBox().useSafFileService,
     SettingsPageItem.overwriteBehavior => null,
     SettingsPageItem.concurrencyLimit => null,
     SettingsPageItem.threadCount => null,
@@ -116,6 +123,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
       SettingsPageItem.defaultOutputFolder => null,
       SettingsPageItem.defaultOutputFormat =>
         (_, _) => const DefaultOutputFormatSettingsChild(),
+      SettingsPageItem.fileService => (_, _) => const FileServiceSettingsChild(),
       SettingsPageItem.overwriteBehavior => null,
       SettingsPageItem.concurrencyLimit => null,
       SettingsPageItem.threadCount =>
@@ -143,6 +151,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
         context.l10n.conversionDefaultOutputFolder,
       SettingsPageItem.defaultOutputFormat =>
         context.l10n.conversionDefaultOutputFormat,
+      SettingsPageItem.fileService => 'File Service',
       SettingsPageItem.overwriteBehavior =>
         context.l10n.conversionOverwriteBehavior,
       SettingsPageItem.concurrencyLimit => context.l10n.concurrencyLimit,
@@ -173,6 +182,8 @@ extension SettingsPageItemExtensions on SettingsPageItem {
         SettingsBox().lastOutputDirectoryPath,
       SettingsPageItem.defaultOutputFormat =>
         context.l10n.conversionDefaultOutputFormatDescription,
+      SettingsPageItem.fileService =>
+        'Choose between Android SAF or Direct File Service',
       SettingsPageItem.overwriteBehavior =>
         context.l10n.conversionOverwriteBehaviorDescription,
       SettingsPageItem.concurrencyLimit =>
@@ -214,6 +225,7 @@ extension SettingsPageItemExtensions on SettingsPageItem {
     return switch (this) {
       SettingsPageItem.defaultOutputFolder => Assets.folder01,
       SettingsPageItem.defaultOutputFormat => Assets.fileExport,
+      SettingsPageItem.fileService => Assets.settings01,
       SettingsPageItem.overwriteBehavior => Assets.deleteThrow,
       SettingsPageItem.concurrencyLimit => Assets.layersLogoStrokeRounded,
       SettingsPageItem.threadCount => Assets.layers01StrokeRounded,

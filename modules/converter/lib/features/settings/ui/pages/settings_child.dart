@@ -10,6 +10,7 @@ part 'settings_child/default_output_format.dart';
 part 'settings_child/exclude_file_extensions.dart';
 part 'settings_child/thread_count.dart';
 part 'settings_child/languages.dart';
+part 'settings_child/file_service.dart';
 
 abstract class SettingsChild extends StatelessWidget {
   SettingsPageItem get settings;

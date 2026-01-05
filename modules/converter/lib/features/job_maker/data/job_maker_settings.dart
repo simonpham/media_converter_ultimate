@@ -6,9 +6,31 @@ enum JobMakerSettings {
   lastOutputDirectoryPath,
   excludedFileExtensions,
   shouldExcludeNonMediaFiles,
+  useSafFileService,
+  safOutputDirectoryUri,
 }
 
 extension JobMakerSettingsExt on SettingsBox {
+  bool get useSafFileService => get(
+    JobMakerSettings.useSafFileService,
+    defaultValue: true,
+  );
+
+  set useSafFileService(bool value) => put(
+    JobMakerSettings.useSafFileService,
+    value,
+  );
+
+  String? get safOutputDirectoryUri => get(
+    JobMakerSettings.safOutputDirectoryUri,
+    defaultValue: null,
+  );
+
+  set safOutputDirectoryUri(String? value) => put(
+    JobMakerSettings.safOutputDirectoryUri,
+    value,
+  );
+
   String? get defaultOutputFormat => get(
     JobMakerSettings.defaultOutputFormat,
     defaultValue: null,

@@ -29,7 +29,11 @@ class JobMakerViewModel extends ChangeNotifier {
   Map<String, List<ConfigControl>> _configControls = const {};
   Map<String, String> _selectedValues = const {};
 
-  String? _outputDirectoryPath = SettingsBox().lastOutputDirectoryPath;
+  String? _outputDirectoryPath = SettingsBox().useSafFileService
+      ? SettingsBox().safOutputDirectoryUri
+      : SettingsBox().lastOutputDirectoryPath;
+
+  bool get isSafMode => SettingsBox().useSafFileService;
 
   Map<String, Failure> _errorPaths = {};
   Map<String, Failure> get errorPaths => _errorPaths;
@@ -66,6 +70,14 @@ class JobMakerViewModel extends ChangeNotifier {
   void setOutputDirectoryPath(String? path) {
     _outputDirectoryPath = path;
     notifyListeners();
+
+    if (shouldRememberOutputFolder) {
+      if (isSafMode) {
+        SettingsBox().safOutputDirectoryUri = path;
+      } else {
+        SettingsBox().lastOutputDirectoryPath = path;
+      }
+    }
 
     refreshOutputFileNames();
   }
@@ -141,6 +153,9 @@ class JobMakerViewModel extends ChangeNotifier {
       if (_outputFileNames.containsKey(filePath)) {
         continue;
       }
+      // In SAF mode, we might want to respect the original file name more strictly or let SAF handle it.
+      // But typically we still want to generate the target filename (e.g. video.mp4).
+      // However, the user cannot rename it manually in UI.
       final outputFileName = CommandBuilder.getOutputFileName(
         inputFilePath: filePath,
         formatEntry: formatEntry,
@@ -323,7 +338,11 @@ class JobMakerViewModel extends ChangeNotifier {
       formatEntry.setLastKnownConfigurations(selectedValues);
     }
     if (shouldRememberOutputFolder) {
-      SettingsBox().lastOutputDirectoryPath = outputDirectoryPath;
+      if (isSafMode) {
+        SettingsBox().safOutputDirectoryUri = outputDirectoryPath;
+      } else {
+        SettingsBox().lastOutputDirectoryPath = outputDirectoryPath;
+      }
     }
 
     return result;

@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 enum SettingsCategory {
   conversionAndOutput(
     items: [
+      SettingsPageItem.fileService,
       SettingsPageItem.defaultOutputFolder,
       SettingsPageItem.defaultOutputFormat,
       SettingsPageItem.threadCount,

@@ -11,7 +11,11 @@ import 'package:platform_utils/platform_utils.dart';
 class ConverterInjector {
   static Future<void> init() async {
     injector.registerLazySingleton<FileService>(
-      () => SafFileService(),
+      () => ProxyFileService(
+        safService: SafFileService(),
+        directService: DirectFileService(),
+        useSaf: () => SettingsBox().useSafFileService,
+      ),
     );
 
     injector.registerLazySingleton<LogData>(

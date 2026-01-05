@@ -39,6 +39,8 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
           };
           final isFolderSelected = model.outputDirectoryPath != null;
 
+          final isSafMode = model.isSafMode;
+
           if (selectedPaths.isEmpty) {
             return Text(context.l10n.noFilesSelected);
           }
@@ -182,9 +184,11 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                       failure: errorPaths.containsKey(filePath)
                           ? errorPaths[filePath]
                           : null,
-                      onRenamePressed: () {
-                        _handleRenameOutputFilePressed(context, file);
-                      },
+                      onRenamePressed: isSafMode
+                          ? null
+                          : () {
+                              _handleRenameOutputFilePressed(context, file);
+                            },
                     );
                   },
                 ),

@@ -81,6 +81,34 @@ class _JobMakerState extends State<JobMaker> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _checkMigration();
+  }
+
+  void _checkMigration() async {
+    // Check if user is an old user (has lastOutputDirectoryPath but not SAF path)
+    // and is currently in SAF mode (default).
+    final isSafMode = SettingsBox().useSafFileService;
+    final directPath = SettingsBox().lastOutputDirectoryPath;
+    final safPath = SettingsBox().safOutputDirectoryUri;
+
+    if (isSafMode && safPath == null && directPath != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await ConfirmDialog.show(
+          context,
+          title: 'Storage Update',
+          message:
+              'We have updated the storage system to Android SAF for better compatibility. '
+              'You will need to re-select your output folder in the next steps.',
+          positiveText: 'OK',
+          negativeText: null, // Only OK button
+        );
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final direction = Directionality.of(context);
     return PopScope(
