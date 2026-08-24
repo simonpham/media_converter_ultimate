@@ -1,5 +1,15 @@
 include: package:lints/recommended.yaml
 
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
+
 linter:
   rules:
     # STYLE: true
@@ -20,7 +30,6 @@ linter:
 
     # DOCUMENTATION: true
     slash_for_doc_comments: true
-    package_api_docs: true # prefer
 
     # USAGE: true
     implementation_imports: true
@@ -43,9 +52,7 @@ linter:
     use_to_and_as_if_applicable: true # prefer
     prefer_final_fields: true # prefer
     avoid_setters_without_getters: true
-    avoid_private_typedef_functions: true # prefer
     hash_and_equals: true
-    avoid_null_checks_in_equality_operators: true
 
 formatter:
   trailing_commas: preserve
