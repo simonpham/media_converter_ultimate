@@ -210,9 +210,43 @@ Use this file to:
 
 ---
 
-If you add or change configuration files, please:
-- Update localization keys used in `label` and `description`.
-- Ensure `default` values correspond to one of the declared `options` (or to a valid JSON-stringified array for multi-choice).
-- Add comments to your change PR explaining whether new `value`s represent raw ffmpeg args or nested trigger keys.
+## 12. Guide & Checklist for Adding New Formats & Configs
+
+Follow this checklist whenever adding a new format or editing configuration files to prevent runtime errors:
+
+### Step 1: Register in `apps/mcu/assets/configs/format.json`
+- Add entry to the `"format"` array:
+  - `name`: format identifier (must match the filename `<name>.json` in `supported_configurations/`).
+  - `output_extension`: file extension without dot (e.g. `"mp4"`).
+  - `output_type`: `"audio"` or `"video"`.
+  - `should_add_to_args`: **IMPORTANT RULE**:
+    - Set to `true` **ONLY** if FFmpeg has a matching `-f <name>` muxer (e.g., `mp3`, `mp4`, `flac`, `wav`, `ogg`, `opus`, `mov`, `webm`, `avi`, `flv`, `aiff`, `ac3`, `eac3`, `gif`).
+    - Set to `false` if the short name is **not** a direct FFmpeg `-f` muxer (e.g., `m4a` uses `ipod`/`mp4`, `mkv` uses `matroska`, `wma`/`wmv` uses `asf`, `mka` uses `matroska`, `ogv` uses `ogg`, `ts`, `3gp`, `caf`, `aac`). When `false`, FFmpeg automatically infers the container from the output filename extension.
+- Add matching 2-color gradient to `"ui_gradients"` (e.g. `"ac3": ["#f857a6", "#ff5858"]`).
+
+### Step 2: Create `apps/mcu/assets/configs/supported_configurations/<name>.json`
+- Top-level key must match the format `name` (e.g. `"ac3": [ ... ]`).
+- **Single Required Parameters (Hidden Encoders)**:
+  - If a format has only 1 required encoder/parameter (e.g. Opus, FLAC, AAC, AC3, AMR, WMA, Theora), define it with `"is_visible": false`, `"type": "single_choice"`, `"should_add_to_args": true`, and an empty option label `""`.
+  - **Do NOT** show redundant 1-item dropdowns to the user.
+- **Multiple Fixed Arguments (Mappings)**:
+  - Use `"type": "multi_choice"` with `"default": "[\"-map 0:v:0\", \"-map 0:a:0\"]"` where each item in `options` has an `ffmpeg_arg` matching one of the array elements.
+- **Nested Controls**:
+  - When selecting an option needs to reveal sub-controls (e.g., `-c:v libx264` revealing CRF and preset dropdowns), add a top-level key matching the option's `value` (e.g. `"-c:v libx264": [ ... ]`).
+
+### Step 3: Add Localization Keys in `apps/mcu/assets/configs/l10n/`
+- Every user-facing string (`label`, `description`, option `label`) must be a translation key (e.g. `ui_codec_description.libx265`, `configs.common.crf.label`).
+- Update **all 11 language files** in `apps/mcu/assets/configs/l10n/`:
+  - `en.json`, `zh.json`, `zh_TW.json`, `de.json`, `es.json`, `id.json`, `it.json`, `ja.json`, `pt.json`, `tr.json`, `vi.json`.
+
+### Step 4: Validate
+- Run `./validate.sh` from the repository root:
+  - Checks `format.json` against `format.schema.json`.
+  - Checks all files in `supported_configurations/` against `supported_configurations.schema.json`.
+  - Validates `default` selections against declared `options`.
+  - Validates cross-file parity between `format.json` and `supported_configurations/`.
+  - Checks that every declared format has a UI gradient.
+
+---
 
 This document covers the currently used fields and extraction semantics. When introducing new patterns, update this file and the argument-extraction implementation together.
