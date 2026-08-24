@@ -12,13 +12,12 @@ class DirectFileService implements FileService {
   @override
   Future<List<File>> chooseFiles(dynamic context) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final files = await FilePicker.pickFiles(
         type: FileType.any,
         allowMultiple: true,
       );
 
-      final files = result?.files;
-      if (files == null || files.isEmpty) {
+      if (files.isEmpty) {
         return const [];
       }
 
@@ -47,7 +46,7 @@ class DirectFileService implements FileService {
     String? initialPath,
   }) async {
     try {
-      final folderPath = await FilePicker.platform.getDirectoryPath(
+      final folderPath = await FilePicker.getDirectoryPath(
         initialDirectory: initialPath,
       );
       if (folderPath == null || folderPath.isEmpty) {
