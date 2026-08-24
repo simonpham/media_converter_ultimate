@@ -1,22 +1,16 @@
 part of '../config_control_widget.dart';
 
-class DropdownWidget extends StatelessWidget {
-  final ConfigControl control;
-  final Map<String, String> selectedValues;
-  final void Function(String, String)? onChanged;
-
-  const DropdownWidget(
-    this.control,
-    this.selectedValues,
-    this.onChanged, {
-    super.key,
-  });
-
+class const DropdownWidget(
+  final ConfigControl control,
+  final Map<String, String> selectedValues,
+  final void Function(String, String)? onChanged, {
+  super.key,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final isDark = context.theme.brightness == Brightness.dark;
+    final isDark = context.theme.brightness == .dark;
     return Container(
-      margin: EdgeInsets.symmetric(
+      margin: .symmetric(
         horizontal: Spacing.d16,
         vertical: Spacing.d8,
       ),
@@ -35,7 +29,7 @@ class DropdownWidget extends StatelessWidget {
       child: DropdownButton<String>(
         dropdownColor: context.theme.colorScheme.surface,
         borderRadius: Spacing.r12,
-        padding: EdgeInsets.symmetric(
+        padding: .symmetric(
           horizontal: Spacing.d16,
         ),
         underline: const SizedBox(),

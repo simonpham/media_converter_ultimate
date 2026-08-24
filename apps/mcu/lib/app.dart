@@ -4,13 +4,11 @@ import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:mcu/router.dart';
 
-class MediaConverterUltimate extends StatelessWidget {
-  final AppTheme appTheme;
+class const MediaConverterUltimate({
+  super.key,
+  required final AppTheme appTheme,
+}) extends StatelessWidget {
 
-  const MediaConverterUltimate({
-    super.key,
-    required this.appTheme,
-  });
 
   @override
   Widget build(BuildContext context) {

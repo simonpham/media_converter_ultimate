@@ -4,11 +4,7 @@ import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:utils/utils.dart';
 
-class JobMakerOutputFormatPicker extends StatefulWidget {
-  const JobMakerOutputFormatPicker({
-    super.key,
-  });
-
+class const JobMakerOutputFormatPicker({super.key}) extends StatefulWidget {
   @override
   State<JobMakerOutputFormatPicker> createState() =>
       _JobMakerOutputFormatPickerState();
@@ -16,7 +12,7 @@ class JobMakerOutputFormatPicker extends StatefulWidget {
 
 class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
     with AfterLayoutMixin {
-  final ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = .new();
 
   @override
   void initState() {
@@ -55,14 +51,14 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
         .read<JobMakerViewModel>()
         .formatConfigModel;
     final audioFormats = formatConfigModel.formats
-        .where((f) => f.outputType == OutputType.audio)
+        .where((f) => f.outputType == .audio)
         .toList();
     final videoFormats = formatConfigModel.formats
-        .where((f) => f.outputType == OutputType.video)
+        .where((f) => f.outputType == .video)
         .toList();
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: .start,
       children: [
         Expanded(
           child: Selector<JobMakerViewModel, FormatEntry?>(
@@ -73,7 +69,7 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
                 thumbVisibility: true,
                 child: ListView(
                   controller: _scrollController,
-                  padding: EdgeInsets.symmetric(
+                  padding: .symmetric(
                     vertical: Spacing.d16,
                     horizontal: Spacing.d16,
                   ),
@@ -113,18 +109,18 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
     FormatEntry? selectedFormat,
   ) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: .start,
       children: [
         SectionTitle(
           label,
-          padding: EdgeInsets.only(
+          padding: .only(
             bottom: Spacing.d16,
           ),
         ),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.zero,
+          padding: .zero,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             mainAxisSpacing: Spacing.d16,
@@ -151,3 +147,4 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
     );
   }
 }
+

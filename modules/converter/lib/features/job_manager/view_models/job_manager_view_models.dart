@@ -43,7 +43,7 @@ class JobManagerViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  Future<void> addJobs(final List<ConvertJob> jobs) async {
+  Future<void> addJobs(List<ConvertJob> jobs) async {
     await _jobStorage.addAll(jobs);
     await _runPendingJobs();
   }

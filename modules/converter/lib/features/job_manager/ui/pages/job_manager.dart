@@ -6,17 +6,15 @@ import 'package:icons/icons.dart';
 import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
 
-class JobManager extends StatefulWidget {
-  const JobManager({
-    super.key,
-  });
-
+class const JobManager({
+  super.key,
+}) extends StatefulWidget {
   @override
   State<JobManager> createState() => _JobManagerState();
 }
 
 class _JobManagerState extends State<JobManager> {
-  final MenuController _menuController = MenuController();
+  final MenuController _menuController = .new();
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +55,7 @@ class _JobManagerState extends State<JobManager> {
                     backgroundColor: context.theme.scaffoldBackgroundColor,
                     actions: [
                       Container(
-                        margin: EdgeInsets.symmetric(
+                        margin: .symmetric(
                           horizontal: Spacing.d16,
                         ),
                         child: Directionality(
@@ -67,7 +65,7 @@ class _JobManagerState extends State<JobManager> {
                           },
                           child: MenuAnchor(
                             controller: _menuController,
-                            alignmentOffset: Offset(0, Spacing.d4),
+                            alignmentOffset: .new(0, Spacing.d4),
                             menuChildren: [
                               Directionality(
                                 textDirection: direction,
@@ -102,8 +100,8 @@ class _JobManagerState extends State<JobManager> {
                               ),
                             ],
                             builder: (context, controller, _) => Button(
-                              variant: ButtonVariant.ghost,
-                              padding: EdgeInsets.all(Spacing.d8),
+                              variant: .ghost,
+                              padding: .all(Spacing.d8),
                               child: ImageView(
                                 Assets.moreVertical,
                                 size: Spacing.d24,
@@ -240,7 +238,7 @@ class _JobManagerState extends State<JobManager> {
                       separatorBuilder: (_, _) => Spacing.v8,
                       itemBuilder: (BuildContext context, int index) {
                         final job = completedJobs[index];
-                        final isSuccess = job.status == JobStatus.completed;
+                        final isSuccess = job.status == .completed;
                         return JobItem(
                           job,
                           onRemoveItem: () => _handleRemoveItem(context, job),
@@ -284,8 +282,8 @@ class _JobManagerState extends State<JobManager> {
         },
       ),
       floatingActionButton: Button(
-        mainAxisSize: MainAxisSize.min,
-        variant: ButtonVariant.primary,
+        mainAxisSize: .min,
+        variant: .primary,
         icon: ImageView(
           Assets.add01,
           size: Spacing.d24,
@@ -361,7 +359,7 @@ class _JobManagerState extends State<JobManager> {
       positiveText: context.l10n.cancel,
     );
 
-    if (action != ConfirmAction.negative) {
+    if (action != .negative) {
       return;
     }
 
@@ -394,7 +392,7 @@ class _JobManagerState extends State<JobManager> {
         negativeText: context.l10n.cancel,
         positiveText: context.l10n.overwrite,
       );
-      if (confirmOverwrite != ConfirmAction.positive) {
+      if (confirmOverwrite != .positive) {
         return;
       }
       await model.deleteOutputFile(job);
@@ -413,7 +411,7 @@ class _JobManagerState extends State<JobManager> {
       useHtmlMessage: true,
       cancelText: context.l10n.cancel,
       confirmText: context.l10n.clearHistory,
-      initialValue: ClearFinishedJobsOption.everything,
+      initialValue: .everything,
       values: ClearFinishedJobsOption.values,
       itemLabelBuilder: (option) {
         return option.getLabel(context);

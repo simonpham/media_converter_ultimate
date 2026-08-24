@@ -2,16 +2,11 @@ import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
-class JobFileFormatIndicator extends StatelessWidget {
-  final String outputFileExtension;
-  final JobStatus status;
-
-  const JobFileFormatIndicator({
-    super.key,
-    required this.outputFileExtension,
-    required this.status,
-  });
-
+class const JobFileFormatIndicator({
+  super.key,
+  required final String outputFileExtension,
+  required final JobStatus status,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fileExtension = outputFileExtension.toUpperCase();
@@ -22,7 +17,7 @@ class JobFileFormatIndicator extends StatelessWidget {
           borderRadius: Spacing.r8,
         ),
       ),
-      padding: EdgeInsets.symmetric(
+      padding: .symmetric(
         horizontal: Spacing.d12,
         vertical: Spacing.d4,
       ),
@@ -32,7 +27,7 @@ class JobFileFormatIndicator extends StatelessWidget {
           style: const TextStyle(
             color: Colors.white,
             fontSize: 12,
-            fontWeight: FontWeight.bold,
+            fontWeight: .bold,
           ),
         ),
       ),

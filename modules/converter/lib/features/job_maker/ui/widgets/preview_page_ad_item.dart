@@ -7,11 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_ads/mobile_ads.dart';
 import 'package:mobile_ads_google/mobile_ads_google.dart';
 
-class PreviewPageAdItem extends StatefulWidget {
-  const PreviewPageAdItem({
-    super.key,
-  });
-
+class const PreviewPageAdItem({super.key}) extends StatefulWidget {
   @override
   State<PreviewPageAdItem> createState() => _PreviewPageAdItemState();
 }
@@ -46,12 +42,12 @@ class _PreviewPageAdItemState extends State<PreviewPageAdItem>
       child: isAdLoadFailed
           ? const SizedBox(width: double.infinity)
           : Padding(
-              padding: EdgeInsets.symmetric(
+              padding: .symmetric(
                 horizontal: Spacing.d16,
               ),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: .min,
+                crossAxisAlignment: .start,
                 children: [
                   Text(
                     context.l10n.adLabel,
@@ -75,7 +71,7 @@ class _PreviewPageAdItemState extends State<PreviewPageAdItem>
                             borderRadius: Spacing.r12,
                           ),
                         ),
-                        padding: EdgeInsets.symmetric(
+                        padding: .symmetric(
                           vertical: Spacing.d16,
                           horizontal: Spacing.d16,
                         ),

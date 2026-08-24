@@ -6,17 +6,13 @@ import 'package:icons/icons.dart';
 import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
 
-class JobMakerPreview extends StatefulWidget {
-  const JobMakerPreview({
-    super.key,
-  });
-
+class const JobMakerPreview({super.key}) extends StatefulWidget {
   @override
   State<JobMakerPreview> createState() => _JobMakerPreviewState();
 }
 
 class _JobMakerPreviewState extends State<JobMakerPreview> {
-  final ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = .new();
 
   @override
   void dispose() {
@@ -63,22 +59,22 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
               PinnedHeaderSliver(
                 child: Container(
                   color: context.theme.colorScheme.surface,
-                  padding: EdgeInsets.only(
+                  padding: .only(
                     top: Spacing.d8,
                   ),
                   child: RoundCard(
-                    margin: EdgeInsets.symmetric(
+                    margin: .symmetric(
                       horizontal: Spacing.d16,
                     ),
-                    padding: EdgeInsets.only(
+                    padding: .only(
                       bottom: Spacing.d16,
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: .start,
+                      mainAxisSize: .min,
                       children: [
                         Container(
-                          padding: EdgeInsets.only(
+                          padding: .only(
                             left: Spacing.d16,
                             right: Spacing.d16,
                             top: Spacing.d4,
@@ -88,12 +84,12 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                               Expanded(
                                 child: SectionTitle(
                                   context.l10n.outputFolder,
-                                  padding: EdgeInsets.zero,
+                                  padding: .zero,
                                 ),
                               ),
                               CheckBoxListTile(
-                                style: CheckBoxListTileStyle.compact,
-                                alignment: CheckBoxAlignment.left,
+                                style: .compact,
+                                alignment: .left,
                                 title: context.l10n.setAsDefault,
                                 value: model.shouldRememberOutputFolder,
                                 onChanged: (value) {
@@ -104,19 +100,19 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.only(
+                          padding: .only(
                             left: Spacing.d16,
                             right: Spacing.d16,
                           ),
                           child: Button(
                             tooltip: model.outputDirectoryPath,
-                            variant: ButtonVariant.ghost,
-                            padding: EdgeInsets.symmetric(
+                            variant: .ghost,
+                            padding: .symmetric(
                               horizontal: Spacing.d16,
                               vertical: Spacing.d12,
                             ),
                             icon: Padding(
-                              padding: EdgeInsets.only(right: Spacing.d4),
+                              padding: .only(right: Spacing.d4),
                               child: ImageView(
                                 Assets.folder01,
                                 color: context.theme.primaryColor,
@@ -126,8 +122,8 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                             label:
                                 outputDirectoryName ??
                                 context.l10n.selectFolder,
-                            labelTextAlign: TextAlign.start,
-                            titleExpand: ButtonTitleExpand.expand,
+                            labelTextAlign: .start,
+                            titleExpand: .expand,
                             trailingIcon: !isFolderSelected
                                 ? null
                                 : Text(
@@ -138,7 +134,7 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                                               context.theme.colorScheme.primary,
                                         ),
                                   ),
-                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisAlignment: .start,
                             onPressed: () {
                               _handleChooseOutputDirectoryPressed(context);
                             },
@@ -154,7 +150,7 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                   color: context.theme.colorScheme.surface,
                   child: SectionTitle(
                     context.l10n.outputFiles,
-                    padding: EdgeInsets.only(
+                    padding: .only(
                       left: Spacing.d16,
                       right: Spacing.d16,
                       top: Spacing.d16,
@@ -164,7 +160,7 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                 ),
               ),
               SliverPadding(
-                padding: EdgeInsets.symmetric(
+                padding: .symmetric(
                   horizontal: Spacing.d16,
                   vertical: Spacing.d8,
                 ),

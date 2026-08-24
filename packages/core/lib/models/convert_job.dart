@@ -12,38 +12,22 @@ extension ConvertJobExtension on ConvertJob {
 }
 
 @immutable
-class ConvertJob {
-  final String id;
-  final String outputFileName;
-  final String inputFilePath;
-  final String outputExtension;
-  final String outputDirectoryPath;
-  final String command;
-  final String convertedFilePath;
+class const ConvertJob({
+  required final String id,
+  required final String inputFilePath,
+  required final String outputFileName,
+  required final String outputExtension,
+  required final String outputDirectoryPath,
+  required final String command,
+  required final String convertedFilePath,
+  required final DateTime createdAt,
+  required final DateTime updatedAt,
+  final int? sessionId,
+  final JobStatus status = JobStatus.pending,
+  final int? progress,
+  final int? duration,
+}) {
 
-  final DateTime createdAt;
-  final DateTime updatedAt;
-
-  final int? sessionId;
-  final JobStatus status;
-  final int? progress;
-  final int? duration;
-
-  const ConvertJob({
-    required this.id,
-    required this.inputFilePath,
-    required this.outputFileName,
-    required this.outputExtension,
-    required this.outputDirectoryPath,
-    required this.command,
-    required this.convertedFilePath,
-    required this.createdAt,
-    required this.updatedAt,
-    this.sessionId,
-    this.status = JobStatus.pending,
-    this.progress,
-    this.duration,
-  });
 
   @override
   String toString() {

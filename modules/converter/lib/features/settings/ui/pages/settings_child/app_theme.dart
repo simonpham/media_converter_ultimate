@@ -1,12 +1,10 @@
 part of '../settings_child.dart';
 
-class AppThemeSettingsChild extends SettingsChild {
+class const AppThemeSettingsChild({
+  super.key,
+}) extends SettingsChild {
   @override
-  SettingsPageItem get settings => SettingsPageItem.appTheme;
-
-  const AppThemeSettingsChild({
-    super.key,
-  });
+  SettingsPageItem get settings => .appTheme;
 
   @override
   Widget builder(BuildContext context) {
@@ -29,9 +27,9 @@ class AppThemeSettingsChild extends SettingsChild {
 extension on ThemeMode {
   String getLabel(BuildContext context) {
     return switch (this) {
-      ThemeMode.system => context.l10n.appThemeSystem,
-      ThemeMode.light => context.l10n.appThemeLight,
-      ThemeMode.dark => context.l10n.appThemeDark,
+      .system => context.l10n.appThemeSystem,
+      .light => context.l10n.appThemeLight,
+      .dark => context.l10n.appThemeDark,
     };
   }
 }

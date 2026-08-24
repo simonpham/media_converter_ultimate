@@ -7,11 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_ads/mobile_ads.dart';
 import 'package:mobile_ads_google/mobile_ads_google.dart';
 
-class JobAdItem extends StatefulWidget {
-  const JobAdItem({
-    super.key,
-  });
-
+class const JobAdItem({super.key}) extends StatefulWidget {
   @override
   State<JobAdItem> createState() => _JobAdItemState();
 }
@@ -48,12 +44,12 @@ class _JobAdItemState extends State<JobAdItem>
       child: isAdLoadFailed
           ? const SizedBox(width: double.infinity)
           : Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: .min,
+              crossAxisAlignment: .start,
               children: [
                 Spacing.v16,
                 Padding(
-                  padding: EdgeInsets.symmetric(
+                  padding: .symmetric(
                     horizontal: Spacing.d16,
                   ),
                   child: Text(
@@ -65,7 +61,7 @@ class _JobAdItemState extends State<JobAdItem>
                 ),
                 Spacing.v8,
                 Container(
-                  margin: EdgeInsets.symmetric(
+                  margin: .symmetric(
                     horizontal: Spacing.d16,
                   ),
                   child: LayoutBuilder(
@@ -83,7 +79,7 @@ class _JobAdItemState extends State<JobAdItem>
                             borderRadius: Spacing.r12,
                           ),
                         ),
-                        padding: EdgeInsets.symmetric(
+                        padding: .symmetric(
                           vertical: Spacing.d16,
                           horizontal: Spacing.d16,
                         ),

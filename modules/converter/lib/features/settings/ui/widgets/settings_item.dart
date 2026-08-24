@@ -4,14 +4,10 @@ import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
 
-class SettingsItem extends StatelessWidget {
-  final SettingsPageItem item;
-
-  const SettingsItem({
-    super.key,
-    required this.item,
-  });
-
+class const SettingsItem({
+  super.key,
+  required final SettingsPageItem item,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return switch (item.settingsKeys) {
@@ -27,15 +23,15 @@ class SettingsItem extends StatelessWidget {
 
   Widget builder(BuildContext context) {
     return RoundCard(
-      margin: EdgeInsets.only(
+      margin: .only(
         top: Spacing.d8,
         left: Spacing.d16,
         right: Spacing.d16,
       ),
       child: ListItem(
         leading: Container(
-          alignment: Alignment.center,
-          padding: EdgeInsets.symmetric(
+          alignment: .center,
+          padding: .symmetric(
             vertical: Spacing.d8,
           ),
           child: ImageView(

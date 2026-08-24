@@ -6,7 +6,9 @@ import 'package:core_storage_isar/core_storage_isar.dart';
 import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
 
-class ConvertJobIsarStorage extends ConvertJobStorage {
+class const ConvertJobIsarStorage({
+  required final Isar isar,
+}) extends ConvertJobStorage {
   static Future<Isar> createIsarInstance() async {
     final dataFolder = await injector<FileService>().getAppDataDirectory();
     return await Isar.open(
@@ -14,12 +16,6 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
       directory: dataFolder.path,
     );
   }
-
-  final Isar isar;
-
-  const ConvertJobIsarStorage({
-    required this.isar,
-  });
 
   @override
   Future<Failure?> add(ConvertJob item) async {
@@ -104,11 +100,11 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   Stream<List<ConvertJob>> watchCompletedJobs() {
     return isar.isarConvertJobs
         .where()
-        .statusEqualTo(JobStatus.completed)
+        .statusEqualTo(.completed)
         .or()
-        .statusEqualTo(JobStatus.failed)
+        .statusEqualTo(.failed)
         .or()
-        .statusEqualTo(JobStatus.cancelled)
+        .statusEqualTo(.cancelled)
         .sortByUpdatedAtDesc()
         .watch(fireImmediately: true)
         .map(
@@ -123,7 +119,7 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   Stream<List<ConvertJob>> watchPendingJobs() {
     return isar.isarConvertJobs
         .where()
-        .statusEqualTo(JobStatus.pending)
+        .statusEqualTo(.pending)
         .sortByUpdatedAtDesc()
         .watch(fireImmediately: true)
         .map(
@@ -138,13 +134,13 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   Stream<List<ConvertJob>> watchRunningJobs() {
     return isar.isarConvertJobs
         .where()
-        .statusEqualTo(JobStatus.running)
+        .statusEqualTo(.running)
         .or()
-        .statusEqualTo(JobStatus.preparing)
+        .statusEqualTo(.preparing)
         .or()
-        .statusEqualTo(JobStatus.ready)
+        .statusEqualTo(.ready)
         .or()
-        .statusEqualTo(JobStatus.cleaning)
+        .statusEqualTo(.cleaning)
         .sortByUpdatedAtDesc()
         .watch(fireImmediately: true)
         .map(
@@ -159,7 +155,7 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   Stream<List<ConvertJob>> watchActionRequiredJobs() {
     return isar.isarConvertJobs
         .where()
-        .statusEqualTo(JobStatus.actionRequired)
+        .statusEqualTo(.actionRequired)
         .sortByUpdatedAtDesc()
         .watch(fireImmediately: true)
         .map(
@@ -174,7 +170,7 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   Future<List<ConvertJob>> getAllPendingJobs() async {
     return await isar.isarConvertJobs
         .where()
-        .statusEqualTo(JobStatus.pending)
+        .statusEqualTo(.pending)
         .sortByUpdatedAtDesc()
         .findAll()
         .then(
@@ -189,13 +185,13 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   Future<List<ConvertJob>> getAllRunningJobs() async {
     return await isar.isarConvertJobs
         .where()
-        .statusEqualTo(JobStatus.running)
+        .statusEqualTo(.running)
         .or()
-        .statusEqualTo(JobStatus.preparing)
+        .statusEqualTo(.preparing)
         .or()
-        .statusEqualTo(JobStatus.ready)
+        .statusEqualTo(.ready)
         .or()
-        .statusEqualTo(JobStatus.cleaning)
+        .statusEqualTo(.cleaning)
         .sortByUpdatedAtDesc()
         .findAll()
         .then(
@@ -212,11 +208,11 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
       await isar.writeTxn(() {
         return isar.isarConvertJobs
             .where()
-            .statusEqualTo(JobStatus.completed)
+            .statusEqualTo(.completed)
             .or()
-            .statusEqualTo(JobStatus.failed)
+            .statusEqualTo(.failed)
             .or()
-            .statusEqualTo(JobStatus.cancelled)
+            .statusEqualTo(.cancelled)
             .deleteAll();
       });
       return true;
@@ -234,11 +230,11 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
       await isar.writeTxn(() {
         return isar.isarConvertJobs
             .where()
-            .statusEqualTo(JobStatus.completed)
+            .statusEqualTo(.completed)
             .or()
-            .statusEqualTo(JobStatus.failed)
+            .statusEqualTo(.failed)
             .or()
-            .statusEqualTo(JobStatus.cancelled)
+            .statusEqualTo(.cancelled)
             .filter()
             .updatedAtLessThan(cutoff)
             .deleteAll();
@@ -255,20 +251,20 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
     try {
       final invalidIsarJobs = await isar.isarConvertJobs
           .where()
-          .statusEqualTo(JobStatus.pending)
+          .statusEqualTo(.pending)
           .or()
-          .statusEqualTo(JobStatus.running)
+          .statusEqualTo(.running)
           .or()
-          .statusEqualTo(JobStatus.ready)
+          .statusEqualTo(.ready)
           .or()
-          .statusEqualTo(JobStatus.cleaning)
+          .statusEqualTo(.cleaning)
           .or()
-          .statusEqualTo(JobStatus.preparing)
+          .statusEqualTo(.preparing)
           .findAll();
       final fixedJobs = invalidIsarJobs
           .map(
             (e) => e.toOriginalModel().copyWith(
-              status: const Some(JobStatus.pending),
+              status: const Some(.pending),
             ),
           )
           .toList();
@@ -290,15 +286,15 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   Stream<bool> watchIsJobPendingOrProcessing() {
     return isar.isarConvertJobs
         .where()
-        .statusEqualTo(JobStatus.pending)
+        .statusEqualTo(.pending)
         .or()
-        .statusEqualTo(JobStatus.running)
+        .statusEqualTo(.running)
         .or()
-        .statusEqualTo(JobStatus.preparing)
+        .statusEqualTo(.preparing)
         .or()
-        .statusEqualTo(JobStatus.ready)
+        .statusEqualTo(.ready)
         .or()
-        .statusEqualTo(JobStatus.cleaning)
+        .statusEqualTo(.cleaning)
         .watch(fireImmediately: true)
         .map((list) => list.isNotEmpty);
   }

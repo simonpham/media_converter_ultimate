@@ -2,20 +2,13 @@ import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
-class OutputFormatGridItem extends StatelessWidget {
-  final FormatConfigModel config;
-  final FormatEntry format;
-  final bool isSelected;
-  final VoidCallback? onTap;
-
-  const OutputFormatGridItem({
-    super.key,
-    required this.config,
-    required this.format,
-    required this.isSelected,
-    this.onTap,
-  });
-
+class const OutputFormatGridItem({
+  super.key,
+  required final FormatConfigModel config,
+  required final FormatEntry format,
+  required final bool isSelected,
+  final VoidCallback? onTap,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Tappable(
@@ -41,7 +34,7 @@ class OutputFormatGridItem extends StatelessWidget {
                       ),
                       blurRadius: Spacing.d1,
                       spreadRadius: Spacing.d1,
-                      offset: Offset(0, Spacing.d1),
+                      offset: .new(0, Spacing.d1),
                     ),
                     BoxShadow(
                       color: context.theme.colorScheme.shadow.withValues(
@@ -49,7 +42,7 @@ class OutputFormatGridItem extends StatelessWidget {
                       ),
                       blurRadius: Spacing.d2,
                       spreadRadius: Spacing.d1,
-                      offset: Offset(Spacing.d1, Spacing.d2),
+                      offset: .new(Spacing.d1, Spacing.d2),
                     ),
                   ]
                 : null,
@@ -60,9 +53,9 @@ class OutputFormatGridItem extends StatelessWidget {
                 scale: isSelected ? 1 : 0,
                 curve: Curves.easeOut,
                 duration: Durations.medium1,
-                alignment: Alignment.center,
+                alignment: .center,
                 child: Container(
-                  margin: EdgeInsets.only(
+                  margin: .only(
                     left: Spacing.d8,
                     top: Spacing.d8,
                   ),
@@ -70,7 +63,7 @@ class OutputFormatGridItem extends StatelessWidget {
                   height: Spacing.d12,
                   decoration: BoxDecoration(
                     color: context.theme.colorScheme.surface,
-                    shape: BoxShape.circle,
+                    shape: .circle,
                   ),
                 ),
               ),
@@ -90,3 +83,4 @@ class OutputFormatGridItem extends StatelessWidget {
     );
   }
 }
+

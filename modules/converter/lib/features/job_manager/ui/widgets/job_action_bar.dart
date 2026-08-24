@@ -3,39 +3,27 @@ import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
 
-class JobActionBar extends StatelessWidget {
-  final VoidCallback? onOpenLogs;
-  final VoidCallback? onShare;
-  final VoidCallback? onOpenFile;
-  final VoidCallback? onOpenFolder;
-  final VoidCallback? onDelete;
-  final VoidCallback? onStop;
-  final VoidCallback? onRestart;
-  final VoidCallback? onRenameOutputFile;
-  final VoidCallback? onSelectNewOutputPath;
-
-  const JobActionBar({
-    this.onOpenLogs,
-    this.onShare,
-    this.onOpenFile,
-    this.onOpenFolder,
-    this.onDelete,
-    this.onStop,
-    this.onRestart,
-    this.onRenameOutputFile,
-    this.onSelectNewOutputPath,
-    super.key,
-  });
-
+class const JobActionBar({
+  super.key,
+  final VoidCallback? onOpenLogs,
+  final VoidCallback? onShare,
+  final VoidCallback? onOpenFile,
+  final VoidCallback? onOpenFolder,
+  final VoidCallback? onDelete,
+  final VoidCallback? onStop,
+  final VoidCallback? onRestart,
+  final VoidCallback? onRenameOutputFile,
+  final VoidCallback? onSelectNewOutputPath,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         if (onOpenLogs != null) ...[
           Button(
-            mainAxisSize: MainAxisSize.min,
-            variant: ButtonVariant.ghost,
-            padding: EdgeInsets.all(Spacing.d8),
+            mainAxisSize: .min,
+            variant: .ghost,
+            padding: .all(Spacing.d8),
             child: ImageView(
               Assets.note01,
               size: Spacing.d16,
@@ -49,9 +37,9 @@ class JobActionBar extends StatelessWidget {
         if (onShare != null) ...[
           Spacing.h8,
           Button(
-            mainAxisSize: MainAxisSize.min,
-            variant: ButtonVariant.ghost,
-            padding: EdgeInsets.all(Spacing.d8),
+            mainAxisSize: .min,
+            variant: .ghost,
+            padding: .all(Spacing.d8),
             child: ImageView(
               Assets.share01,
               size: Spacing.d16,
@@ -63,9 +51,9 @@ class JobActionBar extends StatelessWidget {
         if (onOpenFile != null) ...[
           Spacing.h8,
           Button(
-            mainAxisSize: MainAxisSize.min,
-            variant: ButtonVariant.ghost,
-            padding: EdgeInsets.all(Spacing.d8),
+            mainAxisSize: .min,
+            variant: .ghost,
+            padding: .all(Spacing.d8),
             child: ImageView(
               Assets.share05,
               size: Spacing.d16,
@@ -77,9 +65,9 @@ class JobActionBar extends StatelessWidget {
         if (onOpenFolder != null) ...[
           Spacing.h8,
           Button(
-            mainAxisSize: MainAxisSize.min,
-            variant: ButtonVariant.ghost,
-            padding: EdgeInsets.all(Spacing.d8),
+            mainAxisSize: .min,
+            variant: .ghost,
+            padding: .all(Spacing.d8),
             child: ImageView(
               Assets.folderOpen,
               size: Spacing.d16,
@@ -91,9 +79,9 @@ class JobActionBar extends StatelessWidget {
         if (onDelete != null) ...[
           Spacing.h8,
           Button(
-            mainAxisSize: MainAxisSize.min,
-            variant: ButtonVariant.ghost,
-            padding: EdgeInsets.all(Spacing.d8),
+            mainAxisSize: .min,
+            variant: .ghost,
+            padding: .all(Spacing.d8),
             child: ImageView(
               Assets.delete01,
               size: Spacing.d16,
@@ -105,9 +93,9 @@ class JobActionBar extends StatelessWidget {
         if (onStop != null) ...[
           Spacing.h8,
           Button(
-            mainAxisSize: MainAxisSize.min,
-            variant: ButtonVariant.ghost,
-            padding: EdgeInsets.symmetric(
+            mainAxisSize: .min,
+            variant: .ghost,
+            padding: .symmetric(
               vertical: Spacing.d4,
               horizontal: Spacing.d8,
             ),
@@ -128,9 +116,9 @@ class JobActionBar extends StatelessWidget {
         if (onRestart != null) ...[
           Spacing.h8,
           Button(
-            mainAxisSize: MainAxisSize.min,
-            variant: ButtonVariant.ghost,
-            padding: EdgeInsets.all(Spacing.d8),
+            mainAxisSize: .min,
+            variant: .ghost,
+            padding: .all(Spacing.d8),
             icon: ImageView(
               Assets.reload,
               size: Spacing.d16,
@@ -148,9 +136,9 @@ class JobActionBar extends StatelessWidget {
         if (onRenameOutputFile != null) ...[
           Spacing.h8,
           Button(
-            mainAxisSize: MainAxisSize.min,
-            variant: ButtonVariant.ghost,
-            padding: EdgeInsets.all(Spacing.d8),
+            mainAxisSize: .min,
+            variant: .ghost,
+            padding: .all(Spacing.d8),
             icon: ImageView(
               Assets.edit02,
               size: Spacing.d16,
@@ -168,9 +156,9 @@ class JobActionBar extends StatelessWidget {
         if (onSelectNewOutputPath != null) ...[
           Spacing.h8,
           Button(
-            mainAxisSize: MainAxisSize.min,
-            variant: ButtonVariant.ghost,
-            padding: EdgeInsets.all(Spacing.d8),
+            mainAxisSize: .min,
+            variant: .ghost,
+            padding: .all(Spacing.d8),
             icon: ImageView(
               Assets.folderOpen,
               size: Spacing.d16,

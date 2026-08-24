@@ -4,17 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
 import 'package:platform_utils/platform_utils.dart';
 
-class FileIcon extends StatelessWidget {
-  final File file;
-
-  const FileIcon(
-    this.file, {
-    super.key,
-  });
-
+class const FileIcon(
+  final File file, {
+  super.key,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final type = FileContentType.fromFile(file);
+    final FileContentType type = .fromFile(file);
     return ImageView(
       getFileIcon(type),
       size: Spacing.d24,
@@ -24,17 +20,18 @@ class FileIcon extends StatelessWidget {
 
   String getFileIcon(FileContentType type) {
     return switch (type) {
-      FileContentType.audio => Assets.fileAudio,
-      FileContentType.video => Assets.fileVideo,
+      .audio => Assets.fileAudio,
+      .video => Assets.fileVideo,
       _ => Assets.file02,
     };
   }
 
   Color getFileIconColor(BuildContext context, FileContentType type) {
     return switch (type) {
-      FileContentType.audio => Colors.green,
-      FileContentType.video => Colors.blue,
+      .audio => Colors.green,
+      .video => Colors.blue,
       _ => context.theme.colorScheme.onSurface,
     };
   }
 }
+

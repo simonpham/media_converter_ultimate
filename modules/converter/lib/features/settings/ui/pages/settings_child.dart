@@ -11,7 +11,9 @@ part 'settings_child/exclude_file_extensions.dart';
 part 'settings_child/thread_count.dart';
 part 'settings_child/languages.dart';
 
-abstract class SettingsChild extends StatelessWidget {
+abstract class const SettingsChild({
+  super.key,
+}) extends StatelessWidget {
   SettingsPageItem get settings;
 
   Widget builder(BuildContext context);
@@ -24,10 +26,6 @@ abstract class SettingsChild extends StatelessWidget {
     }
     context.router.goNamed(routeName);
   }
-
-  const SettingsChild({
-    super.key,
-  });
 
   @override
   Widget build(BuildContext context) {

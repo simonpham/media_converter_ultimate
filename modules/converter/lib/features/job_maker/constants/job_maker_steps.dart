@@ -12,9 +12,9 @@ enum JobMakerSteps {
 
   Widget build(BuildContext context) {
     return switch (this) {
-      pickFiles => const JobMakerFilePicker(),
-      chooseOutputFormat => const JobMakerOutputFormatPicker(),
-      customizeConfigs => Consumer<JobMakerViewModel>(
+      .pickFiles => const JobMakerFilePicker(),
+      .chooseOutputFormat => const JobMakerOutputFormatPicker(),
+      .customizeConfigs => Consumer<JobMakerViewModel>(
         builder: (context, model, _) {
           final availableControls = model.availableControls;
           if (availableControls.isEmpty) {
@@ -34,16 +34,16 @@ enum JobMakerSteps {
           );
         },
       ),
-      preview => const JobMakerPreview(),
+      .preview => const JobMakerPreview(),
     };
   }
 
   String getTitle(BuildContext context) {
     return switch (this) {
-      JobMakerSteps.pickFiles => context.l10n.pickFiles,
-      JobMakerSteps.chooseOutputFormat => context.l10n.chooseOutputFormat,
-      JobMakerSteps.customizeConfigs => context.l10n.customizeConfigs,
-      JobMakerSteps.preview => context.l10n.preview,
+      .pickFiles => context.l10n.pickFiles,
+      .chooseOutputFormat => context.l10n.chooseOutputFormat,
+      .customizeConfigs => context.l10n.customizeConfigs,
+      .preview => context.l10n.preview,
     };
   }
 }

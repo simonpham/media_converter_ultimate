@@ -6,12 +6,13 @@ import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
 
-class JobMaker extends StatefulWidget {
+class const JobMaker({
+  super.key,
+  required final FormatConfigModel formatConfigModel,
+  required final Map<String, String?> translations,
+}) extends StatefulWidget {
   static const String routeName = 'job-maker';
   static const String routePath = routeName;
-
-  final FormatConfigModel formatConfigModel;
-  final Map<String, String?> translations;
 
   static Future<List<ConvertJob>> cook(BuildContext context) async {
     final formatConfigModel = await FormatConfigModel.get(context);
@@ -53,25 +54,19 @@ class JobMaker extends StatefulWidget {
     );
   }
 
-  const JobMaker({
-    super.key,
-    required this.formatConfigModel,
-    required this.translations,
-  });
-
   @override
   State<JobMaker> createState() => _JobMakerState();
 }
 
 class _JobMakerState extends State<JobMaker> {
-  late final JobMakerViewModel _viewModel = JobMakerViewModel(
+  late final JobMakerViewModel _viewModel = .new(
     formatConfigModel: widget.formatConfigModel,
     translations: widget.translations,
   );
 
-  final MenuController _menuController = MenuController();
-  final PageController _pageController = PageController();
-  final ValueNotifier<int> _currentStepNotifier = ValueNotifier(0);
+  final MenuController _menuController = .new();
+  final PageController _pageController = .new();
+  final ValueNotifier<int> _currentStepNotifier = .new(0);
 
   @override
   void dispose() {
@@ -106,7 +101,7 @@ class _JobMakerState extends State<JobMaker> {
                       return AppBar(
                         centerTitle: true,
                         title: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                          crossAxisAlignment: .center,
                           children: [
                             Text(
                               step.getTitle(context),
@@ -123,7 +118,7 @@ class _JobMakerState extends State<JobMaker> {
                             ? null
                             : [
                                 Container(
-                                  margin: EdgeInsets.symmetric(
+                                  margin: .symmetric(
                                     horizontal: Spacing.d16,
                                   ),
                                   child: Directionality(
@@ -135,7 +130,7 @@ class _JobMakerState extends State<JobMaker> {
                                       builder: (context, model, child) {
                                         return MenuAnchor(
                                           controller: _menuController,
-                                          alignmentOffset: Offset(
+                                          alignmentOffset: .new(
                                             0,
                                             Spacing.d4,
                                           ),
@@ -195,8 +190,8 @@ class _JobMakerState extends State<JobMaker> {
                                           ],
                                           builder: (context, controller, _) =>
                                               Button(
-                                                variant: ButtonVariant.ghost,
-                                                padding: EdgeInsets.all(
+                                                variant: .ghost,
+                                                padding: .all(
                                                   Spacing.d8,
                                                 ),
                                                 child: ImageView(
@@ -241,7 +236,7 @@ class _JobMakerState extends State<JobMaker> {
                   ),
                   Spacing.v16,
                   Padding(
-                    padding: EdgeInsets.symmetric(
+                    padding: .symmetric(
                       horizontal: Spacing.d16,
                     ),
                     child: ValueListenableBuilder(
@@ -250,7 +245,7 @@ class _JobMakerState extends State<JobMaker> {
                         final isLastStep =
                             currentStep == JobMakerSteps.values.length - 1;
                         return Button(
-                          variant: ButtonVariant.primary,
+                          variant: .primary,
                           label: isLastStep
                               ? context.l10n.startConversion
                               : context.l10n.next,
@@ -325,7 +320,7 @@ class _JobMakerState extends State<JobMaker> {
         negativeText: context.l10n.goBack,
       );
 
-      final hasGoBackConfirmed = action == ConfirmAction.negative;
+      final hasGoBackConfirmed = action == .negative;
       if (!hasGoBackConfirmed) {
         return;
       }

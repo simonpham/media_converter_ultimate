@@ -75,7 +75,7 @@ class JobMakerViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addFiles(final List<File> files) async {
+  Future<void> addFiles(List<File> files) async {
     final shouldExcludeNonMediaFiles = SettingsBox().shouldExcludeNonMediaFiles;
     final isCheckingCustomExtensions = shouldExcludeNonMediaFiles == false;
     final excludedFileExtensions = SettingsBox().excludedFileExtensions;

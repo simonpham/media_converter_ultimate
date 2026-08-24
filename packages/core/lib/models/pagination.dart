@@ -1,13 +1,7 @@
-abstract base class Pagination {
-  const Pagination();
-}
+abstract base class const Pagination();
 
-final class OffsetLimitPagination extends Pagination {
-  final int offset;
-  final int limit;
+final class const OffsetLimitPagination({
+  required final int offset,
+  required final int limit,
+}) extends Pagination;
 
-  const OffsetLimitPagination({
-    required this.offset,
-    required this.limit,
-  });
-}

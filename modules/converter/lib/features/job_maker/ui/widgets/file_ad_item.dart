@@ -7,11 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_ads/mobile_ads.dart';
 import 'package:mobile_ads_google/mobile_ads_google.dart';
 
-class FileAdItem extends StatefulWidget {
-  const FileAdItem({
-    super.key,
-  });
-
+class const FileAdItem({super.key}) extends StatefulWidget {
   @override
   State<FileAdItem> createState() => _FileAdItemState();
 }
@@ -48,12 +44,12 @@ class _FileAdItemState extends State<FileAdItem>
       child: isAdLoadFailed
           ? const SizedBox(width: double.infinity)
           : Padding(
-              padding: EdgeInsets.symmetric(
+              padding: .symmetric(
                 horizontal: Spacing.d16,
               ),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: .min,
+                crossAxisAlignment: .start,
                 children: [
                   Text(
                     context.l10n.adLabel,
@@ -77,7 +73,7 @@ class _FileAdItemState extends State<FileAdItem>
                             borderRadius: Spacing.r12,
                           ),
                         ),
-                        padding: EdgeInsets.symmetric(
+                        padding: .symmetric(
                           horizontal: Spacing.d12,
                           vertical: Spacing.d12,
                         ),

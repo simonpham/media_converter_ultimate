@@ -1,17 +1,11 @@
 part of '../config_control_widget.dart';
 
-class MultiChoiceWidget extends StatelessWidget {
-  final ConfigControl control;
-  final Map<String, String> selectedValues;
-  final void Function(String, String)? onChanged;
-
-  const MultiChoiceWidget(
-    this.control,
-    this.selectedValues,
-    this.onChanged, {
-    super.key,
-  });
-
+class const MultiChoiceWidget(
+  final ConfigControl control,
+  final Map<String, String> selectedValues,
+  final void Function(String, String)? onChanged, {
+  super.key,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<String> selectedValuesList = List<String>.from(
@@ -20,7 +14,7 @@ class MultiChoiceWidget extends StatelessWidget {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.zero,
+      padding: .zero,
       itemCount: control.options.length,
       itemBuilder: (context, index) {
         final option = control.options[index];

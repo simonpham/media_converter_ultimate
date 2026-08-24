@@ -1,12 +1,10 @@
 part of '../settings_child.dart';
 
-class DefaultOutputFormatSettingsChild extends SettingsChild {
+class const DefaultOutputFormatSettingsChild({
+  super.key,
+}) extends SettingsChild {
   @override
-  SettingsPageItem get settings => SettingsPageItem.defaultOutputFormat;
-
-  const DefaultOutputFormatSettingsChild({
-    super.key,
-  });
+  SettingsPageItem get settings => .defaultOutputFormat;
 
   @override
   Widget builder(BuildContext context) {
@@ -22,7 +20,7 @@ class DefaultOutputFormatSettingsChild extends SettingsChild {
         }
         final formatConfigModel = format;
         return GridView.builder(
-          padding: EdgeInsets.all(Spacing.d16),
+          padding: .all(Spacing.d16),
           itemCount: format.formats.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,

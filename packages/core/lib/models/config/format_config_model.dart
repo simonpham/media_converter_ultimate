@@ -9,21 +9,16 @@ import 'package:utils/utils.dart';
 part 'format_config_model_extensions.dart';
 
 @immutable
-class FormatConfigModel {
-  final List<FormatEntry> formats;
-  final Map<String, LinearGradient> uiGradients;
-
+class const FormatConfigModel({
+  required final List<FormatEntry> formats,
+  required final Map<String, LinearGradient> uiGradients,
+}) {
   static Future<FormatConfigModel?> get(BuildContext context) async {
     final json = await DefaultAssetBundle.of(context).loadString(
       'assets/configs/format.json',
     );
     return FormatConfigModel.fromJson(jsonDecode(json));
   }
-
-  const FormatConfigModel({
-    required this.formats,
-    required this.uiGradients,
-  });
 
   factory FormatConfigModel.fromJson(Map<String, dynamic> json) {
     final formatsList = requireField<List<dynamic>>(json, 'format');
@@ -43,13 +38,13 @@ class FormatConfigModel {
             .toList();
         uiGradients[key] = LinearGradient(
           colors: colors,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: .topLeft,
+          end: .bottomRight,
         );
       }
     });
 
-    return FormatConfigModel(
+    return .new(
       formats: formats,
       uiGradients: uiGradients,
     );
@@ -57,25 +52,18 @@ class FormatConfigModel {
 }
 
 @immutable
-class FormatEntry {
-  final String name;
-  final String outputExtension;
-  final OutputType outputType;
-  final bool shouldAddToArgs;
-
-  const FormatEntry({
-    required this.name,
-    required this.outputExtension,
-    required this.outputType,
-    required this.shouldAddToArgs,
-  });
-
+class const FormatEntry({
+  required final String name,
+  required final String outputExtension,
+  required final OutputType outputType,
+  required final bool shouldAddToArgs,
+}) {
   factory FormatEntry.fromJson(Map<String, dynamic> json) {
     final name = requireField<String>(json, 'name');
     final outputExtension = requireField<String>(json, 'output_extension');
     final outputType = OutputType.parse(json['output_type']);
     final shouldAddToArgs = json['should_add_to_args'] == true;
-    return FormatEntry(
+    return .new(
       name: name,
       outputExtension: outputExtension,
       outputType: outputType,
@@ -84,19 +72,16 @@ class FormatEntry {
   }
 }
 
-enum OutputType {
+enum OutputType(final String value) {
   audio('audio'),
   video('video'),
   unknown('');
 
-  final String value;
-
-  const OutputType(this.value);
-
   factory OutputType.parse(dynamic key) {
     return values.firstWhere(
       (e) => e.value == '$key',
-      orElse: () => unknown,
+      orElse: () => .unknown,
     );
   }
 }
+

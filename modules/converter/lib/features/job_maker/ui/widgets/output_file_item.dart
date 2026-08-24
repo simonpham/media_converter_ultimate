@@ -5,32 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
 import 'package:platform_utils/platform_utils.dart';
 
-class OutputFileItem extends StatelessWidget {
-  final File file;
-
-  final int index;
-  final FormatEntry outputFormat;
-  final String outputFileName;
-
-  final Failure? failure;
-
-  final VoidCallback? onRenamePressed;
-
-  const OutputFileItem(
-    this.file, {
-    super.key,
-    required this.index,
-    required this.outputFormat,
-    required this.outputFileName,
-    this.failure,
-    this.onRenamePressed,
-  });
-
+class const OutputFileItem(
+  final File file, {
+  super.key,
+  required final int index,
+  required final FormatEntry outputFormat,
+  required final String outputFileName,
+  final Failure? failure,
+  final VoidCallback? onRenamePressed,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasError = failure != null;
     return Tappable(
-      behavior: HitTestBehavior.translucent,
+      behavior: .translucent,
       tooltip:
           '$outputFileName'
           '\n'
@@ -52,7 +40,7 @@ class OutputFileItem extends StatelessWidget {
             Text(
               '$index',
               style: context.theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+                fontWeight: .bold,
                 color: hasError ? context.theme.colorScheme.error : null,
               ),
               maxLines: 1,
@@ -60,7 +48,7 @@ class OutputFileItem extends StatelessWidget {
             Spacing.h8,
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: .start,
                 children: [
                   Text(
                     outputFileName,
@@ -68,18 +56,18 @@ class OutputFileItem extends StatelessWidget {
                       color: hasError ? context.theme.colorScheme.error : null,
                     ),
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    overflow: .ellipsis,
                   ),
                 ],
               ),
             ),
             Spacing.h8,
             Tappable(
-              behavior: HitTestBehavior.translucent,
+              behavior: .translucent,
               tooltip: context.l10n.rename,
               onTap: onRenamePressed,
               child: Container(
-                padding: EdgeInsets.all(
+                padding: .all(
                   Spacing.d12,
                 ),
                 child: ImageView(

@@ -3,31 +3,21 @@ import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
-class JobMakerConfigCustomizer extends StatefulWidget {
-  final List<ConfigControl> availableControls;
-
-  final Map<String, String> selectedValues;
-  final void Function(String, String)? onChanged;
-
-  final bool shouldRememberConfigs;
-  final ValueChanged<bool>? onRememberConfigsChanged;
-
-  const JobMakerConfigCustomizer({
-    super.key,
-    required this.availableControls,
-    required this.selectedValues,
-    this.onChanged,
-    required this.shouldRememberConfigs,
-    this.onRememberConfigsChanged,
-  });
-
+class const JobMakerConfigCustomizer({
+  super.key,
+  required final List<ConfigControl> availableControls,
+  required final Map<String, String> selectedValues,
+  final void Function(String, String)? onChanged,
+  required final bool shouldRememberConfigs,
+  final ValueChanged<bool>? onRememberConfigsChanged,
+}) extends StatefulWidget {
   @override
   State<JobMakerConfigCustomizer> createState() =>
       _JobMakerConfigCustomizerState();
 }
 
 class _JobMakerConfigCustomizerState extends State<JobMakerConfigCustomizer> {
-  final ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = .new();
 
   @override
   void dispose() {
@@ -51,14 +41,14 @@ class _JobMakerConfigCustomizerState extends State<JobMakerConfigCustomizer> {
               slivers: [
                 SliverToBoxAdapter(
                   child: RoundCard(
-                    margin: EdgeInsets.symmetric(
+                    margin: .symmetric(
                       horizontal: Spacing.d16,
                     ),
-                    padding: EdgeInsets.symmetric(
+                    padding: .symmetric(
                       vertical: Spacing.d12,
                     ),
                     child: CheckBoxListTile(
-                      alignment: CheckBoxAlignment.left,
+                      alignment: .left,
                       title: context.l10n.rememberConfigsTitle,
                       subtitle: widget.shouldRememberConfigs
                           ? context.l10n.rememberConfigsEnabledSubtitle
@@ -79,10 +69,10 @@ class _JobMakerConfigCustomizerState extends State<JobMakerConfigCustomizer> {
                   itemBuilder: (context, index) {
                     final control = visibleControls.elementAt(index);
                     return Container(
-                      margin: EdgeInsets.symmetric(
+                      margin: .symmetric(
                         horizontal: Spacing.d16,
                       ),
-                      padding: EdgeInsets.only(
+                      padding: .only(
                         top: Spacing.d8,
                         bottom: Spacing.d12,
                       ),

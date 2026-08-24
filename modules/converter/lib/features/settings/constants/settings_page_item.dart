@@ -4,7 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:icons/icons.dart';
 
-enum SettingsPageItem {
+enum SettingsPageItem({
+  final String? routeName,
+  final List<Enum>? settingsKeys,
+}) {
   defaultOutputFolder(
     settingsKeys: [
       JobMakerSettings.lastOutputDirectoryPath,
@@ -62,14 +65,6 @@ enum SettingsPageItem {
   legal,
   supportTheDeveloper;
 
-  final String? routeName;
-  final List<Enum>? settingsKeys;
-
-  const SettingsPageItem({
-    this.routeName,
-    this.settingsKeys,
-  });
-
   static List<SettingsPageItem> get availableOptions => kDebugMode
       ? values
       : [
@@ -91,145 +86,145 @@ enum SettingsPageItem {
 
 extension SettingsPageItemExtensions on SettingsPageItem {
   bool? get currentValue => switch (this) {
-    SettingsPageItem.defaultOutputFolder => null,
-    SettingsPageItem.defaultOutputFormat => null,
-    SettingsPageItem.overwriteBehavior => null,
-    SettingsPageItem.concurrencyLimit => null,
-    SettingsPageItem.threadCount => null,
-    SettingsPageItem.keepAppRunning => SettingsBox().keepAppRunning,
-    SettingsPageItem.excludeFileExtensions => null,
-    SettingsPageItem.languages => null,
-    SettingsPageItem.appTheme => null,
-    SettingsPageItem.showFileThumbnails => null,
-    SettingsPageItem.defaultSorting => null,
-    SettingsPageItem.clearCache => null,
-    SettingsPageItem.managePermissions => null,
-    SettingsPageItem.changelog => null,
-    SettingsPageItem.helpAndFaq => null,
-    SettingsPageItem.contactUs => null,
-    SettingsPageItem.legal => null,
-    SettingsPageItem.supportTheDeveloper => null,
+    .defaultOutputFolder => null,
+    .defaultOutputFormat => null,
+    .overwriteBehavior => null,
+    .concurrencyLimit => null,
+    .threadCount => null,
+    .keepAppRunning => SettingsBox().keepAppRunning,
+    .excludeFileExtensions => null,
+    .languages => null,
+    .appTheme => null,
+    .showFileThumbnails => null,
+    .defaultSorting => null,
+    .clearCache => null,
+    .managePermissions => null,
+    .changelog => null,
+    .helpAndFaq => null,
+    .contactUs => null,
+    .legal => null,
+    .supportTheDeveloper => null,
   };
 
   GoRouterWidgetBuilder? get routerBuilder {
     return switch (this) {
-      SettingsPageItem.defaultOutputFolder => null,
-      SettingsPageItem.defaultOutputFormat =>
+      .defaultOutputFolder => null,
+      .defaultOutputFormat =>
         (_, _) => const DefaultOutputFormatSettingsChild(),
-      SettingsPageItem.overwriteBehavior => null,
-      SettingsPageItem.concurrencyLimit => null,
-      SettingsPageItem.threadCount =>
+      .overwriteBehavior => null,
+      .concurrencyLimit => null,
+      .threadCount =>
         (_, _) => const ThreadCountSettingsChild(),
-      SettingsPageItem.keepAppRunning => null,
-      SettingsPageItem.excludeFileExtensions =>
+      .keepAppRunning => null,
+      .excludeFileExtensions =>
         (_, _) => const ExcludeFileExtensionsSettingsChild(),
-      SettingsPageItem.languages => (_, _) => const LanguagesSettingsChild(),
-      SettingsPageItem.appTheme => (_, _) => const AppThemeSettingsChild(),
-      SettingsPageItem.showFileThumbnails => null,
-      SettingsPageItem.defaultSorting => null,
-      SettingsPageItem.clearCache => null,
-      SettingsPageItem.managePermissions => null,
-      SettingsPageItem.changelog => null,
-      SettingsPageItem.helpAndFaq => null,
-      SettingsPageItem.contactUs => null,
-      SettingsPageItem.legal => null,
-      SettingsPageItem.supportTheDeveloper => null,
+      .languages => (_, _) => const LanguagesSettingsChild(),
+      .appTheme => (_, _) => const AppThemeSettingsChild(),
+      .showFileThumbnails => null,
+      .defaultSorting => null,
+      .clearCache => null,
+      .managePermissions => null,
+      .changelog => null,
+      .helpAndFaq => null,
+      .contactUs => null,
+      .legal => null,
+      .supportTheDeveloper => null,
     };
   }
 
   String getLabel(BuildContext context) {
     return switch (this) {
-      SettingsPageItem.defaultOutputFolder =>
+      .defaultOutputFolder =>
         context.l10n.conversionDefaultOutputFolder,
-      SettingsPageItem.defaultOutputFormat =>
+      .defaultOutputFormat =>
         context.l10n.conversionDefaultOutputFormat,
-      SettingsPageItem.overwriteBehavior =>
+      .overwriteBehavior =>
         context.l10n.conversionOverwriteBehavior,
-      SettingsPageItem.concurrencyLimit => context.l10n.concurrencyLimit,
-      SettingsPageItem.threadCount => context.l10n.threadCountTitle,
-      SettingsPageItem.keepAppRunning => context.l10n.keepAppRunning,
-      SettingsPageItem.excludeFileExtensions =>
+      .concurrencyLimit => context.l10n.concurrencyLimit,
+      .threadCount => context.l10n.threadCountTitle,
+      .keepAppRunning => context.l10n.keepAppRunning,
+      .excludeFileExtensions =>
         context.l10n.excludeFileExtensions,
-      SettingsPageItem.languages => context.l10n.languages,
-      SettingsPageItem.appTheme => context.l10n.displayAppTheme,
-      SettingsPageItem.showFileThumbnails =>
+      .languages => context.l10n.languages,
+      .appTheme => context.l10n.displayAppTheme,
+      .showFileThumbnails =>
         context.l10n.displayShowFileThumbnails,
-      SettingsPageItem.defaultSorting => context.l10n.displayDefaultSorting,
-      SettingsPageItem.clearCache => context.l10n.appManagementClearCache,
-      SettingsPageItem.managePermissions =>
+      .defaultSorting => context.l10n.displayDefaultSorting,
+      .clearCache => context.l10n.appManagementClearCache,
+      .managePermissions =>
         context.l10n.appManagementManagePermissions,
-      SettingsPageItem.helpAndFaq => context.l10n.aboutHelpAndFaq,
-      SettingsPageItem.changelog => context.l10n.viewChangelog,
-      SettingsPageItem.contactUs => context.l10n.aboutContactUs,
-      SettingsPageItem.legal => context.l10n.aboutLegal,
-      SettingsPageItem.supportTheDeveloper =>
+      .helpAndFaq => context.l10n.aboutHelpAndFaq,
+      .changelog => context.l10n.viewChangelog,
+      .contactUs => context.l10n.aboutContactUs,
+      .legal => context.l10n.aboutLegal,
+      .supportTheDeveloper =>
         context.l10n.monetizationSupportTheDeveloper,
     };
   }
 
   String? getDescription(BuildContext context) {
     return switch (this) {
-      SettingsPageItem.defaultOutputFolder =>
+      .defaultOutputFolder =>
         SettingsBox().lastOutputDirectoryPath,
-      SettingsPageItem.defaultOutputFormat =>
+      .defaultOutputFormat =>
         context.l10n.conversionDefaultOutputFormatDescription,
-      SettingsPageItem.overwriteBehavior =>
+      .overwriteBehavior =>
         context.l10n.conversionOverwriteBehaviorDescription,
-      SettingsPageItem.concurrencyLimit =>
+      .concurrencyLimit =>
         context.l10n.concurrencyLimitDescription(
           '${SettingsBox().concurrencyLimit}',
         ),
-      SettingsPageItem.threadCount => context.l10n.threadCountSubtitle(
+      .threadCount => context.l10n.threadCountSubtitle(
         ThreadCountSettingsChild.getValueLabel(
           context,
           SettingsBox().threadCount,
         ),
       ),
-      SettingsPageItem.keepAppRunning => switch (SettingsBox().keepAppRunning) {
+      .keepAppRunning => switch (SettingsBox().keepAppRunning) {
         true => context.l10n.keepAppRunningOnDescription,
         false => context.l10n.keepAppRunningOffDescription,
       },
-      SettingsPageItem.excludeFileExtensions =>
+      .excludeFileExtensions =>
         context.l10n.excludedFilesDescription,
-      SettingsPageItem.languages => null,
-      SettingsPageItem.appTheme => context.l10n.displayAppThemeDescription,
-      SettingsPageItem.showFileThumbnails =>
+      .languages => null,
+      .appTheme => context.l10n.displayAppThemeDescription,
+      .showFileThumbnails =>
         context.l10n.displayShowFileThumbnailsDescription,
-      SettingsPageItem.defaultSorting =>
+      .defaultSorting =>
         context.l10n.displayDefaultSortingDescription,
-      SettingsPageItem.clearCache =>
+      .clearCache =>
         context.l10n.appManagementClearCacheDescription,
-      SettingsPageItem.managePermissions =>
+      .managePermissions =>
         context.l10n.appManagementManagePermissionsDescription,
-      SettingsPageItem.changelog => null,
-      SettingsPageItem.helpAndFaq => null,
-      SettingsPageItem.contactUs => null,
-      SettingsPageItem.legal => context.l10n.aboutLegalDescription,
-      SettingsPageItem.supportTheDeveloper =>
+      .changelog => null,
+      .helpAndFaq => null,
+      .contactUs => null,
+      .legal => context.l10n.aboutLegalDescription,
+      .supportTheDeveloper =>
         context.l10n.monetizationSupportTheDeveloperDescription,
     };
   }
 
   String get appIcon {
     return switch (this) {
-      SettingsPageItem.defaultOutputFolder => Assets.folder01,
-      SettingsPageItem.defaultOutputFormat => Assets.fileExport,
-      SettingsPageItem.overwriteBehavior => Assets.deleteThrow,
-      SettingsPageItem.concurrencyLimit => Assets.layersLogoStrokeRounded,
-      SettingsPageItem.threadCount => Assets.layers01StrokeRounded,
-      SettingsPageItem.keepAppRunning => Assets.flash,
-      SettingsPageItem.excludeFileExtensions => Assets.fileBlock,
-      SettingsPageItem.languages => Assets.globe,
-      SettingsPageItem.appTheme => Assets.customize,
-      SettingsPageItem.showFileThumbnails => Assets.image01,
-      SettingsPageItem.defaultSorting => Assets.sorting01,
-      SettingsPageItem.clearCache => Assets.delete04,
-      SettingsPageItem.managePermissions => Assets.securityLock,
-      SettingsPageItem.changelog => Assets.file02,
-      SettingsPageItem.helpAndFaq => Assets.helpCircle,
-      SettingsPageItem.contactUs => Assets.message01,
-      SettingsPageItem.legal => Assets.legalDocument01,
-      SettingsPageItem.supportTheDeveloper => Assets.dollarCircle,
+      .defaultOutputFolder => Assets.folder01,
+      .defaultOutputFormat => Assets.fileExport,
+      .overwriteBehavior => Assets.deleteThrow,
+      .concurrencyLimit => Assets.layersLogoStrokeRounded,
+      .threadCount => Assets.layers01StrokeRounded,
+      .keepAppRunning => Assets.flash,
+      .excludeFileExtensions => Assets.fileBlock,
+      .languages => Assets.globe,
+      .appTheme => Assets.customize,
+      .showFileThumbnails => Assets.image01,
+      .defaultSorting => Assets.sorting01,
+      .clearCache => Assets.delete04,
+      .managePermissions => Assets.securityLock,
+      .changelog => Assets.file02,
+      .helpAndFaq => Assets.helpCircle,
+      .contactUs => Assets.message01,
+      .legal => Assets.legalDocument01,
+      .supportTheDeveloper => Assets.dollarCircle,
     };
   }
 }

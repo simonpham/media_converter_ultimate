@@ -7,39 +7,24 @@ import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
 import 'package:utils/utils.dart';
 
-class JobItem extends StatelessWidget {
-  final ConvertJob job;
-
-  final VoidCallback? onRemoveItem;
-  final VoidCallback? onOpenLogs;
-  final VoidCallback? onShare;
-  final VoidCallback? onOpenFile;
-  final VoidCallback? onOpenFolder;
-  final VoidCallback? onDelete;
-  final VoidCallback? onStop;
-  final VoidCallback? onRestart;
-  final VoidCallback? onRenameOutputFile;
-  final VoidCallback? onSelectNewOutputPath;
-
-  const JobItem(
-    this.job, {
-    this.onRemoveItem,
-    this.onOpenLogs,
-    this.onShare,
-    this.onOpenFile,
-    this.onOpenFolder,
-    this.onDelete,
-    this.onStop,
-    this.onRestart,
-    this.onRenameOutputFile,
-    this.onSelectNewOutputPath,
-    super.key,
-  });
-
+class const JobItem(
+  final ConvertJob job, {
+  super.key,
+  final VoidCallback? onRemoveItem,
+  final VoidCallback? onOpenLogs,
+  final VoidCallback? onShare,
+  final VoidCallback? onOpenFile,
+  final VoidCallback? onOpenFolder,
+  final VoidCallback? onDelete,
+  final VoidCallback? onStop,
+  final VoidCallback? onRestart,
+  final VoidCallback? onRenameOutputFile,
+  final VoidCallback? onSelectNewOutputPath,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(
+      margin: .symmetric(
         horizontal: Spacing.d16,
       ),
       decoration: ShapeDecoration(
@@ -48,14 +33,14 @@ class JobItem extends StatelessWidget {
           borderRadius: Spacing.r12,
         ),
       ),
-      padding: EdgeInsets.symmetric(
+      padding: .symmetric(
         vertical: Spacing.d16,
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: .start,
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(
+            padding: .symmetric(
               horizontal: Spacing.d16,
             ),
             child: Row(
@@ -70,15 +55,15 @@ class JobItem extends StatelessWidget {
                     job.outputFileName,
                     style: TextStyle(
                       fontSize: Spacing.d14,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: .w600,
                     ),
                   ),
                 ),
                 Spacing.h8,
                 Button(
-                  mainAxisSize: MainAxisSize.min,
-                  variant: ButtonVariant.ghost,
-                  padding: EdgeInsets.all(Spacing.d8),
+                  mainAxisSize: .min,
+                  variant: .ghost,
+                  padding: .all(Spacing.d8),
                   child: ImageView(
                     Assets.cancel01,
                     size: Spacing.d16,
@@ -91,7 +76,7 @@ class JobItem extends StatelessWidget {
           ),
           const Divider(),
           Padding(
-            padding: EdgeInsets.symmetric(
+            padding: .symmetric(
               horizontal: Spacing.d16,
             ),
             child: Text.rich(
@@ -113,7 +98,7 @@ class JobItem extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(
+            padding: .symmetric(
               horizontal: Spacing.d16,
             ),
             child: Text(
@@ -130,7 +115,7 @@ class JobItem extends StatelessWidget {
             int duration,
           ) when job.status.isProcessing && duration > 0) ...[
             Padding(
-              padding: EdgeInsets.symmetric(
+              padding: .symmetric(
                 horizontal: Spacing.d16,
               ),
               child: Row(
@@ -151,7 +136,7 @@ class JobItem extends StatelessWidget {
           ],
           Spacing.v16,
           Padding(
-            padding: EdgeInsets.symmetric(
+            padding: .symmetric(
               horizontal: Spacing.d16,
             ),
             child: JobActionBar(

@@ -4,17 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
 import 'package:platform_utils/platform_utils.dart';
 
-class FileItem extends StatelessWidget {
-  const FileItem(
-    this.file, {
-    super.key,
-    this.leading,
-    this.onRemove,
-  });
-
-  final File file;
-  final Widget? leading;
-  final VoidCallback? onRemove;
+class const FileItem(
+  final File file, {
+  super.key,
+  final Widget? leading,
+  final VoidCallback? onRemove,
+}) extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +20,7 @@ class FileItem extends StatelessWidget {
           borderRadius: Spacing.r12,
         ),
       ),
-      padding: EdgeInsets.symmetric(
+      padding: .symmetric(
         horizontal: Spacing.d4,
         vertical: Spacing.d4,
       ),
@@ -47,9 +42,9 @@ class FileItem extends StatelessWidget {
           if (onRemove != null) ...[
             Spacing.h8,
             Button(
-              mainAxisSize: MainAxisSize.min,
-              variant: ButtonVariant.ghost,
-              padding: EdgeInsets.all(Spacing.d8),
+              mainAxisSize: .min,
+              variant: .ghost,
+              padding: .all(Spacing.d8),
               child: ImageView(
                 Assets.cancel01,
                 size: Spacing.d16,

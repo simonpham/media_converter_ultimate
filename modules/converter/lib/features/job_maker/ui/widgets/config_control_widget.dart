@@ -10,42 +10,35 @@ part 'config_controls/radio_group.dart';
 part 'config_controls/single_choice.dart';
 part 'config_controls/dropdown.dart';
 
-class ConfigControlWidget extends StatelessWidget {
-  final ConfigControl control;
-  final Map<String, String> selectedValues;
-
-  final void Function(String, String)? onChanged;
-
-  const ConfigControlWidget(
-    this.control, {
-    required this.selectedValues,
-    this.onChanged,
-    super.key,
-  });
-
+class const ConfigControlWidget(
+  final ConfigControl control, {
+  super.key,
+  required final Map<String, String> selectedValues,
+  final void Function(String, String)? onChanged,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final labelWidget = SectionTitle(
       context.configL10n(control.label),
-      padding: EdgeInsets.zero,
+      padding: .zero,
     );
     final controlWidget = switch (control.type) {
-      ConfigControlType.multiChoice => MultiChoiceWidget(
+      .multiChoice => MultiChoiceWidget(
         control,
         selectedValues,
         onChanged,
       ),
-      ConfigControlType.radioGroup => RadioGroupWidget(
+      .radioGroup => RadioGroupWidget(
         control,
         selectedValues,
         onChanged,
       ),
-      ConfigControlType.singleChoice => SingleChoiceWidget(
+      .singleChoice => SingleChoiceWidget(
         control,
         selectedValues,
         onChanged,
       ),
-      ConfigControlType.dropdown => DropdownWidget(
+      .dropdown => DropdownWidget(
         control,
         selectedValues,
         onChanged,
@@ -55,29 +48,11 @@ class ConfigControlWidget extends StatelessWidget {
       ),
     };
 
-    // if ([ConfigControlType.dropdown].contains(control.type)) {
-    //   return Padding(
-    //     padding: EdgeInsets.only(
-    //       left: Spacing.d16,
-    //       right: Spacing.d16,
-    //     ),
-    //     child: Row(
-    //       crossAxisAlignment: CrossAxisAlignment.baseline,
-    //       textBaseline: TextBaseline.alphabetic,
-    //       children: [
-    //         labelWidget,
-    //         Spacing.h16,
-    //         Expanded(child: controlWidget),
-    //       ],
-    //     ),
-    //   );
-    // }
-
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: .start,
       children: [
         Padding(
-          padding: EdgeInsets.only(
+          padding: .only(
             left: Spacing.d16,
             right: Spacing.d16,
             top: Spacing.d16,

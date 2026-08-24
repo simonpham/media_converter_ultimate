@@ -1,12 +1,10 @@
 part of '../settings_child.dart';
 
-class ThreadCountSettingsChild extends SettingsChild {
+class const ThreadCountSettingsChild({
+  super.key,
+}) extends SettingsChild {
   @override
-  SettingsPageItem get settings => SettingsPageItem.threadCount;
-
-  const ThreadCountSettingsChild({
-    super.key,
-  });
+  SettingsPageItem get settings => .threadCount;
 
   static String getValueLabel(BuildContext context, int value) {
     if (value == 0) {
@@ -21,7 +19,7 @@ class ThreadCountSettingsChild extends SettingsChild {
   Widget builder(BuildContext context) {
     final scrollController = ScrollController();
     final numberOfProcessors = Platform.numberOfProcessors;
-    final ValueNotifier<int> threadCountNotifier = ValueNotifier(
+    final ValueNotifier<int> threadCountNotifier = .new(
       SettingsBox().threadCount,
     );
     final textTheme = context.theme.textTheme;
@@ -32,7 +30,7 @@ class ThreadCountSettingsChild extends SettingsChild {
             controller: scrollController,
             slivers: [
               SliverPadding(
-                padding: EdgeInsets.only(
+                padding: .only(
                   left: Spacing.d16,
                   right: Spacing.d16,
                 ),
@@ -45,17 +43,17 @@ class ThreadCountSettingsChild extends SettingsChild {
               ),
               SliverToBoxAdapter(
                 child: RoundCard(
-                  margin: EdgeInsets.only(
+                  margin: .only(
                     top: Spacing.d16,
                     left: Spacing.d16,
                     right: Spacing.d16,
                   ),
-                  padding: EdgeInsets.symmetric(vertical: Spacing.d16),
+                  padding: .symmetric(vertical: Spacing.d16),
                   child: ValueListenableBuilder<int>(
                     valueListenable: threadCountNotifier,
                     builder: (context, threadCount, _) {
                       return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: .start,
                         children: [
                           Padding(
                             padding: EdgeInsets.symmetric(
@@ -116,18 +114,18 @@ class ThreadCountSettingsChild extends SettingsChild {
                           ),
                           AnimatedSize(
                             duration: const Duration(milliseconds: 300),
-                            alignment: Alignment.topCenter,
+                            alignment: .topCenter,
                             curve: Curves.easeOut,
                             child: switch (threadCount >= numberOfProcessors) {
                               true => Column(
                                 children: [
                                   Spacing.v16,
                                   RoundCard(
-                                    margin: EdgeInsets.symmetric(
+                                    margin: .symmetric(
                                       horizontal: Spacing.d16,
                                     ),
                                     color: Colors.amber[50],
-                                    padding: EdgeInsets.all(Spacing.d16),
+                                    padding: .all(Spacing.d16),
                                     child: HtmlWidget(
                                       ''
                                       '${context.l10n.threadCountWarningTitle.html.bold.br}'
@@ -152,12 +150,12 @@ class ThreadCountSettingsChild extends SettingsChild {
                 child: RoundCard(
                   color: Colors.transparent,
                   borderColor: context.theme.dividerColor,
-                  margin: EdgeInsets.only(
+                  margin: .only(
                     top: Spacing.d16,
                     left: Spacing.d16,
                     right: Spacing.d16,
                   ),
-                  padding: EdgeInsets.all(Spacing.d16),
+                  padding: .all(Spacing.d16),
                   child: HtmlWidget(
                     ''
                     '${context.l10n.threadCountDetailsTitle.html.h3}'
@@ -180,12 +178,12 @@ class ThreadCountSettingsChild extends SettingsChild {
             return AnimatedSize(
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeOut,
-              alignment: Alignment.bottomCenter,
+              alignment: .bottomCenter,
               child: switch (isVisible) {
                 true => BottomContainer(
                   scrollController: scrollController,
                   child: Button(
-                    variant: ButtonVariant.primary,
+                    variant: .primary,
                     onPressed: () {
                       final newValue = threadCountNotifier.value;
                       SettingsBox().threadCount = newValue;

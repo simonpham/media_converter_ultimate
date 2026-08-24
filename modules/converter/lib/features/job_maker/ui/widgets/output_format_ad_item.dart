@@ -7,11 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_ads/mobile_ads.dart';
 import 'package:mobile_ads_google/mobile_ads_google.dart';
 
-class OutputFormatAdItem extends StatefulWidget {
-  const OutputFormatAdItem({
-    super.key,
-  });
-
+class const OutputFormatAdItem({super.key}) extends StatefulWidget {
   @override
   State<OutputFormatAdItem> createState() => _OutputFormatAdItemState();
 }
@@ -48,8 +44,8 @@ class _OutputFormatAdItemState extends State<OutputFormatAdItem>
       child: isAdLoadFailed
           ? const SizedBox(width: double.infinity)
           : Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: .min,
+              crossAxisAlignment: .start,
               children: [
                 Text(
                   context.l10n.adLabel,
@@ -73,7 +69,7 @@ class _OutputFormatAdItemState extends State<OutputFormatAdItem>
                           borderRadius: Spacing.r12,
                         ),
                       ),
-                      padding: EdgeInsets.symmetric(
+                      padding: .symmetric(
                         vertical: Spacing.d16,
                         horizontal: Spacing.d16,
                       ),

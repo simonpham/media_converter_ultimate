@@ -1,7 +1,9 @@
 # AI Agent Rules
 
 ## General
-- **Dart Version**: Use Dart 3.12+ features (patterns, records, class modifiers, workspace resolution).
+- **Dart Version**: Use Dart 3.13+ features (dot shorthands, primary constructors, patterns, records, class modifiers, workspace resolution).
+- **Dot Shorthands**: Use dot shorthands (`.foo`, `.all()`, `.circular()`, `.center`, `.bold`, `.new()`) wherever context type is clearly defined to reduce boilerplate.
+- **Primary Constructors**: Use primary constructors for classes, data models, widgets, and enhanced enums to streamline field declarations and eliminate redundant constructor bodies.
 - **Lints**: Strictly follow `analysis_options.yaml`. Ensure no new lint errors are introduced.
 - **Imports**:
   - ALWAYS use `package:` imports for files in other packages/modules.

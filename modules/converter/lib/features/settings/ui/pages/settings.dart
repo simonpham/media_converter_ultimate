@@ -3,15 +3,13 @@ import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
-class SettingsPage extends StatelessWidget {
+class const SettingsPage({super.key}) extends StatelessWidget {
   static const String routeName = 'settings';
   static const String routePath = routeName;
 
   static void go(BuildContext context) async {
     context.router.goNamed(routeName);
   }
-
-  const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +20,7 @@ class SettingsPage extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: .start,
           children: [
             for (final category in SettingsCategory.availableOptions) ...[
               SectionTitle(
@@ -37,7 +35,7 @@ class SettingsPage extends StatelessWidget {
                     return const SizedBox.shrink();
                   }
                   return ListView.builder(
-                    padding: EdgeInsets.zero,
+                    padding: .zero,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: items.length,

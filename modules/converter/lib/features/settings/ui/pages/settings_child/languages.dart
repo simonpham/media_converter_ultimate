@@ -1,12 +1,10 @@
 part of '../settings_child.dart';
 
-class LanguagesSettingsChild extends SettingsChild {
+class const LanguagesSettingsChild({
+  super.key,
+}) extends SettingsChild {
   @override
-  SettingsPageItem get settings => SettingsPageItem.languages;
-
-  const LanguagesSettingsChild({
-    super.key,
-  });
+  SettingsPageItem get settings => .languages;
 
   @override
   Widget builder(BuildContext context) {
@@ -21,14 +19,14 @@ class LanguagesSettingsChild extends SettingsChild {
             final icon = kSupportedLanguages[lang]?['icon'];
             final isSelected = SettingsBox().language == lang;
             return RoundCard(
-              margin: EdgeInsets.only(
+              margin: .only(
                 left: Spacing.d16,
                 right: Spacing.d16,
               ),
               child: ListItem(
                 leading: (icon != null)
                     ? Padding(
-                        padding: EdgeInsets.only(
+                        padding: .only(
                           right: Spacing.d4,
                           top: Spacing.d8,
                           bottom: Spacing.d8,
@@ -37,7 +35,7 @@ class LanguagesSettingsChild extends SettingsChild {
                           child: ImageView(
                             icon,
                             size: Spacing.d24,
-                            fit: BoxFit.cover,
+                            fit: .cover,
                             assetPackage: null,
                           ),
                         ),

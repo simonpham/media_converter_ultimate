@@ -1,26 +1,21 @@
 import 'package:flutter/foundation.dart';
 
 @immutable
-class RxStatus<T> {
-  final bool isLoading;
-  final T? data;
-  final String? error;
-
-  const RxStatus({
-    this.isLoading = false,
-    this.data,
-    this.error,
-  });
-
+class const RxStatus<T>({
+  final bool isLoading = false,
+  final T? data,
+  final String? error,
+}) {
   factory RxStatus.loading() {
-    return const RxStatus(isLoading: true);
+    return const .new(isLoading: true);
   }
 
   factory RxStatus.error(String error) {
-    return RxStatus(error: error);
+    return .new(error: error);
   }
 
   factory RxStatus.data(T data) {
-    return RxStatus(data: data);
+    return .new(data: data);
   }
 }
+

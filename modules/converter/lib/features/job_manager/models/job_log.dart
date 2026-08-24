@@ -3,14 +3,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 @immutable
-class JobLog {
-  final String jobId;
-  final String message;
-
-  const JobLog({
-    required this.jobId,
-    required this.message,
-  });
+class const JobLog({
+  required final String jobId,
+  required final String message,
+}) {
 
   @override
   String toString() {

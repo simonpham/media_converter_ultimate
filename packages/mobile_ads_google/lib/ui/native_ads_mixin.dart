@@ -12,7 +12,7 @@ mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin<T> {
 
   String get adUnitId => 'ca-app-pub-3940256099942544/2247696110';
 
-  TemplateType get templateType => TemplateType.small;
+  TemplateType get templateType => .small;
 
   @override
   bool get isAdLoaded => _nativeAdIsLoaded;
@@ -34,7 +34,7 @@ mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin<T> {
     final theme = Theme.of(context);
     _nativeAd = NativeAd(
       adUnitId: adUnitId,
-      listener: NativeAdListener(
+      listener: .new(
         onAdLoaded: (ad) {
           printLog('[NativeAdsMixin] (${T.runtimeType}) loaded: $ad');
           setState(() {
@@ -53,32 +53,32 @@ mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin<T> {
         },
       ),
       request: const AdRequest(),
-      nativeTemplateStyle: NativeTemplateStyle(
+      nativeTemplateStyle: .new(
         templateType: templateType,
         mainBackgroundColor: Colors.white,
         cornerRadius: 12.0,
-        callToActionTextStyle: NativeTemplateTextStyle(
+        callToActionTextStyle: .new(
           textColor: Colors.white,
           backgroundColor: theme.colorScheme.primary,
-          style: NativeTemplateFontStyle.normal,
+          style: .normal,
           size: 16.0,
         ),
-        primaryTextStyle: NativeTemplateTextStyle(
+        primaryTextStyle: .new(
           textColor: theme.colorScheme.primary,
-          backgroundColor:  Colors.white,
-          style: NativeTemplateFontStyle.bold,
+          backgroundColor: Colors.white,
+          style: .bold,
           size: 16.0,
         ),
-        secondaryTextStyle: NativeTemplateTextStyle(
+        secondaryTextStyle: .new(
           textColor: Colors.black54,
-          backgroundColor:  Colors.white,
-          style: NativeTemplateFontStyle.normal,
+          backgroundColor: Colors.white,
+          style: .normal,
           size: 14.0,
         ),
-        tertiaryTextStyle: NativeTemplateTextStyle(
+        tertiaryTextStyle: .new(
           textColor: Colors.black54,
-          backgroundColor:  Colors.white,
-          style: NativeTemplateFontStyle.italic,
+          backgroundColor: Colors.white,
+          style: .italic,
           size: 16.0,
         ),
       ),

@@ -13,7 +13,7 @@ class DirectFileService implements FileService {
   Future<List<File>> chooseFiles(dynamic context) async {
     try {
       final files = await FilePicker.pickFiles(
-        type: FileType.any,
+        type: .any,
         allowMultiple: true,
       );
 
@@ -182,7 +182,7 @@ class DirectFileService implements FileService {
       }
 
       final stat = await dir.stat();
-      if (stat.type != FileSystemEntityType.directory) {
+      if (stat.type != .directory) {
         return false;
       }
 

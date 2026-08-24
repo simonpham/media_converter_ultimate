@@ -1,12 +1,10 @@
 part of '../settings_child.dart';
 
-class ExcludeFileExtensionsSettingsChild extends SettingsChild {
+class const ExcludeFileExtensionsSettingsChild({
+  super.key,
+}) extends SettingsChild {
   @override
-  SettingsPageItem get settings => SettingsPageItem.excludeFileExtensions;
-
-  const ExcludeFileExtensionsSettingsChild({
-    super.key,
-  });
+  SettingsPageItem get settings => .excludeFileExtensions;
 
   @override
   Widget builder(BuildContext context) {
@@ -15,14 +13,14 @@ class ExcludeFileExtensionsSettingsChild extends SettingsChild {
     ];
     final shouldExcludeNonMediaFiles = SettingsBox().shouldExcludeNonMediaFiles;
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: .min,
       children: [
         RoundCard(
-          margin: EdgeInsets.symmetric(
+          margin: .symmetric(
             horizontal: Spacing.d16,
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: .min,
             children: [
               RadioIconListTile(
                 title: context.l10n.excludeNonMediaFileExtensions,
@@ -59,7 +57,7 @@ class ExcludeFileExtensionsSettingsChild extends SettingsChild {
                 Expanded(
                   child: ListView.separated(
                     itemCount: excludedFileExtensions.length,
-                    padding: EdgeInsets.only(
+                    padding: .only(
                       top: Spacing.d16,
                       left: Spacing.d16,
                       right: Spacing.d16,
@@ -102,22 +100,22 @@ class _ExcludeFileExtensionInput extends StatefulWidget {
 
 class _ExcludeFileExtensionInputState
     extends State<_ExcludeFileExtensionInput> {
-  final TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = .new();
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
+      padding: .symmetric(
         horizontal: Spacing.d16,
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: .end,
         children: [
           Expanded(
             child: InputText(
               controller: _controller,
               label: context.l10n.excludeFileExtensionsInputLabel,
               hintText: context.l10n.excludeFileExtensionsInputHint,
-              textInputAction: TextInputAction.done,
+              textInputAction: .done,
               onEditingComplete: () {
                 _handleAdd();
               },
@@ -125,7 +123,7 @@ class _ExcludeFileExtensionInputState
           ),
           Spacing.h16,
           Button(
-            variant: ButtonVariant.primary,
+            variant: .primary,
             label: context.l10n.add,
             onPressed: () {
               _handleAdd();
@@ -146,24 +144,19 @@ class _ExcludeFileExtensionInputState
   }
 }
 
-class _ExcludeFileExtensionListItem extends StatelessWidget {
-  final String extension;
-  final VoidCallback onRemove;
-
-  const _ExcludeFileExtensionListItem({
-    required this.extension,
-    required this.onRemove,
-  });
-
+class const _ExcludeFileExtensionListItem({
+  required final String extension,
+  required final VoidCallback onRemove,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RoundCard(
       child: ListItem(
         title: extension,
         trailing: Tappable(
-          behavior: HitTestBehavior.translucent,
+          behavior: .translucent,
           child: Padding(
-            padding: EdgeInsets.all(
+            padding: .all(
               Spacing.d4,
             ),
             child: ImageView(

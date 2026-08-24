@@ -9,18 +9,18 @@ enum FileContentType {
 
   factory FileContentType.fromMimeType(String? mimeType) {
     if (mimeType == null) {
-      return FileContentType.other;
+      return .other;
     }
 
     if (mimeType.startsWith('audio/')) {
-      return FileContentType.audio;
+      return .audio;
     }
 
     if (mimeType.startsWith('video/')) {
-      return FileContentType.video;
+      return .video;
     }
 
-    return FileContentType.other;
+    return .other;
   }
 
   factory FileContentType.fromFile(File file) {

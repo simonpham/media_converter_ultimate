@@ -17,14 +17,10 @@ extension JobLogViewerExt on ConvertJob {
   }
 }
 
-class JobLogViewer extends StatefulWidget {
-  final ConvertJob job;
-
-  const JobLogViewer({
-    super.key,
-    required this.job,
-  });
-
+class const JobLogViewer({
+  super.key,
+  required final ConvertJob job,
+}) extends StatefulWidget {
   @override
   State<JobLogViewer> createState() => _JobLogViewerState();
 }
@@ -43,17 +39,6 @@ class _JobLogViewerState extends State<JobLogViewer> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.job.outputFileName),
-        // TODO: add search.
-        // actions: [
-        //   IconButton(
-        //     onPressed: () {},
-        //     icon: ImageView(
-        //       Assets.hugeicons.stroke.search.search,
-        //       size: Spacing.d24,
-        //       color: context.theme.colorScheme.onSurface,
-        //     ),
-        //   ),
-        // ],
       ),
       body: Scrollbar(
         controller: _scrollController,
@@ -61,7 +46,7 @@ class _JobLogViewerState extends State<JobLogViewer> {
         child: SingleChildScrollView(
           controller: _scrollController,
           reverse: true,
-          padding: EdgeInsets.all(Spacing.d16),
+          padding: .all(Spacing.d16),
           child: ValueListenableBuilder(
             valueListenable: LogData().getLogListenable(widget.job.id),
             builder: (context, _, child) {

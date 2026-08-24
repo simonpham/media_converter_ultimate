@@ -3,7 +3,9 @@ import 'package:core/core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-enum SettingsCategory {
+enum SettingsCategory({
+  required final List<SettingsPageItem> items,
+}) {
   conversionAndOutput(
     items: [
       SettingsPageItem.defaultOutputFolder,
@@ -43,12 +45,6 @@ enum SettingsCategory {
     ],
   );
 
-  final List<SettingsPageItem> items;
-
-  const SettingsCategory({
-    required this.items,
-  });
-
   static List<SettingsCategory> get availableOptions => kDebugMode
       ? values
       : [
@@ -62,14 +58,14 @@ enum SettingsCategory {
 extension SettingsCategoryExtensions on SettingsCategory {
   String getLabel(BuildContext context) {
     return switch (this) {
-      SettingsCategory.conversionAndOutput =>
+      .conversionAndOutput =>
         context.l10n.categoryConversionSettings,
-      SettingsCategory.displayAndUi => context.l10n.categoryDisplaySettings,
-      SettingsCategory.appManagement =>
+      .displayAndUi => context.l10n.categoryDisplaySettings,
+      .appManagement =>
         context.l10n.categoryAppManagementSettings,
-      SettingsCategory.aboutAndSupport =>
+      .aboutAndSupport =>
         context.l10n.categoryAboutAndSupportSettings,
-      SettingsCategory.monetization =>
+      .monetization =>
         context.l10n.categoryMonetizationSettings,
     };
   }

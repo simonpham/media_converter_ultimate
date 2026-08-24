@@ -1,32 +1,19 @@
 import 'package:flutter/foundation.dart';
 
 @immutable
-class ConfigControl {
-  final ConfigControlType type;
-  final String name;
-  final String label;
-  final List<ConfigControlOption> options;
-  final bool isVisible;
-  final bool shouldAddToArgs;
-
-  final String? ffmpegFlag;
-
-  final String? defaultValue;
-
-  const ConfigControl({
-    required this.type,
-    required this.name,
-    required this.label,
-    required this.options,
-    required this.isVisible,
-    required this.shouldAddToArgs,
-    this.ffmpegFlag,
-    this.defaultValue,
-  });
-
+class const ConfigControl({
+  required final ConfigControlType type,
+  required final String name,
+  required final String label,
+  required final List<ConfigControlOption> options,
+  required final bool isVisible,
+  required final bool shouldAddToArgs,
+  final String? ffmpegFlag,
+  final String? defaultValue,
+}) {
   factory ConfigControl.fromJson(dynamic json) {
-    return ConfigControl(
-      type: ConfigControlType.fromValue(json['type']),
+    return .new(
+      type: .fromValue(json['type']),
       name: '${json['name'] ?? ''}',
       label: '${json['label'] ?? ''}',
       options: json['options'] is List
@@ -43,42 +30,31 @@ class ConfigControl {
   }
 }
 
-enum ConfigControlType {
+enum ConfigControlType(final String value) {
   radioGroup('radio_group'),
   dropdown('dropdown'),
   multiChoice('multi_choice'),
   singleChoice('single_choice'),
   unknown('');
 
-  final String value;
-  const ConfigControlType(this.value);
-
   factory ConfigControlType.fromValue(dynamic value) {
     return ConfigControlType.values.firstWhere(
       (element) => element.value == '$value',
-      orElse: () => unknown,
+      orElse: () => .unknown,
     );
   }
 }
 
 @immutable
-class ConfigControlOption {
-  final String label;
-  final String value;
-  final String? description;
-
-  final String? ffmpegArg;
-
-  const ConfigControlOption({
-    required this.label,
-    required this.value,
-    this.description,
-    this.ffmpegArg,
-  });
-
+class const ConfigControlOption({
+  required final String label,
+  required final String value,
+  final String? description,
+  final String? ffmpegArg,
+}) {
   factory ConfigControlOption.fromJson(dynamic json) {
     final ffmpegArg = json['ffmpeg_arg']?.toString();
-    return ConfigControlOption(
+    return .new(
       label: '${json['label'] ?? ''}',
       value: '${json['value'] ?? ffmpegArg ?? ''}',
       description: json['description']?.toString(),
@@ -86,3 +62,4 @@ class ConfigControlOption {
     );
   }
 }
+
