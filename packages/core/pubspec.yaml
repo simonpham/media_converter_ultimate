@@ -26,3 +26,8 @@ dependencies:
 
   easy_hive: ^2.0.0
   easy_hive_encryption: ^2.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^6.0.0
