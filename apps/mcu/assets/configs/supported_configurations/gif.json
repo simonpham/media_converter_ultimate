@@ -1,0 +1,31 @@
+{
+  "gif": [
+    {
+      "type": "dropdown",
+      "name": "configs.gif.framerate",
+      "label": "configs.common.framerate.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-r",
+      "default": "15",
+      "options": [
+        { "label": "configs.common.framerate.10", "value": "10" },
+        { "label": "configs.common.framerate.15", "value": "15" },
+        { "label": "configs.common.framerate.24", "value": "24" },
+        { "label": "configs.common.framerate.30", "value": "30" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.gif.resolution",
+      "label": "configs.common.resolution.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-vf",
+      "default": "scale=480:-1:flags=lanczos",
+      "options": [
+        { "label": "configs.common.resolution.320", "value": "scale=320:-1:flags=lanczos" },
+        { "label": "configs.common.resolution.480", "value": "scale=480:-1:flags=lanczos" },
+        { "label": "configs.common.resolution.640", "value": "scale=640:-1:flags=lanczos" }
+      ]
+    }
+  ]
+}

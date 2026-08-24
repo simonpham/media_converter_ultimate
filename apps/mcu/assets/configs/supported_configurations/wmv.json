@@ -1,0 +1,50 @@
+{
+  "wmv": [
+    {
+      "type": "dropdown",
+      "name": "configs.wmv.video_encoder",
+      "label": "configs.common.video_encoder",
+      "should_add_to_args": true,
+      "default": "[\"-c:v wmv2\", \"-vf scale=trunc(iw/2)*2:trunc(ih/2)*2\"]",
+      "options": [
+        {
+          "label": "ui_codec_description.wmv2",
+          "value": "[\"-c:v wmv2\", \"-vf scale=trunc(iw/2)*2:trunc(ih/2)*2\"]"
+        },
+        {
+          "label": "ui_codec_description.msmpeg4v3",
+          "value": "[\"-c:v msmpeg4v3\", \"-vf scale=trunc(iw/2)*2:trunc(ih/2)*2\"]"
+        }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.wmv.video_bitrate",
+      "label": "configs.common.video_bitrate.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-b:v",
+      "default": "2000k",
+      "options": [
+        { "label": "configs.common.video_bitrate.5000k", "value": "5000k" },
+        { "label": "configs.common.video_bitrate.3000k", "value": "3000k" },
+        { "label": "configs.common.video_bitrate.2000k", "value": "2000k" },
+        { "label": "configs.common.video_bitrate.1000k", "value": "1000k" },
+        { "label": "configs.common.video_bitrate.500k", "value": "500k" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.wmv.audio_encoder",
+      "label": "configs.common.audio_encoder",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-c:a",
+      "default": "wmav2",
+      "options": [
+        {
+          "label": "ui_codec_description.wmav2",
+          "value": "wmav2"
+        }
+      ]
+    }
+  ]
+}

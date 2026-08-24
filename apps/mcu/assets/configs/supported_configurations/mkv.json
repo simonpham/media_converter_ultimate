@@ -1,25 +1,130 @@
 {
   "mkv": [
     {
-      "type": "dropdown",
+      "type": "single_choice",
       "name": "configs.mkv.video_encoder",
       "label": "configs.common.video_encoder",
+      "is_visible": true,
       "should_add_to_args": true,
-      "ffmpeg_flag": "-c:v",
-      "default": "libx264",
+      "default": "-c:v libx264",
       "options": [
         {
           "label": "ui_codec_description.libx264",
-          "value": "libx264"
+          "value": "-c:v libx264"
         },
         {
           "label": "ui_codec_description.libx265",
-          "value": "libx265"
+          "value": "-c:v libx265"
         },
         {
           "label": "ui_codec_description.vp9",
-          "value": "vp9"
+          "value": "-c:v libvpx-vp9"
         }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.mkv.audio_encoder",
+      "label": "configs.common.audio_encoder",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-c:a",
+      "default": "aac",
+      "options": [
+        { "label": "ui_codec_description.aac", "value": "aac" },
+        { "label": "ui_codec_description.libopus", "value": "libopus" },
+        { "label": "ui_codec_description.flac", "value": "flac" },
+        { "label": "ui_codec_description.ac3", "value": "ac3" },
+        { "label": "ui_codec_description.copy", "value": "copy" }
+      ]
+    }
+  ],
+  "-c:v libx264": [
+    {
+      "type": "dropdown",
+      "name": "configs.mkv.video_preset.x264",
+      "label": "configs.common.preset.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-preset",
+      "default": "medium",
+      "options": [
+        { "label": "configs.mp4.video_preset.ultrafast", "value": "ultrafast" },
+        { "label": "configs.mp4.video_preset.superfast", "value": "superfast" },
+        { "label": "configs.mp4.video_preset.veryfast", "value": "veryfast" },
+        { "label": "configs.mp4.video_preset.faster", "value": "faster" },
+        { "label": "configs.mp4.video_preset.fast", "value": "fast" },
+        { "label": "configs.mp4.video_preset.medium", "value": "medium" },
+        { "label": "configs.mp4.video_preset.slow", "value": "slow" },
+        { "label": "configs.mp4.video_preset.slower", "value": "slower" },
+        { "label": "configs.mp4.video_preset.veryslow", "value": "veryslow" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.mkv.crf.x264",
+      "label": "configs.common.crf.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-crf",
+      "default": "23",
+      "options": [
+        { "label": "configs.common.crf.18", "value": "18" },
+        { "label": "configs.common.crf.20", "value": "20" },
+        { "label": "configs.common.crf.23", "value": "23" },
+        { "label": "configs.common.crf.26", "value": "26" },
+        { "label": "configs.common.crf.28", "value": "28" },
+        { "label": "configs.common.crf.32", "value": "32" }
+      ]
+    }
+  ],
+  "-c:v libx265": [
+    {
+      "type": "dropdown",
+      "name": "configs.mkv.video_preset.x265",
+      "label": "configs.common.preset.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-preset",
+      "default": "medium",
+      "options": [
+        { "label": "configs.mp4.video_preset.ultrafast", "value": "ultrafast" },
+        { "label": "configs.mp4.video_preset.superfast", "value": "superfast" },
+        { "label": "configs.mp4.video_preset.veryfast", "value": "veryfast" },
+        { "label": "configs.mp4.video_preset.faster", "value": "faster" },
+        { "label": "configs.mp4.video_preset.fast", "value": "fast" },
+        { "label": "configs.mp4.video_preset.medium", "value": "medium" },
+        { "label": "configs.mp4.video_preset.slow", "value": "slow" },
+        { "label": "configs.mp4.video_preset.slower", "value": "slower" },
+        { "label": "configs.mp4.video_preset.veryslow", "value": "veryslow" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.mkv.crf.x265",
+      "label": "configs.common.crf.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-crf",
+      "default": "26",
+      "options": [
+        { "label": "configs.common.crf.20", "value": "20" },
+        { "label": "configs.common.crf.23", "value": "23" },
+        { "label": "configs.common.crf.26", "value": "26" },
+        { "label": "configs.common.crf.28", "value": "28" },
+        { "label": "configs.common.crf.32", "value": "32" },
+        { "label": "configs.common.crf.36", "value": "36" }
+      ]
+    }
+  ],
+  "-c:v libvpx-vp9": [
+    {
+      "type": "dropdown",
+      "name": "configs.mkv.crf.vp9",
+      "label": "configs.common.crf.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-crf",
+      "default": "30",
+      "options": [
+        { "label": "configs.common.crf.20", "value": "20" },
+        { "label": "configs.common.crf.26", "value": "26" },
+        { "label": "configs.common.crf.30", "value": "30" },
+        { "label": "configs.common.crf.36", "value": "36" }
       ]
     }
   ]

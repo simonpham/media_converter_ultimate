@@ -1,0 +1,58 @@
+{
+  "amr": [
+    {
+      "type": "single_choice",
+      "name": "configs.amr.audio_encoder",
+      "label": "configs.common.audio_encoder",
+      "is_visible": false,
+      "should_add_to_args": true,
+      "default": "-c:a libopencore_amrnb",
+      "options": [
+        {
+          "label": "",
+          "value": "-c:a libopencore_amrnb"
+        }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.amr.bitrate",
+      "label": "configs.common.bitrate.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-b:a",
+      "default": "12.2k",
+      "options": [
+        { "label": "configs.common.bitrate.12_2k", "value": "12.2k" },
+        { "label": "configs.common.bitrate.10_2k", "value": "10.2k" },
+        { "label": "configs.common.bitrate.7_95k", "value": "7.95k" },
+        { "label": "configs.common.bitrate.7_40k", "value": "7.40k" },
+        { "label": "configs.common.bitrate.6_70k", "value": "6.70k" },
+        { "label": "configs.common.bitrate.5_90k", "value": "5.90k" },
+        { "label": "configs.common.bitrate.5_15k", "value": "5.15k" },
+        { "label": "configs.common.bitrate.4_75k", "value": "4.75k" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.amr.sampling_rate",
+      "label": "configs.common.sampling_rate",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-ar",
+      "default": "8000",
+      "options": [
+        { "label": "configs.common.sampling_rate.8000", "value": "8000" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.amr.audio_channel",
+      "label": "configs.common.audio_channel.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-ac",
+      "default": "1",
+      "options": [
+        { "label": "configs.common.audio_channel.mono", "value": "1" }
+      ]
+    }
+  ]
+}

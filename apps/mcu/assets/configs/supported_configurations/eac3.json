@@ -1,0 +1,61 @@
+{
+  "eac3": [
+    {
+      "type": "single_choice",
+      "name": "configs.eac3.audio_encoder",
+      "label": "configs.common.audio_encoder",
+      "is_visible": false,
+      "should_add_to_args": true,
+      "default": "-c:a eac3",
+      "options": [
+        {
+          "label": "",
+          "value": "-c:a eac3"
+        }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.eac3.bitrate",
+      "label": "configs.common.bitrate.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-b:a",
+      "default": "640k",
+      "options": [
+        { "label": "configs.common.bitrate.1024k", "value": "1024k" },
+        { "label": "configs.common.bitrate.768k", "value": "768k" },
+        { "label": "configs.common.bitrate.640k", "value": "640k" },
+        { "label": "configs.common.bitrate.448k", "value": "448k" },
+        { "label": "configs.common.bitrate.384k", "value": "384k" },
+        { "label": "configs.common.bitrate.256k", "value": "256k" },
+        { "label": "configs.common.bitrate.192k", "value": "192k" },
+        { "label": "configs.common.bitrate.128k", "value": "128k" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.eac3.sampling_rate",
+      "label": "configs.common.sampling_rate",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-ar",
+      "default": "48000",
+      "options": [
+        { "label": "configs.common.sampling_rate.32000", "value": "32000" },
+        { "label": "configs.common.sampling_rate.44100", "value": "44100" },
+        { "label": "configs.common.sampling_rate.48000", "value": "48000" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.eac3.audio_channel",
+      "label": "configs.common.audio_channel.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-ac",
+      "default": "6",
+      "options": [
+        { "label": "configs.common.audio_channel.stereo", "value": "2" },
+        { "label": "configs.common.audio_channel.5_1", "value": "6" }
+      ]
+    }
+  ]
+}

@@ -1,25 +1,150 @@
 {
   "mov": [
     {
-      "type": "dropdown",
+      "type": "single_choice",
       "name": "configs.mov.video_encoder",
       "label": "configs.common.video_encoder",
+      "is_visible": true,
       "should_add_to_args": true,
-      "ffmpeg_flag": "-c:v",
-      "default": "prores",
+      "default": "-c:v libx264",
       "options": [
         {
+          "label": "ui_codec_description.libx264",
+          "value": "-c:v libx264"
+        },
+        {
+          "label": "ui_codec_description.libx265",
+          "value": "-c:v libx265"
+        },
+        {
           "label": "ui_codec_description.prores",
-          "value": "prores"
+          "value": "-c:v prores_ks"
         },
         {
           "label": "ui_codec_description.mpeg4",
-          "value": "mpeg4"
-        },
-        {
-          "label": "ui_codec_description.libx264",
-          "value": "libx264"
+          "value": "-c:v mpeg4"
         }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.mov.audio_encoder",
+      "label": "configs.common.audio_encoder",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-c:a",
+      "default": "aac",
+      "options": [
+        { "label": "ui_codec_description.aac", "value": "aac" },
+        { "label": "ui_codec_description.pcm_s16le", "value": "pcm_s16le" },
+        { "label": "ui_codec_description.pcm_s24le", "value": "pcm_s24le" },
+        { "label": "ui_codec_description.copy", "value": "copy" }
+      ]
+    }
+  ],
+  "-c:v libx264": [
+    {
+      "type": "dropdown",
+      "name": "configs.mov.video_preset.x264",
+      "label": "configs.common.preset.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-preset",
+      "default": "medium",
+      "options": [
+        { "label": "configs.mp4.video_preset.ultrafast", "value": "ultrafast" },
+        { "label": "configs.mp4.video_preset.superfast", "value": "superfast" },
+        { "label": "configs.mp4.video_preset.veryfast", "value": "veryfast" },
+        { "label": "configs.mp4.video_preset.faster", "value": "faster" },
+        { "label": "configs.mp4.video_preset.fast", "value": "fast" },
+        { "label": "configs.mp4.video_preset.medium", "value": "medium" },
+        { "label": "configs.mp4.video_preset.slow", "value": "slow" },
+        { "label": "configs.mp4.video_preset.slower", "value": "slower" },
+        { "label": "configs.mp4.video_preset.veryslow", "value": "veryslow" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.mov.crf.x264",
+      "label": "configs.common.crf.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-crf",
+      "default": "23",
+      "options": [
+        { "label": "configs.common.crf.18", "value": "18" },
+        { "label": "configs.common.crf.20", "value": "20" },
+        { "label": "configs.common.crf.23", "value": "23" },
+        { "label": "configs.common.crf.26", "value": "26" },
+        { "label": "configs.common.crf.28", "value": "28" },
+        { "label": "configs.common.crf.32", "value": "32" }
+      ]
+    }
+  ],
+  "-c:v libx265": [
+    {
+      "type": "dropdown",
+      "name": "configs.mov.video_preset.x265",
+      "label": "configs.common.preset.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-preset",
+      "default": "medium",
+      "options": [
+        { "label": "configs.mp4.video_preset.ultrafast", "value": "ultrafast" },
+        { "label": "configs.mp4.video_preset.superfast", "value": "superfast" },
+        { "label": "configs.mp4.video_preset.veryfast", "value": "veryfast" },
+        { "label": "configs.mp4.video_preset.faster", "value": "faster" },
+        { "label": "configs.mp4.video_preset.fast", "value": "fast" },
+        { "label": "configs.mp4.video_preset.medium", "value": "medium" },
+        { "label": "configs.mp4.video_preset.slow", "value": "slow" },
+        { "label": "configs.mp4.video_preset.slower", "value": "slower" },
+        { "label": "configs.mp4.video_preset.veryslow", "value": "veryslow" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.mov.crf.x265",
+      "label": "configs.common.crf.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-crf",
+      "default": "26",
+      "options": [
+        { "label": "configs.common.crf.20", "value": "20" },
+        { "label": "configs.common.crf.23", "value": "23" },
+        { "label": "configs.common.crf.26", "value": "26" },
+        { "label": "configs.common.crf.28", "value": "28" },
+        { "label": "configs.common.crf.32", "value": "32" },
+        { "label": "configs.common.crf.36", "value": "36" }
+      ]
+    }
+  ],
+  "-c:v prores_ks": [
+    {
+      "type": "dropdown",
+      "name": "configs.mov.prores_profile",
+      "label": "configs.common.prores_profile.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-profile:v",
+      "default": "2",
+      "options": [
+        { "label": "configs.common.prores_profile.0", "value": "0" },
+        { "label": "configs.common.prores_profile.1", "value": "1" },
+        { "label": "configs.common.prores_profile.2", "value": "2" },
+        { "label": "configs.common.prores_profile.3", "value": "3" }
+      ]
+    }
+  ],
+  "-c:v mpeg4": [
+    {
+      "type": "dropdown",
+      "name": "configs.mov.video_quality",
+      "label": "configs.common.video_quality.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-q:v",
+      "default": "6",
+      "options": [
+        { "label": "configs.mp4.video_quality.2", "value": "2" },
+        { "label": "configs.mp4.video_quality.6", "value": "6" },
+        { "label": "configs.mp4.video_quality.12", "value": "12" },
+        { "label": "configs.mp4.video_quality.18", "value": "18" },
+        { "label": "configs.mp4.video_quality.26", "value": "26" }
       ]
     }
   ]

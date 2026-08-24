@@ -55,6 +55,36 @@
       "should_add_to_args": true
     },
     {
+      "name": "ac3",
+      "output_extension": "ac3",
+      "output_type": "audio",
+      "should_add_to_args": true
+    },
+    {
+      "name": "eac3",
+      "output_extension": "eac3",
+      "output_type": "audio",
+      "should_add_to_args": true
+    },
+    {
+      "name": "amr",
+      "output_extension": "amr",
+      "output_type": "audio",
+      "should_add_to_args": false
+    },
+    {
+      "name": "mka",
+      "output_extension": "mka",
+      "output_type": "audio",
+      "should_add_to_args": false
+    },
+    {
+      "name": "caf",
+      "output_extension": "caf",
+      "output_type": "audio",
+      "should_add_to_args": false
+    },
+    {
       "name": "mp4",
       "output_extension": "mp4",
       "output_type": "video",
@@ -95,6 +125,30 @@
       "output_extension": "flv",
       "output_type": "video",
       "should_add_to_args": true
+    },
+    {
+      "name": "ts",
+      "output_extension": "ts",
+      "output_type": "video",
+      "should_add_to_args": false
+    },
+    {
+      "name": "3gp",
+      "output_extension": "3gp",
+      "output_type": "video",
+      "should_add_to_args": false
+    },
+    {
+      "name": "ogv",
+      "output_extension": "ogv",
+      "output_type": "video",
+      "should_add_to_args": false
+    },
+    {
+      "name": "gif",
+      "output_extension": "gif",
+      "output_type": "video",
+      "should_add_to_args": true
     }
   ],
   "ui_gradients": {
@@ -107,12 +161,21 @@
     "wav": ["#56ccf2", "#2f80ed"],
     "wma": ["#7f7fd5", "#86a8e7"],
     "aiff": ["#5ee7df", "#b490ca"],
+    "ac3": ["#f857a6", "#ff5858"],
+    "eac3": ["#ff7e5f", "#feb47b"],
+    "amr": ["#43cea2", "#185a9d"],
+    "mka": ["#654ea3", "#eaafc8"],
+    "caf": ["#00c6ff", "#0072ff"],
     "mp4": ["#2980b9", "#2c3e50"],
     "mov": ["#4ca1af", "#c4e0e5"],
     "mkv": ["#f12711", "#f5af19"],
     "webm": ["#C04848", "#480048"],
     "avi": ["#4da0b0", "#d39d38"],
     "wmv": ["#5f2c82", "#49a09d"],
-    "flv": ["#ffa07a", "#ffc04d"]
+    "flv": ["#ffa07a", "#ffc04d"],
+    "ts": ["#3a7bd5", "#3a6073"],
+    "3gp": ["#00b09b", "#96c93d"],
+    "ogv": ["#e65c00", "#F9D423"],
+    "gif": ["#ff0844", "#ffb199"]
   }
 }

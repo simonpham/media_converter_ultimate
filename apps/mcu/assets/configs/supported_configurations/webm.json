@@ -1,25 +1,73 @@
 {
   "webm": [
     {
-      "type": "dropdown",
+      "type": "single_choice",
       "name": "configs.webm.video_encoder",
       "label": "configs.common.video_encoder",
+      "is_visible": true,
       "should_add_to_args": true,
-      "ffmpeg_flag": "-c:v",
-      "default": "vp9",
+      "default": "-c:v libvpx-vp9",
       "options": [
         {
-          "label": "ui_codec_description.vp8",
-          "value": "vp8"
-        },
-        {
           "label": "ui_codec_description.vp9",
-          "value": "vp9"
+          "value": "-c:v libvpx-vp9"
         },
         {
-          "label": "ui_codec_description.libvpx",
-          "value": "libvpx"
+          "label": "ui_codec_description.vp8",
+          "value": "-c:v libvpx"
         }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.webm.audio_encoder",
+      "label": "configs.common.audio_encoder",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-c:a",
+      "default": "libopus",
+      "options": [
+        {
+          "label": "ui_codec_description.libopus",
+          "value": "libopus"
+        },
+        {
+          "label": "ui_codec_description.libvorbis",
+          "value": "libvorbis"
+        }
+      ]
+    }
+  ],
+  "-c:v libvpx-vp9": [
+    {
+      "type": "dropdown",
+      "name": "configs.webm.crf.vp9",
+      "label": "configs.common.crf.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-crf",
+      "default": "30",
+      "options": [
+        { "label": "configs.common.crf.18", "value": "18" },
+        { "label": "configs.common.crf.23", "value": "23" },
+        { "label": "configs.common.crf.26", "value": "26" },
+        { "label": "configs.common.crf.30", "value": "30" },
+        { "label": "configs.common.crf.36", "value": "36" }
+      ]
+    }
+  ],
+  "-c:v libvpx": [
+    {
+      "type": "dropdown",
+      "name": "configs.webm.video_quality.vp8",
+      "label": "configs.common.video_quality.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-q:v",
+      "default": "6",
+      "options": [
+        { "label": "configs.mp4.video_quality.2", "value": "2" },
+        { "label": "configs.mp4.video_quality.6", "value": "6" },
+        { "label": "configs.mp4.video_quality.12", "value": "12" },
+        { "label": "configs.mp4.video_quality.18", "value": "18" },
+        { "label": "configs.mp4.video_quality.26", "value": "26" }
       ]
     }
   ]

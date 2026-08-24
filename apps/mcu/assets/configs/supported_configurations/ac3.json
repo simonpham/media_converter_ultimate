@@ -1,66 +1,58 @@
 {
-  "ogg": [
+  "ac3": [
     {
-      "type": "dropdown",
-      "name": "configs.ogg.audio_encoder",
+      "type": "single_choice",
+      "name": "configs.ac3.audio_encoder",
       "label": "configs.common.audio_encoder",
+      "is_visible": false,
       "should_add_to_args": true,
-      "ffmpeg_flag": "-c:a",
-      "default": "libopus",
+      "default": "-c:a ac3",
       "options": [
         {
-          "label": "ui_codec_description.libopus",
-          "value": "libopus"
-        },
-        {
-          "label": "ui_codec_description.libvorbis",
-          "value": "libvorbis"
-        },
-        {
-          "label": "ui_codec_description.flac",
-          "value": "flac"
+          "label": "",
+          "value": "-c:a ac3"
         }
       ]
     },
     {
       "type": "dropdown",
-      "name": "configs.ogg.bitrate",
+      "name": "configs.ac3.bitrate",
       "label": "configs.common.bitrate.label",
       "should_add_to_args": true,
       "ffmpeg_flag": "-b:a",
-      "default": "128k",
+      "default": "384k",
       "options": [
+        { "label": "configs.common.bitrate.640k", "value": "640k" },
+        { "label": "configs.common.bitrate.448k", "value": "448k" },
+        { "label": "configs.common.bitrate.384k", "value": "384k" },
         { "label": "configs.common.bitrate.320k", "value": "320k" },
         { "label": "configs.common.bitrate.256k", "value": "256k" },
         { "label": "configs.common.bitrate.192k", "value": "192k" },
         { "label": "configs.common.bitrate.128k", "value": "128k" },
         { "label": "configs.common.bitrate.96k", "value": "96k" },
-        { "label": "configs.common.bitrate.64k", "value": "64k" },
-        { "label": "configs.common.bitrate.48k", "value": "48k" },
-        { "label": "configs.common.bitrate.32k", "value": "32k" }
+        { "label": "configs.common.bitrate.64k", "value": "64k" }
       ]
     },
     {
       "type": "dropdown",
-      "name": "configs.ogg.sampling_rate",
+      "name": "configs.ac3.sampling_rate",
       "label": "configs.common.sampling_rate",
       "should_add_to_args": true,
       "ffmpeg_flag": "-ar",
       "default": "48000",
       "options": [
-        { "label": "configs.common.sampling_rate.8000", "value": "8000" },
-        { "label": "configs.common.sampling_rate.16000", "value": "16000" },
-        { "label": "configs.common.sampling_rate.24000", "value": "24000" },
+        { "label": "configs.common.sampling_rate.32000", "value": "32000" },
+        { "label": "configs.common.sampling_rate.44100", "value": "44100" },
         { "label": "configs.common.sampling_rate.48000", "value": "48000" }
       ]
     },
     {
       "type": "dropdown",
-      "name": "configs.ogg.audio_channel",
+      "name": "configs.ac3.audio_channel",
       "label": "configs.common.audio_channel.label",
       "should_add_to_args": true,
       "ffmpeg_flag": "-ac",
-      "default": "2",
+      "default": "6",
       "options": [
         { "label": "configs.common.audio_channel.mono", "value": "1" },
         { "label": "configs.common.audio_channel.stereo", "value": "2" },

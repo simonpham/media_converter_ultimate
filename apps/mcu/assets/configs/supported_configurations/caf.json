@@ -1,0 +1,59 @@
+{
+  "caf": [
+    {
+      "type": "dropdown",
+      "name": "configs.caf.audio_encoder",
+      "label": "configs.common.audio_encoder",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-c:a",
+      "default": "alac",
+      "options": [
+        {
+          "label": "ui_codec_description.alac",
+          "value": "alac"
+        },
+        {
+          "label": "ui_codec_description.pcm_s16le",
+          "value": "pcm_s16le"
+        },
+        {
+          "label": "ui_codec_description.pcm_s24le",
+          "value": "pcm_s24le"
+        },
+        {
+          "label": "ui_codec_description.pcm_f32le",
+          "value": "pcm_f32le"
+        }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.caf.sampling_rate",
+      "label": "configs.common.sampling_rate",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-ar",
+      "default": "48000",
+      "options": [
+        { "label": "configs.common.sampling_rate.8000", "value": "8000" },
+        { "label": "configs.common.sampling_rate.16000", "value": "16000" },
+        { "label": "configs.common.sampling_rate.22050", "value": "22050" },
+        { "label": "configs.common.sampling_rate.44100", "value": "44100" },
+        { "label": "configs.common.sampling_rate.48000", "value": "48000" },
+        { "label": "configs.common.sampling_rate.96000", "value": "96000" },
+        { "label": "configs.common.sampling_rate.192000", "value": "192000" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.caf.audio_channel",
+      "label": "configs.common.audio_channel.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-ac",
+      "default": "2",
+      "options": [
+        { "label": "configs.common.audio_channel.mono", "value": "1" },
+        { "label": "configs.common.audio_channel.stereo", "value": "2" }
+      ]
+    }
+  ]
+}

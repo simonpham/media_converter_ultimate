@@ -1,0 +1,51 @@
+{
+  "ogv": [
+    {
+      "type": "single_choice",
+      "name": "configs.ogv.video_encoder",
+      "label": "configs.common.video_encoder",
+      "is_visible": false,
+      "should_add_to_args": true,
+      "default": "-c:v libtheora",
+      "options": [
+        {
+          "label": "",
+          "value": "-c:v libtheora"
+        }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.ogv.video_quality",
+      "label": "configs.common.video_quality.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-q:v",
+      "default": "6",
+      "options": [
+        { "label": "configs.ogg.audio_quality.10", "value": "10" },
+        { "label": "configs.ogg.audio_quality.8", "value": "8" },
+        { "label": "configs.ogg.audio_quality.6", "value": "6" },
+        { "label": "configs.ogg.audio_quality.4", "value": "4" },
+        { "label": "configs.ogg.audio_quality.2", "value": "2" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.ogv.audio_encoder",
+      "label": "configs.common.audio_encoder",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-c:a",
+      "default": "libvorbis",
+      "options": [
+        {
+          "label": "ui_codec_description.libvorbis",
+          "value": "libvorbis"
+        },
+        {
+          "label": "ui_codec_description.libopus",
+          "value": "libopus"
+        }
+      ]
+    }
+  ]
+}

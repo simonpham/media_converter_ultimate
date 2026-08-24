@@ -1,16 +1,20 @@
 {
   "flv": [
     {
-      "type": "single_choice",
+      "type": "multi_choice",
       "name": "configs.flv.mapping",
-      "label": "",
+      "label": "configs.common.recommended_args.label",
       "is_visible": false,
       "should_add_to_args": true,
       "default": "[\"-map 0:v:0\", \"-map 0:a:0\"]",
       "options": [
         {
-          "label": "",
-          "value": "[\"-map 0:v:0\", \"-map 0:a:0\"]"
+          "label": "configs.common.recommended_args.map_video",
+          "ffmpeg_arg": "-map 0:v:0"
+        },
+        {
+          "label": "configs.common.recommended_args.map_audio",
+          "ffmpeg_arg": "-map 0:a:0"
         }
       ]
     },
@@ -30,6 +34,18 @@
           "label": "ui_codec_description.flv",
           "value": "-c:v flv"
         }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.flv.audio_encoder",
+      "label": "configs.common.audio_encoder",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-c:a",
+      "default": "aac",
+      "options": [
+        { "label": "ui_codec_description.aac", "value": "aac" },
+        { "label": "ui_codec_description.libmp3lame", "value": "libmp3lame" }
       ]
     }
   ],
@@ -51,6 +67,39 @@
         { "label": "configs.mp4.video_preset.slow", "value": "slow" },
         { "label": "configs.mp4.video_preset.slower", "value": "slower" },
         { "label": "configs.mp4.video_preset.veryslow", "value": "veryslow" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.flv.crf.x264",
+      "label": "configs.common.crf.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-crf",
+      "default": "23",
+      "options": [
+        { "label": "configs.common.crf.18", "value": "18" },
+        { "label": "configs.common.crf.20", "value": "20" },
+        { "label": "configs.common.crf.23", "value": "23" },
+        { "label": "configs.common.crf.26", "value": "26" },
+        { "label": "configs.common.crf.28", "value": "28" },
+        { "label": "configs.common.crf.32", "value": "32" }
+      ]
+    }
+  ],
+  "-c:v flv": [
+    {
+      "type": "dropdown",
+      "name": "configs.flv.video_bitrate",
+      "label": "configs.common.video_bitrate.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-b:v",
+      "default": "2000k",
+      "options": [
+        { "label": "configs.common.video_bitrate.5000k", "value": "5000k" },
+        { "label": "configs.common.video_bitrate.3000k", "value": "3000k" },
+        { "label": "configs.common.video_bitrate.2000k", "value": "2000k" },
+        { "label": "configs.common.video_bitrate.1000k", "value": "1000k" },
+        { "label": "configs.common.video_bitrate.500k", "value": "500k" }
       ]
     }
   ]

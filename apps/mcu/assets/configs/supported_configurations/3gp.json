@@ -1,0 +1,56 @@
+{
+  "3gp": [
+    {
+      "type": "single_choice",
+      "name": "configs.3gp.video_encoder",
+      "label": "configs.common.video_encoder",
+      "is_visible": true,
+      "should_add_to_args": true,
+      "default": "-c:v mpeg4",
+      "options": [
+        {
+          "label": "ui_codec_description.mpeg4",
+          "value": "-c:v mpeg4"
+        },
+        {
+          "label": "ui_codec_description.h263",
+          "value": "[\"-c:v h263\", \"-vf scale=352:288:force_original_aspect_ratio=decrease,pad=352:288:(ow-iw)/2:(oh-ih)/2\"]"
+        },
+        {
+          "label": "ui_codec_description.libx264",
+          "value": "-c:v libx264"
+        }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.3gp.video_bitrate",
+      "label": "configs.common.video_bitrate.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-b:v",
+      "default": "500k",
+      "options": [
+        { "label": "configs.common.video_bitrate.2000k", "value": "2000k" },
+        { "label": "configs.common.video_bitrate.1000k", "value": "1000k" },
+        { "label": "configs.common.video_bitrate.500k", "value": "500k" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.3gp.audio_encoder",
+      "label": "configs.common.audio_encoder",
+      "should_add_to_args": true,
+      "default": "-c:a aac",
+      "options": [
+        {
+          "label": "ui_codec_description.aac",
+          "value": "-c:a aac"
+        },
+        {
+          "label": "ui_codec_description.libopencore_amrnb",
+          "value": "[\"-c:a libopencore_amrnb\", \"-ar 8000\", \"-ac 1\"]"
+        }
+      ]
+    }
+  ]
+}

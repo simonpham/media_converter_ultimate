@@ -22,19 +22,51 @@
       "ffmpeg_flag": "-compression_level",
       "default": "5",
       "options": [
-        { "label": "configs.flac.compression_level.12", "value": "12" },
-        { "label": "configs.flac.compression_level.11", "value": "11" },
-        { "label": "configs.flac.compression_level.10", "value": "10" },
-        { "label": "configs.flac.compression_level.9", "value": "9" },
-        { "label": "configs.flac.compression_level.8", "value": "8" },
-        { "label": "configs.flac.compression_level.7", "value": "7" },
-        { "label": "configs.flac.compression_level.6", "value": "6" },
-        { "label": "configs.flac.compression_level.5", "value": "5" },
-        { "label": "configs.flac.compression_level.4", "value": "4" },
-        { "label": "configs.flac.compression_level.3", "value": "3" },
-        { "label": "configs.flac.compression_level.2", "value": "2" },
+        { "label": "configs.flac.compression_level.0", "value": "0" },
         { "label": "configs.flac.compression_level.1", "value": "1" },
-        { "label": "configs.flac.compression_level.0", "value": "0" }
+        { "label": "configs.flac.compression_level.2", "value": "2" },
+        { "label": "configs.flac.compression_level.3", "value": "3" },
+        { "label": "configs.flac.compression_level.4", "value": "4" },
+        { "label": "configs.flac.compression_level.5", "value": "5" },
+        { "label": "configs.flac.compression_level.6", "value": "6" },
+        { "label": "configs.flac.compression_level.7", "value": "7" },
+        { "label": "configs.flac.compression_level.8", "value": "8" },
+        { "label": "configs.flac.compression_level.9", "value": "9" },
+        { "label": "configs.flac.compression_level.10", "value": "10" },
+        { "label": "configs.flac.compression_level.11", "value": "11" },
+        { "label": "configs.flac.compression_level.12", "value": "12" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.flac.sampling_rate",
+      "label": "configs.common.sampling_rate",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-ar",
+      "default": "48000",
+      "options": [
+        { "label": "configs.common.sampling_rate.8000", "value": "8000" },
+        { "label": "configs.common.sampling_rate.16000", "value": "16000" },
+        { "label": "configs.common.sampling_rate.22050", "value": "22050" },
+        { "label": "configs.common.sampling_rate.44100", "value": "44100" },
+        { "label": "configs.common.sampling_rate.48000", "value": "48000" },
+        { "label": "configs.common.sampling_rate.88200", "value": "88200" },
+        { "label": "configs.common.sampling_rate.96000", "value": "96000" },
+        { "label": "configs.common.sampling_rate.176400", "value": "176400" },
+        { "label": "configs.common.sampling_rate.192000", "value": "192000" }
+      ]
+    },
+    {
+      "type": "dropdown",
+      "name": "configs.flac.audio_channel",
+      "label": "configs.common.audio_channel.label",
+      "should_add_to_args": true,
+      "ffmpeg_flag": "-ac",
+      "default": "2",
+      "options": [
+        { "label": "configs.common.audio_channel.mono", "value": "1" },
+        { "label": "configs.common.audio_channel.stereo", "value": "2" },
+        { "label": "configs.common.audio_channel.5_1", "value": "6" }
       ]
     }
   ]
