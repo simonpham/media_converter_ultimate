@@ -16,6 +16,8 @@ class JobMakerOutputFormatPicker extends StatefulWidget {
 
 class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
     with AfterLayoutMixin {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -23,6 +25,12 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
     printLog(
       '[AdsSettings] outputFormatPickerAccessCount increased: ${SettingsBox().outputFormatPickerAccessCount}',
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -60,29 +68,34 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
           child: Selector<JobMakerViewModel, FormatEntry?>(
             selector: (context, model) => model.selectedFormatEntry,
             builder: (context, selectedFormat, _) {
-              return ListView(
-                padding: EdgeInsets.symmetric(
-                  vertical: Spacing.d16,
-                  horizontal: Spacing.d16,
+              return Scrollbar(
+                controller: _scrollController,
+                thumbVisibility: true,
+                child: ListView(
+                  controller: _scrollController,
+                  padding: EdgeInsets.symmetric(
+                    vertical: Spacing.d16,
+                    horizontal: Spacing.d16,
+                  ),
+                  children: [
+                    const OutputFormatAdItem(),
+                    _buildGridCategory(
+                      context,
+                      context.l10n.video,
+                      formatConfigModel,
+                      videoFormats,
+                      selectedFormat,
+                    ),
+                    Spacing.v16,
+                    _buildGridCategory(
+                      context,
+                      context.l10n.audio,
+                      formatConfigModel,
+                      audioFormats,
+                      selectedFormat,
+                    ),
+                  ],
                 ),
-                children: [
-                  const OutputFormatAdItem(),
-                  _buildGridCategory(
-                    context,
-                    context.l10n.video,
-                    formatConfigModel,
-                    videoFormats,
-                    selectedFormat,
-                  ),
-                  Spacing.v16,
-                  _buildGridCategory(
-                    context,
-                    context.l10n.audio,
-                    formatConfigModel,
-                    audioFormats,
-                    selectedFormat,
-                  ),
-                ],
               );
             },
           ),

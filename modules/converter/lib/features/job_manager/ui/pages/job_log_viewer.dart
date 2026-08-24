@@ -57,6 +57,7 @@ class _JobLogViewerState extends State<JobLogViewer> {
       ),
       body: Scrollbar(
         controller: _scrollController,
+        thumbVisibility: true,
         child: SingleChildScrollView(
           controller: _scrollController,
           reverse: true,

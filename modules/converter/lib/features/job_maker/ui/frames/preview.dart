@@ -28,6 +28,7 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
   Widget build(BuildContext context) {
     return Scrollbar(
       controller: _scrollController,
+      thumbVisibility: true,
       child: Consumer<JobMakerViewModel>(
         builder: (context, model, _) {
           final selectedPaths = model.selectedFiles;

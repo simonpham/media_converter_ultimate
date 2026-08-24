@@ -45,6 +45,7 @@ class _JobMakerConfigCustomizerState extends State<JobMakerConfigCustomizer> {
         Expanded(
           child: Scrollbar(
             controller: _scrollController,
+            thumbVisibility: true,
             child: CustomScrollView(
               controller: _scrollController,
               slivers: [
