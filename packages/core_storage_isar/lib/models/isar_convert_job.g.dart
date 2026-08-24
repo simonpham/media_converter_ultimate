@@ -121,7 +121,7 @@ const IsarConvertJobSchema = CollectionSchema(
   getId: _isarConvertJobGetId,
   getLinks: _isarConvertJobGetLinks,
   attach: _isarConvertJobAttach,
-  version: '3.3.0-dev.2',
+  version: '3.3.2',
 );
 
 int _isarConvertJobEstimateSize(
