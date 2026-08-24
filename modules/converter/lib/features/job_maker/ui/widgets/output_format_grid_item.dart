@@ -30,8 +30,8 @@ class OutputFormatGridItem extends StatelessWidget {
         child: Container(
           decoration: ShapeDecoration(
             gradient: config.getGradient(format),
-            shape: SmoothRectangleBorder(
-              borderRadius: Spacing.smoothR12,
+            shape: const RoundedSuperellipseBorder(
+              borderRadius: Spacing.r12,
             ),
             shadows: isSelected
                 ? [

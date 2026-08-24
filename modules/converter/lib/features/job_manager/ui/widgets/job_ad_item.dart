@@ -79,13 +79,8 @@ class _JobAdItemState extends State<JobAdItem>
                       final widget = Container(
                         decoration: ShapeDecoration(
                           color: context.theme.cardColor,
-                          shape: const SmoothRectangleBorder(
-                            borderRadius: SmoothBorderRadius.all(
-                              SmoothRadius(
-                                cornerRadius: 12.0,
-                                cornerSmoothing: 1.0,
-                              ),
-                            ),
+                          shape: const RoundedSuperellipseBorder(
+                            borderRadius: Spacing.r12,
                           ),
                         ),
                         padding: EdgeInsets.symmetric(

@@ -22,8 +22,8 @@ class DropdownWidget extends StatelessWidget {
       ),
       decoration: ShapeDecoration(
         color: context.theme.colorScheme.surface,
-        shape: SmoothRectangleBorder(
-          borderRadius: Spacing.smoothR12,
+        shape: RoundedSuperellipseBorder(
+          borderRadius: Spacing.r12,
           side: BorderSide(
             color: isDark
                 ? ThemeConfigs().theme.colors.neutral5
@@ -34,7 +34,7 @@ class DropdownWidget extends StatelessWidget {
       ),
       child: DropdownButton<String>(
         dropdownColor: context.theme.colorScheme.surface,
-        borderRadius: Spacing.smoothR12,
+        borderRadius: Spacing.r12,
         padding: EdgeInsets.symmetric(
           horizontal: Spacing.d16,
         ),

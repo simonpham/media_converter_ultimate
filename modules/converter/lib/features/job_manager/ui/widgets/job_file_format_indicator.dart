@@ -18,13 +18,8 @@ class JobFileFormatIndicator extends StatelessWidget {
     return Container(
       decoration: ShapeDecoration(
         color: status.getColor(),
-        shape: const SmoothRectangleBorder(
-          borderRadius: SmoothBorderRadius.all(
-            SmoothRadius(
-              cornerRadius: 8.0,
-              cornerSmoothing: 1.0,
-            ),
-          ),
+        shape: const RoundedSuperellipseBorder(
+          borderRadius: Spacing.r8,
         ),
       ),
       padding: EdgeInsets.symmetric(
