@@ -2,7 +2,7 @@ name: mcu
 description: "Media Converter Ultimate"
 publish_to: "none"
 
-version: 1.0.6+100010
+version: 1.0.7+100011
 
 environment:
   sdk: ^3.12.0
