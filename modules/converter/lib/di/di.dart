@@ -14,6 +14,10 @@ class ConverterInjector {
       () => LogData.create(),
     );
 
+    injector.registerLazySingleton<FileService>(
+      () => DirectFileService(),
+    );
+
     injector.registerLazySingleton<JobConfigurationData>(
       () => JobConfigurationData.create(),
     );
@@ -25,10 +29,6 @@ class ConverterInjector {
 
     injector.registerLazySingleton<JobRunnerService>(
       () => FfmpegJobRunnerService(),
-    );
-
-    injector.registerLazySingleton<FileService>(
-      () => DirectFileService(),
     );
 
     injector.registerLazySingleton<JobNotificationService>(
