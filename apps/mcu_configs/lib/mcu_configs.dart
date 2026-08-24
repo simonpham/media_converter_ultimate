@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:json_schema/json_schema.dart';
 
-/// Simplified MCU configs validator.
+/// MCU configs and schema validator.
 ///
 /// Usage:
 ///   dart run mcu_configs /path/to/schemas_dir
@@ -16,12 +16,12 @@ import 'package:json_schema/json_schema.dart';
 /// It will load those schemas from the provided directory and validate:
 ///   - apps/mcu/assets/configs/format.json against format.schema.json
 ///   - each file in apps/mcu/assets/configs/supported_configurations/ against supported_configurations.schema.json
-///
-/// The program performs the same cross-file heuristics/checks as before.
+///   - localization parity across apps/mcu/assets/configs/l10n/*.json
+///   - translation keys used in configuration files exist in l10n files
 ///
 /// Exit codes:
-///   0 - success (no schema or cross-file errors)
-///   1 - validation or cross-file errors found
+///   0 - success (no schema, cross-file, or localization errors)
+///   1 - validation, cross-file, or localization errors found
 ///   2 - usage error or missing files (schemas / configs)
 Future<void> main(List<String> args) async {
   if (args.isEmpty) {
@@ -48,7 +48,6 @@ Future<void> main(List<String> args) async {
     exit(2);
   }
 
-  // Locate configs directory (unchanged behavior): require repository layout at runtime.
   final configsDir = _findConfigsDir();
   if (configsDir == null) {
     stderr.writeln('Could not find apps/mcu/assets/configs from current directory ${Directory.current.path}');
@@ -58,6 +57,7 @@ Future<void> main(List<String> args) async {
 
   final formatJsonFile = File('${configsDir.path}${Platform.pathSeparator}format.json');
   final supportedConfigsDir = Directory('${configsDir.path}${Platform.pathSeparator}supported_configurations');
+  final l10nDir = Directory('${configsDir.path}${Platform.pathSeparator}l10n');
 
   if (!formatJsonFile.existsSync()) {
     stderr.writeln('Missing file: ${formatJsonFile.path}');
@@ -84,8 +84,10 @@ Future<void> main(List<String> args) async {
     stdout.writeln('OK: format.json conforms to format.schema.json');
   } else {
     hadErrors = true;
-    stderr.writeln('ERROR: format.json does NOT conform to format.schema.json');
-    stderr.writeln('  (json_schema.validate returned invalid)');
+    stderr.writeln('ERROR: format.json does NOT conform to format.schema.json:');
+    for (final err in formatValid.errors) {
+      stderr.writeln('  - [${err.instancePath}] ${err.message}');
+    }
   }
 
   // Extract declared formats
@@ -101,6 +103,9 @@ Future<void> main(List<String> args) async {
   } catch (_) {
     // best-effort; schema failure already recorded
   }
+
+  // Used translation keys collected across all config files
+  final usedTranslationKeys = <String>{};
 
   // Validate supported configurations
   final supportedFiles = supportedConfigsDir
@@ -129,11 +134,13 @@ Future<void> main(List<String> args) async {
       stdout.writeln('OK: ${file.path} conforms to supported_configurations.schema.json');
     } else {
       hadErrors = true;
-      stderr.writeln('ERROR: ${file.path} does NOT conform to supported_configurations.schema.json');
-      stderr.writeln('  (json_schema.validate returned invalid)');
+      stderr.writeln('ERROR: ${file.path} does NOT conform to supported_configurations.schema.json:');
+      for (final err in valid.errors) {
+        stderr.writeln('  - [${err.instancePath}] ${err.message}');
+      }
     }
 
-    // Additional heuristic checks (same as before)
+    // Heuristic & reference checks
     if (parsed is Map<String, dynamic>) {
       final topLevelKeys = parsed.keys.toSet();
       final fileErrors = <String>[];
@@ -142,16 +149,24 @@ Future<void> main(List<String> args) async {
         if (listValue is! List) return;
         for (final cfg in listValue) {
           if (cfg is! Map) continue;
+
+          // Collect label / description translation keys
+          if (cfg['label'] is String && (cfg['label'] as String).isNotEmpty) {
+            usedTranslationKeys.add(cfg['label'] as String);
+          }
+          if (cfg['description'] is String && (cfg['description'] as String).isNotEmpty) {
+            usedTranslationKeys.add(cfg['description'] as String);
+          }
+
           final opts = cfg['options'];
           if (opts is List) {
             for (final opt in opts) {
               if (opt is Map) {
-                final v = opt['value'];
-                if (v is String) {
-                  // if value equals a top-level trigger key that's okay, otherwise nothing
-                  if (topLevelKeys.contains(v)) {
-                    // explicit nested trigger
-                  }
+                if (opt['label'] is String && (opt['label'] as String).isNotEmpty) {
+                  usedTranslationKeys.add(opt['label'] as String);
+                }
+                if (opt['description'] is String && (opt['description'] as String).isNotEmpty) {
+                  usedTranslationKeys.add(opt['description'] as String);
                 }
               }
             }
@@ -167,7 +182,14 @@ Future<void> main(List<String> args) async {
               // not JSON array string
             }
 
-            if (defList != null) {
+            final foundExact = opts.any((o) {
+              if (o is! Map) return false;
+              return (o['value'] == def) || (o['ffmpeg_arg'] == def);
+            });
+
+            if (foundExact || topLevelKeys.contains(def)) {
+              // Valid option match or top-level trigger
+            } else if (defList != null) {
               for (final token in defList) {
                 final found = opts.any((o) {
                   if (o is! Map) return false;
@@ -178,13 +200,7 @@ Future<void> main(List<String> args) async {
                 }
               }
             } else {
-              final foundSingle = opts.any((o) {
-                if (o is! Map) return false;
-                return (o['value'] == def) || (o['ffmpeg_arg'] == def);
-              });
-              if (!foundSingle && !topLevelKeys.contains(def)) {
-                fileErrors.add('default "$def" (in "$topKey") not found in options and not a top-level trigger key');
-              }
+              fileErrors.add('default "$def" (in "$topKey") not found in options and not a top-level trigger key');
             }
           } else if (def is List && opts is List) {
             for (final token in def) {
@@ -203,7 +219,9 @@ Future<void> main(List<String> args) async {
       if (fileErrors.isNotEmpty) {
         hadErrors = true;
         stderr.writeln('ERROR(s) in ${file.path}:');
-        for (final e in fileErrors) stderr.writeln('  - $e');
+        for (final e in fileErrors) {
+          stderr.writeln('  - $e');
+        }
       }
     }
   }
@@ -217,7 +235,9 @@ Future<void> main(List<String> args) async {
   if (missingSupported.isNotEmpty) {
     hadErrors = true;
     stderr.writeln('ERROR: The following formats are declared in format.json but missing in supported_configurations/:');
-    for (final m in missingSupported) stderr.writeln('  - $m (expected file: $m.json)');
+    for (final m in missingSupported) {
+      stderr.writeln('  - $m (expected file: $m.json)');
+    }
   } else {
     stdout.writeln('OK: All declared formats in format.json have a supported_configurations JSON file.');
   }
@@ -231,7 +251,9 @@ Future<void> main(List<String> args) async {
   }
   if (extraFiles.isNotEmpty) {
     stdout.writeln('WARNING: The following supported_configurations files are not referenced in format.json:');
-    for (final f in extraFiles) stdout.writeln('  - $f');
+    for (final f in extraFiles) {
+      stdout.writeln('  - $f');
+    }
   }
 
   final uiGradients = <String, dynamic>{};
@@ -253,11 +275,71 @@ Future<void> main(List<String> args) async {
     stdout.writeln('OK: ui_gradients contains entries for all declared formats (or none are missing).');
   }
 
+  // Validate localization files & translation key coverage
+  if (l10nDir.existsSync()) {
+    final l10nFiles = l10nDir
+        .listSync()
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.json'))
+        .toList()
+      ..sort((a, b) => a.path.compareTo(b.path));
+
+    final l10nMaps = <String, Map<String, dynamic>>{};
+    for (final file in l10nFiles) {
+      final lang = file.uri.pathSegments.last.replaceAll('.json', '');
+      try {
+        final parsed = jsonDecode(file.readAsStringSync());
+        if (parsed is Map<String, dynamic>) {
+          l10nMaps[lang] = parsed;
+        }
+      } catch (e) {
+        hadErrors = true;
+        stderr.writeln('ERROR: L10n file ${file.path} is not valid JSON: $e');
+      }
+    }
+
+    final enMap = l10nMaps['en'];
+    if (enMap != null) {
+      // Check that all translation keys referenced by supported_configurations exist in en.json
+      final missingInEn = <String>[];
+      for (final key in usedTranslationKeys) {
+        if (!enMap.containsKey(key)) {
+          missingInEn.add(key);
+        }
+      }
+      if (missingInEn.isNotEmpty) {
+        hadErrors = true;
+        stderr.writeln('ERROR: The following keys are used in configs but missing in en.json:');
+        for (final k in missingInEn) {
+          stderr.writeln('  - $k');
+        }
+      } else {
+        stdout.writeln('OK: All ${usedTranslationKeys.length} config translation keys exist in en.json.');
+      }
+
+      // Check key parity between en.json and all other languages
+      final enKeys = enMap.keys.where((k) => k != '@@locale').toSet();
+      for (final entry in l10nMaps.entries) {
+        if (entry.key == 'en') continue;
+        final langKeys = entry.value.keys.where((k) => k != '@@locale').toSet();
+        final missing = enKeys.difference(langKeys);
+        if (missing.isNotEmpty) {
+          hadErrors = true;
+          stderr.writeln('ERROR: ${entry.key}.json is missing ${missing.length} keys defined in en.json:');
+          for (final k in missing) {
+            stderr.writeln('  - $k');
+          }
+        }
+      }
+      stdout.writeln('OK: All ${l10nMaps.length} l10n files have key parity with en.json.');
+    }
+  }
+
   if (hadErrors) {
     stderr.writeln('\nValidation finished: ERRORS detected. Fix the errors above.');
     exit(1);
   } else {
-    stdout.writeln('\nValidation finished: no schema or cross-file errors detected.');
+    stdout.writeln('\nValidation finished: no schema, cross-file, or localization errors detected.');
     exit(0);
   }
 }
