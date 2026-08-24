@@ -5,8 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:mcu/router.dart';
 
 class MediaConverterUltimate extends StatelessWidget {
+  final AppTheme appTheme;
+
   const MediaConverterUltimate({
     super.key,
+    required this.appTheme,
   });
 
   @override
@@ -18,8 +21,8 @@ class MediaConverterUltimate extends StatelessWidget {
       ].of(SettingsBox()),
       builder: (context, _, _) {
         return MaterialApp.router(
-          theme: ThemeConfigs().theme.getTheme(isDark: false),
-          darkTheme: ThemeConfigs().theme.getTheme(isDark: true),
+          theme: appTheme.getTheme(isDark: false),
+          darkTheme: appTheme.getTheme(isDark: true),
           themeMode: SettingsBox().appTheme,
           builder: (context, child) {
             return JobNotificationWrapper(

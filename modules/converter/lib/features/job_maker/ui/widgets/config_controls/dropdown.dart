@@ -26,8 +26,8 @@ class DropdownWidget extends StatelessWidget {
           borderRadius: Spacing.r12,
           side: BorderSide(
             color: isDark
-                ? ThemeConfigs().theme.colors.neutral5
-                : ThemeConfigs().theme.colors.neutral2,
+                ? context.appTheme.colors.neutral5
+                : context.appTheme.colors.neutral2,
             width: 2.0,
           ),
         ),

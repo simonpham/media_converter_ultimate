@@ -12,8 +12,8 @@ export 'router.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  printLog('[main] Init ThemeConfigs...');
-  await ThemeConfigs().init();
+  printLog('[main] Load AppTheme...');
+  final appTheme = await ThemeLoader.loadDefault();
 
   printLog('[main] Init Injector...');
   await injector.reset();
@@ -33,6 +33,6 @@ Future<void> main() async {
 
   printLog('[main] Run app...');
   runApp(
-    const MediaConverterUltimate(),
+    MediaConverterUltimate(appTheme: appTheme),
   );
 }
