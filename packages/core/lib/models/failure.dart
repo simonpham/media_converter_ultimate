@@ -65,5 +65,3 @@ class const FileDeleteFailure(final String path) extends Failure {
 class const FailedToClearJobsFailure() extends Failure {
   this : super('Failed to clear finished jobs.');
 }
-
-

@@ -84,4 +84,3 @@ enum OutputType(final String value) {
     );
   }
 }
-

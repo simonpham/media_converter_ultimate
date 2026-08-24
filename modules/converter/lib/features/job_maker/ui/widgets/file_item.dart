@@ -10,7 +10,6 @@ class const FileItem(
   final Widget? leading,
   final VoidCallback? onRemove,
 }) extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return Container(

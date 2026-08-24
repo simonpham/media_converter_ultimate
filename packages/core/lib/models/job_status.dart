@@ -11,9 +11,7 @@ extension JobStatusExtension on JobStatus {
       this == .cleaning;
 
   bool get isDone =>
-      this == .completed ||
-      this == .failed ||
-      this == .cancelled;
+      this == .completed || this == .failed || this == .cancelled;
 
   bool get isFailure => this == .failed || this == .cancelled;
 }

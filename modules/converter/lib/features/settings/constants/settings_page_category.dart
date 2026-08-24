@@ -58,15 +58,11 @@ enum SettingsCategory({
 extension SettingsCategoryExtensions on SettingsCategory {
   String getLabel(BuildContext context) {
     return switch (this) {
-      .conversionAndOutput =>
-        context.l10n.categoryConversionSettings,
+      .conversionAndOutput => context.l10n.categoryConversionSettings,
       .displayAndUi => context.l10n.categoryDisplaySettings,
-      .appManagement =>
-        context.l10n.categoryAppManagementSettings,
-      .aboutAndSupport =>
-        context.l10n.categoryAboutAndSupportSettings,
-      .monetization =>
-        context.l10n.categoryMonetizationSettings,
+      .appManagement => context.l10n.categoryAppManagementSettings,
+      .aboutAndSupport => context.l10n.categoryAboutAndSupportSettings,
+      .monetization => context.l10n.categoryMonetizationSettings,
     };
   }
 }

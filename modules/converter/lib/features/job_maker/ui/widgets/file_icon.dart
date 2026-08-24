@@ -34,4 +34,3 @@ class const FileIcon(
     };
   }
 }
-

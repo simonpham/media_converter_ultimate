@@ -36,27 +36,40 @@ Future<void> main(List<String> args) async {
     _printUsageAndExit(code: 2);
   }
 
-  final formatSchemaFile = File('${schemasDir.path}${Platform.pathSeparator}format.schema.json');
-  final supportedSchemaFile =
-      File('${schemasDir.path}${Platform.pathSeparator}supported_configurations.schema.json');
+  final formatSchemaFile = File(
+    '${schemasDir.path}${Platform.pathSeparator}format.schema.json',
+  );
+  final supportedSchemaFile = File(
+    '${schemasDir.path}${Platform.pathSeparator}supported_configurations.schema.json',
+  );
 
   final formatSchema = await _loadJsonSchemaFromFile(formatSchemaFile);
   final supportedSchema = await _loadJsonSchemaFromFile(supportedSchemaFile);
 
   if (formatSchema == null || supportedSchema == null) {
-    stderr.writeln('Failed to load one or more schema files from: ${schemasDir.path}');
+    stderr.writeln(
+      'Failed to load one or more schema files from: ${schemasDir.path}',
+    );
     exit(2);
   }
 
   final configsDir = _findConfigsDir();
   if (configsDir == null) {
-    stderr.writeln('Could not find apps/mcu/assets/configs from current directory ${Directory.current.path}');
-    stderr.writeln('Please run this script from somewhere within the repository.');
+    stderr.writeln(
+      'Could not find apps/mcu/assets/configs from current directory ${Directory.current.path}',
+    );
+    stderr.writeln(
+      'Please run this script from somewhere within the repository.',
+    );
     exit(2);
   }
 
-  final formatJsonFile = File('${configsDir.path}${Platform.pathSeparator}format.json');
-  final supportedConfigsDir = Directory('${configsDir.path}${Platform.pathSeparator}supported_configurations');
+  final formatJsonFile = File(
+    '${configsDir.path}${Platform.pathSeparator}format.json',
+  );
+  final supportedConfigsDir = Directory(
+    '${configsDir.path}${Platform.pathSeparator}supported_configurations',
+  );
   final l10nDir = Directory('${configsDir.path}${Platform.pathSeparator}l10n');
 
   if (!formatJsonFile.existsSync()) {
@@ -84,7 +97,9 @@ Future<void> main(List<String> args) async {
     stdout.writeln('OK: format.json conforms to format.schema.json');
   } else {
     hadErrors = true;
-    stderr.writeln('ERROR: format.json does NOT conform to format.schema.json:');
+    stderr.writeln(
+      'ERROR: format.json does NOT conform to format.schema.json:',
+    );
     for (final err in formatValid.errors) {
       stderr.writeln('  - [${err.instancePath}] ${err.message}');
     }
@@ -108,12 +123,13 @@ Future<void> main(List<String> args) async {
   final usedTranslationKeys = <String>{};
 
   // Validate supported configurations
-  final supportedFiles = supportedConfigsDir
-      .listSync()
-      .whereType<File>()
-      .where((f) => f.path.endsWith('.json'))
-      .toList()
-    ..sort((a, b) => a.path.compareTo(b.path));
+  final supportedFiles =
+      supportedConfigsDir
+          .listSync()
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.json'))
+          .toList()
+        ..sort((a, b) => a.path.compareTo(b.path));
 
   final supportedFileNames = <String>{};
   for (final file in supportedFiles) {
@@ -131,10 +147,14 @@ Future<void> main(List<String> args) async {
 
     final valid = supportedSchema.validate(parsed);
     if (valid.isValid) {
-      stdout.writeln('OK: ${file.path} conforms to supported_configurations.schema.json');
+      stdout.writeln(
+        'OK: ${file.path} conforms to supported_configurations.schema.json',
+      );
     } else {
       hadErrors = true;
-      stderr.writeln('ERROR: ${file.path} does NOT conform to supported_configurations.schema.json:');
+      stderr.writeln(
+        'ERROR: ${file.path} does NOT conform to supported_configurations.schema.json:',
+      );
       for (final err in valid.errors) {
         stderr.writeln('  - [${err.instancePath}] ${err.message}');
       }
@@ -154,7 +174,8 @@ Future<void> main(List<String> args) async {
           if (cfg['label'] is String && (cfg['label'] as String).isNotEmpty) {
             usedTranslationKeys.add(cfg['label'] as String);
           }
-          if (cfg['description'] is String && (cfg['description'] as String).isNotEmpty) {
+          if (cfg['description'] is String &&
+              (cfg['description'] as String).isNotEmpty) {
             usedTranslationKeys.add(cfg['description'] as String);
           }
 
@@ -162,10 +183,12 @@ Future<void> main(List<String> args) async {
           if (opts is List) {
             for (final opt in opts) {
               if (opt is Map) {
-                if (opt['label'] is String && (opt['label'] as String).isNotEmpty) {
+                if (opt['label'] is String &&
+                    (opt['label'] as String).isNotEmpty) {
                   usedTranslationKeys.add(opt['label'] as String);
                 }
-                if (opt['description'] is String && (opt['description'] as String).isNotEmpty) {
+                if (opt['description'] is String &&
+                    (opt['description'] as String).isNotEmpty) {
                   usedTranslationKeys.add(opt['description'] as String);
                 }
               }
@@ -196,11 +219,15 @@ Future<void> main(List<String> args) async {
                   return (o['value'] == token) || (o['ffmpeg_arg'] == token);
                 });
                 if (!found) {
-                  fileErrors.add('default element "$token" (in "$topKey") not found in options');
+                  fileErrors.add(
+                    'default element "$token" (in "$topKey") not found in options',
+                  );
                 }
               }
             } else {
-              fileErrors.add('default "$def" (in "$topKey") not found in options and not a top-level trigger key');
+              fileErrors.add(
+                'default "$def" (in "$topKey") not found in options and not a top-level trigger key',
+              );
             }
           } else if (def is List && opts is List) {
             for (final token in def) {
@@ -209,7 +236,9 @@ Future<void> main(List<String> args) async {
                 return (o['value'] == token) || (o['ffmpeg_arg'] == token);
               });
               if (!found) {
-                fileErrors.add('default element "$token" (in "$topKey") not found in options');
+                fileErrors.add(
+                  'default element "$token" (in "$topKey") not found in options',
+                );
               }
             }
           }
@@ -234,12 +263,16 @@ Future<void> main(List<String> args) async {
   }
   if (missingSupported.isNotEmpty) {
     hadErrors = true;
-    stderr.writeln('ERROR: The following formats are declared in format.json but missing in supported_configurations/:');
+    stderr.writeln(
+      'ERROR: The following formats are declared in format.json but missing in supported_configurations/:',
+    );
     for (final m in missingSupported) {
       stderr.writeln('  - $m (expected file: $m.json)');
     }
   } else {
-    stdout.writeln('OK: All declared formats in format.json have a supported_configurations JSON file.');
+    stdout.writeln(
+      'OK: All declared formats in format.json have a supported_configurations JSON file.',
+    );
   }
 
   final extraFiles = <String>[];
@@ -250,7 +283,9 @@ Future<void> main(List<String> args) async {
     if (!declaredFormats.contains(nameOnly)) extraFiles.add(fname);
   }
   if (extraFiles.isNotEmpty) {
-    stdout.writeln('WARNING: The following supported_configurations files are not referenced in format.json:');
+    stdout.writeln(
+      'WARNING: The following supported_configurations files are not referenced in format.json:',
+    );
     for (final f in extraFiles) {
       stdout.writeln('  - $f');
     }
@@ -270,19 +305,24 @@ Future<void> main(List<String> args) async {
     if (!uiGradients.containsKey(fmt)) missingGradients.add(fmt);
   }
   if (missingGradients.isNotEmpty) {
-    stdout.writeln('WARNING: ui_gradients missing entries for formats: ${missingGradients.join(', ')}');
+    stdout.writeln(
+      'WARNING: ui_gradients missing entries for formats: ${missingGradients.join(', ')}',
+    );
   } else {
-    stdout.writeln('OK: ui_gradients contains entries for all declared formats (or none are missing).');
+    stdout.writeln(
+      'OK: ui_gradients contains entries for all declared formats (or none are missing).',
+    );
   }
 
   // Validate localization files & translation key coverage
   if (l10nDir.existsSync()) {
-    final l10nFiles = l10nDir
-        .listSync()
-        .whereType<File>()
-        .where((f) => f.path.endsWith('.json'))
-        .toList()
-      ..sort((a, b) => a.path.compareTo(b.path));
+    final l10nFiles =
+        l10nDir
+            .listSync()
+            .whereType<File>()
+            .where((f) => f.path.endsWith('.json'))
+            .toList()
+          ..sort((a, b) => a.path.compareTo(b.path));
 
     final l10nMaps = <String, Map<String, dynamic>>{};
     for (final file in l10nFiles) {
@@ -309,12 +349,16 @@ Future<void> main(List<String> args) async {
       }
       if (missingInEn.isNotEmpty) {
         hadErrors = true;
-        stderr.writeln('ERROR: The following keys are used in configs but missing in en.json:');
+        stderr.writeln(
+          'ERROR: The following keys are used in configs but missing in en.json:',
+        );
         for (final k in missingInEn) {
           stderr.writeln('  - $k');
         }
       } else {
-        stdout.writeln('OK: All ${usedTranslationKeys.length} config translation keys exist in en.json.');
+        stdout.writeln(
+          'OK: All ${usedTranslationKeys.length} config translation keys exist in en.json.',
+        );
       }
 
       // Check key parity between en.json and all other languages
@@ -325,21 +369,29 @@ Future<void> main(List<String> args) async {
         final missing = enKeys.difference(langKeys);
         if (missing.isNotEmpty) {
           hadErrors = true;
-          stderr.writeln('ERROR: ${entry.key}.json is missing ${missing.length} keys defined in en.json:');
+          stderr.writeln(
+            'ERROR: ${entry.key}.json is missing ${missing.length} keys defined in en.json:',
+          );
           for (final k in missing) {
             stderr.writeln('  - $k');
           }
         }
       }
-      stdout.writeln('OK: All ${l10nMaps.length} l10n files have key parity with en.json.');
+      stdout.writeln(
+        'OK: All ${l10nMaps.length} l10n files have key parity with en.json.',
+      );
     }
   }
 
   if (hadErrors) {
-    stderr.writeln('\nValidation finished: ERRORS detected. Fix the errors above.');
+    stderr.writeln(
+      '\nValidation finished: ERRORS detected. Fix the errors above.',
+    );
     exit(1);
   } else {
-    stdout.writeln('\nValidation finished: no schema, cross-file, or localization errors detected.');
+    stdout.writeln(
+      '\nValidation finished: no schema, cross-file, or localization errors detected.',
+    );
     exit(0);
   }
 }
@@ -365,7 +417,8 @@ Future<JsonSchema?> _loadJsonSchemaFromFile(File f) async {
 Directory? _findConfigsDir() {
   var dir = Directory.current;
   while (true) {
-    final candidatePath = '${dir.path}${Platform.pathSeparator}apps${Platform.pathSeparator}mcu${Platform.pathSeparator}assets${Platform.pathSeparator}configs';
+    final candidatePath =
+        '${dir.path}${Platform.pathSeparator}apps${Platform.pathSeparator}mcu${Platform.pathSeparator}assets${Platform.pathSeparator}configs';
     final candidate = Directory(candidatePath);
     if (candidate.existsSync()) return candidate;
     final parent = dir.parent;
@@ -378,7 +431,9 @@ Directory? _findConfigsDir() {
 void _printUsageAndExit({int code = 1}) {
   stdout.writeln('Usage: dart run mcu_configs <schemas-directory>');
   stdout.writeln('');
-  stdout.writeln('Provide a single argument pointing to the directory that contains:');
+  stdout.writeln(
+    'Provide a single argument pointing to the directory that contains:',
+  );
   stdout.writeln('  - format.schema.json');
   stdout.writeln('  - supported_configurations.schema.json');
   exit(code);

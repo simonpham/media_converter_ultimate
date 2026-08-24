@@ -84,10 +84,22 @@ void main() {
 
   group('ConfigControlType', () {
     test('parses all known control types', () {
-      expect(ConfigControlType.fromValue('dropdown'), ConfigControlType.dropdown);
-      expect(ConfigControlType.fromValue('single_choice'), ConfigControlType.singleChoice);
-      expect(ConfigControlType.fromValue('multi_choice'), ConfigControlType.multiChoice);
-      expect(ConfigControlType.fromValue('radio_group'), ConfigControlType.radioGroup);
+      expect(
+        ConfigControlType.fromValue('dropdown'),
+        ConfigControlType.dropdown,
+      );
+      expect(
+        ConfigControlType.fromValue('single_choice'),
+        ConfigControlType.singleChoice,
+      );
+      expect(
+        ConfigControlType.fromValue('multi_choice'),
+        ConfigControlType.multiChoice,
+      );
+      expect(
+        ConfigControlType.fromValue('radio_group'),
+        ConfigControlType.radioGroup,
+      );
       expect(ConfigControlType.fromValue('other'), ConfigControlType.unknown);
     });
   });

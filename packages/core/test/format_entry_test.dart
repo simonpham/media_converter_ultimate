@@ -19,21 +19,24 @@ void main() {
       expect(entry.shouldAddToArgs, isTrue);
     });
 
-    test('parses audio format without should_add_to_args (defaulting to false)', () {
-      final json = {
-        'name': 'm4a',
-        'output_extension': 'm4a',
-        'output_type': 'audio',
-        'should_add_to_args': false,
-      };
+    test(
+      'parses audio format without should_add_to_args (defaulting to false)',
+      () {
+        final json = {
+          'name': 'm4a',
+          'output_extension': 'm4a',
+          'output_type': 'audio',
+          'should_add_to_args': false,
+        };
 
-      final entry = FormatEntry.fromJson(json);
+        final entry = FormatEntry.fromJson(json);
 
-      expect(entry.name, 'm4a');
-      expect(entry.outputExtension, 'm4a');
-      expect(entry.outputType, OutputType.audio);
-      expect(entry.shouldAddToArgs, isFalse);
-    });
+        expect(entry.name, 'm4a');
+        expect(entry.outputExtension, 'm4a');
+        expect(entry.outputType, OutputType.audio);
+        expect(entry.shouldAddToArgs, isFalse);
+      },
+    );
 
     test('handles unknown output type gracefully', () {
       final json = {

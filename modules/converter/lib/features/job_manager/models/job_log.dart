@@ -7,7 +7,6 @@ class const JobLog({
   required final String jobId,
   required final String message,
 }) {
-
   @override
   String toString() {
     return '[JobLog]: ${jsonEncode(toJson())}';

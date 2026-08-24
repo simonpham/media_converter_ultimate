@@ -109,15 +109,18 @@ extension SettingsPageItemExtensions on SettingsPageItem {
   GoRouterWidgetBuilder? get routerBuilder {
     return switch (this) {
       .defaultOutputFolder => null,
-      .defaultOutputFormat =>
-        (_, _) => const DefaultOutputFormatSettingsChild(),
+      .defaultOutputFormat => (
+        _,
+        _,
+      ) => const DefaultOutputFormatSettingsChild(),
       .overwriteBehavior => null,
       .concurrencyLimit => null,
-      .threadCount =>
-        (_, _) => const ThreadCountSettingsChild(),
+      .threadCount => (_, _) => const ThreadCountSettingsChild(),
       .keepAppRunning => null,
-      .excludeFileExtensions =>
-        (_, _) => const ExcludeFileExtensionsSettingsChild(),
+      .excludeFileExtensions => (
+        _,
+        _,
+      ) => const ExcludeFileExtensionsSettingsChild(),
       .languages => (_, _) => const LanguagesSettingsChild(),
       .appTheme => (_, _) => const AppThemeSettingsChild(),
       .showFileThumbnails => null,
@@ -134,46 +137,36 @@ extension SettingsPageItemExtensions on SettingsPageItem {
 
   String getLabel(BuildContext context) {
     return switch (this) {
-      .defaultOutputFolder =>
-        context.l10n.conversionDefaultOutputFolder,
-      .defaultOutputFormat =>
-        context.l10n.conversionDefaultOutputFormat,
-      .overwriteBehavior =>
-        context.l10n.conversionOverwriteBehavior,
+      .defaultOutputFolder => context.l10n.conversionDefaultOutputFolder,
+      .defaultOutputFormat => context.l10n.conversionDefaultOutputFormat,
+      .overwriteBehavior => context.l10n.conversionOverwriteBehavior,
       .concurrencyLimit => context.l10n.concurrencyLimit,
       .threadCount => context.l10n.threadCountTitle,
       .keepAppRunning => context.l10n.keepAppRunning,
-      .excludeFileExtensions =>
-        context.l10n.excludeFileExtensions,
+      .excludeFileExtensions => context.l10n.excludeFileExtensions,
       .languages => context.l10n.languages,
       .appTheme => context.l10n.displayAppTheme,
-      .showFileThumbnails =>
-        context.l10n.displayShowFileThumbnails,
+      .showFileThumbnails => context.l10n.displayShowFileThumbnails,
       .defaultSorting => context.l10n.displayDefaultSorting,
       .clearCache => context.l10n.appManagementClearCache,
-      .managePermissions =>
-        context.l10n.appManagementManagePermissions,
+      .managePermissions => context.l10n.appManagementManagePermissions,
       .helpAndFaq => context.l10n.aboutHelpAndFaq,
       .changelog => context.l10n.viewChangelog,
       .contactUs => context.l10n.aboutContactUs,
       .legal => context.l10n.aboutLegal,
-      .supportTheDeveloper =>
-        context.l10n.monetizationSupportTheDeveloper,
+      .supportTheDeveloper => context.l10n.monetizationSupportTheDeveloper,
     };
   }
 
   String? getDescription(BuildContext context) {
     return switch (this) {
-      .defaultOutputFolder =>
-        SettingsBox().lastOutputDirectoryPath,
+      .defaultOutputFolder => SettingsBox().lastOutputDirectoryPath,
       .defaultOutputFormat =>
         context.l10n.conversionDefaultOutputFormatDescription,
-      .overwriteBehavior =>
-        context.l10n.conversionOverwriteBehaviorDescription,
-      .concurrencyLimit =>
-        context.l10n.concurrencyLimitDescription(
-          '${SettingsBox().concurrencyLimit}',
-        ),
+      .overwriteBehavior => context.l10n.conversionOverwriteBehaviorDescription,
+      .concurrencyLimit => context.l10n.concurrencyLimitDescription(
+        '${SettingsBox().concurrencyLimit}',
+      ),
       .threadCount => context.l10n.threadCountSubtitle(
         ThreadCountSettingsChild.getValueLabel(
           context,
@@ -184,16 +177,12 @@ extension SettingsPageItemExtensions on SettingsPageItem {
         true => context.l10n.keepAppRunningOnDescription,
         false => context.l10n.keepAppRunningOffDescription,
       },
-      .excludeFileExtensions =>
-        context.l10n.excludedFilesDescription,
+      .excludeFileExtensions => context.l10n.excludedFilesDescription,
       .languages => null,
       .appTheme => context.l10n.displayAppThemeDescription,
-      .showFileThumbnails =>
-        context.l10n.displayShowFileThumbnailsDescription,
-      .defaultSorting =>
-        context.l10n.displayDefaultSortingDescription,
-      .clearCache =>
-        context.l10n.appManagementClearCacheDescription,
+      .showFileThumbnails => context.l10n.displayShowFileThumbnailsDescription,
+      .defaultSorting => context.l10n.displayDefaultSortingDescription,
+      .clearCache => context.l10n.appManagementClearCacheDescription,
       .managePermissions =>
         context.l10n.appManagementManagePermissionsDescription,
       .changelog => null,

@@ -27,8 +27,6 @@ class const ConvertJob({
   final int? progress,
   final int? duration,
 }) {
-
-
   @override
   String toString() {
     return '[ConvertJob]: ${jsonEncode(toJson())}';

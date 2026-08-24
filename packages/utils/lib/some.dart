@@ -2,4 +2,3 @@
 ///
 /// Useful for copyWith methods where you want to distinguish between "not set" and "set to null".
 class const Some<T>(final T value);
-

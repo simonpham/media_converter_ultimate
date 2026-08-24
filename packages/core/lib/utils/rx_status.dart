@@ -18,4 +18,3 @@ class const RxStatus<T>({
     return .new(data: data);
   }
 }
-

@@ -38,9 +38,12 @@ void main(List<String> args) async {
   // Load configs
   final repoRoot = Directory.current.path;
   final formatJsonFile = File('$repoRoot/apps/mcu/assets/configs/format.json');
-  final supportedConfigsDir = Directory('$repoRoot/apps/mcu/assets/configs/supported_configurations');
+  final supportedConfigsDir = Directory(
+    '$repoRoot/apps/mcu/assets/configs/supported_configurations',
+  );
 
-  final formatJson = jsonDecode(formatJsonFile.readAsStringSync()) as Map<String, dynamic>;
+  final formatJson =
+      jsonDecode(formatJsonFile.readAsStringSync()) as Map<String, dynamic>;
   final formats = (formatJson['format'] as List).cast<Map<String, dynamic>>();
 
   int passedCount = 0;
@@ -55,7 +58,9 @@ void main(List<String> args) async {
     final isAudio = outputType == 'audio';
     final shouldAddToArgs = fmt['should_add_to_args'] == true;
 
-    final primaryInput = isAudio ? samples['stereo_44k']! : samples['video_1080p']!;
+    final primaryInput = isAudio
+        ? samples['stereo_44k']!
+        : samples['video_1080p']!;
     final configFile = File('${supportedConfigsDir.path}/$formatName.json');
 
     if (!configFile.existsSync()) {
@@ -65,8 +70,10 @@ void main(List<String> args) async {
       continue;
     }
 
-    final configJson = jsonDecode(configFile.readAsStringSync()) as Map<String, dynamic>;
-    final mainControls = (configJson[formatName] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    final configJson =
+        jsonDecode(configFile.readAsStringSync()) as Map<String, dynamic>;
+    final mainControls =
+        (configJson[formatName] as List?)?.cast<Map<String, dynamic>>() ?? [];
 
     print('▶ Testing format: [$formatName] (Type: $outputType, Ext: .$ext)');
 
@@ -120,7 +127,9 @@ void main(List<String> args) async {
           passedCount++;
         } else {
           stderr.writeln('  ❌ Odd dimension input failed:');
-          stderr.writeln('     Error: ${_firstLines(oddRes.stderr.toString(), 4)}');
+          stderr.writeln(
+            '     Error: ${_firstLines(oddRes.stderr.toString(), 4)}',
+          );
           failedCount++;
           failedTests.add('$formatName: odd-dimension input');
         }
@@ -130,7 +139,8 @@ void main(List<String> args) async {
     // 3. Test Every Control and Every Individual Option Value
     for (final ctrl in mainControls) {
       final ctrlName = ctrl['name'] as String;
-      final options = (ctrl['options'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+      final options =
+          (ctrl['options'] as List?)?.cast<Map<String, dynamic>>() ?? [];
 
       for (final opt in options) {
         final optVal = opt['value'] as String? ?? opt['ffmpeg_arg'] as String?;
@@ -141,12 +151,15 @@ void main(List<String> args) async {
 
         // If this option triggers a nested group (e.g. video encoder -> CRF / preset)
         if (configJson.containsKey(optVal)) {
-          final nestedControls = (configJson[optVal] as List?)?.cast<Map<String, dynamic>>() ?? [];
+          final nestedControls =
+              (configJson[optVal] as List?)?.cast<Map<String, dynamic>>() ?? [];
 
           // Test each sub-option in the nested group
           for (final subCtrl in nestedControls) {
             final subCtrlName = subCtrl['name'] as String;
-            final subOptions = (subCtrl['options'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+            final subOptions =
+                (subCtrl['options'] as List?)?.cast<Map<String, dynamic>>() ??
+                [];
 
             for (final subOpt in subOptions) {
               final subVal = subOpt['value'] as String?;
@@ -155,10 +168,12 @@ void main(List<String> args) async {
               final nestedSelectedMap = Map<String, String>.from(selectedMap)
                 ..[subCtrlName] = subVal;
 
-              final testLabel = '$formatName -> $ctrlName="$optVal" -> $subCtrlName="$subVal"';
+              final testLabel =
+                  '$formatName -> $ctrlName="$optVal" -> $subCtrlName="$subVal"';
               final testArgs = _buildArgs(
                 inputFilePath: primaryInput,
-                outputFilePath: '${tempDir.path}/out_${formatName}_${_sanitize(optVal)}_${_sanitize(subVal)}.$ext',
+                outputFilePath:
+                    '${tempDir.path}/out_${formatName}_${_sanitize(optVal)}_${_sanitize(subVal)}.$ext',
                 formatName: formatName,
                 outputType: outputType,
                 shouldAddToArgs: shouldAddToArgs,
@@ -168,19 +183,25 @@ void main(List<String> args) async {
 
               final subMissing = _findMissingCodec(testArgs, encodersOutput);
               if (subMissing != null) {
-                print('  ⚠️  $testLabel skipped (missing host codec: $subMissing)');
+                print(
+                  '  ⚠️  $testLabel skipped (missing host codec: $subMissing)',
+                );
                 skippedCount++;
                 continue;
               }
 
               final subRes = await Process.run(ffmpegPath, ['-y', ...testArgs]);
               if (subRes.exitCode == 0) {
-                print('  ✅ Option passed: [$ctrlName="$optVal", $subCtrlName="$subVal"]');
+                print(
+                  '  ✅ Option passed: [$ctrlName="$optVal", $subCtrlName="$subVal"]',
+                );
                 passedCount++;
               } else {
                 stderr.writeln('  ❌ Option failed: $testLabel');
                 stderr.writeln('     Command: ffmpeg ${testArgs.join(" ")}');
-                stderr.writeln('     Error: ${_firstLines(subRes.stderr.toString(), 4)}');
+                stderr.writeln(
+                  '     Error: ${_firstLines(subRes.stderr.toString(), 4)}',
+                );
                 failedCount++;
                 failedTests.add(testLabel);
               }
@@ -191,7 +212,8 @@ void main(List<String> args) async {
           final testLabel = '$formatName -> $ctrlName="$optVal"';
           final testArgs = _buildArgs(
             inputFilePath: primaryInput,
-            outputFilePath: '${tempDir.path}/out_${formatName}_${_sanitize(optVal)}.$ext',
+            outputFilePath:
+                '${tempDir.path}/out_${formatName}_${_sanitize(optVal)}.$ext',
             formatName: formatName,
             outputType: outputType,
             shouldAddToArgs: shouldAddToArgs,
@@ -213,7 +235,9 @@ void main(List<String> args) async {
           } else {
             stderr.writeln('  ❌ Option failed: $testLabel');
             stderr.writeln('     Command: ffmpeg ${testArgs.join(" ")}');
-            stderr.writeln('     Error: ${_firstLines(optRes.stderr.toString(), 4)}');
+            stderr.writeln(
+              '     Error: ${_firstLines(optRes.stderr.toString(), 4)}',
+            );
             failedCount++;
             failedTests.add(testLabel);
           }
@@ -241,22 +265,37 @@ void main(List<String> args) async {
     }
     exit(1);
   } else {
-    print('\n🎉 100% of all format and configuration option tests passed with ZERO errors!');
+    print(
+      '\n🎉 100% of all format and configuration option tests passed with ZERO errors!',
+    );
     exit(0);
   }
 }
 
-Future<Map<String, String>> _generateSampleMedia(String ffmpegPath, String tempDirPath) async {
+Future<Map<String, String>> _generateSampleMedia(
+  String ffmpegPath,
+  String tempDirPath,
+) async {
   final samples = <String, String>{};
 
   // 1. 1080p standard video + audio
   final v1080p = '$tempDirPath/in_1080p.mp4';
   await Process.run(ffmpegPath, [
     '-y',
-    '-f', 'lavfi', '-i', 'testsrc=duration=1:size=1920x1080:rate=15',
-    '-f', 'lavfi', '-i', 'sine=frequency=1000:duration=1',
-    '-c:v', 'libx264', '-preset', 'ultrafast',
-    '-c:a', 'aac',
+    '-f',
+    'lavfi',
+    '-i',
+    'testsrc=duration=1:size=1920x1080:rate=15',
+    '-f',
+    'lavfi',
+    '-i',
+    'sine=frequency=1000:duration=1',
+    '-c:v',
+    'libx264',
+    '-preset',
+    'ultrafast',
+    '-c:a',
+    'aac',
     v1080p,
   ]);
   samples['video_1080p'] = v1080p;
@@ -265,10 +304,20 @@ Future<Map<String, String>> _generateSampleMedia(String ffmpegPath, String tempD
   final vOdd = '$tempDirPath/in_odd_dim.mp4';
   await Process.run(ffmpegPath, [
     '-y',
-    '-f', 'lavfi', '-i', 'testsrc=duration=1:size=501x333:rate=10',
-    '-f', 'lavfi', '-i', 'sine=frequency=800:duration=1',
-    '-c:v', 'libx264', '-preset', 'ultrafast',
-    '-c:a', 'aac',
+    '-f',
+    'lavfi',
+    '-i',
+    'testsrc=duration=1:size=501x333:rate=10',
+    '-f',
+    'lavfi',
+    '-i',
+    'sine=frequency=800:duration=1',
+    '-c:v',
+    'libx264',
+    '-preset',
+    'ultrafast',
+    '-c:a',
+    'aac',
     vOdd,
   ]);
   samples['video_odd_dim'] = vOdd;
@@ -277,9 +326,14 @@ Future<Map<String, String>> _generateSampleMedia(String ffmpegPath, String tempD
   final aStereo = '$tempDirPath/in_stereo_44k.wav';
   await Process.run(ffmpegPath, [
     '-y',
-    '-f', 'lavfi', '-i', 'sine=frequency=1000:duration=1:sample_rate=44100',
-    '-ac', '2',
-    '-c:a', 'pcm_s16le',
+    '-f',
+    'lavfi',
+    '-i',
+    'sine=frequency=1000:duration=1:sample_rate=44100',
+    '-ac',
+    '2',
+    '-c:a',
+    'pcm_s16le',
     aStereo,
   ]);
   samples['stereo_44k'] = aStereo;
@@ -288,9 +342,14 @@ Future<Map<String, String>> _generateSampleMedia(String ffmpegPath, String tempD
   final aSurround = '$tempDirPath/in_surround_5_1.wav';
   await Process.run(ffmpegPath, [
     '-y',
-    '-f', 'lavfi', '-i', 'sine=frequency=1000:duration=1:sample_rate=48000',
-    '-ac', '6',
-    '-c:a', 'pcm_s24le',
+    '-f',
+    'lavfi',
+    '-i',
+    'sine=frequency=1000:duration=1:sample_rate=48000',
+    '-ac',
+    '6',
+    '-c:a',
+    'pcm_s24le',
     aSurround,
   ]);
   samples['surround_5_1'] = aSurround;
@@ -303,7 +362,8 @@ String? _findMissingCodec(List<String> args, String encodersOutput) {
     if (args[i] == '-c:v' || args[i] == '-c:a') {
       final codec = args[i + 1];
       if (codec == 'copy') continue;
-      if (!encodersOutput.contains(' $codec ') && !encodersOutput.contains(' $codec\n')) {
+      if (!encodersOutput.contains(' $codec ') &&
+          !encodersOutput.contains(' $codec\n')) {
         return codec;
       }
     }
@@ -321,7 +381,8 @@ List<String> _buildArgs({
   required Map<String, String> selectedOptions,
 }) {
   final args = <String>[
-    '-i', inputFilePath,
+    '-i',
+    inputFilePath,
     '-hide_banner',
   ];
 
@@ -329,7 +390,8 @@ List<String> _buildArgs({
     args.add('-vn');
   }
 
-  final mainControls = (configJson[formatName] as List?)?.cast<Map<String, dynamic>>() ?? [];
+  final mainControls =
+      (configJson[formatName] as List?)?.cast<Map<String, dynamic>>() ?? [];
   _processControls(mainControls, configJson, selectedOptions, args);
 
   if (shouldAddToArgs) {
@@ -367,7 +429,9 @@ void _processControls(
 
     // Check if selectedVal triggers a nested config group
     if (configJson.containsKey(selectedVal)) {
-      final nestedControls = (configJson[selectedVal] as List?)?.cast<Map<String, dynamic>>() ?? [];
+      final nestedControls =
+          (configJson[selectedVal] as List?)?.cast<Map<String, dynamic>>() ??
+          [];
       _processControls(nestedControls, configJson, selectedOptions, args);
     }
   }

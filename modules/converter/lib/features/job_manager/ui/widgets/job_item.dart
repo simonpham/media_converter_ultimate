@@ -110,10 +110,12 @@ class const JobItem(
             ),
           ),
           Spacing.v4,
-          if ((job.progress, job.duration) case (
-            int progress,
-            int duration,
-          ) when job.status.isProcessing && duration > 0) ...[
+          if ((job.progress, job.duration)
+              case (
+                int progress,
+                int duration,
+              )
+              when job.status.isProcessing && duration > 0) ...[
             Padding(
               padding: .symmetric(
                 horizontal: Spacing.d16,

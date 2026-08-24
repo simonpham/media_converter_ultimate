@@ -147,4 +147,3 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
     );
   }
 }
-

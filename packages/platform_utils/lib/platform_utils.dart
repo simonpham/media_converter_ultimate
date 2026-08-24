@@ -11,7 +11,8 @@ export 'package:ffmpeg_kit_flutter_new/ffprobe_session_complete_callback.dart';
 export 'package:ffmpeg_kit_flutter_new/session_state.dart';
 export 'package:file_picker/file_picker.dart';
 export 'package:flutter_foreground_task/flutter_foreground_task.dart';
-export 'package:flutter_local_notifications/flutter_local_notifications.dart' hide NotificationVisibility;
+export 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    hide NotificationVisibility;
 export 'package:mime/mime.dart';
 export 'package:package_info_plus/package_info_plus.dart';
 export 'package:path/path.dart';

@@ -4,4 +4,3 @@ final class const OffsetLimitPagination({
   required final int offset,
   required final int limit,
 }) extends Pagination;
-
