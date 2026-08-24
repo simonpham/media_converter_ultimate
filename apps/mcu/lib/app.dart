@@ -27,7 +27,7 @@ class MediaConverterUltimate extends StatelessWidget {
             );
           },
           routerConfig: kAppRouter,
-          locale: Locale(
+          locale: parseLocale(
             SettingsBox().language,
           ),
           localizationsDelegates: [
