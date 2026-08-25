@@ -139,7 +139,9 @@ void main() {
         'zh_TW',
       ];
 
-      var changelogDir = Directory('${configsDir.parent.path}/content/changelog');
+      var changelogDir = Directory(
+        '${configsDir.parent.path}/content/changelog',
+      );
       expect(changelogDir.existsSync(), isTrue);
 
       for (final lang in expectedLangs) {
@@ -170,7 +172,8 @@ void main() {
         expect(
           strippedText.length,
           lessThanOrEqualTo(500),
-          reason: '$lang.html latest release note exceeds Google Play 500 char limit (${strippedText.length} chars)',
+          reason:
+              '$lang.html latest release note exceeds Google Play 500 char limit (${strippedText.length} chars)',
         );
       }
     });

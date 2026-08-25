@@ -38,25 +38,35 @@ List<String> extractReleaseNotes(String content, {String? targetVersion}) {
   for (final section in sections) {
     if (section.trim().isEmpty) continue;
 
-    final h3Match = RegExp(r'^(.*?)</h3\s*>', caseSensitive: false, dotAll: true)
-        .firstMatch(section);
+    final h3Match = RegExp(
+      r'^(.*?)</h3\s*>',
+      caseSensitive: false,
+      dotAll: true,
+    ).firstMatch(section);
     if (h3Match == null) continue;
 
     final versionStr = cleanHtmlText(h3Match.group(1) ?? '').trim();
     final body = section.substring(h3Match.end);
 
-    if (targetVersion != null && targetVersion.isNotEmpty && targetVersion != versionStr) {
+    if (targetVersion != null &&
+        targetVersion.isNotEmpty &&
+        targetVersion != versionStr) {
       continue;
     }
 
-    final liMatches = RegExp(r'<li[^>]*>(.*?)</li>', caseSensitive: false, dotAll: true)
-        .allMatches(body);
+    final liMatches = RegExp(
+      r'<li[^>]*>(.*?)</li>',
+      caseSensitive: false,
+      dotAll: true,
+    ).allMatches(body);
 
     for (final match in liMatches) {
       final rawText = match.group(1) ?? '';
       var cleaned = cleanHtmlText(rawText);
       if (cleaned.isNotEmpty) {
-        if (!cleaned.startsWith('-') && !cleaned.startsWith('•') && !cleaned.startsWith('*')) {
+        if (!cleaned.startsWith('-') &&
+            !cleaned.startsWith('•') &&
+            !cleaned.startsWith('*')) {
           cleaned = '• $cleaned';
         }
         items.add(cleaned);
@@ -95,7 +105,9 @@ void main(List<String> args) {
   final outputDir = Directory(outputDirPath);
 
   if (!changelogDir.existsSync()) {
-    stderr.writeln('Error: Changelog directory "$changelogDirPath" does not exist.');
+    stderr.writeln(
+      'Error: Changelog directory "$changelogDirPath" does not exist.',
+    );
     exit(1);
   }
 
@@ -104,12 +116,13 @@ void main(List<String> args) {
   }
 
   var processedCount = 0;
-  final htmlFiles = changelogDir
-      .listSync()
-      .whereType<File>()
-      .where((f) => f.path.endsWith('.html'))
-      .toList()
-    ..sort((a, b) => a.path.compareTo(b.path));
+  final htmlFiles =
+      changelogDir
+          .listSync()
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.html'))
+          .toList()
+        ..sort((a, b) => a.path.compareTo(b.path));
 
   for (final file in htmlFiles) {
     final fileName = file.uri.pathSegments.last;
@@ -139,10 +152,14 @@ void main(List<String> args) {
     for (final locale in targetLocales) {
       final outFile = File('${outputDir.path}/whatsnew-$locale');
       outFile.writeAsStringSync(notesText);
-      stdout.writeln('✅ Generated ${outFile.uri.pathSegments.last} (${notesText.length} chars)');
+      stdout.writeln(
+        '✅ Generated ${outFile.uri.pathSegments.last} (${notesText.length} chars)',
+      );
       processedCount++;
     }
   }
 
-  stdout.writeln('\n🎉 Successfully generated $processedCount whatsnew files in "$outputDirPath".');
+  stdout.writeln(
+    '\n🎉 Successfully generated $processedCount whatsnew files in "$outputDirPath".',
+  );
 }
