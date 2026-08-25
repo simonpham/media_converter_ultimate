@@ -50,6 +50,7 @@ class DirectFileService implements FileService {
         initialDirectory: initialPath,
       );
       if (folderPath == null || folderPath.isEmpty) {
+        printLog('[DirectFileService] chooseSavePath: empty folderPath');
         return (null, null);
       }
 
