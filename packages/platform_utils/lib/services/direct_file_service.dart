@@ -51,7 +51,7 @@ class DirectFileService implements FileService {
       );
       if (folderPath == null || folderPath.isEmpty) {
         printLog('[DirectFileService] chooseSavePath: empty folderPath');
-        return (null, null);
+        return (null, const NoOutputFolderFailure());
       }
 
       final dir = Directory(folderPath);
