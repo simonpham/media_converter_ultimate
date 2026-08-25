@@ -51,3 +51,9 @@
 - **Validation**:
   - Run `./validate.sh` to ensure JSON schemas, cross-file mappings, and 11-language l10n parity are 100% valid.
   - Run `./test_ffmpeg.sh` to verify that FFmpeg commands build and execute properly.
+
+## Git & Commits
+- **Commit Style**: Use [Gitmoji](https://gitmoji.dev/) format with short, concise action descriptions (e.g., `🐛 Fix ...`, `✨ Add ...`, `📝 Update ...`, `🔖 Bump ...`, `⬆️ Update ...`, `👷 Add ...`).
+- **Length & Tone**: Keep commit messages short, concise, and imperative (under 50-72 chars). Avoid verbose explanations.
+- **Granularity**: Keep commits atomic. Separate into 1 commit for each distinct change—do not combine multiple unrelated changes into a single commit.
+
