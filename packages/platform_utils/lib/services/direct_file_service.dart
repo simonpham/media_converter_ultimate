@@ -89,8 +89,12 @@ class DirectFileService implements FileService {
         return OutputFileAlreadyExistsFailure(outputPath);
       }
 
-      await tempFile.copy(outputPath);
-      await tempFile.delete();
+      try {
+        await tempFile.rename(outputPath);
+      } catch (_) {
+        await tempFile.copy(outputPath);
+        await tempFile.delete();
+      }
       return null;
     } catch (err, trace) {
       printError(err, trace);
@@ -234,8 +238,12 @@ class DirectFileService implements FileService {
         inputFolder.path,
         inputFileName,
       );
-      await inputFile.copy(newInputFilePath);
-      await inputFile.delete();
+      try {
+        await inputFile.rename(newInputFilePath);
+      } catch (_) {
+        await inputFile.copy(newInputFilePath);
+        await inputFile.delete();
+      }
       return newInputFilePath;
     } catch (err, trace) {
       printError(err, trace);
