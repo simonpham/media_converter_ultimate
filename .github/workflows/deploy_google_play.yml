@@ -1,0 +1,185 @@
+# ==============================================================================
+# GitHub Actions Workflow: Deploy to Google Play
+# ==============================================================================
+#
+# REQUIRED GITHUB REPOSITORY SECRETS:
+# Navigate to: Repository Settings -> Secrets and variables -> Actions
+#
+# 1. ANDROID_KEYSTORE_BASE64
+#    - Base64-encoded string of your Android release keystore (.jks / .keystore).
+#    - Generate via terminal:
+#      base64 -i path/to/upload-keystore.jks | tr -d '\n' | pbcopy (macOS)
+#      base64 -w 0 path/to/upload-keystore.jks (Linux)
+#
+# 2. ANDROID_KEY_ALIAS
+#    - Alias name of the signing key inside your keystore (e.g. "upload" or "key0").
+#
+# 3. ANDROID_KEY_PASSWORD
+#    - Password for the key alias.
+#
+# 4. ANDROID_STORE_FILE_PASSWORD
+#    - Password for the keystore file itself.
+#
+# 5. GOOGLE_PLAY_SERVICE_ACCOUNT_JSON
+#    - Full JSON key content of a Google Cloud Service Account with "Google Play Developer Publishing API" access.
+#    - Steps to create:
+#      1. Go to Google Cloud Console -> IAM & Admin -> Service Accounts.
+#      2. Create a service account and generate a JSON key.
+#      3. Go to Google Play Console -> Users & Permissions -> Invite new user.
+#      4. Invite the service account email with "Releases" permission on this app.
+#
+# OPTIONAL GITHUB REPOSITORY SECRETS:
+#
+# 6. ANDROID_APP_PACKAGE_NAME
+#    - Application ID (defaults to "io.sofluffy.mcu" if not provided).
+#
+# 7. GH_PAT
+#    - Personal Access Token with repo read scope (only needed if submodule packages/design_system is private).
+#
+# ==============================================================================
+
+name: Deploy to Google Play
+
+on:
+  workflow_dispatch:
+    inputs:
+      track:
+        description: 'Google Play Release Track'
+        required: true
+        type: choice
+        default: 'production'
+        options:
+          - production
+          - beta
+          - alpha
+          - internal
+      status:
+        description: 'Release Status'
+        required: true
+        type: choice
+        default: 'completed'
+        options:
+          - completed
+          - draft
+          - inProgress
+          - halted
+      user_fraction:
+        description: 'Rollout fraction (0.0 to 1.0, e.g. 0.1 for 10% rollout; used when status is inProgress)'
+        required: false
+        type: string
+        default: '1.0'
+      build_name:
+        description: 'Custom build version/name override (optional, e.g. 1.0.8)'
+        required: false
+        type: string
+      build_number:
+        description: 'Custom build number override (optional, e.g. 100012)'
+        required: false
+        type: string
+
+jobs:
+  build-and-release:
+    name: Build & Upload to Google Play
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:'
+
+      - name: Make scripts executable
+        run: |
+          chmod +x ./get.sh ./gen.sh ./validate.sh ./run_tests.sh
+
+      - name: Install dependencies
+        run: ./get.sh
+
+      - name: Generate localization and code
+        run: ./gen.sh
+
+      - name: Run validation and test suites
+        run: ./run_tests.sh
+
+      - name: Generate Google Play Release Notes
+        run: |
+          ARGS=()
+          if [ -n "${{ inputs.build_name }}" ]; then
+            ARGS+=("--version" "${{ inputs.build_name }}")
+          fi
+          dart run ./scripts/generate_whatsnew.dart "${ARGS[@]}"
+
+      - name: Configure Android Signing Credentials
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_STORE_FILE_PASSWORD: ${{ secrets.ANDROID_STORE_FILE_PASSWORD }}
+          ANDROID_APP_PACKAGE_NAME: ${{ secrets.ANDROID_APP_PACKAGE_NAME || 'io.sofluffy.mcu' }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::error::Secret ANDROID_KEYSTORE_BASE64 is empty or not configured."
+            exit 1
+          fi
+          if [ -z "$ANDROID_KEY_ALIAS" ] || [ -z "$ANDROID_KEY_PASSWORD" ] || [ -z "$ANDROID_STORE_FILE_PASSWORD" ]; then
+            echo "::error::One or more Android keystore secrets (ALIAS, KEY_PASSWORD, STORE_FILE_PASSWORD) are missing."
+            exit 1
+          fi
+
+          mkdir -p .assets
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > .assets/upload-keystore.jks
+
+          cat <<EOF > .assets/env.props
+          androidAppPackageName=$ANDROID_APP_PACKAGE_NAME
+          androidKeyAlias=$ANDROID_KEY_ALIAS
+          androidKeyPassword=$ANDROID_KEY_PASSWORD
+          androidStoreFile=upload-keystore.jks
+          androidStoreFilePassword=$ANDROID_STORE_FILE_PASSWORD
+          EOF
+
+      - name: Build Android App Bundle (AAB)
+        working-directory: apps/mcu
+        run: |
+          BUILD_ARGS=("--release")
+          if [ -n "${{ inputs.build_name }}" ]; then
+            BUILD_ARGS+=("--build-name=${{ inputs.build_name }}")
+          fi
+          if [ -n "${{ inputs.build_number }}" ]; then
+            BUILD_ARGS+=("--build-number=${{ inputs.build_number }}")
+          fi
+
+          flutter build appbundle "${BUILD_ARGS[@]}"
+
+      - name: Upload AAB Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-aab
+          path: apps/mcu/build/app/outputs/bundle/release/*.aab
+          retention-days: 14
+
+      - name: Upload to Google Play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: ${{ secrets.ANDROID_APP_PACKAGE_NAME || 'io.sofluffy.mcu' }}
+          releaseFiles: apps/mcu/build/app/outputs/bundle/release/*.aab
+          track: ${{ inputs.track }}
+          status: ${{ inputs.status }}
+          userFraction: ${{ inputs.status == 'inProgress' && inputs.user_fraction || '' }}
+          whatsNewDirectory: distribution/whatsnew

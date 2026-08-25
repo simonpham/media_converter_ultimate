@@ -123,5 +123,56 @@ void main() {
         );
       }
     });
+
+    test('all 11 changelog files exist and have valid entries <= 500 chars', () {
+      final expectedLangs = [
+        'de',
+        'en',
+        'es',
+        'id',
+        'it',
+        'ja',
+        'pt',
+        'tr',
+        'vi',
+        'zh',
+        'zh_TW',
+      ];
+
+      var changelogDir = Directory('${configsDir.parent.path}/content/changelog');
+      expect(changelogDir.existsSync(), isTrue);
+
+      for (final lang in expectedLangs) {
+        final changelogFile = File('${changelogDir.path}/$lang.html');
+        expect(
+          changelogFile.existsSync(),
+          isTrue,
+          reason: 'Missing changelog file: $lang.html',
+        );
+
+        final content = changelogFile.readAsStringSync();
+        expect(content, contains('<h3>'));
+        expect(content, contains('<li>'));
+
+        // Verify latest section
+        final firstH3 = content.indexOf('<h3>');
+        final nextH3 = content.indexOf('<h3>', firstH3 + 4);
+        final latestSection = nextH3 != -1
+            ? content.substring(firstH3, nextH3)
+            : content.substring(firstH3);
+
+        final strippedText = latestSection
+            .replaceAll(RegExp(r'<[^>]+>'), '')
+            .replaceAll('&nbsp;', ' ')
+            .replaceAll(RegExp(r'\s+'), ' ')
+            .trim();
+
+        expect(
+          strippedText.length,
+          lessThanOrEqualTo(500),
+          reason: '$lang.html latest release note exceeds Google Play 500 char limit (${strippedText.length} chars)',
+        );
+      }
+    });
   });
 }
