@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:converter/converter.dart';
-import 'package:core/core.dart';
 import 'package:core_storage_base/data/data.dart';
 import 'package:flutter/foundation.dart';
 import 'package:platform_utils/platform_utils.dart';

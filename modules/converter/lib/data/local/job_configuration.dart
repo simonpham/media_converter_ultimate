@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:converter/converter.dart';
-import 'package:core/core.dart' show Disposable, EasyBox, injector, FormatEntry;
 
 class JobConfigurationData extends EasyBox implements Disposable {
   @override

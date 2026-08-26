@@ -5,4 +5,7 @@ extension BuildContextContext on BuildContext {
   GoRouter get router {
     return GoRouter.of(this);
   }
+
+  ThemeData get theme => Theme.of(this);
+  TextTheme get textTheme => Theme.of(this).textTheme;
 }

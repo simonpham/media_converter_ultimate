@@ -1,5 +1,4 @@
 import 'package:converter/converter.dart';
-import 'package:core/core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:icons/icons.dart';

@@ -20,8 +20,8 @@ class const DropdownWidget(
           borderRadius: Spacing.r12,
           side: BorderSide(
             color: isDark
-                ? context.appTheme.colors.neutral5
-                : context.appTheme.colors.neutral2,
+                ? context.fluffyTheme.colors.neutral5
+                : context.fluffyTheme.colors.neutral2,
             width: 2.0,
           ),
         ),

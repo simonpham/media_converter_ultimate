@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:converter/converter.dart';
-import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 
 extension ConfigTranslationsExtension on BuildContext {

@@ -1,5 +1,5 @@
-import 'package:design_system/design_system.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 class const SectionTitle(
   final String title, {
@@ -8,6 +8,7 @@ class const SectionTitle(
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final theme = context.fluffyTheme;
     return Padding(
       padding:
           padding ??
@@ -18,8 +19,8 @@ class const SectionTitle(
           ),
       child: Text(
         title,
-        style: context.theme.textTheme.titleSmall?.copyWith(
-          color: context.theme.primaryColor,
+        style: theme.typography.headline6.copyWith(
+          color: theme.colors.primary,
         ),
       ),
     );

@@ -1,10 +1,10 @@
 import 'package:converter/converter.dart' show ConverterInjector;
 import 'package:converter/data/data.dart';
 import 'package:core/core.dart';
-import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:mcu/app.dart';
 import 'package:platform_utils/platform_utils.dart';
+import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 export 'app.dart';
 export 'router.dart';

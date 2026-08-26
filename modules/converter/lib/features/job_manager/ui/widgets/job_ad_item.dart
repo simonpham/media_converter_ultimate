@@ -1,11 +1,11 @@
 import 'package:converter/constants/google_ad_units.dart';
 import 'package:converter/data/local/ads_settings.dart';
 import 'package:core/core.dart';
-import 'package:design_system/design_system.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_ads/mobile_ads.dart';
 import 'package:mobile_ads_google/mobile_ads_google.dart';
+import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 class const JobAdItem({super.key}) extends StatefulWidget {
   @override

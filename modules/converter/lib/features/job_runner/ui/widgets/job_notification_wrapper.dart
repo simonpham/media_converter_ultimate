@@ -1,10 +1,9 @@
 import 'dart:async';
 
 import 'package:converter/converter.dart';
-import 'package:core/core.dart';
 import 'package:core_storage_base/core_storage_base.dart';
-import 'package:design_system/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:sofluffy_ui/utils/utils.dart';
 
 class JobNotificationWrapper extends StatefulWidget {
   final Widget child;

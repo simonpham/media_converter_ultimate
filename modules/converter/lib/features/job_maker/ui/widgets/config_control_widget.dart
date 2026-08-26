@@ -1,14 +1,13 @@
 import 'dart:convert';
 
 import 'package:converter/converter.dart';
-import 'package:core/core.dart';
-import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:sofluffy_ui/sofluffy_ui.dart';
 
+part 'config_controls/dropdown.dart';
 part 'config_controls/multi_choice.dart';
 part 'config_controls/radio_group.dart';
 part 'config_controls/single_choice.dart';
-part 'config_controls/dropdown.dart';
 
 class const ConfigControlWidget(
   final ConfigControl control, {

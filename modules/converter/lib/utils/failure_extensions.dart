@@ -1,6 +1,6 @@
 import 'package:core/core.dart';
-import 'package:design_system/design_system.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sofluffy_ui/sofluffy_ui.dart';
 import 'package:utils/utils.dart';
 
 extension BuildContextToastExtension on BuildContext {

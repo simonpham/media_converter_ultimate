@@ -1,8 +1,8 @@
 import 'package:converter/converter.dart' show ContentUtils;
 import 'package:core/core.dart';
-import 'package:design_system/design_system.dart' show ContentDialog;
 import 'package:flutter/widgets.dart';
 import 'package:platform_utils/platform_utils.dart';
+import 'package:sofluffy_ui/sofluffy_ui.dart' show ContentDialog;
 
 class ChangelogUtils {
   static Future<void> check(BuildContext context) async {

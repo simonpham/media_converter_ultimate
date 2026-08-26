@@ -1,13 +1,17 @@
 import 'package:converter/converter.dart';
-import 'package:core/core.dart';
-import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:mcu/router.dart';
+import 'package:mcu/theme_adapter.dart';
+import 'package:sofluffy_ui/sofluffy_ui.dart';
 
-class const MediaConverterUltimate({
-  super.key,
-  required final AppTheme appTheme,
-}) extends StatelessWidget {
+class MediaConverterUltimate extends StatelessWidget {
+  final FluffyThemeData appTheme;
+
+  const MediaConverterUltimate({
+    super.key,
+    required this.appTheme,
+  });
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
@@ -16,13 +20,25 @@ class const MediaConverterUltimate({
         CoreSettings.appTheme,
       ].of(SettingsBox()),
       builder: (context, _, _) {
+        final themeMode = SettingsBox().appTheme;
         return MaterialApp.router(
           theme: appTheme.getTheme(isDark: false),
           darkTheme: appTheme.getTheme(isDark: true),
-          themeMode: SettingsBox().appTheme,
+          themeMode: themeMode,
           builder: (context, child) {
-            return JobNotificationWrapper(
-              child: child!,
+            final isDark = switch (themeMode) {
+              ThemeMode.dark => true,
+              ThemeMode.light => false,
+              ThemeMode.system =>
+                MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+            };
+            return FluffyTheme(
+              data: appTheme.copyWith(
+                brightness: isDark ? Brightness.dark : Brightness.light,
+              ),
+              child: JobNotificationWrapper(
+                child: child!,
+              ),
             );
           },
           routerConfig: kAppRouter,

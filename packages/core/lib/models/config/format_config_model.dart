@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:core/core.dart';
-import 'package:design_system/design_system.dart' show HexColorUtils;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sofluffy_ui/sofluffy_ui.dart' show HexColorUtils;
 import 'package:utils/utils.dart';
 
 part 'format_config_model_extensions.dart';

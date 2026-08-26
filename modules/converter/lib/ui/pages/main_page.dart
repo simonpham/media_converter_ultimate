@@ -1,7 +1,6 @@
 import 'package:converter/converter.dart';
-import 'package:core/core.dart';
-import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 class const MainPage({
   super.key,

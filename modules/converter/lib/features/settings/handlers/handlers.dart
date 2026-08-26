@@ -1,10 +1,9 @@
 import 'dart:math';
 
 import 'package:converter/converter.dart';
-import 'package:core/core.dart';
-import 'package:design_system/design_system.dart';
 import 'package:flutter/widgets.dart';
 import 'package:platform_utils/platform_utils.dart';
+import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 extension SettingsHandlers on SettingsPageItem {
   void handleOpen(BuildContext context) {

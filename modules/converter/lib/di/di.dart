@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:converter/converter.dart';
-import 'package:core/core.dart';
 import 'package:core_storage_base/core_storage_base.dart';
 import 'package:core_storage_isar/core_storage_isar.dart';
 import 'package:mobile_ads/service/service.dart';

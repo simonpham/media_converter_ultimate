@@ -1,5 +1,4 @@
 import 'package:converter/converter.dart';
-import 'package:core/core.dart';
 import 'package:flutter/widgets.dart';
 
 enum JobMakerSteps {

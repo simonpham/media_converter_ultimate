@@ -1,15 +1,14 @@
 import 'package:converter/converter.dart';
-import 'package:core/core.dart';
-import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
 import 'package:platform_utils/platform_utils.dart';
+import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 part 'settings_child/app_theme.dart';
 part 'settings_child/default_output_format.dart';
 part 'settings_child/exclude_file_extensions.dart';
-part 'settings_child/thread_count.dart';
 part 'settings_child/languages.dart';
+part 'settings_child/thread_count.dart';
 
 abstract class const SettingsChild({
   super.key,

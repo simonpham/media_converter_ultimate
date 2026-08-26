@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:converter/converter.dart';
-import 'package:core/core.dart' show ConvertJob, Disposable, EasyBox, injector;
 import 'package:flutter/foundation.dart';
 
 class LogData extends EasyBox implements Disposable {

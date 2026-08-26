@@ -1,5 +1,7 @@
 library;
 
+export 'package:core/core.dart';
+
 export 'constants/constants.dart';
 export 'data/data.dart';
 export 'di/di.dart';

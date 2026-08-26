@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:converter/converter.dart';
-import 'package:core/core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';

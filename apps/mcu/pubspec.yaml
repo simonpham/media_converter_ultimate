@@ -18,8 +18,9 @@ dependencies:
 
   core:
     path: ../../packages/core
-  design_system:
+  sofluffy_ui:
     path: ../../packages/design_system
+  flash: ^3.1.1
   l10n:
     path: ../../packages/l10n
   platform_utils:

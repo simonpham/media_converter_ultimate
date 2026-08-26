@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: "flutter"
 
-  design_system:
+  sofluffy_ui:
     path: ../design_system
   l10n:
     path: ../l10n
