@@ -1,5 +1,9 @@
 {
   "@@locale": "ru",
+  "configs.common.album_art.copy_codec": "Копировать поток изображения напрямую",
+  "configs.common.album_art.desc": "Сохранять встроенную обложку альбома, если она есть в источнике",
+  "configs.common.album_art.label": "Обложка альбома",
+  "configs.common.album_art.preserve": "Сохранять прикрепленную обложку альбома",
   "configs.common.audio_channel.5_1": "6 (5.1 объемный звук)",
   "configs.common.audio_channel.label": "Аудиоканал",
   "configs.common.audio_channel.mono": "1 (Моно)",

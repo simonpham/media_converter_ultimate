@@ -1,5 +1,9 @@
 {
   "@@locale": "de",
+  "configs.common.album_art.copy_codec": "Bildstream direkt kopieren",
+  "configs.common.album_art.desc": "Eingebettetes Albumcover beibehalten, falls vorhanden",
+  "configs.common.album_art.label": "Album-Cover / Artwork",
+  "configs.common.album_art.preserve": "Angehängtes Album-Cover beibehalten",
   "configs.common.audio_channel.5_1": "6 (5.1 Surround)",
   "configs.common.audio_channel.label": "Audiokanal",
   "configs.common.audio_channel.mono": "1 (Mono)",

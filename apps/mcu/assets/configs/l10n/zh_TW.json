@@ -1,5 +1,9 @@
 {
   "@@locale": "zh_TW",
+  "configs.common.album_art.copy_codec": "直接複製影像串流",
+  "configs.common.album_art.desc": "若來源檔案中存在內嵌封面插圖，則予以保留",
+  "configs.common.album_art.label": "專輯封面 / 插圖",
+  "configs.common.album_art.preserve": "保留附加的專輯封面",
   "configs.common.audio_channel.5_1": "6 (5.1 環繞音效)",
   "configs.common.audio_channel.label": "音訊聲道",
   "configs.common.audio_channel.mono": "1 (單聲道)",

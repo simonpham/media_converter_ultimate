@@ -1,5 +1,9 @@
 {
   "@@locale": "es",
+  "configs.common.album_art.copy_codec": "Copiar flujo de imagen directamente",
+  "configs.common.album_art.desc": "Conservar la carátula integrada si está presente en la fuente",
+  "configs.common.album_art.label": "Portada del álbum",
+  "configs.common.album_art.preserve": "Conservar la portada del álbum adjunta",
   "configs.common.audio_channel.5_1": "6 (5.1 Envolvente)",
   "configs.common.audio_channel.label": "Canal de audio",
   "configs.common.audio_channel.mono": "1 (Mono)",

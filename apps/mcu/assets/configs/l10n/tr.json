@@ -1,5 +1,9 @@
 {
   "@@locale": "tr",
+  "configs.common.album_art.copy_codec": "Görüntü akışını doğrudan kopyala",
+  "configs.common.album_art.desc": "Kaynakta gömülü albüm kapağı varsa koru",
+  "configs.common.album_art.label": "Albüm Kapağı / Resim",
+  "configs.common.album_art.preserve": "Ekli albüm kapağını koru",
   "configs.common.audio_channel.5_1": "6 (5.1 Surround)",
   "configs.common.audio_channel.label": "Ses kanalı",
   "configs.common.audio_channel.mono": "1 (Mono)",

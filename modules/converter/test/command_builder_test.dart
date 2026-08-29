@@ -172,5 +172,73 @@ void main() {
       );
       expect(path, '/media/output/my_clip.mp4');
     });
+
+    test('preserves album art and metadata args for audio conversions', () {
+      const testFormatEntryMp3 = FormatEntry(
+        name: 'mp3',
+        outputExtension: 'mp3',
+        outputType: OutputType.audio,
+        shouldAddToArgs: true,
+      );
+
+      final controls = [
+        const ConfigControl(
+          type: ConfigControlType.dropdown,
+          name: 'configs.mp3.audio_encoder',
+          label: 'Encoder',
+          options: [
+            ConfigControlOption(label: 'LAME', value: 'libmp3lame'),
+          ],
+          isVisible: true,
+          shouldAddToArgs: true,
+          ffmpegFlag: '-c:a',
+          defaultValue: 'libmp3lame',
+        ),
+        const ConfigControl(
+          type: ConfigControlType.multiChoice,
+          name: 'configs.mp3.album_art',
+          label: 'Album Art',
+          options: [
+            ConfigControlOption(label: 'Preserve', value: '-map 0:v:disp:attached_pic?', ffmpegArg: '-map 0:v:disp:attached_pic?'),
+            ConfigControlOption(label: 'Copy Codec', value: '-c:v copy', ffmpegArg: '-c:v copy'),
+          ],
+          isVisible: true,
+          shouldAddToArgs: true,
+          defaultValue: '["-map 0:v:disp:attached_pic?", "-c:v copy"]',
+        ),
+        const ConfigControl(
+          type: ConfigControlType.multiChoice,
+          name: 'configs.common.audio.recommended_args',
+          label: 'Metadata',
+          options: [
+            ConfigControlOption(label: 'Metadata', value: '-map_metadata 0:g', ffmpegArg: '-map_metadata 0:g'),
+          ],
+          isVisible: true,
+          shouldAddToArgs: true,
+          defaultValue: '["-map_metadata 0:g"]',
+        ),
+      ];
+
+      final selectedValues = {
+        'configs.mp3.audio_encoder': 'libmp3lame',
+        'configs.mp3.album_art': '["-map 0:v:disp:attached_pic?", "-c:v copy"]',
+        'configs.common.audio.recommended_args': '["-map_metadata 0:g"]',
+      };
+
+      final args = CommandBuilder.buildArgs(
+        inputFilePath: '/path/to/song.flac',
+        formatEntry: testFormatEntryMp3,
+        availableControls: controls,
+        selectedValues: selectedValues,
+        outputFilePath: '/path/to/song.mp3',
+        threadCount: 0,
+      );
+
+      expect(args, contains('-c:a'));
+      expect(args, contains('libmp3lame'));
+      expect(args, contains('-map 0:v:disp:attached_pic?'));
+      expect(args, contains('-c:v copy'));
+      expect(args, contains('-map_metadata 0:g'));
+    });
   });
 }

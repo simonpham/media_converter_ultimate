@@ -1,5 +1,9 @@
 {
   "@@locale": "it",
+  "configs.common.album_art.copy_codec": "Copia direttamente il flusso immagine",
+  "configs.common.album_art.desc": "Conserva la copertina incorporata se presente nella sorgente",
+  "configs.common.album_art.label": "Copertina dell'album",
+  "configs.common.album_art.preserve": "Conserva la copertina dell'album allegata",
   "configs.common.audio_channel.5_1": "6 (5.1 Surround)",
   "configs.common.audio_channel.label": "Canale audio",
   "configs.common.audio_channel.mono": "1 (Mono)",

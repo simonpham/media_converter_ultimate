@@ -68,6 +68,25 @@
         { "label": "configs.common.audio_channel.stereo", "value": "2" },
         { "label": "configs.common.audio_channel.5_1", "value": "6" }
       ]
+    },
+    {
+      "type": "multi_choice",
+      "name": "configs.flac.album_art",
+      "label": "configs.common.album_art.label",
+      "description": "configs.common.album_art.desc",
+      "should_add_to_args": true,
+      "ffmpeg_flag": null,
+      "default": "[\"-map 0:v:disp:attached_pic?\", \"-c:v copy\"]",
+      "options": [
+        {
+          "label": "configs.common.album_art.preserve",
+          "ffmpeg_arg": "-map 0:v:disp:attached_pic?"
+        },
+        {
+          "label": "configs.common.album_art.copy_codec",
+          "ffmpeg_arg": "-c:v copy"
+        }
+      ]
     }
   ]
 }

@@ -1,5 +1,9 @@
 {
   "@@locale": "id",
+  "configs.common.album_art.copy_codec": "Salin stream gambar secara langsung",
+  "configs.common.album_art.desc": "Pertahankan gambar sampul yang disematkan jika ada di sumber",
+  "configs.common.album_art.label": "Sampul Album / Gambar",
+  "configs.common.album_art.preserve": "Pertahankan sampul album terlampir",
   "configs.common.audio_channel.5_1": "6 (5.1 Surround)",
   "configs.common.audio_channel.label": "Saluran audio",
   "configs.common.audio_channel.mono": "1 (Mono)",

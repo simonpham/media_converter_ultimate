@@ -1,5 +1,9 @@
 {
   "@@locale": "en",
+  "configs.common.album_art.copy_codec": "Copy image stream directly",
+  "configs.common.album_art.desc": "Preserve embedded cover artwork if present in source",
+  "configs.common.album_art.label": "Album Art / Cover",
+  "configs.common.album_art.preserve": "Preserve attached album art",
   "configs.common.audio_channel.5_1": "6 (5.1 Surround)",
   "configs.common.audio_channel.label": "Audio channel",
   "configs.common.audio_channel.mono": "1 (Mono)",

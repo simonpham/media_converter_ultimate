@@ -1,5 +1,9 @@
 {
   "@@locale": "pt",
+  "configs.common.album_art.copy_codec": "Copiar fluxo de imagem diretamente",
+  "configs.common.album_art.desc": "Preservar a capa incorporada se estiver presente na fonte",
+  "configs.common.album_art.label": "Capa do álbum / Imagem",
+  "configs.common.album_art.preserve": "Preservar a capa do álbum anexada",
   "configs.common.audio_channel.5_1": "6 (5.1 Surround)",
   "configs.common.audio_channel.label": "Canal de áudio",
   "configs.common.audio_channel.mono": "1 (Mono)",

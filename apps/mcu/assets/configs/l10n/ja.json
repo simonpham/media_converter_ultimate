@@ -1,5 +1,9 @@
 {
   "@@locale": "ja",
+  "configs.common.album_art.copy_codec": "画像ストリームを直接コピー",
+  "configs.common.album_art.desc": "ソースに埋め込みカバーアートが存在する場合は保持する",
+  "configs.common.album_art.label": "アルバムアート / カバー",
+  "configs.common.album_art.preserve": "添付されたアルバムアートを保持",
   "configs.common.audio_channel.5_1": "6 (5.1ch サラウンド)",
   "configs.common.audio_channel.label": "オーディオチャンネル",
   "configs.common.audio_channel.mono": "1 (モノラル)",

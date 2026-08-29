@@ -1,5 +1,9 @@
 {
   "@@locale": "vi",
+  "configs.common.album_art.copy_codec": "Sao chép trực tiếp luồng hình ảnh",
+  "configs.common.album_art.desc": "Giữ lại ảnh bìa được nhúng nếu có trong nguồn",
+  "configs.common.album_art.label": "Ảnh bìa album",
+  "configs.common.album_art.preserve": "Giữ lại ảnh bìa album đính kèm",
   "configs.common.audio_channel.5_1": "6 (5.1 Vòm)",
   "configs.common.audio_channel.label": "Kênh âm thanh",
   "configs.common.audio_channel.mono": "1 (Mono)",

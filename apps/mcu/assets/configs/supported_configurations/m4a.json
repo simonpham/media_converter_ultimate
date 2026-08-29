@@ -17,6 +17,25 @@
           "value": "configs.m4a.audio_encoder.value.alac"
         }
       ]
+    },
+    {
+      "type": "multi_choice",
+      "name": "configs.m4a.album_art",
+      "label": "configs.common.album_art.label",
+      "description": "configs.common.album_art.desc",
+      "should_add_to_args": true,
+      "ffmpeg_flag": null,
+      "default": "[\"-map 0:v:disp:attached_pic?\", \"-c:v copy\"]",
+      "options": [
+        {
+          "label": "configs.common.album_art.preserve",
+          "ffmpeg_arg": "-map 0:v:disp:attached_pic?"
+        },
+        {
+          "label": "configs.common.album_art.copy_codec",
+          "ffmpeg_arg": "-c:v copy"
+        }
+      ]
     }
   ],
   "configs.m4a.audio_encoder.value.aac": [
