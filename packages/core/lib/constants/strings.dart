@@ -47,6 +47,10 @@ const kSupportedLanguages = {
     'icon': 'assets/svg/flags/vn.svg',
     'title': 'Tiếng Việt',
   },
+  'ru': {
+    'icon': 'assets/svg/flags/ru.svg',
+    'title': 'Русский',
+  },
 };
 
 Locale parseLocale(String language) {

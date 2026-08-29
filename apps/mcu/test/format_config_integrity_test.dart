@@ -82,7 +82,7 @@ void main() {
       }
     });
 
-    test('all 11 localization files exist and have equal key counts', () {
+    test('all 12 localization files exist and have equal key counts', () {
       final expectedLangs = [
         'de',
         'en',
@@ -91,6 +91,7 @@ void main() {
         'it',
         'ja',
         'pt',
+        'ru',
         'tr',
         'vi',
         'zh',
@@ -124,7 +125,7 @@ void main() {
       }
     });
 
-    test('all 11 changelog files exist and have valid entries <= 500 chars', () {
+    test('all 12 changelog files exist and have valid entries <= 500 chars', () {
       final expectedLangs = [
         'de',
         'en',
@@ -133,6 +134,7 @@ void main() {
         'it',
         'ja',
         'pt',
+        'ru',
         'tr',
         'vi',
         'zh',

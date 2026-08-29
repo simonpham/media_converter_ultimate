@@ -43,13 +43,13 @@
 ## Coding Style
 - **Async**: Use `unawaited(...)` for Futures that are intentionally not awaited.
 - **Logging**: Use `printLog(...)` instead of `print(...)`.
-- **Strings**: Use `context.l10n` for all user-facing strings across all 11 supported languages. Do not hardcode English strings.
+- **Strings**: Use `context.l10n` for all user-facing strings across all 12 supported languages. Do not hardcode English strings.
 - **Constructors**: Use `const` constructors whenever possible.
 
 ## Configuration & Testing
 - **FFmpeg**: When modifying `apps/mcu/assets/configs`, strictly follow `CONFIG_RULES.md`.
 - **Validation**:
-  - Run `./validate.sh` to ensure JSON schemas, cross-file mappings, and 11-language l10n parity are 100% valid.
+  - Run `./validate.sh` to ensure JSON schemas, cross-file mappings, and 12-language l10n parity are 100% valid.
   - Run `./test_ffmpeg.sh` to verify that FFmpeg commands build and execute properly.
 
 ## Git & Commits

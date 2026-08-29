@@ -236,8 +236,8 @@ Follow this checklist whenever adding a new format or editing configuration file
 
 ### Step 3: Add Localization Keys in `apps/mcu/assets/configs/l10n/`
 - Every user-facing string (`label`, `description`, option `label`) must be a translation key (e.g. `ui_codec_description.libx265`, `configs.common.crf.label`).
-- Update **all 11 language files** in `apps/mcu/assets/configs/l10n/`:
-  - `en.json`, `zh.json`, `zh_TW.json`, `de.json`, `es.json`, `id.json`, `it.json`, `ja.json`, `pt.json`, `tr.json`, `vi.json`.
+- Update **all 12 language files** in `apps/mcu/assets/configs/l10n/`:
+  - `en.json`, `zh.json`, `zh_TW.json`, `de.json`, `es.json`, `id.json`, `it.json`, `ja.json`, `pt.json`, `ru.json`, `tr.json`, `vi.json`.
 
 ### Step 4: Validate
 - Run `./validate.sh` from the repository root:

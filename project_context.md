@@ -18,7 +18,7 @@ This project is a Flutter-based monorepo workspace using native Dart workspace r
   - `mobile_ads_google`: Google Mobile Ads SDK implementation.
   - `utils`: General utility helpers and extensions.
   - `platform_utils`: Platform-specific implementations (FFmpegKit bindings, notifications, file picker).
-  - `l10n`: Localization resources supporting 11 languages (`de`, `en`, `es`, `id`, `it`, `ja`, `pt`, `tr`, `vi`, `zh`, `zh_TW`).
+  - `l10n`: Localization resources supporting 12 languages (`de`, `en`, `es`, `id`, `it`, `ja`, `pt`, `ru`, `tr`, `vi`, `zh`, `zh_TW`).
   - `icons`: Custom icon font and SVG assets.
 
 ## Tech Stack

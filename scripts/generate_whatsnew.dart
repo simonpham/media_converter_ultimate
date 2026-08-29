@@ -12,6 +12,7 @@ const Map<String, List<String>> kLocaleMapping = {
   'vi': ['vi-VN', 'vi'],
   'zh': ['zh-CN'],
   'zh_TW': ['zh-TW', 'zh-HK'],
+  'ru': ['ru-RU'],
 };
 
 const int kGooglePlayMaxChars = 500;
