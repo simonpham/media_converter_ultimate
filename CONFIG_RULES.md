@@ -164,13 +164,23 @@ Use this file to:
 
 ---
 
-## 8. Common configuration groups
+## 8. Common configuration groups & Metadata / Album Art Preservation
 
 - Common audio/video settings live in:
   - `apps/mcu/assets/configs/supported_configurations/common_audio.json`
   - `apps/mcu/assets/configs/supported_configurations/common_video.json`
 - These use `ffmpeg_flag: null` for groups that emit complex or multiple args via `ffmpeg_arg` values in options (e.g., mappings, metadata copying).
 - The consumer should include these groups for formats marked as `audio` or `video` as appropriate.
+- **Global Metadata Preservation**:
+  - Both `common_audio.json` and `common_video.json` enable `-map_metadata 0:g` by default under `configs.common.*.recommended_args`. This copies global tags (title, artist, album, genre, track, date, etc.) from input 0.
+- **Cover / Album Art Preservation**:
+  - Embedded cover artwork is stored as a video stream with disposition `attached_pic` (e.g., JPEG/PNG).
+  - Pure audio containers that support attached picture streams (`mp3`, `flac`, `m4a`, `wma`, `mka`) MUST declare an attached picture preservation control using `"-map 0:v:disp:attached_pic?"` and `"-c:v copy"`.
+  - The `0:v:disp:attached_pic?` stream specifier with trailing `?` ensures that:
+    - Audio with embedded artwork preserves the image stream.
+    - Video inputs (e.g., MP4 with H.264) converted to audio do NOT incorrectly map full video tracks into the audio container.
+    - Audio without artwork converts cleanly without stream-missing errors.
+  - Raw bitstreams or containers without video support (e.g., `aac`, `wav`, `ac3`, `eac3`, `amr`, `caf`, `opus`, `ogg`) must NOT map attached picture streams, as FFmpeg will reject video streams for those muxers.
 
 ---
 
@@ -231,6 +241,30 @@ Follow this checklist whenever adding a new format or editing configuration file
   - **Do NOT** show redundant 1-item dropdowns to the user.
 - **Multiple Fixed Arguments (Mappings)**:
   - Use `"type": "multi_choice"` with `"default": "[\"-map 0:v:0\", \"-map 0:a:0\"]"` where each item in `options` has an `ffmpeg_arg` matching one of the array elements.
+- **Embedded Cover / Album Art Support (Audio Formats)**:
+  - For audio containers supporting embedded image streams (`mp3`, `flac`, `m4a`, `wma`, `mka`), include an album art control:
+    ```json
+    {
+      "type": "multi_choice",
+      "name": "configs.<format>.album_art",
+      "label": "configs.common.album_art.label",
+      "description": "configs.common.album_art.desc",
+      "should_add_to_args": true,
+      "ffmpeg_flag": null,
+      "default": "[\"-map 0:v:disp:attached_pic?\", \"-c:v copy\"]",
+      "options": [
+        {
+          "label": "configs.common.album_art.preserve",
+          "ffmpeg_arg": "-map 0:v:disp:attached_pic?"
+        },
+        {
+          "label": "configs.common.album_art.copy_codec",
+          "ffmpeg_arg": "-c:v copy"
+        }
+      ]
+    }
+    ```
+  - Do **NOT** add this to raw bitstream or non-image-supporting audio containers (`aac`, `wav`, `ac3`, `eac3`, `amr`, `caf`, `opus`, `ogg`).
 - **Nested Controls**:
   - When selecting an option needs to reveal sub-controls (e.g., `-c:v libx264` revealing CRF and preset dropdowns), add a top-level key matching the option's `value` (e.g. `"-c:v libx264": [ ... ]`).
 
