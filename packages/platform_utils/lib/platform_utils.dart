@@ -19,7 +19,6 @@ export 'package:path/path.dart';
 export 'package:path_provider/path_provider.dart';
 export 'package:permission_handler/permission_handler.dart';
 export 'package:share_plus/share_plus.dart';
-export 'package:universal_file/universal_file.dart';
 export 'package:universal_io/io.dart';
 export 'package:url_launcher/url_launcher.dart';
 

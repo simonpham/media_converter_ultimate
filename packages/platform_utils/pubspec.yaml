@@ -13,25 +13,19 @@ dependencies:
   core:
     path: ../core
 
-  ffmpeg_kit_flutter_new: ^3.2.0-full-gpl
-  flutter_local_notifications: ^19.4.1
-  flutter_foreground_task: ^9.1.0
+  ffmpeg_kit_flutter_new: ^4.6.2-full-gpl
+  flutter_local_notifications: ^22.3.0
+  flutter_foreground_task: ^11.0.1
 
-  mime: ^2.0.0
+  mime: ^2.1.0
   path: ^1.9.1
-  path_provider: ^2.1.5
-  file_picker: ^12.0.0
-  universal_file: ^1.0.0
-  universal_io: ^2.2.2
+  path_provider: ^2.1.6
+  file_picker: 12.0.0
+  file_picker_platform_interface: 3.1.0
+  universal_io: ^2.3.1
   url_launcher: ^6.3.2
   share_plus: ^13.3.0
   permission_handler: ^12.0.1
 
   device_info_plus: ^13.2.0
   package_info_plus: ^10.2.1
-
-dependency_overrides:
-  flutter_foreground_task:
-    git:
-      url: https://github.com/simonpham/flutter_foreground_task.git
-      ref: 348d7ccfa9e8e4ce3b322bd022ab644709aef4e5

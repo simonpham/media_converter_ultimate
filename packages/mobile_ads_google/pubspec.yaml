@@ -19,4 +19,4 @@ dependencies:
   utils:
     path: ../utils
 
-  google_mobile_ads: ^6.0.0
+  google_mobile_ads: ^9.1.0
