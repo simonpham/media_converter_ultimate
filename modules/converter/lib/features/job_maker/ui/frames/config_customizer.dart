@@ -49,9 +49,7 @@ class _JobMakerConfigCustomizerState extends State<JobMakerConfigCustomizer> {
                     child: CheckBoxListTile(
                       alignment: .left,
                       title: context.l10n.rememberConfigsTitle,
-                      subtitle: widget.shouldRememberConfigs
-                          ? context.l10n.rememberConfigsEnabledSubtitle
-                          : context.l10n.rememberConfigsDisabledSubtitle,
+                      subtitle: context.l10n.rememberConfigsSubtitle,
                       value: widget.shouldRememberConfigs,
                       onChanged: (value) {
                         widget.onRememberConfigsChanged?.call(value);
