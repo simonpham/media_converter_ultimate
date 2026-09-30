@@ -181,5 +181,35 @@
   "presetLosslessAudioDescription": "Pertahankan kualitas audio dalam M4A (ALAC). Berkas lebih besar.",
   "searchFormatsHint": "Cari format, misalnya MP4 atau MP3",
   "noMatchingFormats": "Tidak ada format yang cocok.",
-  "preparingJobs": "Menyiapkan konversi…"
+  "preparingJobs": "Menyiapkan konversi…",
+  "trimMediaTitle": "Potong media",
+  "trimMediaDescription": "Terapkan rentang yang sama ke setiap berkas. Awal kosong berarti 0:00; akhir kosong menyimpan sisanya.",
+  "trimAccuracyHint": "Potongan paling akurat saat audio dan video dienkode ulang.",
+  "trimStart": "Waktu mulai",
+  "trimEnd": "Waktu akhir",
+  "trimTimeHint": "0:00 atau hh:mm:ss.mmm",
+  "trimEndOfFile": "Akhir berkas",
+  "trimInvalidTime": "Masukkan detik, mm:ss, atau hh:mm:ss, dengan hingga 3 angka desimal.",
+  "trimInvalidRange": "Waktu akhir harus setelah waktu mulai.",
+  "conversionSummary": "Ringkasan konversi",
+  "customSettings": "Pengaturan khusus",
+  "trimRangeSummary": "{start} – {end}",
+  "@trimRangeSummary": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "trimRangeOutsideMedia": "Waktu mulai melewati akhir {fileName}.",
+  "@trimRangeOutsideMedia": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  }
 }

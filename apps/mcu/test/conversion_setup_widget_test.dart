@@ -35,7 +35,10 @@ void main() {
     installShippedAssetHandler();
     model = JobMakerViewModel(
       formatConfigModel: loadShippedFormats(),
-      translations: const {},
+      translations: (jsonDecode(
+        File('${findRepository().path}/apps/mcu/assets/configs/l10n/en.json')
+            .readAsStringSync(),
+      ) as Map<String, dynamic>).cast<String, String>(),
     );
     theme = FluffyThemeData.fromJson(
       jsonDecode(
@@ -170,6 +173,56 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('trim editor validates inline and can return to the full track', (
+    tester,
+  ) async {
+    await model.applyPreset(.musicMp3);
+    await showPicker(tester, content: const TrimEditor());
+    await tester.tap(find.text('Trim media'));
+    await tester.pumpAndSettle();
+    expect(model.trimEnabled, isTrue);
+    expect(model.selectedPreset, isNull);
+    final start = find.descendant(
+      of: find.byKey(const ValueKey('trim-start')),
+      matching: find.byType(EditableText),
+    );
+    final end = find.descendant(
+      of: find.byKey(const ValueKey('trim-end')),
+      matching: find.byType(EditableText),
+    );
+    await tester.enterText(start, '0:05');
+    await tester.enterText(end, '0:03');
+    await tester.pumpAndSettle();
+    expect(
+      find.text('The end time must be after the start time.'),
+      findsOneWidget,
+    );
+    await tester.enterText(end, '0:06.5');
+    await tester.pumpAndSettle();
+    expect(model.trimFailure, isNull);
+    expect(model.selectedTrim?.arguments, ['-ss', '5.000', '-t', '1.500']);
+    await tester.tap(find.text('Trim media'));
+    await tester.pumpAndSettle();
+    expect(model.selectedTrim, isNull);
+    expect(find.byType(EditableText), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('preview summary shows codec, quality, and the selected trim', (
+    tester,
+  ) async {
+    await model.applyPreset(.musicMp3);
+    model.setTrimEnabled(true);
+    model.setTrimStartText('0:02');
+    model.setTrimEndText('0:04.25');
+    await showPicker(tester, content: const ConversionSummary());
+    expect(find.text('Conversion summary'), findsOneWidget);
+    expect(find.text('Custom settings'), findsOneWidget);
+    expect(find.textContaining('320'), findsOneWidget);
+    expect(find.text('Trim media: 00:02 – 00:04.250'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('reopening the picker keeps the search field in sync', (
     tester,
   ) async {
@@ -242,6 +295,26 @@ void main() {
       }
     });
   }
+
+  testWidgets(
+    'trim controls wrap on a narrow screen with large translated text',
+    (tester) async {
+      await model.applyPreset(.musicMp3);
+      model.setTrimEnabled(true);
+      model.setTrimStartText('0:05');
+      model.setTrimEndText('0:03');
+      await showPicker(
+        tester,
+        scale: 2,
+        locale: const Locale('de'),
+        size: const Size(320, 640),
+        content: Builder(
+          builder: (context) => JobMakerSteps.customizeConfigs.build(context),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('customizer offers only presets for the selected format', (
     tester,

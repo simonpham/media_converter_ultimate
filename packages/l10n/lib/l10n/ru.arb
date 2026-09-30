@@ -181,5 +181,35 @@
   "presetLosslessAudioDescription": "Сохранение качества звука в M4A (ALAC). Файлы большего размера.",
   "searchFormatsHint": "Поиск форматов, например MP4 или MP3",
   "noMatchingFormats": "Подходящие форматы не найдены.",
-  "preparingJobs": "Подготовка конвертации…"
+  "preparingJobs": "Подготовка конвертации…",
+  "trimMediaTitle": "Обрезать медиа",
+  "trimMediaDescription": "Один диапазон применяется ко всем файлам. Пустое начало означает 0:00, пустой конец сохраняет остаток.",
+  "trimAccuracyHint": "Обрезка точнее при повторном кодировании аудио и видео.",
+  "trimStart": "Начало",
+  "trimEnd": "Конец",
+  "trimTimeHint": "0:00 или hh:mm:ss.mmm",
+  "trimEndOfFile": "Конец файла",
+  "trimInvalidTime": "Введите секунды, mm:ss или hh:mm:ss, до 3 знаков после запятой.",
+  "trimInvalidRange": "Время окончания должно быть позже времени начала.",
+  "conversionSummary": "Параметры конвертации",
+  "customSettings": "Свои настройки",
+  "trimRangeSummary": "{start} – {end}",
+  "@trimRangeSummary": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "trimRangeOutsideMedia": "Время начала находится за концом файла {fileName}.",
+  "@trimRangeOutsideMedia": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  }
 }

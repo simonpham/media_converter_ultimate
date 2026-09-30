@@ -181,5 +181,35 @@
   "presetLosslessAudioDescription": "Giữ chất lượng âm thanh trong M4A (ALAC). Dung lượng lớn hơn.",
   "searchFormatsHint": "Tìm định dạng, ví dụ MP4 hoặc MP3",
   "noMatchingFormats": "Không có định dạng phù hợp.",
-  "preparingJobs": "Đang chuẩn bị chuyển đổi…"
+  "preparingJobs": "Đang chuẩn bị chuyển đổi…",
+  "trimMediaTitle": "Cắt đoạn media",
+  "trimMediaDescription": "Áp dụng cùng khoảng thời gian cho mọi tệp. Để trống bắt đầu là 0:00; để trống kết thúc sẽ giữ phần còn lại.",
+  "trimAccuracyHint": "Cắt chính xác hơn khi mã hóa lại âm thanh và video.",
+  "trimStart": "Thời gian bắt đầu",
+  "trimEnd": "Thời gian kết thúc",
+  "trimTimeHint": "0:00 hoặc hh:mm:ss.mmm",
+  "trimEndOfFile": "Cuối tệp",
+  "trimInvalidTime": "Nhập số giây, mm:ss hoặc hh:mm:ss, tối đa 3 chữ số thập phân.",
+  "trimInvalidRange": "Thời gian kết thúc phải sau thời gian bắt đầu.",
+  "conversionSummary": "Tóm tắt chuyển đổi",
+  "customSettings": "Cài đặt tùy chỉnh",
+  "trimRangeSummary": "{start} – {end}",
+  "@trimRangeSummary": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "trimRangeOutsideMedia": "Thời gian bắt đầu vượt quá thời lượng của {fileName}.",
+  "@trimRangeOutsideMedia": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  }
 }

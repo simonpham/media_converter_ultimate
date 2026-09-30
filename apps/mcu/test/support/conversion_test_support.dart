@@ -42,7 +42,10 @@ void installShippedAssetHandler({
         final path = key.startsWith('packages/icons/')
             ? '$root/packages/icons/${key.substring('packages/icons/'.length)}'
             : '$root/apps/mcu/$key';
-        final file = File(path);
+        final assetPath = key.startsWith('packages/sofluffy_ui/')
+            ? '$root/packages/design_system/${key.substring('packages/sofluffy_ui/'.length)}'
+            : path;
+        final file = File(assetPath);
         if (!file.existsSync()) return null;
         return ByteData.sublistView(file.readAsBytesSync());
       });

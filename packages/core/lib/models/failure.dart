@@ -37,6 +37,21 @@ class const NoOutputFolderFailure() extends Failure {
 }
 
 @immutable
+class const InvalidTrimTimestampFailure() extends Failure {
+  this : super('Invalid trim timestamp.');
+}
+
+@immutable
+class const InvalidTrimRangeFailure() extends Failure {
+  this : super('Trim end must be after its start.');
+}
+
+@immutable
+class const EmptyTrimRangeFailure(final String path) extends Failure {
+  this : super('The trim range contains no media: $path');
+}
+
+@immutable
 class const FileNameIsNotSetFailure(final String path) extends Failure {
   this : super('File name is not set for $path.');
 }

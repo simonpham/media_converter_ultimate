@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:converter/features/job_maker/utils/conversion_trim.dart';
 import 'package:core/core.dart';
 import 'package:platform_utils/platform_utils.dart' show FFmpegKitConfig;
 import 'package:utils/utils.dart' as utils;
@@ -15,6 +16,7 @@ class CommandBuilder {
     required String outputFilePath,
     required int threadCount,
     Set<String> configurationKeys = const {},
+    ConversionTrim? trim,
   }) {
     final args = <String>[];
 
@@ -51,9 +53,11 @@ class CommandBuilder {
     }
 
     return [
+      ...?trim?.inputArguments,
       '-i',
       inputFilePath,
       '-hide_banner',
+      ...?trim?.outputArguments,
       ...args,
       if (formatEntry.shouldAddToArgs) ...['-f', formatEntry.name],
       if (threadCount > 0) ...['-threads', '$threadCount'],
@@ -70,6 +74,7 @@ class CommandBuilder {
     required List<ConfigControl> availableControls,
     required int threadCount,
     Set<String> configurationKeys = const {},
+    ConversionTrim? trim,
   }) {
     final args = buildArgs(
       inputFilePath: inputFilePath,
@@ -79,6 +84,7 @@ class CommandBuilder {
       threadCount: threadCount,
       outputFilePath: outputFilePath,
       configurationKeys: configurationKeys,
+      trim: trim,
     );
     return jsonEncode(args);
   }

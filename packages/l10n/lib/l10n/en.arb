@@ -181,5 +181,35 @@
   "presetLosslessAudioDescription": "Preserve audio quality in M4A (ALAC). Larger files.",
   "searchFormatsHint": "Search formats, e.g. MP4 or MP3",
   "noMatchingFormats": "No matching formats.",
-  "preparingJobs": "Preparing conversions…"
+  "preparingJobs": "Preparing conversions…",
+  "trimMediaTitle": "Trim media",
+  "trimMediaDescription": "Apply the same range to every file. An empty start means 0:00; an empty end keeps the rest.",
+  "trimAccuracyHint": "Cuts are most accurate when audio and video are re-encoded.",
+  "trimStart": "Start time",
+  "trimEnd": "End time",
+  "trimTimeHint": "0:00 or hh:mm:ss.mmm",
+  "trimEndOfFile": "End of file",
+  "trimInvalidTime": "Enter seconds, mm:ss, or hh:mm:ss, with up to 3 decimal places.",
+  "trimInvalidRange": "The end time must be after the start time.",
+  "conversionSummary": "Conversion summary",
+  "customSettings": "Custom settings",
+  "trimRangeSummary": "{start} – {end}",
+  "@trimRangeSummary": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "trimRangeOutsideMedia": "The start time is beyond the end of {fileName}.",
+  "@trimRangeOutsideMedia": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  }
 }

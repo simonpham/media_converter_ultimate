@@ -22,6 +22,11 @@ extension FailureExtension on Failure {
       NoOutputFormatFailure _ => context.l10n.failureNoOutputFormat,
       NoOutputConfigFailure _ => context.l10n.failureNoOutputConfig,
       NoOutputFolderFailure _ => context.l10n.failureNoOutputFolder,
+      InvalidTrimTimestampFailure _ => context.l10n.trimInvalidTime,
+      InvalidTrimRangeFailure _ => context.l10n.trimInvalidRange,
+      EmptyTrimRangeFailure f => context.l10n.trimRangeOutsideMedia(
+        basename(f.path),
+      ),
       FileNameIsNotSetFailure f => context.l10n.failureFileNameIsNotSet(
         basename(f.path),
       ),

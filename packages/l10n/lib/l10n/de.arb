@@ -181,5 +181,35 @@
   "presetLosslessAudioDescription": "Audioqualität in M4A (ALAC) erhalten. Größere Dateien.",
   "searchFormatsHint": "Formate suchen, z. B. MP4 oder MP3",
   "noMatchingFormats": "Keine passenden Formate.",
-  "preparingJobs": "Konvertierungen werden vorbereitet …"
+  "preparingJobs": "Konvertierungen werden vorbereitet …",
+  "trimMediaTitle": "Medien zuschneiden",
+  "trimMediaDescription": "Der Bereich gilt für jede Datei. Ein leerer Start bedeutet 0:00; ein leeres Ende behält den Rest.",
+  "trimAccuracyHint": "Schnitte sind am genauesten, wenn Audio und Video neu codiert werden.",
+  "trimStart": "Startzeit",
+  "trimEnd": "Endzeit",
+  "trimTimeHint": "0:00 oder hh:mm:ss.mmm",
+  "trimEndOfFile": "Dateiende",
+  "trimInvalidTime": "Sekunden, mm:ss oder hh:mm:ss mit bis zu 3 Dezimalstellen eingeben.",
+  "trimInvalidRange": "Die Endzeit muss nach der Startzeit liegen.",
+  "conversionSummary": "Konvertierungsübersicht",
+  "customSettings": "Eigene Einstellungen",
+  "trimRangeSummary": "{start} – {end}",
+  "@trimRangeSummary": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "trimRangeOutsideMedia": "Die Startzeit liegt hinter dem Ende von {fileName}.",
+  "@trimRangeOutsideMedia": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  }
 }

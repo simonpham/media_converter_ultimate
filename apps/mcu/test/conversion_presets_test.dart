@@ -221,9 +221,26 @@ void main() {
       .losslessAudio,
     ]) {
       await model.applyPreset(preset);
-      for (final input in [source, movie]) {
+      for (final (input, trim) in [
+        (source, null),
+        (movie, null),
+        (
+          source,
+          const ConversionTrim(
+            start: Duration(milliseconds: 50),
+            end: Duration(milliseconds: 150),
+          ),
+        ),
+        (
+          movie,
+          const ConversionTrim(
+            start: Duration(milliseconds: 50),
+            end: Duration(milliseconds: 150),
+          ),
+        ),
+      ]) {
         final output =
-            '${temporary.path}/${preset.name}-${input == source ? 'art' : 'video'}.${preset.formatName}';
+            '${temporary.path}/${preset.name}-${input == source ? 'art' : 'video'}-${trim == null ? 'full' : 'trim'}.${preset.formatName}';
         await runFfmpeg(
           CommandBuilder.buildArgs(
             inputFilePath: input,
@@ -233,6 +250,7 @@ void main() {
             outputFilePath: output,
             threadCount: 0,
             configurationKeys: model.configControls.keys.toSet(),
+            trim: trim,
           ),
         );
         final result = await Process.run('ffprobe', [
@@ -259,6 +277,104 @@ void main() {
           expect(pictures.single['codec_name'], 'mjpeg');
         }
       }
+    }
+  });
+
+  test(
+    'trimmed lossless audio matches exactly the requested source samples',
+    () async {
+      final directory = await Directory.systemTemp.createTemp('mcu-trim-');
+      addTearDown(() => directory.delete(recursive: true));
+      final source = '${directory.path}/source.wav';
+      final output = '${directory.path}/trimmed.m4a';
+      await runFfmpeg([
+        '-f',
+        'lavfi',
+        '-i',
+        'sine=frequency=440:sample_rate=48000:duration=3',
+        '-c:a',
+        'pcm_s16le',
+        source,
+      ]);
+      await model.applyPreset(.losslessAudio);
+      model.setTrimEnabled(true);
+      model.setTrimStartText('0:00.750');
+      model.setTrimEndText('0:01.750');
+      final args = CommandBuilder.buildArgs(
+        inputFilePath: source,
+        formatEntry: model.selectedFormatEntry!,
+        availableControls: model.availableControls,
+        selectedValues: model.selectedValues,
+        outputFilePath: output,
+        threadCount: 0,
+        configurationKeys: model.configControls.keys.toSet(),
+        trim: model.selectedTrim,
+      );
+      await runFfmpeg(args);
+      final originalPcm = await decodedPcm(source);
+      final trimmedPcm = await decodedPcm(output);
+      // Mono, signed 16-bit PCM at 48 kHz: two bytes per sample.
+      const startOffset = 48000 * 2 * 750 ~/ 1000;
+      const length = 48000 * 2;
+      expect(
+        trimmedPcm,
+        originalPcm.sublist(startOffset, startOffset + length),
+      );
+      expect(ConversionTrim.fromArguments(args)?.effectiveDuration(3000), 1000);
+    },
+  );
+
+  test('video trim keeps matching audio and video durations', () async {
+    final directory = await Directory.systemTemp.createTemp('mcu-video-trim-');
+    addTearDown(() => directory.delete(recursive: true));
+    final source = '${directory.path}/source.mkv';
+    final output = '${directory.path}/trimmed.mp4';
+    await runFfmpeg([
+      '-f',
+      'lavfi',
+      '-i',
+      'testsrc2=size=320x240:rate=24:duration=3',
+      '-f',
+      'lavfi',
+      '-i',
+      'sine=frequency=440:duration=3',
+      '-c:v',
+      'libx264',
+      '-c:a',
+      'pcm_s16le',
+      source,
+    ]);
+    await model.applyPreset(.compatibleVideo);
+    await runFfmpeg(
+      CommandBuilder.buildArgs(
+        inputFilePath: source,
+        formatEntry: model.selectedFormatEntry!,
+        availableControls: model.availableControls,
+        selectedValues: model.selectedValues,
+        outputFilePath: output,
+        threadCount: 0,
+        configurationKeys: model.configControls.keys.toSet(),
+        trim: const ConversionTrim(
+          start: Duration(seconds: 1),
+          end: Duration(seconds: 2),
+        ),
+      ),
+    );
+    final probe = await Process.run('ffprobe', [
+      '-v',
+      'error',
+      '-show_streams',
+      '-of',
+      'json',
+      output,
+    ]);
+    expect(probe.exitCode, 0, reason: probe.stderr.toString());
+    final streams = (jsonDecode(probe.stdout as String)['streams'] as List)
+        .cast<Map<String, dynamic>>();
+    expect(streams, hasLength(2));
+    for (final stream in streams) {
+      expect(double.parse(stream['duration']), closeTo(1, 0.05));
+      expect(double.parse(stream['start_time']), closeTo(0, 0.05));
     }
   });
 

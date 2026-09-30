@@ -76,6 +76,26 @@ class _ConversionPresetPickerState extends State<ConversionPresetPicker> {
   );
 }
 
+extension ConversionPresetLabels on ConversionPreset {
+  String getTitle(BuildContext context) => switch (this) {
+    .compatibleVideo => context.l10n.presetCompatibleVideo,
+    .smallerVideo => context.l10n.presetSmallerVideo,
+    .highQualityVideo => context.l10n.presetHighQualityVideo,
+    .musicMp3 => context.l10n.presetMusicMp3,
+    .compactAudio => context.l10n.presetCompactAudio,
+    .losslessAudio => context.l10n.presetLosslessAudio,
+  };
+
+  String getDescription(BuildContext context) => switch (this) {
+    .compatibleVideo => context.l10n.presetCompatibleVideoDescription,
+    .smallerVideo => context.l10n.presetSmallerVideoDescription,
+    .highQualityVideo => context.l10n.presetHighQualityVideoDescription,
+    .musicMp3 => context.l10n.presetMusicMp3Description,
+    .compactAudio => context.l10n.presetCompactAudioDescription,
+    .losslessAudio => context.l10n.presetLosslessAudioDescription,
+  };
+}
+
 class const _PresetCard({
   required final ConversionPreset preset,
   required final bool isSelected,
@@ -84,22 +104,8 @@ class const _PresetCard({
   @override
   Widget build(BuildContext context) {
     final colors = context.theme.colorScheme;
-    final title = switch (preset) {
-      .compatibleVideo => context.l10n.presetCompatibleVideo,
-      .smallerVideo => context.l10n.presetSmallerVideo,
-      .highQualityVideo => context.l10n.presetHighQualityVideo,
-      .musicMp3 => context.l10n.presetMusicMp3,
-      .compactAudio => context.l10n.presetCompactAudio,
-      .losslessAudio => context.l10n.presetLosslessAudio,
-    };
-    final description = switch (preset) {
-      .compatibleVideo => context.l10n.presetCompatibleVideoDescription,
-      .smallerVideo => context.l10n.presetSmallerVideoDescription,
-      .highQualityVideo => context.l10n.presetHighQualityVideoDescription,
-      .musicMp3 => context.l10n.presetMusicMp3Description,
-      .compactAudio => context.l10n.presetCompactAudioDescription,
-      .losslessAudio => context.l10n.presetLosslessAudioDescription,
-    };
+    final title = preset.getTitle(context);
+    final description = preset.getDescription(context);
     return Semantics(
       button: true,
       selected: isSelected,

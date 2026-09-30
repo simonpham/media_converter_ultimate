@@ -181,5 +181,35 @@
   "presetLosslessAudioDescription": "以 M4A（ALAC）保留音质。文件更大。",
   "searchFormatsHint": "搜索格式，例如 MP4 或 MP3",
   "noMatchingFormats": "没有匹配的格式。",
-  "preparingJobs": "正在准备转换…"
+  "preparingJobs": "正在准备转换…",
+  "trimMediaTitle": "裁剪媒体",
+  "trimMediaDescription": "对每个文件应用相同范围。起点留空表示 0:00；终点留空保留剩余部分。",
+  "trimAccuracyHint": "重新编码音频和视频时，裁剪最准确。",
+  "trimStart": "开始时间",
+  "trimEnd": "结束时间",
+  "trimTimeHint": "0:00 或 hh:mm:ss.mmm",
+  "trimEndOfFile": "文件末尾",
+  "trimInvalidTime": "输入秒数、mm:ss 或 hh:mm:ss，最多保留 3 位小数。",
+  "trimInvalidRange": "结束时间必须晚于开始时间。",
+  "conversionSummary": "转换摘要",
+  "customSettings": "自定义设置",
+  "trimRangeSummary": "{start} – {end}",
+  "@trimRangeSummary": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "trimRangeOutsideMedia": "开始时间超出了 {fileName} 的结尾。",
+  "@trimRangeOutsideMedia": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  }
 }

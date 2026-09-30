@@ -181,5 +181,35 @@
   "presetLosslessAudioDescription": "Mantieni la qualità audio in M4A (ALAC). File più grandi.",
   "searchFormatsHint": "Cerca formati, ad es. MP4 o MP3",
   "noMatchingFormats": "Nessun formato corrispondente.",
-  "preparingJobs": "Preparazione delle conversioni…"
+  "preparingJobs": "Preparazione delle conversioni…",
+  "trimMediaTitle": "Ritaglia file multimediali",
+  "trimMediaDescription": "Applica lo stesso intervallo a ogni file. L'inizio vuoto indica 0:00; la fine vuota conserva il resto.",
+  "trimAccuracyHint": "I tagli sono più precisi quando audio e video vengono ricodificati.",
+  "trimStart": "Ora di inizio",
+  "trimEnd": "Ora di fine",
+  "trimTimeHint": "0:00 o hh:mm:ss.mmm",
+  "trimEndOfFile": "Fine del file",
+  "trimInvalidTime": "Inserisci secondi, mm:ss o hh:mm:ss, con un massimo di 3 decimali.",
+  "trimInvalidRange": "La fine deve essere successiva all'inizio.",
+  "conversionSummary": "Riepilogo conversione",
+  "customSettings": "Impostazioni personalizzate",
+  "trimRangeSummary": "{start} – {end}",
+  "@trimRangeSummary": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "trimRangeOutsideMedia": "L'inizio è oltre la fine di {fileName}.",
+  "@trimRangeOutsideMedia": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  }
 }

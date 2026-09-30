@@ -39,8 +39,14 @@ class FfmpegJobRunnerService implements JobRunnerService {
       job.inputFilePath,
     );
     final mediaInfo = mediaInfoSession.getMediaInformation();
-    final duration =
+    final sourceDuration =
         ((double.tryParse('${mediaInfo?.getDuration()}') ?? 0) * 1000).toInt();
+    final arguments = CommandBuilder.parseCommand(job.command);
+    final trim = ConversionTrim.fromArguments(arguments);
+    final duration = trim?.effectiveDuration(sourceDuration) ?? sourceDuration;
+    if (trim != null && sourceDuration > 0 && duration == 0) {
+      throw EmptyTrimRangeFailure(job.inputFilePath);
+    }
 
     await injector<FileService>().prepareConvertTempFolder(jobId: job.id);
 
@@ -51,7 +57,7 @@ class FfmpegJobRunnerService implements JobRunnerService {
     );
 
     final session = await FFmpegKit.executeWithArgumentsAsync(
-      CommandBuilder.parseCommand(job.command),
+      arguments,
       (session) async {
         final state = await session.getState();
         final exitCode = await session.getReturnCode();

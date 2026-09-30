@@ -50,6 +50,7 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
               const SliverToBoxAdapter(
                 child: PreviewPageAdItem(),
               ),
+              const SliverToBoxAdapter(child: ConversionSummary()),
               SliverToBoxAdapter(
                 child: Divider(
                   height: Spacing.d16,

@@ -181,5 +181,35 @@
   "presetLosslessAudioDescription": "Ses kalitesini M4A (ALAC) ile koruyun. Daha büyük dosyalar.",
   "searchFormatsHint": "Format ara, ör. MP4 veya MP3",
   "noMatchingFormats": "Eşleşen format yok.",
-  "preparingJobs": "Dönüştürmeler hazırlanıyor…"
+  "preparingJobs": "Dönüştürmeler hazırlanıyor…",
+  "trimMediaTitle": "Medyayı kırp",
+  "trimMediaDescription": "Aynı aralığı her dosyaya uygular. Boş başlangıç 0:00 demektir; boş bitiş kalan kısmı korur.",
+  "trimAccuracyHint": "Ses ve video yeniden kodlandığında kesimler daha hassas olur.",
+  "trimStart": "Başlangıç zamanı",
+  "trimEnd": "Bitiş zamanı",
+  "trimTimeHint": "0:00 veya hh:mm:ss.mmm",
+  "trimEndOfFile": "Dosyanın sonu",
+  "trimInvalidTime": "Saniye, mm:ss veya hh:mm:ss girin; en fazla 3 ondalık basamak kullanın.",
+  "trimInvalidRange": "Bitiş zamanı başlangıçtan sonra olmalıdır.",
+  "conversionSummary": "Dönüştürme özeti",
+  "customSettings": "Özel ayarlar",
+  "trimRangeSummary": "{start} – {end}",
+  "@trimRangeSummary": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "trimRangeOutsideMedia": "Başlangıç zamanı {fileName} dosyasının sonunu aşıyor.",
+  "@trimRangeOutsideMedia": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  }
 }

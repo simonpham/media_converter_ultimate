@@ -187,6 +187,38 @@ void main() {
     },
   );
 
+  test(
+    'trimming validates ranges and snapshots precise command options',
+    () async {
+      await model.addFiles([File('/input/song.wav')]);
+      await model.setSelectedFormatEntry(mp3);
+      model.setOutputDirectoryPath('/output');
+      model.setTrimEnabled(true);
+      model.setTrimStartText('0:02.125');
+      model.setTrimEndText('0:01');
+      expect(model.trimRangeFailure, isA<InvalidTrimRangeFailure>());
+      await expectLater(model.cook(), throwsA(isA<InvalidTrimRangeFailure>()));
+      model.setTrimEndText('0:03.5');
+      final jobs = await model.cook();
+      expect(
+        CommandBuilder.parseCommand(jobs.single.command),
+        containsAllInOrder(['-ss', '2.125', '-t', '1.375']),
+      );
+      model.setTrimEndText('invalid');
+      expect(model.trimEndFailure, isA<InvalidTrimTimestampFailure>());
+      model.setTrimEnabled(false);
+      final fullTrack = await model.cook();
+      expect(
+        CommandBuilder.parseCommand(fullTrack.single.command),
+        isNot(contains('-ss')),
+      );
+      expect(
+        CommandBuilder.parseCommand(fullTrack.single.command),
+        isNot(contains('-t')),
+      );
+    },
+  );
+
   test('rejects an empty batch before preparing jobs', () async {
     await model.setSelectedFormatEntry(mp3);
     model.setOutputDirectoryPath('/output');

@@ -181,5 +181,35 @@
   "presetLosslessAudioDescription": "M4A（ALAC）で音質を保持。ファイルサイズは大きくなります。",
   "searchFormatsHint": "形式を検索（例：MP4、MP3）",
   "noMatchingFormats": "一致する形式がありません。",
-  "preparingJobs": "変換を準備中…"
+  "preparingJobs": "変換を準備中…",
+  "trimMediaTitle": "メディアをトリミング",
+  "trimMediaDescription": "同じ範囲を各ファイルに適用します。開始が空欄なら0:00、終了が空欄なら最後まで保持します。",
+  "trimAccuracyHint": "音声と動画を再エンコードすると、より正確にカットできます。",
+  "trimStart": "開始時間",
+  "trimEnd": "終了時間",
+  "trimTimeHint": "0:00 または hh:mm:ss.mmm",
+  "trimEndOfFile": "ファイルの終わり",
+  "trimInvalidTime": "秒、mm:ss、hh:mm:ssのいずれかで入力してください。小数は3桁まで使えます。",
+  "trimInvalidRange": "終了時間は開始時間より後にしてください。",
+  "conversionSummary": "変換の概要",
+  "customSettings": "カスタム設定",
+  "trimRangeSummary": "{start} ～ {end}",
+  "@trimRangeSummary": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "trimRangeOutsideMedia": "開始時間が{fileName}の終わりを超えています。",
+  "@trimRangeOutsideMedia": {
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  }
 }
