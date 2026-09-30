@@ -2,7 +2,7 @@ include: package:lints/recommended.yaml
 
 analyzer:
   exclude:
-    - build/**
+    - '**/build/**'
     - android/**
     - ios/**
     - web/**
