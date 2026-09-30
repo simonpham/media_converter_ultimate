@@ -129,12 +129,17 @@ class JobMakerViewModel({
   int _pathValidationRevision = 0;
   bool _isDisposed = false;
   Future<List<ConvertJob>>? _preparation;
+  final _preparedInputJobs = <String, String>{};
   bool get isPreparingJobs => _preparation != null;
 
   @override
   void dispose() {
     _isDisposed = true;
     _pathValidationRevision++;
+    for (final jobId in _preparedInputJobs.values.toSet()) {
+      unawaited(_cleanUnsubmittedInput(jobId));
+    }
+    _preparedInputJobs.clear();
     super.dispose();
   }
 
@@ -258,6 +263,10 @@ class JobMakerViewModel({
     ];
     clone.removeWhere((e) => e.path == file.path);
     _fileContentTypes.remove(file.path);
+    final preparedJob = _preparedInputJobs.remove(file.path);
+    if (preparedJob != null) {
+      unawaited(_cleanUnsubmittedInput(preparedJob));
+    }
     _selectedFiles = clone;
     notifyListeners();
     refreshOutputFileNames();
@@ -466,63 +475,136 @@ class JobMakerViewModel({
 
     final List<ConvertJob> result = [];
     final appCachedDir = await _fileService.getAppCacheDirectory();
-    for (final inputFilePath in outputFileNames.keys) {
-      final jobId = kUuid.v4();
-      final fileName = outputFileNames[inputFilePath];
-      if (fileName == null) {
-        throw FileNameIsNotSetFailure(inputFilePath);
+    final allocatedInputs = <String, String>{};
+    final movedInputs = <String, String>{};
+    try {
+      for (final inputFilePath in outputFileNames.keys) {
+        final jobId = _preparedInputJobs[inputFilePath] ?? kUuid.v4();
+        allocatedInputs[jobId] = inputFilePath;
+        final fileName = outputFileNames[inputFilePath];
+        if (fileName == null) {
+          throw FileNameIsNotSetFailure(inputFilePath);
+        }
+
+        final newInputFilePath = await _fileService.movePickedFileToInputFolder(
+          jobId: jobId,
+          inputFilePath: inputFilePath,
+          appCachedPath: appCachedDir.path,
+        );
+
+        if (newInputFilePath == null) {
+          throw InputFileNotExistFailure(inputFilePath);
+        }
+        if (newInputFilePath != inputFilePath) {
+          movedInputs[jobId] = newInputFilePath;
+        }
+        if (_isDisposed) {
+          throw StateError('Conversion setup closed during preparation');
+        }
+
+        final outputFilePath = CommandBuilder.getOutputFilePath(
+          inputFilePath: newInputFilePath,
+          formatEntry: formatEntry,
+          outputDirectoryPath: join(convertTempFolder.path, jobId),
+          overrideFileName: fileName,
+        );
+        final command = CommandBuilder.buildCommand(
+          inputFilePath: newInputFilePath,
+          formatEntry: formatEntry,
+          selectedValues: selectedValues,
+          availableControls: controls,
+          outputFilePath: outputFilePath,
+          threadCount: threadCount,
+          configurationKeys: configurationKeys,
+          trim: trim,
+        );
+
+        final now = DateTime.now();
+        final job = ConvertJob(
+          id: jobId,
+          inputFilePath: newInputFilePath,
+          outputFileName: fileName,
+          outputExtension: formatEntry.outputExtension,
+          outputDirectoryPath: outputDirectoryPath,
+          command: command,
+          convertedFilePath: outputFilePath,
+          createdAt: now,
+          updatedAt: now,
+        );
+        result.add(job);
       }
 
-      final newInputFilePath = await _fileService.movePickedFileToInputFolder(
-        jobId: jobId,
-        inputFilePath: inputFilePath,
-        appCachedPath: appCachedDir.path,
-      );
-
-      if (newInputFilePath == null) {
-        throw InputFileNotExistFailure(inputFilePath);
+      if (rememberConfigurations) {
+        formatEntry.setLastKnownConfigurations(selectedValues);
       }
-
-      final outputFilePath = CommandBuilder.getOutputFilePath(
-        inputFilePath: newInputFilePath,
-        formatEntry: formatEntry,
-        outputDirectoryPath: join(convertTempFolder.path, jobId),
-        overrideFileName: fileName,
-      );
-      final command = CommandBuilder.buildCommand(
-        inputFilePath: newInputFilePath,
-        formatEntry: formatEntry,
-        selectedValues: selectedValues,
-        availableControls: controls,
-        outputFilePath: outputFilePath,
-        threadCount: threadCount,
-        configurationKeys: configurationKeys,
-        trim: trim,
-      );
-
-      final now = DateTime.now();
-      final job = ConvertJob(
-        id: jobId,
-        inputFilePath: newInputFilePath,
-        outputFileName: fileName,
-        outputExtension: formatEntry.outputExtension,
-        outputDirectoryPath: outputDirectoryPath,
-        command: command,
-        convertedFilePath: outputFilePath,
-        createdAt: now,
-        updatedAt: now,
-      );
-      result.add(job);
-    }
-
-    if (rememberConfigurations) {
-      formatEntry.setLastKnownConfigurations(selectedValues);
-    }
-    if (rememberOutputFolder) {
-      SettingsBox().lastOutputDirectoryPath = outputDirectoryPath;
+      if (rememberOutputFolder) {
+        SettingsBox().lastOutputDirectoryPath = outputDirectoryPath;
+      }
+      for (final input in outputFileNames.keys) {
+        _preparedInputJobs.remove(input);
+      }
+    } catch (error, trace) {
+      await _rollbackPreparedInputs(allocatedInputs, movedInputs);
+      Error.throwWithStackTrace(error, trace);
     }
 
     return result;
+  }
+
+  Future<void> _rollbackPreparedInputs(
+    Map<String, String> allocatedInputs,
+    Map<String, String> movedInputs,
+  ) async {
+    for (final entry in allocatedInputs.entries.toList().reversed) {
+      final original = entry.value;
+      final prepared = movedInputs[entry.key];
+      if (prepared == null) {
+        if (!_preparedInputJobs.containsKey(original)) {
+          await _cleanUnsubmittedInput(entry.key);
+        }
+        continue;
+      }
+      String? restored;
+      try {
+        restored = await _fileService.restorePickedFile(
+          jobId: entry.key,
+          originalFilePath: original,
+          preparedFilePath: prepared,
+        );
+      } catch (error, trace) {
+        printError(error, trace);
+        restored = prepared;
+      }
+      if (restored == prepared && _isDisposed) {
+        await _cleanUnsubmittedInput(entry.key);
+        continue;
+      }
+      if (restored == null || _isDisposed) continue;
+      if (restored == prepared) _preparedInputJobs[prepared] = entry.key;
+      if (restored != original) _replacePreparedFile(original, restored);
+    }
+  }
+
+  void _replacePreparedFile(String original, String restored) {
+    if (!_selectedFiles.any((file) => file.path == original)) return;
+    _selectedFiles = [
+      for (final file in _selectedFiles)
+        file.path == original ? File(restored) : file,
+    ];
+    final names = {..._outputFileNames};
+    names[restored] = names.remove(original);
+    _outputFileNames = names;
+    final type = _fileContentTypes.remove(original);
+    if (type != null) _fileContentTypes[restored] = type;
+    refreshOutputFileNames();
+  }
+
+  Future<void> _cleanUnsubmittedInput(String jobId) async {
+    try {
+      await _fileService.cleanUpInputFile(jobId: jobId);
+    } catch (error, trace) {
+      printError(error, trace);
+    }
   }
 
   Future<Map<String, Failure>> findInvalidPaths({

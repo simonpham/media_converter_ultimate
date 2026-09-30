@@ -31,6 +31,81 @@ void main() {
     await temporaryDirectory.delete(recursive: true);
   });
 
+  Future<(File, File, Directory, List<int>)> stageInput(String jobId) async {
+    final cached = File('${temporaryDirectory.path}/file_picker/pick/song.wav');
+    await cached.parent.create(recursive: true);
+    final bytes = List<int>.generate(4096, (index) => index % 256);
+    await cached.writeAsBytes(bytes);
+    final inputFolder = await service.getInputDirectory(jobId);
+    final staged = await service.movePickedFileToInputFolder(
+      jobId: jobId,
+      inputFilePath: cached.path,
+      appCachedPath: temporaryDirectory.path,
+    );
+    expect(staged, isNotNull);
+    expect(await cached.exists(), isFalse);
+    return (cached, File(staged!), inputFolder, bytes);
+  }
+
+  test(
+    'rollback restores picker bytes and removes its unused job folder',
+    () async {
+      final (cached, staged, folder, bytes) = await stageInput('rollback');
+      final restored = await service.restorePickedFile(
+        jobId: 'rollback',
+        originalFilePath: cached.path,
+        preparedFilePath: staged.path,
+      );
+      expect(restored, cached.path);
+      expect(await cached.readAsBytes(), bytes);
+      expect(await staged.exists(), isFalse);
+      expect(await folder.exists(), isFalse);
+    },
+  );
+
+  test('rollback cache collisions preserve both versions', () async {
+    final (cached, staged, folder, bytes) = await stageInput('collision');
+    await cached.writeAsString('newer picker result');
+    final restored = await service.restorePickedFile(
+      jobId: 'collision',
+      originalFilePath: cached.path,
+      preparedFilePath: staged.path,
+    );
+    expect(restored, isNotNull);
+    expect(restored, isNot(cached.path));
+    expect(await cached.readAsString(), 'newer picker result');
+    expect(await File(restored!).readAsBytes(), bytes);
+    expect(await folder.exists(), isFalse);
+  });
+
+  test(
+    'blocked cache recovery retains staged bytes until restoration succeeds',
+    () async {
+      final (cached, staged, folder, bytes) = await stageInput('blocked');
+      final pickerCache = Directory('${temporaryDirectory.path}/file_picker');
+      await pickerCache.delete(recursive: true);
+      final obstruction = File(pickerCache.path);
+      await obstruction.writeAsString('cache path obstruction');
+      final retained = await service.restorePickedFile(
+        jobId: 'blocked',
+        originalFilePath: cached.path,
+        preparedFilePath: staged.path,
+      );
+      expect(retained, staged.path);
+      expect(await staged.readAsBytes(), bytes);
+      expect(await obstruction.readAsString(), 'cache path obstruction');
+      await obstruction.delete();
+      final restored = await service.restorePickedFile(
+        jobId: 'blocked',
+        originalFilePath: cached.path,
+        preparedFilePath: staged.path,
+      );
+      expect(restored, cached.path);
+      expect(await cached.readAsBytes(), bytes);
+      expect(await folder.exists(), isFalse);
+    },
+  );
+
   test(
     'MIME detection handles missing, empty, and short media files',
     () async {

@@ -220,6 +220,79 @@ void main() {
     }
   });
 
+  testWidgets('Android batch preparation restores sources for retry', (
+    _,
+  ) async {
+    final originalService = injector<FileService>();
+    final cache = await originalService.getAppCacheDirectory();
+    for (final collision in [false, true]) {
+      final picked = Directory(
+        '${cache.path}/file_picker/native_qa_${DateTime.now().microsecondsSinceEpoch}',
+      );
+      await picked.create(recursive: true);
+      final first = await File(audio).copy('${picked.path}/first.wav');
+      final second = await File(audio).copy('${picked.path}/second.wav');
+      final files = _FailingPreparationFiles()
+        ..failedPath = second.path
+        ..reusedPath = collision ? first.path : null;
+      await injector.unregister<FileService>();
+      injector.registerSingleton<FileService>(files);
+      final setup = JobMakerViewModel(
+        formatConfigModel: model.formatConfigModel,
+        translations: const {},
+      );
+      String? recoveredDirectory;
+      try {
+        await setup.addFiles([first, second]);
+        await setup.applyPreset(.losslessAudio);
+        setup.setOutputDirectoryPath(directory.path);
+        setup.setOutputFileName(first.path, 'recovered.m4a');
+        await expectLater(
+          setup.cook(),
+          throwsA(isA<InputFileNotExistFailure>()),
+        );
+        final retained = setup.selectedFiles.first;
+        if (retained.parent.path != picked.path) {
+          recoveredDirectory = retained.parent.path;
+        }
+        expect(await retained.readAsBytes(), await File(audio).readAsBytes());
+        if (collision) {
+          expect(await first.readAsString(), 'newer picker result');
+        }
+        files.failedPath = null;
+        final jobs = await setup.cook();
+        expect(jobs, hasLength(2));
+        expect(jobs.first.outputFileName, 'recovered.m4a');
+        for (final job in jobs) {
+          expect(
+            await File(job.inputFilePath).readAsBytes(),
+            await File(audio).readAsBytes(),
+          );
+          await files.prepareConvertTempFolder(jobId: job.id);
+          await _execute(CommandBuilder.parseCommand(job.command));
+          expect(
+            (await _probe(job.convertedFilePath))['streams'][0]['codec_name'],
+            'alac',
+          );
+        }
+      } finally {
+        setup.dispose();
+        for (final jobId in files.allocatedJobs) {
+          await files.cleanUpInputFile(jobId: jobId);
+          final output = await files.getConvertTemporaryDirectory(jobId);
+          await output.delete(recursive: true);
+        }
+        if (await picked.exists()) await picked.delete(recursive: true);
+        if (recoveredDirectory != null &&
+            await Directory(recoveredDirectory).exists()) {
+          await Directory(recoveredDirectory).delete(recursive: true);
+        }
+        await injector.unregister<FileService>();
+        injector.registerSingleton<FileService>(originalService);
+      }
+    }
+  });
+
   testWidgets('native runner rejects a trim beyond the source', (_) async {
     await model.applyPreset(.losslessAudio);
     final output = '${directory.path}/empty-range.m4a';
@@ -422,6 +495,32 @@ Future<List<int>> _pcm(String path, Directory directory) async {
     output,
   ]);
   return File(output).readAsBytes();
+}
+
+class _FailingPreparationFiles extends DirectFileService {
+  String? failedPath;
+  String? reusedPath;
+  final allocatedJobs = <String>{};
+
+  @override
+  Future<String?> movePickedFileToInputFolder({
+    required String jobId,
+    required String inputFilePath,
+    required String appCachedPath,
+  }) async {
+    allocatedJobs.add(jobId);
+    if (inputFilePath == failedPath) {
+      if (reusedPath case final String path) {
+        await File(path).writeAsString('newer picker result');
+      }
+      return null;
+    }
+    return super.movePickedFileToInputFolder(
+      jobId: jobId,
+      inputFilePath: inputFilePath,
+      appCachedPath: appCachedPath,
+    );
+  }
 }
 
 class _Settings implements SettingsBox {

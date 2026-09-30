@@ -24,8 +24,10 @@ void main() {
 
   late FakeFileService files;
   late JobMakerViewModel model;
+  var modelDisposed = false;
 
   setUp(() {
+    modelDisposed = false;
     files = FakeFileService();
     injector.registerSingleton<SettingsBox>(FakeSettingsBox());
     injector.registerSingleton<JobConfigurationData>(
@@ -51,7 +53,7 @@ void main() {
   });
 
   tearDown(() async {
-    model.dispose();
+    if (!modelDisposed) model.dispose();
     await injector.reset();
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
@@ -103,6 +105,101 @@ void main() {
     expect(model.selectedFiles, isEmpty);
     expect(model.excludedFiles.map((file) => file.path), [file.path]);
     expect(model.fileContentType(file), FileContentType.other);
+  });
+
+  test(
+    'partial preparation rolls inputs back so the batch can retry',
+    () async {
+      final first = File('/service-cache/file_picker/first.wav');
+      final second = File('/service-cache/file_picker/second.wav');
+      await model.addFiles([first, second]);
+      await model.setSelectedFormatEntry(mp3);
+      model.setOutputDirectoryPath('/output');
+      model.setOutputFileName(first.path, 'custom.mp3');
+      files.failedPreparationPath = second.path;
+      await expectLater(model.cook(), throwsA(isA<InputFileNotExistFailure>()));
+      expect(await files.isFileExist(first.path), isTrue);
+      expect(model.selectedFiles.map((file) => file.path), [
+        first.path,
+        second.path,
+      ]);
+      expect(files.restoredInputs, [first.path]);
+      files.failedPreparationPath = null;
+      final jobs = await model.cook();
+      expect(jobs, hasLength(2));
+      expect(jobs.first.outputFileName, 'custom.mp3');
+      expect(jobs.last.outputFileName, 'second.mp3');
+    },
+  );
+
+  test(
+    'failed rollback retains its staged source and ownership across retries',
+    () async {
+      final first = File('/service-cache/file_picker/first.wav');
+      final second = File('/service-cache/file_picker/second.wav');
+      await model.addFiles([first, second]);
+      await model.setSelectedFormatEntry(mp3);
+      model.setOutputDirectoryPath('/output');
+      model.setOutputFileName(first.path, 'custom.mp3');
+      files.failedPreparationPath = second.path;
+      files.failRestoration = true;
+      await expectLater(model.cook(), throwsA(isA<InputFileNotExistFailure>()));
+      final staged = model.selectedFiles.first;
+      final owner = files.stagedOwners[staged.path]!;
+      expect(staged.path, isNot(first.path));
+      expect(model.outputFileNames[staged.path], 'custom.mp3');
+      expect(model.fileContentType(staged), FileContentType.audio);
+      await expectLater(model.cook(), throwsA(isA<InputFileNotExistFailure>()));
+      expect(await files.isFileExist(staged.path), isTrue);
+      expect(files.cleanedInputs, isNot(contains(owner)));
+      files.failedPreparationPath = null;
+      final jobs = await model.cook();
+      expect(jobs.first.id, owner);
+      expect(jobs.first.inputFilePath, staged.path);
+      expect(jobs.first.outputFileName, 'custom.mp3');
+    },
+  );
+
+  test(
+    'discarding setup cleans only its retained, unsubmitted input',
+    () async {
+      final first = File('/service-cache/file_picker/first.wav');
+      final second = File('/service-cache/file_picker/second.wav');
+      await model.addFiles([first, second]);
+      await model.setSelectedFormatEntry(mp3);
+      model.setOutputDirectoryPath('/output');
+      files.failedPreparationPath = second.path;
+      files.failRestoration = true;
+      await expectLater(model.cook(), throwsA(isA<InputFileNotExistFailure>()));
+      final owner = files.stagedOwners[model.selectedFiles.first.path]!;
+      model.dispose();
+      modelDisposed = true;
+      await Future<void>.delayed(Duration.zero);
+      expect(files.cleanedInputs, contains(owner));
+      expect(files.stagedOwners, isEmpty);
+      expect(await files.isFileExist(second.path), isTrue);
+    },
+  );
+
+  test('closing setup during preparation restores moved inputs', () async {
+    final first = File('/service-cache/file_picker/first.wav');
+    await model.addFiles([
+      first,
+      File('/service-cache/file_picker/second.wav'),
+    ]);
+    await model.setSelectedFormatEntry(mp3);
+    model.setOutputDirectoryPath('/output');
+    files.preparationGate = Completer<void>();
+    final result = model.cook();
+    final assertion = expectLater(result, throwsStateError);
+    await Future<void>.delayed(Duration.zero);
+    model.dispose();
+    modelDisposed = true;
+    files.preparationGate!.complete();
+    await assertion;
+    expect(files.preparedInputs, [first.path]);
+    expect(files.restoredInputs, [first.path]);
+    expect(await files.isFileExist(first.path), isTrue);
   });
 
   test(
@@ -321,6 +418,12 @@ class FakeFileService implements FileService {
   final preparedInputs = <String>[];
   final cachePaths = <String>[];
   Completer<void>? preparationGate;
+  String? failedPreparationPath;
+  var failRestoration = false;
+  final missingInputs = <String>{};
+  final stagedOwners = <String, String>{};
+  final restoredInputs = <String>[];
+  final cleanedInputs = <String>[];
 
   @override
   Future<Directory> getAppCacheDirectory() async => Directory('/service-cache');
@@ -334,8 +437,12 @@ class FakeFileService implements FileService {
 
   @override
   Future<bool> isFileExist(String path) async {
+    if (missingInputs.contains(path)) return false;
     return delayedOutputs[path] ??
-        (path.startsWith('/input/') || existingOutputs.contains(path));
+        (path.startsWith('/input/') ||
+            path.startsWith('/service-cache/file_picker/') ||
+            stagedOwners.containsKey(path) ||
+            existingOutputs.contains(path));
   }
 
   @override
@@ -351,7 +458,33 @@ class FakeFileService implements FileService {
     preparedInputs.add(inputFilePath);
     cachePaths.add(appCachedPath);
     await preparationGate?.future;
+    if (inputFilePath == failedPreparationPath) return null;
+    if (inputFilePath.startsWith('/service-cache/file_picker/')) {
+      final staged = '/prepared/$jobId/${basename(inputFilePath)}';
+      missingInputs.add(inputFilePath);
+      stagedOwners[staged] = jobId;
+      return staged;
+    }
     return inputFilePath;
+  }
+
+  @override
+  Future<String?> restorePickedFile({
+    required String jobId,
+    required String originalFilePath,
+    required String preparedFilePath,
+  }) async {
+    restoredInputs.add(originalFilePath);
+    if (failRestoration) return preparedFilePath;
+    missingInputs.remove(originalFilePath);
+    stagedOwners.remove(preparedFilePath);
+    return originalFilePath;
+  }
+
+  @override
+  Future<void> cleanUpInputFile({required String jobId}) async {
+    cleanedInputs.add(jobId);
+    stagedOwners.removeWhere((path, owner) => owner == jobId);
   }
 
   @override

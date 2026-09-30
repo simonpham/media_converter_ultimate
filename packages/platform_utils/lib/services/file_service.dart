@@ -45,6 +45,14 @@ abstract class FileService {
     required String appCachedPath,
   });
 
+  /// Rolls back an unsubmitted input, returning its accessible path. If the
+  /// picker cache cannot be restored, the prepared copy remains recoverable.
+  Future<String?> restorePickedFile({
+    required String jobId,
+    required String originalFilePath,
+    required String preparedFilePath,
+  });
+
   Future<void> cleanUpInputFile({
     required String jobId,
   });

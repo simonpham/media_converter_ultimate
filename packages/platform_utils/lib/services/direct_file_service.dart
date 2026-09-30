@@ -230,7 +230,10 @@ class DirectFileService implements FileService {
     required String inputFilePath,
     required String appCachedPath,
   }) async {
-    if (!inputFilePath.startsWith('$appCachedPath/file_picker/')) {
+    if (!path.isWithin(
+      path.join(appCachedPath, 'file_picker'),
+      inputFilePath,
+    )) {
       printLog(
         '[DirectFileService] movePickedFileToInputFolder: file not in file_picker cache. Skipping.',
       );
@@ -254,6 +257,62 @@ class DirectFileService implements FileService {
     } catch (err, trace) {
       printError(err, trace);
       return null;
+    }
+  }
+
+  @override
+  Future<String?> restorePickedFile({
+    required String jobId,
+    required String originalFilePath,
+    required String preparedFilePath,
+  }) async {
+    final prepared = File(preparedFilePath);
+    final original = File(originalFilePath);
+    try {
+      if (!await prepared.exists()) {
+        return await original.exists() ? originalFilePath : null;
+      }
+      final inputFolder = await getInputDirectory(jobId);
+      final cache = await getAppCacheDirectory();
+      final pickerCache = path.join(cache.path, 'file_picker');
+      if (!path.isWithin(inputFolder.path, preparedFilePath) ||
+          !path.isWithin(pickerCache, originalFilePath)) {
+        return preparedFilePath;
+      }
+      // A newer picker result may have reused the original cache path. Never
+      // overwrite it; recover this batch's bytes under a separate cache path.
+      final target = await original.exists()
+          ? File(
+              path.join(
+                pickerCache,
+                'recovered-$jobId',
+                path.basename(originalFilePath),
+              ),
+            )
+          : original;
+      if (await target.exists()) return preparedFilePath;
+      await target.parent.create(recursive: true);
+      try {
+        await prepared.rename(target.path);
+      } catch (_) {
+        try {
+          await prepared.copy(target.path);
+        } catch (error, trace) {
+          if (await target.exists()) await target.delete();
+          Error.throwWithStackTrace(error, trace);
+        }
+        try {
+          await prepared.delete();
+        } catch (error, trace) {
+          printError(error, trace);
+        }
+      }
+      await cleanUpInputFile(jobId: jobId);
+      return target.path;
+    } catch (error, trace) {
+      printError(error, trace);
+      if (await prepared.exists()) return preparedFilePath;
+      return await original.exists() ? originalFilePath : null;
     }
   }
 
