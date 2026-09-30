@@ -25,5 +25,7 @@ dependencies:
   isar_community_flutter_libs: *isar_version
 
 dev_dependencies:
+  flutter_test:
+    sdk: flutter
   build_runner: any
   isar_community_generator: *isar_version

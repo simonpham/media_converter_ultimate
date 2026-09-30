@@ -6,13 +6,9 @@ import 'package:core_storage_isar/core_storage_isar.dart';
 import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
 
-class ConvertJobIsarStorage extends ConvertJobStorage {
-  final Isar isar;
-
-  const ConvertJobIsarStorage({
-    required this.isar,
-  });
-
+class const ConvertJobIsarStorage({
+  required final Isar isar,
+}) extends ConvertJobStorage {
   static Future<Isar> createIsarInstance() async {
     final dataFolder = await injector<FileService>().getAppDataDirectory();
     return await Isar.open(
@@ -124,7 +120,7 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
     return isar.isarConvertJobs
         .where()
         .statusEqualTo(.pending)
-        .sortByUpdatedAtDesc()
+        .sortByCreatedAt()
         .watch(fireImmediately: true)
         .map(
           (list) => list
@@ -175,7 +171,7 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
     return await isar.isarConvertJobs
         .where()
         .statusEqualTo(.pending)
-        .sortByUpdatedAtDesc()
+        .sortByCreatedAt()
         .findAll()
         .then(
           (list) => list
