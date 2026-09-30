@@ -139,6 +139,10 @@ class DirectFileService implements FileService {
   }
 
   @override
+  Future<Directory> getAppCacheDirectory() =>
+      path_provider.getApplicationCacheDirectory();
+
+  @override
   Future<Directory> getAppDataDirectory() async {
     final docFolder = await path_provider.getApplicationDocumentsDirectory();
     final dataFolder = Directory(

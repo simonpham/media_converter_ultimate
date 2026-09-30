@@ -180,5 +180,6 @@
   "presetLosslessAudio": "Audio tanpa kehilangan kualitas",
   "presetLosslessAudioDescription": "Pertahankan kualitas audio dalam M4A (ALAC). Berkas lebih besar.",
   "searchFormatsHint": "Cari format, misalnya MP4 atau MP3",
-  "noMatchingFormats": "Tidak ada format yang cocok."
+  "noMatchingFormats": "Tidak ada format yang cocok.",
+  "preparingJobs": "Menyiapkan konversi…"
 }

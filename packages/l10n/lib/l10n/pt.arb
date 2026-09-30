@@ -180,5 +180,6 @@
   "presetLosslessAudio": "Áudio sem perdas",
   "presetLosslessAudioDescription": "Preserve a qualidade do áudio em M4A (ALAC). Ficheiros maiores.",
   "searchFormatsHint": "Pesquisar formatos, por exemplo MP4 ou MP3",
-  "noMatchingFormats": "Nenhum formato correspondente."
+  "noMatchingFormats": "Nenhum formato correspondente.",
+  "preparingJobs": "A preparar conversões…"
 }

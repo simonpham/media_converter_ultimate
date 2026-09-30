@@ -119,6 +119,74 @@ void main() {
     },
   );
 
+  test('overlapping preparation shares one batch and resolves cache through the service', () async {
+    await model.addFiles([File('/input/first.wav'), File('/input/second.wav')]);
+    await model.setSelectedFormatEntry(mp3);
+    model.setOutputDirectoryPath('/output');
+    files.preparationGate = Completer<void>();
+    final first = model.cook();
+    final second = model.cook();
+    expect(identical(first, second), isTrue);
+    expect(model.isPreparingJobs, isTrue);
+    await Future<void>.delayed(Duration.zero);
+    expect(files.preparedInputs, ['/input/first.wav']);
+    files.preparationGate!.complete();
+    final jobs = await first;
+    expect(await second, same(jobs));
+    expect(jobs, hasLength(2));
+    expect(files.preparedInputs, ['/input/first.wav', '/input/second.wav']);
+    expect(files.cachePaths, ['/service-cache', '/service-cache']);
+    expect(model.isPreparingJobs, isFalse);
+  });
+
+  test(
+    'a validation failure releases preparation for a corrected retry',
+    () async {
+      await model.addFiles([File('/input/song.wav')]);
+      await model.setSelectedFormatEntry(mp3);
+      await expectLater(model.cook(), throwsA(isA<NoOutputFolderFailure>()));
+      expect(model.isPreparingJobs, isFalse);
+      model.setOutputDirectoryPath('/output');
+      expect(await model.cook(), hasLength(1));
+      expect(model.isPreparingJobs, isFalse);
+    },
+  );
+
+  test(
+    'jobs use the same format, names, and directory throughout preparation',
+    () async {
+      await model.addFiles([
+        File('/input/first.wav'),
+        File('/input/second.wav'),
+      ]);
+      await model.setSelectedFormatEntry(mp3);
+      model.setOutputDirectoryPath('/original-output');
+      files.preparationGate = Completer<void>();
+      final preparation = model.cook();
+      await Future<void>.delayed(Duration.zero);
+      await model.setSelectedFormatEntry(mp4);
+      model.setOutputDirectoryPath('/new-output');
+      model.setOutputFileName('/input/second.wav', 'changed.mp4');
+      files.preparationGate!.complete();
+      final jobs = await preparation;
+      expect(jobs.map((job) => job.outputFileName), [
+        'first.mp3',
+        'second.mp3',
+      ]);
+      expect(jobs.map((job) => job.outputExtension), everyElement('mp3'));
+      expect(
+        jobs.map((job) => job.outputDirectoryPath),
+        everyElement('/original-output'),
+      );
+      for (final job in jobs) {
+        expect(
+          CommandBuilder.parseCommand(job.command),
+          containsAllInOrder(['-f', 'mp3']),
+        );
+      }
+    },
+  );
+
   test('rejects an empty batch before preparing jobs', () async {
     await model.setSelectedFormatEntry(mp3);
     model.setOutputDirectoryPath('/output');
@@ -184,6 +252,12 @@ class FakeJobConfigurationData implements JobConfigurationData {
 class FakeFileService implements FileService {
   final existingOutputs = <String>{};
   final delayedOutputs = <String, Future<bool>>{};
+  final preparedInputs = <String>[];
+  final cachePaths = <String>[];
+  Completer<void>? preparationGate;
+
+  @override
+  Future<Directory> getAppCacheDirectory() async => Directory('/service-cache');
 
   @override
   Future<bool> isMediaFile(File file) async => true;
@@ -203,7 +277,12 @@ class FakeFileService implements FileService {
     required String jobId,
     required String inputFilePath,
     required String appCachedPath,
-  }) async => inputFilePath;
+  }) async {
+    preparedInputs.add(inputFilePath);
+    cachePaths.add(appCachedPath);
+    await preparationGate?.future;
+    return inputFilePath;
+  }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

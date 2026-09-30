@@ -66,11 +66,13 @@ class _JobMakerState extends State<JobMaker> {
   final MenuController _menuController = .new();
   final PageController _pageController = .new();
   final ValueNotifier<int> _currentStepNotifier = .new(0);
+  bool _isChangingStep = false;
 
   @override
   void dispose() {
     _viewModel.dispose();
     _currentStepNotifier.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -220,17 +222,22 @@ class _JobMakerState extends State<JobMaker> {
                     },
                   ),
                   Expanded(
-                    child: PageView.builder(
-                      controller: _pageController,
-                      itemCount: JobMakerSteps.values.length,
-                      physics: const NeverScrollableScrollPhysics(),
-                      onPageChanged: (page) {
-                        _currentStepNotifier.value = page;
-                      },
-                      itemBuilder: (context, index) {
-                        final step = JobMakerSteps.values.elementAt(index);
-                        return step.build(context);
-                      },
+                    child: Consumer<JobMakerViewModel>(
+                      builder: (context, model, _) => AbsorbPointer(
+                        absorbing: model.isPreparingJobs,
+                        child: PageView.builder(
+                          controller: _pageController,
+                          itemCount: JobMakerSteps.values.length,
+                          physics: const NeverScrollableScrollPhysics(),
+                          onPageChanged: (page) {
+                            _currentStepNotifier.value = page;
+                          },
+                          itemBuilder: (context, index) {
+                            final step = JobMakerSteps.values.elementAt(index);
+                            return step.build(context);
+                          },
+                        ),
+                      ),
                     ),
                   ),
                   Spacing.v16,
@@ -246,12 +253,17 @@ class _JobMakerState extends State<JobMaker> {
                         return Consumer<JobMakerViewModel>(
                           builder: (context, model, _) => Button(
                             variant: .primary,
-                            enable: !model.isLoadingFormat,
-                            label: isLastStep
+                            enable:
+                                !model.isLoadingFormat &&
+                                !model.isPreparingJobs &&
+                                !_isChangingStep,
+                            label: model.isPreparingJobs
+                                ? context.l10n.preparingJobs
+                                : isLastStep
                                 ? context.l10n.startConversion
                                 : context.l10n.next,
                             onPressed: () {
-                              _handleNext(context);
+                              unawaited(_handleNext(context));
                             },
                           ),
                         );
@@ -269,8 +281,13 @@ class _JobMakerState extends State<JobMaker> {
   }
 
   Future<void> _handleNext(BuildContext context) async {
+    if (_isChangingStep ||
+        _viewModel.isPreparingJobs ||
+        _viewModel.isLoadingFormat) {
+      return;
+    }
     final currentPage = _pageController.page?.toInt();
-    if (currentPage == null || currentPage > JobMakerSteps.values.length) {
+    if (currentPage == null || currentPage >= JobMakerSteps.values.length) {
       return;
     }
 
@@ -283,29 +300,33 @@ class _JobMakerState extends State<JobMaker> {
 
     _viewModel.refreshOutputFileNames();
 
-    if (!currentStep.isLastStep) {
-      unawaited(
-        _pageController.nextPage(
+    setState(() => _isChangingStep = true);
+    try {
+      if (!currentStep.isLastStep) {
+        await _pageController.nextPage(
           duration: Durations.medium4,
           curve: Curves.easeOut,
-        ),
-      );
-      return;
-    }
-
-    try {
+        );
+        return;
+      }
       final convertJobs = await _viewModel.cook();
-      if (convertJobs.isEmpty) {
+      if (!mounted || convertJobs.isEmpty) {
         return;
       }
 
       context.router.pop(convertJobs);
     } on Failure catch (failure) {
-      context.toastFailure(failure);
+      if (mounted) context.toastFailure(failure);
+    } catch (error, trace) {
+      printError(error, trace);
+      if (mounted) context.toastFailure(Failure(error.toString()));
+    } finally {
+      if (mounted) setState(() => _isChangingStep = false);
     }
   }
 
   Future<void> _handleBack(BuildContext context) async {
+    if (_isChangingStep || _viewModel.isPreparingJobs) return;
     final currentPage = _pageController.page?.toInt();
     if (currentPage == null) {
       return;
@@ -323,7 +344,7 @@ class _JobMakerState extends State<JobMaker> {
       );
 
       final hasGoBackConfirmed = action == .negative;
-      if (!hasGoBackConfirmed) {
+      if (!mounted || !hasGoBackConfirmed) {
         return;
       }
 

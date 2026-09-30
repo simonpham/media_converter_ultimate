@@ -180,5 +180,6 @@
   "presetLosslessAudio": "無損音訊",
   "presetLosslessAudioDescription": "以 M4A（ALAC）保留音質。檔案更大。",
   "searchFormatsHint": "搜尋格式，例如 MP4 或 MP3",
-  "noMatchingFormats": "沒有相符的格式。"
+  "noMatchingFormats": "沒有相符的格式。",
+  "preparingJobs": "正在準備轉換…"
 }

@@ -90,5 +90,8 @@ class TestMediaFiles implements FileService {
   Future<bool> isMediaFile(File file) async => true;
 
   @override
+  Future<String?> getFileMimeType(File file) async => 'audio/wav';
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

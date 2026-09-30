@@ -180,5 +180,6 @@
   "presetLosslessAudio": "ロスレス音声",
   "presetLosslessAudioDescription": "M4A（ALAC）で音質を保持。ファイルサイズは大きくなります。",
   "searchFormatsHint": "形式を検索（例：MP4、MP3）",
-  "noMatchingFormats": "一致する形式がありません。"
+  "noMatchingFormats": "一致する形式がありません。",
+  "preparingJobs": "変換を準備中…"
 }

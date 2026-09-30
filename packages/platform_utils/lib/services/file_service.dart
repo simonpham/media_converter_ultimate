@@ -27,6 +27,7 @@ abstract class FileService {
   });
 
   Future<Directory> getAppDataDirectory();
+  Future<Directory> getAppCacheDirectory();
 
   Future<Directory> getConvertedDirectory(String prefix);
 

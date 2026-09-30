@@ -8,6 +8,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mcu/theme_adapter.dart';
+import 'package:platform_utils/platform_utils.dart' show FileService;
 import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 import 'support/conversion_test_support.dart';
@@ -135,6 +136,36 @@ void main() {
     expect(find.text('No matching formats.'), findsOneWidget);
     await tester.enterText(find.byType(EditableText), '');
     await tester.pumpAndSettle();
+    expect(find.text('Quick presets'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('rapid next taps move the wizard only one step', (tester) async {
+    injector.registerSingleton<FileService>(TestMediaFiles());
+    await showPicker(
+      tester,
+      content: JobMaker(
+        formatConfigModel: model.formatConfigModel,
+        translations: (jsonDecode(
+          File('${findRepository().path}/apps/mcu/assets/configs/l10n/en.json')
+              .readAsStringSync(),
+        ) as Map<String, dynamic>).cast<String, String>(),
+      ),
+    );
+    final wizard = tester
+        .element(find.byType(JobMakerFilePicker))
+        .read<JobMakerViewModel>();
+    final inputDirectory = Directory.systemTemp.createTempSync('mcu-wizard-');
+    addTearDown(() => inputDirectory.deleteSync(recursive: true));
+    final source = File('${inputDirectory.path}/song.wav')
+      ..writeAsBytesSync(utf8.encode('RIFF0000WAVE'));
+    await wizard.addFiles([source]);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Next'));
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.byType(JobMakerOutputFormatPicker), findsOneWidget);
+    expect(find.byType(JobMakerConfigCustomizer), findsNothing);
     expect(find.text('Quick presets'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

@@ -65,6 +65,8 @@ class JobMakerViewModel({
   Map<String, Failure> get errorPaths => _errorPaths;
   int _pathValidationRevision = 0;
   bool _isDisposed = false;
+  Future<List<ConvertJob>>? _preparation;
+  bool get isPreparingJobs => _preparation != null;
 
   @override
   void dispose() {
@@ -209,6 +211,7 @@ class JobMakerViewModel({
     final errorPaths = await findInvalidPaths(
       selectedPaths: selectedPaths,
       outputDirectoryPath: outputDirectoryPath,
+      outputFormat: formatEntry,
     );
     if (_isDisposed || revision != _pathValidationRevision) {
       return;
@@ -315,13 +318,36 @@ class JobMakerViewModel({
     notifyListeners();
   }
 
-  Future<List<ConvertJob>> cook() async {
+  Future<List<ConvertJob>> cook() {
+    if (_preparation case final preparation?) return preparation;
+    final result = Completer<List<ConvertJob>>();
+    _preparation = result.future;
+    notifyListeners();
+    unawaited(_prepareJobs(result));
+    return result.future;
+  }
+
+  Future<void> _prepareJobs(Completer<List<ConvertJob>> result) async {
+    try {
+      result.complete(await _buildJobs());
+    } catch (error, trace) {
+      result.completeError(error, trace);
+    } finally {
+      _preparation = null;
+      if (!_isDisposed) notifyListeners();
+    }
+  }
+
+  Future<List<ConvertJob>> _buildJobs() async {
     if (_isLoadingFormat) throw const NoOutputConfigFailure();
     final formatEntry = _selectedFormatEntry;
     final selectedValues = {..._selectedValues};
     final outputDirectoryPath = _outputDirectoryPath;
     final controls = availableControls;
     final configurationKeys = _configControls.keys.toSet();
+    final rememberConfigurations = _shouldRememberConfigs;
+    final rememberOutputFolder = _shouldRememberOutputFolder;
+    final threadCount = SettingsBox().threadCount;
     final outputFileNames = {
       for (final file in _selectedFiles) file.path: _outputFileNames[file.path],
     };
@@ -344,12 +370,14 @@ class JobMakerViewModel({
     final errorPaths = await findInvalidPaths(
       selectedPaths: outputFileNames,
       outputDirectoryPath: outputDirectoryPath,
+      outputFormat: formatEntry,
     );
     if (errorPaths.isNotEmpty) {
       throw errorPaths.values.first;
     }
 
     final List<ConvertJob> result = [];
+    final appCachedDir = await _fileService.getAppCacheDirectory();
     for (final inputFilePath in outputFileNames.keys) {
       final jobId = kUuid.v4();
       final fileName = outputFileNames[inputFilePath];
@@ -357,7 +385,6 @@ class JobMakerViewModel({
         throw FileNameIsNotSetFailure(inputFilePath);
       }
 
-      final appCachedDir = await getApplicationCacheDirectory();
       final newInputFilePath = await _fileService.movePickedFileToInputFolder(
         jobId: jobId,
         inputFilePath: inputFilePath,
@@ -380,7 +407,7 @@ class JobMakerViewModel({
         selectedValues: selectedValues,
         availableControls: controls,
         outputFilePath: outputFilePath,
-        threadCount: SettingsBox().threadCount,
+        threadCount: threadCount,
         configurationKeys: configurationKeys,
       );
 
@@ -399,10 +426,10 @@ class JobMakerViewModel({
       result.add(job);
     }
 
-    if (shouldRememberConfigs) {
+    if (rememberConfigurations) {
       formatEntry.setLastKnownConfigurations(selectedValues);
     }
-    if (shouldRememberOutputFolder) {
+    if (rememberOutputFolder) {
       SettingsBox().lastOutputDirectoryPath = outputDirectoryPath;
     }
 
@@ -412,7 +439,9 @@ class JobMakerViewModel({
   Future<Map<String, Failure>> findInvalidPaths({
     required Map<String, String?> selectedPaths,
     required String outputDirectoryPath,
+    FormatEntry? outputFormat,
   }) async {
+    final formatEntry = outputFormat ?? _selectedFormatEntry;
     final Map<String, Failure> errorPaths = {};
     final Set<String> outputPaths = {};
     for (final entry in selectedPaths.entries) {
@@ -433,7 +462,6 @@ class JobMakerViewModel({
       }
 
       /// Check for output file existence.
-      final formatEntry = _selectedFormatEntry;
       if (formatEntry != null) {
         final outputFilePath = CommandBuilder.getOutputFilePath(
           inputFilePath: filePath,

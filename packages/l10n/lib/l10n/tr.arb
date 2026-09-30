@@ -180,5 +180,6 @@
   "presetLosslessAudio": "Kayıpsız ses",
   "presetLosslessAudioDescription": "Ses kalitesini M4A (ALAC) ile koruyun. Daha büyük dosyalar.",
   "searchFormatsHint": "Format ara, ör. MP4 veya MP3",
-  "noMatchingFormats": "Eşleşen format yok."
+  "noMatchingFormats": "Eşleşen format yok.",
+  "preparingJobs": "Dönüştürmeler hazırlanıyor…"
 }

@@ -180,5 +180,6 @@
   "presetLosslessAudio": "Âm thanh không mất dữ liệu",
   "presetLosslessAudioDescription": "Giữ chất lượng âm thanh trong M4A (ALAC). Dung lượng lớn hơn.",
   "searchFormatsHint": "Tìm định dạng, ví dụ MP4 hoặc MP3",
-  "noMatchingFormats": "Không có định dạng phù hợp."
+  "noMatchingFormats": "Không có định dạng phù hợp.",
+  "preparingJobs": "Đang chuẩn bị chuyển đổi…"
 }
