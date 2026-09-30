@@ -27,6 +27,8 @@ dependencies:
     path: ../../packages/platform_utils
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
 
