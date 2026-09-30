@@ -14,7 +14,6 @@ class DirectFileService implements FileService {
     try {
       final files = await FilePicker.pickFiles(
         type: .any,
-        allowMultiple: true,
       );
 
       if (files.isEmpty) {
