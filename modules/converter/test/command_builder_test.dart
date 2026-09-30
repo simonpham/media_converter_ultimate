@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:converter/features/job_maker/utils/command_builder.dart';
 import 'package:core/core.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -60,13 +62,13 @@ void main() {
       );
 
       expect(args, contains('-i'));
-      expect(args, contains('"/path/to/input.mov"'));
+      expect(args, contains('/path/to/input.mov'));
       expect(args, contains('-hide_banner'));
-      expect(args, contains('-c:v libx264'));
+      expect(args, containsAllInOrder(['-c:v', 'libx264']));
       expect(args, contains('-crf'));
       expect(args, contains('23'));
-      expect(args, contains('-f mp4'));
-      expect(args, contains('"/path/to/output.mp4"'));
+      expect(args, containsAllInOrder(['-f', 'mp4']));
+      expect(args, contains('/path/to/output.mp4'));
 
       final command = CommandBuilder.buildCommand(
         inputFilePath: '/path/to/input.mov',
@@ -78,8 +80,19 @@ void main() {
       );
 
       expect(
-        command,
-        '-i "/path/to/input.mov" -hide_banner -c:v libx264 -crf 23 -f mp4 "/path/to/output.mp4"',
+        jsonDecode(command),
+        [
+          '-i',
+          '/path/to/input.mov',
+          '-hide_banner',
+          '-c:v',
+          'libx264',
+          '-crf',
+          '23',
+          '-f',
+          'mp4',
+          '/path/to/output.mp4',
+        ],
       );
     });
 
@@ -112,8 +125,8 @@ void main() {
         threadCount: 4,
       );
 
-      expect(args.any((a) => a.startsWith('-f ')), isFalse);
-      expect(args, contains('-threads 4'));
+      expect(args.contains('-f'), isFalse);
+      expect(args, containsAllInOrder(['-threads', '4']));
       expect(args, contains('-b:a'));
       expect(args, contains('192k'));
     });
@@ -147,8 +160,8 @@ void main() {
         threadCount: 0,
       );
 
-      expect(args, contains('-map 0:v:0'));
-      expect(args, contains('-map 0:a:0'));
+      expect(args, containsAllInOrder(['-map', '0:v:0']));
+      expect(args, containsAllInOrder(['-map', '0:a:0']));
     });
 
     test('calculates correct output file path and name', () {
@@ -199,8 +212,16 @@ void main() {
           name: 'configs.mp3.album_art',
           label: 'Album Art',
           options: [
-            ConfigControlOption(label: 'Preserve', value: '-map 0:v:disp:attached_pic?', ffmpegArg: '-map 0:v:disp:attached_pic?'),
-            ConfigControlOption(label: 'Copy Codec', value: '-c:v copy', ffmpegArg: '-c:v copy'),
+            ConfigControlOption(
+              label: 'Preserve',
+              value: '-map 0:v:disp:attached_pic?',
+              ffmpegArg: '-map 0:v:disp:attached_pic?',
+            ),
+            ConfigControlOption(
+              label: 'Copy Codec',
+              value: '-c:v copy',
+              ffmpegArg: '-c:v copy',
+            ),
           ],
           isVisible: true,
           shouldAddToArgs: true,
@@ -211,7 +232,11 @@ void main() {
           name: 'configs.common.audio.recommended_args',
           label: 'Metadata',
           options: [
-            ConfigControlOption(label: 'Metadata', value: '-map_metadata 0:g', ffmpegArg: '-map_metadata 0:g'),
+            ConfigControlOption(
+              label: 'Metadata',
+              value: '-map_metadata 0:g',
+              ffmpegArg: '-map_metadata 0:g',
+            ),
           ],
           isVisible: true,
           shouldAddToArgs: true,
@@ -236,9 +261,9 @@ void main() {
 
       expect(args, contains('-c:a'));
       expect(args, contains('libmp3lame'));
-      expect(args, contains('-map 0:v:disp:attached_pic?'));
-      expect(args, contains('-c:v copy'));
-      expect(args, contains('-map_metadata 0:g'));
+      expect(args, containsAllInOrder(['-map', '0:v:disp:attached_pic?']));
+      expect(args, containsAllInOrder(['-c:v', 'copy']));
+      expect(args, containsAllInOrder(['-map_metadata', '0:g']));
     });
   });
 }

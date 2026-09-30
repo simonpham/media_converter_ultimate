@@ -1,9 +1,10 @@
 import 'dart:convert';
 
 import 'package:core/core.dart';
+import 'package:platform_utils/platform_utils.dart' show FFmpegKitConfig;
 import 'package:utils/utils.dart' as utils;
 
-/// Utility class for building FFmpeg command arguments and full command strings.
+/// Builds literal FFmpeg arguments and persists them without losing filenames.
 class CommandBuilder {
   /// Builds the list of FFmpeg arguments for a given file, format entry, and selected config state.
   static List<String> buildArgs({
@@ -13,6 +14,7 @@ class CommandBuilder {
     required Map<String, String> selectedValues,
     required String outputFilePath,
     required int threadCount,
+    Set<String> configurationKeys = const {},
   }) {
     final args = <String>[];
 
@@ -21,43 +23,45 @@ class CommandBuilder {
         continue;
       }
 
-      final selectedValue = selectedValues[control.name];
+      final selectedValue =
+          selectedValues[control.name] ?? control.defaultValue;
       if (selectedValue == null || selectedValue.isEmpty) {
         continue;
       }
 
-      final ffmpegFlag = control.ffmpegFlag;
-      if (ffmpegFlag == null) {
-        printLog(
-          '[CommandBuilder]: FFmpeg flag not found. Adding arg directly: $args',
-        );
-        _addValue(args, selectedValue);
-        continue;
+      final selectedOptions = control.type == .multiChoice
+          ? _decodeArray(selectedValue) ?? const <String>[]
+          : [selectedValue];
+      for (final option in control.options) {
+        if (!selectedOptions.contains(option.value)) {
+          continue;
+        }
+        if (option.ffmpegArg case final String argument) {
+          _addValue(args, argument);
+        } else if (control.ffmpegFlag case final String flag) {
+          if (_decodeArray(option.value) != null) {
+            _addValue(args, option.value);
+          } else {
+            args.addAll([flag, option.value]);
+          }
+        } else if (!configurationKeys.contains(option.value)) {
+          _addValue(args, option.value);
+        }
       }
-
-      printLog(
-        '[CommandBuilder]: Adding flag and arg: $ffmpegFlag $selectedValue',
-      );
-      args.add(ffmpegFlag);
-      _addValue(args, selectedValue);
-      continue;
     }
 
     return [
       '-i',
-      '"$inputFilePath"',
+      inputFilePath,
       '-hide_banner',
       ...args,
-      if (formatEntry.shouldAddToArgs) '-f ${formatEntry.name}',
-      ?switch (threadCount) {
-        final int count when count > 0 => '-threads $threadCount',
-        _ => null,
-      },
-      '"$outputFilePath"',
+      if (formatEntry.shouldAddToArgs) ...['-f', formatEntry.name],
+      if (threadCount > 0) ...['-threads', '$threadCount'],
+      outputFilePath,
     ];
   }
 
-  /// Builds the full FFmpeg command string for a given file, format entry, and selected config state.
+  /// Serializes arguments so quotes, spaces, and Unicode paths survive storage.
   static String buildCommand({
     required String inputFilePath,
     required FormatEntry formatEntry,
@@ -65,6 +69,7 @@ class CommandBuilder {
     required String outputFilePath,
     required List<ConfigControl> availableControls,
     required int threadCount,
+    Set<String> configurationKeys = const {},
   }) {
     final args = buildArgs(
       inputFilePath: inputFilePath,
@@ -73,8 +78,21 @@ class CommandBuilder {
       availableControls: availableControls,
       threadCount: threadCount,
       outputFilePath: outputFilePath,
+      configurationKeys: configurationKeys,
     );
-    return args.join(' ');
+    return jsonEncode(args);
+  }
+
+  /// Reads new argument arrays and legacy commands from existing job history.
+  static List<String> parseCommand(String command) {
+    if (command.trimLeft().startsWith('[')) {
+      final decoded = jsonDecode(command);
+      if (decoded is! List || decoded.any((value) => value is! String)) {
+        throw const FormatException('Invalid conversion arguments');
+      }
+      return decoded.cast<String>();
+    }
+    return FFmpegKitConfig.parseArguments(command);
   }
 
   /// Utility to get the output file name for a given input file and format entry.
@@ -108,12 +126,19 @@ class CommandBuilder {
   }
 
   static void _addValue(List<String> args, String value) {
-    try {
-      final valueAsList = List<String>.from(jsonDecode(value));
-      args.addAll(valueAsList);
-      return;
-    } catch (_) {}
+    final values = _decodeArray(value) ?? [value];
+    for (final argument in values) {
+      args.addAll(FFmpegKitConfig.parseArguments(argument));
+    }
+  }
 
-    args.add(value);
+  static List<String>? _decodeArray(String value) {
+    try {
+      final decoded = jsonDecode(value);
+      if (decoded is List && decoded.every((element) => element is String)) {
+        return decoded.cast<String>();
+      }
+    } catch (_) {}
+    return null;
   }
 }

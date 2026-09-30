@@ -308,6 +308,7 @@ class JobMakerViewModel({
         availableControls: controls,
         outputFilePath: outputFilePath,
         threadCount: SettingsBox().threadCount,
+        configurationKeys: _configControls.keys.toSet(),
       );
 
       final now = DateTime.now();

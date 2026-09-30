@@ -50,8 +50,8 @@ class FfmpegJobRunnerService implements JobRunnerService {
       ),
     );
 
-    final session = await FFmpegKit.executeAsync(
-      job.command,
+    final session = await FFmpegKit.executeWithArgumentsAsync(
+      CommandBuilder.parseCommand(job.command),
       (session) async {
         final state = await session.getState();
         final exitCode = await session.getReturnCode();
