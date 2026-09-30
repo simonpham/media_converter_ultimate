@@ -7,7 +7,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:platform_utils/platform_utils.dart'
-    show DirectFileService, FFmpegKit, FFprobeKit, FileService, ReturnCode;
+    show
+        DirectFileService,
+        FFmpegKit,
+        FFprobeKit,
+        FileService,
+        ReturnCode,
+        SessionState;
 
 /// Runs against the bundled Android engine, rather than the host FFmpeg CLI.
 void main() {
@@ -245,6 +251,67 @@ void main() {
     );
     expect(await File(output).exists(), isFalse);
   });
+
+  testWidgets(
+    'the runner confirms immediate cancellation and shares requests',
+    (_) async {
+      final runner = FfmpegJobRunnerService();
+      final updates = <ConvertJob>[];
+      final subscription = runner.onJobUpdate.listen(updates.add);
+      try {
+        for (var iteration = 0; iteration < 5; iteration++) {
+          final completed = Completer<void>();
+          final session = await FFmpegKit.executeWithArgumentsAsync([
+            '-re',
+            '-f',
+            'lavfi',
+            '-i',
+            'sine=duration=60',
+            '-f',
+            'null',
+            '-',
+          ], (_) => completed.complete());
+          final now = DateTime.now();
+          final job = ConvertJob(
+            id: 'native_cancel_$iteration',
+            inputFilePath: audio,
+            outputFileName: 'cancel.mp3',
+            outputExtension: 'mp3',
+            outputDirectoryPath: directory.path,
+            command: '[]',
+            convertedFilePath: '${directory.path}/cancel.mp3',
+            createdAt: now,
+            updatedAt: now,
+            sessionId: session.getSessionId(),
+            status: .running,
+          );
+          final first = runner.stop(job);
+          final second = runner.stop(job);
+          expect(identical(first, second), isTrue);
+          expect(await Future.wait([first, second]), [true, true]);
+          await completed.future.timeout(const Duration(seconds: 15));
+          expect(await session.getState(), SessionState.completed);
+          expect(ReturnCode.isCancel(await session.getReturnCode()), isTrue);
+          expect(
+            await runner.getStatus('${session.getSessionId()}'),
+            JobStatus.cancelled,
+          );
+          await Future<void>.delayed(Duration.zero);
+          expect(
+            updates.where((update) => update.id == job.id).single.status,
+            JobStatus.cancelled,
+          );
+          expect(
+            await runner.stop(job.copyWith(sessionId: const .new(999999))),
+            isFalse,
+          );
+          expect(updates.where((update) => update.id == job.id), hasLength(1));
+        }
+      } finally {
+        await subscription.cancel();
+      }
+    },
+  );
 
   testWidgets('native failure and cancellation retain return codes', (_) async {
     final failed = await FFmpegKit.executeWithArguments([

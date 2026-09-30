@@ -61,6 +61,21 @@ void main() {
   );
 
   test(
+    'a stale stop action cannot cancel a new attempt or completed output',
+    () async {
+      await model.addJobs([job('first')]);
+      final original = storage.jobs['first']!;
+      storage.jobs['first'] = original.copyWith(sessionId: const Some(2));
+      await model.removeRunningJob(original);
+      expect(runner.stopped, isEmpty);
+      final current = storage.jobs['first']!;
+      storage.jobs['first'] = current.copyWith(status: const Some(.completed));
+      await model.removeRunningJob(current);
+      expect(runner.stopped, isEmpty);
+    },
+  );
+
+  test(
     'restart joins the queue while another conversion uses the slot',
     () async {
       await model.addJobs([job('first')]);

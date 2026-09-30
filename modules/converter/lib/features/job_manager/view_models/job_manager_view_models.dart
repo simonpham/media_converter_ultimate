@@ -64,13 +64,15 @@ class JobManagerViewModel extends ChangeNotifier {
   }
 
   Future<void> removeRunningJob(ConvertJob job) async {
-    final sessionId = job.sessionId;
-    if (sessionId == null) {
-      printLog('[JobManagerViewModel]: Session id is null');
+    final currentJob = await _jobStorage.get(job.id);
+    if (currentJob == null ||
+        !currentJob.status.isProcessing ||
+        currentJob.sessionId != job.sessionId ||
+        currentJob.sessionId == null) {
       return;
     }
 
-    await _jobRunnerService.stop(job);
+    await _jobRunnerService.stop(currentJob);
   }
 
   Future<void> runJob(ConvertJob job) async {

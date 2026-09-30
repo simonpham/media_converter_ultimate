@@ -20,6 +20,7 @@ class FfmpegJobRunnerService implements JobRunnerService {
   final StreamController<ConvertJob> _jobController =
       StreamController.broadcast();
   final StreamController<JobLog> _logController = StreamController.broadcast();
+  final _stoppingSessions = <int, Future<bool>>{};
 
   @override
   Stream<ConvertJob> get onJobUpdate => _jobController.stream;
@@ -128,11 +129,18 @@ class FfmpegJobRunnerService implements JobRunnerService {
   }
 
   @override
-  Future<bool> stop(ConvertJob job) async {
-    if (job.sessionId == null) {
-      return false;
-    }
+  Future<bool> stop(ConvertJob job) {
+    final sessionId = job.sessionId;
+    if (sessionId == null) return Future.value(false);
+    return _stoppingSessions.putIfAbsent(
+      sessionId,
+      () => _stopSession(job).whenComplete(() {
+        _stoppingSessions.remove(sessionId);
+      }),
+    );
+  }
 
+  Future<bool> _stopSession(ConvertJob job) async {
     try {
       final sessions = await FFmpegKit.listSessions();
       if (sessions.isEmpty) {
@@ -148,29 +156,27 @@ class FfmpegJobRunnerService implements JobRunnerService {
       );
       if (session == null) {
         printLog(
-          '[JobRunnerService]: Session ${job.sessionId} not found. Cancel anyway.',
-        );
-        _jobController.add(
-          job.copyWith(
-            status: const Some(JobStatus.cancelled),
-          ),
+          '[JobRunnerService]: Session ${job.sessionId} not found.',
         );
         return false;
       }
 
-      await session.cancel();
+      final status = await NativeSessionCancellation.cancel(
+        readState: session.getState,
+        readReturnCode: session.getReturnCode,
+        requestCancel: session.cancel,
+      );
 
       _jobController.add(
         job.copyWith(
-          status: const Some(JobStatus.cancelled),
+          status: Some(status),
         ),
       );
+      return status == .cancelled;
     } catch (err, trace) {
       printError(err, trace);
       return false;
     }
-
-    return true;
   }
 
   @override
