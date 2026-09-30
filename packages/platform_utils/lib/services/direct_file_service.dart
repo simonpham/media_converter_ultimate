@@ -280,10 +280,15 @@ class DirectFileService implements FileService {
 
   @override
   Future<String?> getFileMimeType(File file) async {
-    final headerBytes = await file
-        .openRead(0, defaultMagicNumbersMaxLength)
-        .first;
-    return lookupMimeType(file.path, headerBytes: headerBytes);
+    try {
+      final headerBytes = await file
+          .openRead(0, defaultMagicNumbersMaxLength)
+          .fold<List<int>>([], (bytes, chunk) => bytes..addAll(chunk));
+      return lookupMimeType(file.path, headerBytes: headerBytes);
+    } on FileSystemException catch (error, trace) {
+      printError(error, trace);
+      return null;
+    }
   }
 
   @override

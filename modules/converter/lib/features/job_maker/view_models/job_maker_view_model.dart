@@ -13,6 +13,9 @@ class JobMakerViewModel({
 
   List<File> _selectedFiles = [];
   List<File> get selectedFiles => _selectedFiles;
+  final _fileContentTypes = <String, FileContentType>{};
+  FileContentType fileContentType(File file) =>
+      _fileContentTypes[file.path] ?? .other;
 
   List<File> _excludedFiles = [];
   List<File> get excludedFiles => _excludedFiles;
@@ -186,26 +189,29 @@ class JobMakerViewModel({
     final shouldExcludeNonMediaFiles = SettingsBox().shouldExcludeNonMediaFiles;
     final isCheckingCustomExtensions = shouldExcludeNonMediaFiles == false;
     final excludedFileExtensions = SettingsBox().excludedFileExtensions;
-    final clone = [
-      ..._selectedFiles,
-    ];
-    final List<File> excludedFilesClone = [
-      ..._excludedFiles,
-    ];
-    final selectedPaths = clone.map((e) => e.path).toSet();
+    final accepted = <File>[];
+    final excluded = <File>[];
+    final contentTypes = <String, FileContentType>{};
+    final selectedPaths = _selectedFiles.map((file) => file.path).toSet();
     for (final file in files) {
       if (selectedPaths.contains(file.path)) {
         continue;
       }
       final fileExtension = file.fileExtension;
+      FileContentType contentType;
+      try {
+        contentType = .fromMimeType(await _fileService.getFileMimeType(file));
+      } catch (error, trace) {
+        printError(error, trace);
+        contentType = .other;
+      }
 
       /// Check file mime type for non-media files.
-      if (shouldExcludeNonMediaFiles &&
-          !(await _fileService.isMediaFile(file))) {
+      if (shouldExcludeNonMediaFiles && contentType == .other) {
         printLog(
           '[FilePicker]: File ${file.path} mime type is not media: $fileExtension. Skipping.',
         );
-        excludedFilesClone.add(file);
+        excluded.add(file);
         continue;
       }
 
@@ -215,18 +221,33 @@ class JobMakerViewModel({
         printLog(
           '[FilePicker]: File ${file.path} extension is excluded: $fileExtension. Skipping.',
         );
-        excludedFilesClone.add(file);
+        excluded.add(file);
         continue;
       }
 
       selectedPaths.add(file.path);
-      clone.add(file);
+      accepted.add(file);
+      contentTypes[file.path] = contentType;
     }
     if (_isDisposed) {
       return;
     }
-    _selectedFiles = clone;
-    _excludedFiles = excludedFilesClone;
+    // Reconcile with current state after asynchronous detection. Another pick
+    // or removal may have completed while this request was reading headers.
+    final currentPaths = _selectedFiles.map((file) => file.path).toSet();
+    _selectedFiles = [
+      ..._selectedFiles,
+      for (final file in accepted)
+        if (currentPaths.add(file.path)) file,
+    ];
+    final excludedPaths = _excludedFiles.map((file) => file.path).toSet();
+    _excludedFiles = [
+      ..._excludedFiles,
+      for (final file in excluded)
+        if (!currentPaths.contains(file.path) && excludedPaths.add(file.path))
+          file,
+    ];
+    _fileContentTypes.addAll(contentTypes);
     notifyListeners();
     refreshOutputFileNames();
   }
@@ -236,6 +257,7 @@ class JobMakerViewModel({
       ..._selectedFiles,
     ];
     clone.removeWhere((e) => e.path == file.path);
+    _fileContentTypes.remove(file.path);
     _selectedFiles = clone;
     notifyListeners();
     refreshOutputFileNames();

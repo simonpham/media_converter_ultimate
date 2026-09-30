@@ -103,6 +103,25 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets(
+    'a vanished file renders its cached icon without filesystem access',
+    (tester) async {
+      await showPicker(
+        tester,
+        content: FileItem(
+          File('/missing/vanished.wav'),
+          contentType: .audio,
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(
+        tester.widget<FileIcon>(find.byType(FileIcon)).type,
+        FileContentType.audio,
+      );
+      expect(find.text('vanished.wav'), findsOneWidget);
+    },
+  );
+
   testWidgets('selecting a preset updates settings and selection semantics', (
     tester,
   ) async {

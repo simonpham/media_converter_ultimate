@@ -168,6 +168,9 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                               ),
                               child: FileItem(
                                 file,
+                                contentType: context
+                                    .read<JobMakerViewModel>()
+                                    .fileContentType(file),
                                 leading: ImageView(
                                   Assets.verticalDragDrop,
                                   size: Spacing.d20,

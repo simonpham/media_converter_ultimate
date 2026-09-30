@@ -1,20 +1,18 @@
 import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
-import 'package:platform_utils/platform_utils.dart';
 import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 class const FileIcon(
-  final File file, {
+  final FileContentType type, {
   super.key,
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final FileContentType type = .fromFile(file);
     return ImageView(
       getFileIcon(type),
       size: Spacing.d24,
-      color: getFileIconColor(context, type),
+      color: context.theme.colorScheme.onSurface,
     );
   }
 
@@ -23,14 +21,6 @@ class const FileIcon(
       .audio => Assets.fileAudio,
       .video => Assets.fileVideo,
       _ => Assets.file02,
-    };
-  }
-
-  Color getFileIconColor(BuildContext context, FileContentType type) {
-    return switch (type) {
-      .audio => Colors.green,
-      .video => Colors.blue,
-      _ => context.theme.colorScheme.onSurface,
     };
   }
 }

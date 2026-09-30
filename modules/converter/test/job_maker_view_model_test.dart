@@ -73,6 +73,39 @@ void main() {
   );
 
   test(
+    'overlapping picks merge without restoring a file removed during detection',
+    () async {
+      final removed = File('/input/removed.wav');
+      await model.addFiles([removed]);
+      final gate = Completer<String?>();
+      files.delayedMimeTypes['/input/slow.mp4'] = gate.future;
+      final slow = model.addFiles([File('/input/slow.mp4')]);
+      await model.addFiles([File('/input/fast.wav')]);
+      model.removeFile(removed);
+      gate.complete('video/mp4');
+      await slow;
+      expect(model.selectedFiles.map((file) => file.path), [
+        '/input/fast.wav',
+        '/input/slow.mp4',
+      ]);
+      expect(
+        model.fileContentType(File('/input/slow.mp4')),
+        FileContentType.video,
+      );
+      expect(model.fileContentType(removed), FileContentType.other);
+    },
+  );
+
+  test('missing MIME information safely excludes an unreadable file', () async {
+    final file = File('/input/deleted.wav');
+    files.delayedMimeTypes[file.path] = Future.value(null);
+    await model.addFiles([file]);
+    expect(model.selectedFiles, isEmpty);
+    expect(model.excludedFiles.map((file) => file.path), [file.path]);
+    expect(model.fileContentType(file), FileContentType.other);
+  });
+
+  test(
     'selecting a format populates output names without mutating a const map',
     () async {
       await model.addFiles([File('/input/song.wav')]);
@@ -284,6 +317,7 @@ class FakeJobConfigurationData implements JobConfigurationData {
 class FakeFileService implements FileService {
   final existingOutputs = <String>{};
   final delayedOutputs = <String, Future<bool>>{};
+  final delayedMimeTypes = <String, Future<String?>>{};
   final preparedInputs = <String>[];
   final cachePaths = <String>[];
   Completer<void>? preparationGate;
@@ -293,6 +327,10 @@ class FakeFileService implements FileService {
 
   @override
   Future<bool> isMediaFile(File file) async => true;
+
+  @override
+  Future<String?> getFileMimeType(File file) async =>
+      delayedMimeTypes[file.path] ?? 'audio/wav';
 
   @override
   Future<bool> isFileExist(String path) async {

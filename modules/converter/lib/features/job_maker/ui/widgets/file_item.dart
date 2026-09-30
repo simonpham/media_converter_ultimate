@@ -7,6 +7,7 @@ import 'package:sofluffy_ui/sofluffy_ui.dart';
 class const FileItem(
   final File file, {
   super.key,
+  final FileContentType contentType = .other,
   final Widget? leading,
   final VoidCallback? onRemove,
 }) extends StatelessWidget {
@@ -30,7 +31,7 @@ class const FileItem(
             leading,
             Spacing.h8,
           ],
-          FileIcon(file),
+          FileIcon(contentType),
           Spacing.h8,
           Expanded(
             child: Text(

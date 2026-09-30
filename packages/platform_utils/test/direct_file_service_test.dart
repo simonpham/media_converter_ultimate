@@ -32,6 +32,36 @@ void main() {
   });
 
   test(
+    'MIME detection handles missing, empty, and short media files',
+    () async {
+      final missing = File('${temporaryDirectory.path}/missing.wav');
+      expect(await service.getFileMimeType(missing), isNull);
+      expect(await service.isMediaFile(missing), isFalse);
+      final empty = File('${temporaryDirectory.path}/empty.txt');
+      await empty.writeAsBytes([]);
+      expect(await service.getFileMimeType(empty), 'text/plain');
+      expect(await service.isMediaFile(empty), isFalse);
+      final wave = File('${temporaryDirectory.path}/audio.unknown');
+      await wave.writeAsBytes([
+        0x52,
+        0x49,
+        0x46,
+        0x46,
+        0,
+        0,
+        0,
+        0,
+        0x57,
+        0x41,
+        0x56,
+        0x45,
+      ]);
+      expect(await service.getFileMimeType(wave), 'audio/x-wav');
+      expect(await service.isMediaFile(wave), isTrue);
+    },
+  );
+
+  test(
     'failed exports can save and reuse a recovery copy without losing bytes',
     () async {
       final original = File('${temporaryDirectory.path}/song.mp3');
