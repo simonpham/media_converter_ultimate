@@ -1,6 +1,16 @@
 {
   "gif": [
     {
+      "type": "single_choice",
+      "name": "configs.gif.video_stream",
+      "is_visible": false,
+      "should_add_to_args": true,
+      "default": "-map 0:V:0 -an -sn",
+      "options": [
+        { "label": "", "value": "-map 0:V:0 -an -sn" }
+      ]
+    },
+    {
       "type": "dropdown",
       "name": "configs.gif.framerate",
       "label": "configs.common.framerate.label",

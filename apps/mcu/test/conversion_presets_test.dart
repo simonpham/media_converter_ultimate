@@ -324,6 +324,61 @@ void main() {
     },
   );
 
+  test(
+    'GIF converts video with audio using only the first video track',
+    () async {
+      final directory = await Directory.systemTemp.createTemp('mcu-gif-');
+      addTearDown(() => directory.delete(recursive: true));
+      final source = '${directory.path}/source.mkv';
+      final output = '${directory.path}/output.gif';
+      await runFfmpeg([
+        '-f',
+        'lavfi',
+        '-i',
+        'testsrc2=size=128x96:rate=8:duration=0.5',
+        '-f',
+        'lavfi',
+        '-i',
+        'sine=duration=0.5',
+        '-c:v',
+        'libx264',
+        '-c:a',
+        'pcm_s16le',
+        source,
+      ]);
+      await model.setSelectedFormatEntry(
+        model.formatConfigModel.formats.firstWhere(
+          (format) => format.name == 'gif',
+        ),
+      );
+      await runFfmpeg(
+        CommandBuilder.buildArgs(
+          inputFilePath: source,
+          formatEntry: model.selectedFormatEntry!,
+          availableControls: model.availableControls,
+          selectedValues: model.selectedValues,
+          outputFilePath: output,
+          threadCount: 1,
+          configurationKeys: model.configControls.keys.toSet(),
+        ),
+      );
+      final probe = await Process.run('ffprobe', [
+        '-v',
+        'error',
+        '-show_streams',
+        '-of',
+        'json',
+        output,
+      ]);
+      expect(probe.exitCode, 0, reason: probe.stderr.toString());
+      final streams = (jsonDecode(probe.stdout as String)['streams'] as List)
+          .cast<Map<String, dynamic>>();
+      expect(streams, hasLength(1));
+      expect(streams.single['codec_name'], 'gif');
+      expect(streams.single['codec_type'], 'video');
+    },
+  );
+
   test('video trim keeps matching audio and video durations', () async {
     final directory = await Directory.systemTemp.createTemp('mcu-video-trim-');
     addTearDown(() => directory.delete(recursive: true));
