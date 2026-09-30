@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:converter/converter.dart';
 import 'package:flutter/foundation.dart';
@@ -63,7 +62,11 @@ class JobMakerViewModel({
   void setSelectedValue(String name, String value) {
     final clone = {..._selectedValues};
     clone[name] = value;
-    _selectedValues = clone;
+    _selectedValues = ConfigurationSelection.normalizeValues(
+      groups: _configControls,
+      roots: _rootConfigKeys,
+      overrides: clone,
+    );
     notifyListeners();
   }
 
@@ -205,13 +208,11 @@ class JobMakerViewModel({
 
     // Initialize selected config state to defaults.
     // Then overwrite with last known configurations.
-    _selectedValues = {
-      ..._getDefaultConfigValue(
-        _configControls,
-        formatEntry,
-      ),
-      ...formatEntry.lastKnownConfigurations,
-    };
+    _selectedValues = ConfigurationSelection.normalizeValues(
+      groups: _configControls,
+      roots: _rootConfigKeys,
+      overrides: formatEntry.lastKnownConfigurations,
+    );
     notifyListeners();
   }
 
@@ -220,12 +221,10 @@ class JobMakerViewModel({
     if (formatEntry == null) {
       return;
     }
-    _selectedValues = {
-      ..._getDefaultConfigValue(
-        _configControls,
-        formatEntry,
-      ),
-    };
+    _selectedValues = ConfigurationSelection.normalizeValues(
+      groups: _configControls,
+      roots: _rootConfigKeys,
+    );
     notifyListeners();
   }
 
@@ -433,89 +432,31 @@ class JobMakerViewModel({
     return null;
   }
 
-  Map<String, String> _getDefaultConfigValue(
-    Map<String, List<ConfigControl>> configControls,
-    FormatEntry formatEntry,
-  ) {
-    final Map<String, String> defaultValues = {};
-    for (final entry in configControls.entries) {
-      final configControls = entry.value;
-      for (final configControl in configControls) {
-        final defaultValue = configControl.defaultValue;
-        if (defaultValue == null) {
-          continue;
-        }
-        defaultValues[configControl.name] = defaultValue;
-      }
-    }
-    return defaultValues;
-  }
-
-  List<ConfigControl> get availableControls {
+  List<String> get _rootConfigKeys {
     final selectedFormat = _selectedFormatEntry;
     if (selectedFormat == null) {
-      return [];
+      return const [];
     }
-
-    final configControls = _configControls;
-    final selectedValues = _selectedValues;
-    final List<String> selectedKeys = [];
-    for (final value in selectedValues.values) {
-      try {
-        final valueAsList = List<String>.from(jsonDecode(value));
-        selectedKeys.addAll(valueAsList);
-        continue;
-      } catch (_) {}
-      selectedKeys.add(value);
-    }
-
     final shouldAddCommonConfigs = !kSingleStreamFormats.contains(
       selectedFormat.name,
     );
-    final List<String> keys = [
+    return [
       selectedFormat.name,
-      ?switch (selectedFormat.outputType) {
-        OutputType.audio when shouldAddCommonConfigs => kCommonAudioKey,
-        OutputType.video when shouldAddCommonConfigs => kCommonVideoKey,
-        _ => null,
-      },
+      if (shouldAddCommonConfigs)
+        ...switch (selectedFormat.outputType) {
+          OutputType.audio => [kCommonAudioKey],
+          OutputType.video => [kCommonVideoKey],
+          _ => const <String>[],
+        },
     ];
-
-    printLog('selectedValues: $selectedValues');
-    printLog('Config controls: ${configControls.keys}');
-    printLog('Keys: $keys');
-
-    final List<ConfigControl> controls = [];
-    for (final key in keys) {
-      final controlsOfKey = configControls[key];
-      if (controlsOfKey is! List<ConfigControl>) {
-        continue;
-      }
-      for (final control in controlsOfKey) {
-        printLog('Adding control 1: ${control.name} of key: $key');
-        controls.add(control);
-
-        for (final option in control.options) {
-          final value = option.value;
-          if (!selectedKeys.contains(value)) {
-            continue;
-          }
-
-          final controlOfValue = configControls[value];
-          if (controlOfValue is! List<ConfigControl>) {
-            continue;
-          }
-
-          printLog('Adding control 2: ${control.name} of key: $value');
-          controls.addAll(controlOfValue);
-        }
-      }
-    }
-
-    printLog('Controls: ${controls.map((e) => e.name)}');
-
-    return controls;
   }
+
+  List<ConfigControl> get availableControls =>
+      ConfigurationSelection.resolveControls(
+        groups: _configControls,
+        roots: _rootConfigKeys,
+        selectedValues: _selectedValues,
+      );
 
   void reorderFile(int oldIndex, int newIndex) {
     final clone = [..._selectedFiles];
@@ -541,13 +482,11 @@ class JobMakerViewModel({
     if (formatEntry == null) {
       return;
     }
-    _selectedValues = {
-      ..._getDefaultConfigValue(
-        _configControls,
-        formatEntry,
-      ),
-      ...formatEntry.lastKnownConfigurations,
-    };
+    _selectedValues = ConfigurationSelection.normalizeValues(
+      groups: _configControls,
+      roots: _rootConfigKeys,
+      overrides: formatEntry.lastKnownConfigurations,
+    );
     notifyListeners();
   }
 }
