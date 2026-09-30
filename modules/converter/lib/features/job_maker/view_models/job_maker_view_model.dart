@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:converter/converter.dart';
@@ -5,16 +6,11 @@ import 'package:flutter/foundation.dart';
 import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
 
-class JobMakerViewModel extends ChangeNotifier {
+class JobMakerViewModel({
+  required final FormatConfigModel formatConfigModel,
+  required final Map<String, String?> translations,
+}) extends ChangeNotifier {
   FileService get _fileService => injector<FileService>();
-
-  final FormatConfigModel formatConfigModel;
-  final Map<String, String?> translations;
-
-  JobMakerViewModel({
-    required this.formatConfigModel,
-    required this.translations,
-  });
 
   List<File> _selectedFiles = [];
   List<File> get selectedFiles => _selectedFiles;
@@ -32,6 +28,15 @@ class JobMakerViewModel extends ChangeNotifier {
 
   Map<String, Failure> _errorPaths = {};
   Map<String, Failure> get errorPaths => _errorPaths;
+  int _pathValidationRevision = 0;
+  bool _isDisposed = false;
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    _pathValidationRevision++;
+    super.dispose();
+  }
 
   FormatEntry? get selectedFormatEntry => _selectedFormatEntry;
 
@@ -84,8 +89,11 @@ class JobMakerViewModel extends ChangeNotifier {
     final List<File> excludedFilesClone = [
       ..._excludedFiles,
     ];
-    final List<String> selectedPaths = clone.map((e) => e.path).toList();
+    final selectedPaths = clone.map((e) => e.path).toSet();
     for (final file in files) {
+      if (selectedPaths.contains(file.path)) {
+        continue;
+      }
       final fileExtension = file.fileExtension;
 
       /// Check file mime type for non-media files.
@@ -108,10 +116,11 @@ class JobMakerViewModel extends ChangeNotifier {
         continue;
       }
 
-      if (selectedPaths.contains(file.path)) {
-        continue;
-      }
+      selectedPaths.add(file.path);
       clone.add(file);
+    }
+    if (_isDisposed) {
+      return;
     }
     _selectedFiles = clone;
     _excludedFiles = excludedFilesClone;
@@ -131,54 +140,38 @@ class JobMakerViewModel extends ChangeNotifier {
 
   void refreshOutputFileNames() {
     final formatEntry = _selectedFormatEntry;
-    if (formatEntry == null) {
-      return;
-    }
-
-    for (final file in _selectedFiles) {
-      final filePath = file.path;
-      if (_outputFileNames.containsKey(filePath)) {
-        continue;
-      }
-      final outputFileName = CommandBuilder.getOutputFileName(
-        inputFilePath: filePath,
-        formatEntry: formatEntry,
-      );
-      _outputFileNames[filePath] = outputFileName;
-    }
-
-    final clone = {
-      ..._outputFileNames,
+    _outputFileNames = {
+      for (final file in _selectedFiles)
+        file.path:
+            _outputFileNames[file.path] ??
+            (formatEntry == null
+                ? null
+                : CommandBuilder.getOutputFileName(
+                    inputFilePath: file.path,
+                    formatEntry: formatEntry,
+                  )),
     };
-    for (final entry in clone.entries) {
-      final filePath = entry.key;
-      final fileName = entry.value;
-      if (fileName != null) {
-        continue;
-      }
-      final outputFileName = CommandBuilder.getOutputFileName(
-        inputFilePath: filePath,
-        formatEntry: formatEntry,
-      );
-      clone[filePath] = outputFileName;
-    }
-    _outputFileNames = clone;
     notifyListeners();
-
-    _validateSelectedPaths();
+    unawaited(_validateSelectedPaths());
   }
 
   Future<void> _validateSelectedPaths() async {
+    final revision = ++_pathValidationRevision;
     final selectedPaths = {..._outputFileNames};
     final formatEntry = _selectedFormatEntry;
     final outputDirectoryPath = _outputDirectoryPath;
     if (formatEntry == null || outputDirectoryPath == null) {
+      _errorPaths = {};
+      notifyListeners();
       return;
     }
     final errorPaths = await findInvalidPaths(
       selectedPaths: selectedPaths,
       outputDirectoryPath: outputDirectoryPath,
     );
+    if (_isDisposed || revision != _pathValidationRevision) {
+      return;
+    }
     _errorPaths = errorPaths;
     notifyListeners();
   }
@@ -190,7 +183,11 @@ class JobMakerViewModel extends ChangeNotifier {
     _selectedFormatEntry = formatEntry;
     notifyListeners();
     await _loadConfigModel();
+    if (_isDisposed || _selectedFormatEntry != formatEntry) {
+      return;
+    }
     _initOutputConfig();
+    refreshOutputFileNames();
   }
 
   void _initOutputConfig() {
@@ -240,14 +237,25 @@ class JobMakerViewModel extends ChangeNotifier {
     final configControls = await formatConfigModel.loadConfigControls(
       formatEntry,
     );
+    if (_isDisposed || _selectedFormatEntry != formatEntry) {
+      return;
+    }
     _configControls = configControls;
     notifyListeners();
   }
 
   Future<List<ConvertJob>> cook() async {
     final formatEntry = _selectedFormatEntry;
-    final selectedValues = _selectedValues;
+    final selectedValues = {..._selectedValues};
     final outputDirectoryPath = _outputDirectoryPath;
+    final controls = availableControls;
+    final outputFileNames = {
+      for (final file in _selectedFiles) file.path: _outputFileNames[file.path],
+    };
+
+    if (outputFileNames.isEmpty) {
+      throw const NoFilesSelectedFailure();
+    }
 
     if (formatEntry == null) {
       throw const NoOutputFormatFailure();
@@ -260,7 +268,6 @@ class JobMakerViewModel extends ChangeNotifier {
     final convertTempFolder = await _fileService.getConvertTemporaryDirectory(
       null,
     );
-    final outputFileNames = {..._outputFileNames};
     final errorPaths = await findInvalidPaths(
       selectedPaths: outputFileNames,
       outputDirectoryPath: outputDirectoryPath,
@@ -298,7 +305,7 @@ class JobMakerViewModel extends ChangeNotifier {
         inputFilePath: newInputFilePath,
         formatEntry: formatEntry,
         selectedValues: selectedValues,
-        availableControls: availableControls,
+        availableControls: controls,
         outputFilePath: outputFilePath,
         threadCount: SettingsBox().threadCount,
       );
@@ -340,7 +347,8 @@ class JobMakerViewModel extends ChangeNotifier {
 
       /// Check if file name is set.
       if (fileName == null) {
-        throw Exception('File name is null');
+        errorPaths[filePath] = FileNameIsNotSetFailure(filePath);
+        continue;
       }
 
       /// Check for input file existence.
@@ -352,8 +360,7 @@ class JobMakerViewModel extends ChangeNotifier {
 
       /// Check for output file existence.
       final formatEntry = _selectedFormatEntry;
-      final outputDirectoryPath = _outputDirectoryPath;
-      if (formatEntry != null && outputDirectoryPath != null) {
+      if (formatEntry != null) {
         final outputFilePath = CommandBuilder.getOutputFilePath(
           inputFilePath: filePath,
           formatEntry: formatEntry,
@@ -514,15 +521,18 @@ class JobMakerViewModel extends ChangeNotifier {
     final file = clone.removeAt(oldIndex);
     clone.insert(newIndex, file);
     _selectedFiles = clone;
-    notifyListeners();
+    refreshOutputFileNames();
   }
 
   void setOutputFileName(String path, String newName) {
+    if (!_selectedFiles.any((file) => file.path == path)) {
+      return;
+    }
     final clone = {..._outputFileNames};
     clone[path] = newName;
     _outputFileNames = clone;
     notifyListeners();
-    _validateSelectedPaths();
+    unawaited(_validateSelectedPaths());
   }
 
   void loadPreviousConfigurations() {

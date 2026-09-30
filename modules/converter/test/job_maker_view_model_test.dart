@@ -1,0 +1,210 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:converter/converter.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:platform_utils/platform_utils.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  const mp3 = FormatEntry(
+    name: 'mp3',
+    outputExtension: 'mp3',
+    outputType: .audio,
+    shouldAddToArgs: true,
+  );
+  const mp4 = FormatEntry(
+    name: 'mp4',
+    outputExtension: 'mp4',
+    outputType: .video,
+    shouldAddToArgs: true,
+  );
+
+  late FakeFileService files;
+  late JobMakerViewModel model;
+
+  setUp(() {
+    files = FakeFileService();
+    injector.registerSingleton<SettingsBox>(FakeSettingsBox());
+    injector.registerSingleton<JobConfigurationData>(
+      FakeJobConfigurationData(),
+    );
+    injector.registerSingleton<FileService>(files);
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMessageHandler('flutter/assets', (_) async {
+      return ByteData.sublistView(Uint8List.fromList(utf8.encode('{}')));
+    });
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      (_) async => '/cache',
+    );
+    model = JobMakerViewModel(
+      formatConfigModel: const FormatConfigModel(
+        formats: [mp3, mp4],
+        uiGradients: {},
+      ),
+      translations: const {},
+    );
+  });
+
+  tearDown(() async {
+    model.dispose();
+    await injector.reset();
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMessageHandler('flutter/assets', null);
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      null,
+    );
+  });
+
+  test(
+    'deduplicates repeated files within a picker result and across picks',
+    () async {
+      final song = File('/input/song.wav');
+      await model.addFiles([song, song, File(song.path)]);
+      await model.addFiles([song]);
+      expect(model.selectedFiles.map((file) => file.path), [song.path]);
+    },
+  );
+
+  test(
+    'selecting a format populates output names without mutating a const map',
+    () async {
+      await model.addFiles([File('/input/song.wav')]);
+      await model.setSelectedFormatEntry(mp3);
+      expect(model.outputFileNames, {'/input/song.wav': 'song.mp3'});
+    },
+  );
+
+  test('removed files leave neither output names nor jobs', () async {
+    final removed = File('/input/removed.wav');
+    await model.addFiles([removed, File('/input/kept.wav')]);
+    await model.setSelectedFormatEntry(mp3);
+    model.setOutputDirectoryPath('/output');
+    model.removeFile(removed);
+    expect(model.outputFileNames, {'/input/kept.wav': 'kept.mp3'});
+    final jobs = await model.cook();
+    expect(jobs.map((job) => job.inputFilePath), ['/input/kept.wav']);
+    model.setOutputFileName(removed.path, 'ghost.mp3');
+    expect(model.outputFileNames.containsKey(removed.path), isFalse);
+  });
+
+  test('jobs follow the order chosen in the batch preview', () async {
+    await model.addFiles([File('/input/first.wav'), File('/input/second.wav')]);
+    await model.setSelectedFormatEntry(mp3);
+    model.setOutputDirectoryPath('/output');
+    model.reorderFile(0, 1);
+    final jobs = await model.cook();
+    expect(jobs.map((job) => job.inputFilePath), [
+      '/input/second.wav',
+      '/input/first.wav',
+    ]);
+  });
+
+  test(
+    'changing format replaces extensions and excludes removed files',
+    () async {
+      final removed = File('/input/removed.wav');
+      await model.addFiles([removed, File('/input/kept.wav')]);
+      await model.setSelectedFormatEntry(mp3);
+      model.setOutputFileName('/input/kept.wav', 'custom.mp3');
+      model.removeFile(removed);
+      await model.setSelectedFormatEntry(mp4);
+      expect(model.outputFileNames, {'/input/kept.wav': 'kept.mp4'});
+    },
+  );
+
+  test('rejects an empty batch before preparing jobs', () async {
+    await model.setSelectedFormatEntry(mp3);
+    model.setOutputDirectoryPath('/output');
+    await expectLater(model.cook(), throwsA(isA<NoFilesSelectedFailure>()));
+  });
+
+  test('path validation uses its supplied directory snapshot', () async {
+    await model.addFiles([File('/input/song.wav')]);
+    await model.setSelectedFormatEntry(mp3);
+    model.setOutputDirectoryPath('/new-output');
+    files.existingOutputs.add('/snapshot-output/song.mp3');
+    final failures = await model.findInvalidPaths(
+      selectedPaths: model.outputFileNames,
+      outputDirectoryPath: '/snapshot-output',
+    );
+    expect(failures['/input/song.wav'], isA<OutputFileAlreadyExistsFailure>());
+  });
+
+  test('older validation cannot overwrite a newer rename result', () async {
+    await model.addFiles([File('/input/song.wav')]);
+    await model.setSelectedFormatEntry(mp3);
+    final delayedResult = Completer<bool>();
+    files.delayedOutputs['/output/song.mp3'] = delayedResult.future;
+    model.setOutputDirectoryPath('/output');
+    await Future<void>.delayed(Duration.zero);
+    model.setOutputFileName('/input/song.wav', 'renamed.mp3');
+    await Future<void>.delayed(Duration.zero);
+    expect(model.errorPaths, isEmpty);
+    delayedResult.complete(true);
+    await Future<void>.delayed(Duration.zero);
+    expect(model.errorPaths, isEmpty);
+  });
+
+  test('missing output names produce a typed validation failure', () async {
+    await model.setSelectedFormatEntry(mp3);
+    final failures = await model.findInvalidPaths(
+      selectedPaths: {'/input/song.wav': null},
+      outputDirectoryPath: '/output',
+    );
+    expect(failures['/input/song.wav'], isA<FileNameIsNotSetFailure>());
+  });
+}
+
+class FakeSettingsBox implements SettingsBox {
+  @override
+  dynamic get(dynamic key, {required dynamic defaultValue}) => defaultValue;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class FakeJobConfigurationData implements JobConfigurationData {
+  @override
+  Future<void> onDispose() async {}
+
+  @override
+  dynamic get(dynamic key, {required dynamic defaultValue}) => defaultValue;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class FakeFileService implements FileService {
+  final existingOutputs = <String>{};
+  final delayedOutputs = <String, Future<bool>>{};
+
+  @override
+  Future<bool> isMediaFile(File file) async => true;
+
+  @override
+  Future<bool> isFileExist(String path) async {
+    return delayedOutputs[path] ??
+        (path.startsWith('/input/') || existingOutputs.contains(path));
+  }
+
+  @override
+  Future<Directory> getConvertTemporaryDirectory(String? prefix) async =>
+      Directory('/temporary');
+
+  @override
+  Future<String?> movePickedFileToInputFolder({
+    required String jobId,
+    required String inputFilePath,
+    required String appCachedPath,
+  }) async => inputFilePath;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
