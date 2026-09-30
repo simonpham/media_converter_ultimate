@@ -164,5 +164,21 @@
   "video": "Vídeo",
   "view": "Ver",
   "viewChangelog": "Ver registro de cambios",
-  "zzzItsTheEnd": "del mundo"
+  "zzzItsTheEnd": "del mundo",
+  "quickPresetsTitle": "Ajustes rápidos",
+  "quickPresetsDescription": "Elige una tarea y luego ajusta la configuración.",
+  "presetCompatibleVideo": "Vídeo compatible",
+  "presetCompatibleVideoDescription": "Calidad equilibrada y amplia compatibilidad de reproducción.",
+  "presetSmallerVideo": "Vídeo más pequeño",
+  "presetSmallerVideoDescription": "MP4 con menor calidad. El tamaño final depende del archivo original.",
+  "presetHighQualityVideo": "Vídeo de alta calidad",
+  "presetHighQualityVideoDescription": "MP4 con más detalle y archivos más grandes.",
+  "presetMusicMp3": "Música MP3",
+  "presetMusicMp3Description": "MP3 a 320 kbps, con carátula y la pista completa.",
+  "presetCompactAudio": "Audio compacto",
+  "presetCompactAudioDescription": "M4A a 128 kbps para archivos de audio más pequeños.",
+  "presetLosslessAudio": "Audio sin pérdida",
+  "presetLosslessAudioDescription": "Conserva la calidad del audio en M4A (ALAC). Archivos más grandes.",
+  "searchFormatsHint": "Buscar formatos, p. ej., MP4 o MP3",
+  "noMatchingFormats": "No hay formatos coincidentes."
 }

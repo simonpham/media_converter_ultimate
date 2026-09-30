@@ -1,0 +1,234 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:converter/converter.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mcu/theme_adapter.dart';
+import 'package:sofluffy_ui/sofluffy_ui.dart';
+
+import 'support/conversion_test_support.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  late JobMakerViewModel model;
+  late FluffyThemeData theme;
+
+  setUpAll(() async {
+    final fontPath = Platform.environment['MCU_CAPTURE_FONT'];
+    if (fontPath != null) {
+      final loader = FontLoader('Roboto');
+      loader.addFont(
+        Future.value(ByteData.sublistView(File(fontPath).readAsBytesSync())),
+      );
+      await loader.load();
+    }
+  });
+
+  setUp(() {
+    injector.registerSingleton<SettingsBox>(MemorySettings());
+    injector.registerSingleton<JobConfigurationData>(MemoryConfigurations());
+    installShippedAssetHandler();
+    model = JobMakerViewModel(
+      formatConfigModel: loadShippedFormats(),
+      translations: const {},
+    );
+    theme = FluffyThemeData.fromJson(
+      jsonDecode(
+        File('${findRepository().path}/apps/mcu/assets/themes/default.json')
+            .readAsStringSync(),
+      ),
+    );
+  });
+
+  tearDown(() async {
+    model.dispose();
+    clearShippedAssetHandler();
+    await injector.reset();
+  });
+
+  Future<void> showPicker(
+    WidgetTester tester, {
+    bool isDark = false,
+    double scale = 1,
+    Locale locale = const Locale('en'),
+    Size size = const Size(390, 844),
+    GlobalKey? screenshotKey,
+    Widget? content,
+  }) async {
+    tester.view.physicalSize = size;
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      ChangeNotifierProvider<JobMakerViewModel>.value(
+        value: model,
+        child: MaterialApp(
+          locale: locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: theme.getTheme(isDark: isDark),
+          builder: (context, child) => FluffyTheme(
+            data: theme.copyWith(brightness: isDark ? .dark : .light),
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: .linear(scale)),
+              child: child!,
+            ),
+          ),
+          home: RepaintBoundary(
+            key: screenshotKey,
+            child: Scaffold(
+              appBar: AppBar(
+                title: Builder(
+                  builder: (context) => Text(
+                    content == null
+                        ? context.l10n.chooseOutputFormat
+                        : context.l10n.customizeConfigs,
+                  ),
+                ),
+              ),
+              body: content ?? const JobMakerOutputFormatPicker(),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('selecting a preset updates settings and selection semantics', (
+    tester,
+  ) async {
+    await showPicker(tester);
+    expect(find.text('Quick presets'), findsOneWidget);
+    await tester.tap(find.text('Compatible video'));
+    await tester.pumpAndSettle();
+    expect(model.selectedPreset, ConversionPreset.compatibleVideo);
+    expect(model.selectedValues['configs.mp4.crf.x264'], '23');
+    final selection = find
+        .ancestor(
+          of: find.text('Compatible video'),
+          matching: find.byType(Semantics),
+        )
+        .evaluate()
+        .map((element) => (element.widget as Semantics).properties.selected);
+    expect(selection, contains(true));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('search filters format tiles and can recover from no results', (
+    tester,
+  ) async {
+    await showPicker(tester);
+    await tester.enterText(find.byType(EditableText), ' .MP3 ');
+    await tester.pumpAndSettle();
+    expect(find.byType(OutputFormatGridItem), findsOneWidget);
+    expect(find.text('Quick presets'), findsNothing);
+    await tester.tap(find.text('MP3'));
+    await tester.pumpAndSettle();
+    expect(model.selectedFormatEntry?.name, 'mp3');
+    await tester.enterText(find.byType(EditableText), 'nothing');
+    await tester.pumpAndSettle();
+    expect(find.text('No matching formats.'), findsOneWidget);
+    await tester.enterText(find.byType(EditableText), '');
+    await tester.pumpAndSettle();
+    expect(find.text('Quick presets'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('reopening the picker keeps the search field in sync', (
+    tester,
+  ) async {
+    model.setFormatQuery('.M4A');
+    await showPicker(tester);
+    expect(
+      tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+      '.M4A',
+    );
+    expect(find.byType(OutputFormatGridItem), findsOneWidget);
+    expect(find.text('M4A'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final scenario in [
+    (
+      name: 'light',
+      isDark: false,
+      scale: 1.0,
+      locale: const Locale('en'),
+      size: const Size(390, 844),
+    ),
+    (
+      name: 'dark',
+      isDark: true,
+      scale: 1.0,
+      locale: const Locale('en'),
+      size: const Size(390, 844),
+    ),
+    (
+      name: 'large-text-de',
+      isDark: false,
+      scale: 2.0,
+      locale: const Locale('de'),
+      size: const Size(320, 640),
+    ),
+    (
+      name: 'vi',
+      isDark: false,
+      scale: 1.0,
+      locale: const Locale('vi'),
+      size: const Size(390, 844),
+    ),
+  ]) {
+    testWidgets('format picker lays out in ${scenario.name}', (tester) async {
+      final key = GlobalKey();
+      await showPicker(
+        tester,
+        isDark: scenario.isDark,
+        scale: scenario.scale,
+        locale: scenario.locale,
+        size: scenario.size,
+        screenshotKey: key,
+      );
+      expect(tester.takeException(), isNull);
+      if (Platform.environment['MCU_CAPTURE_WIDGETS'] == '1') {
+        final boundary =
+            key.currentContext!.findRenderObject() as RenderRepaintBoundary;
+        await tester.runAsync(() async {
+          final rendered = await boundary.toImage(pixelRatio: 2);
+          final data = await rendered.toByteData(
+            format: ui.ImageByteFormat.png,
+          );
+          final directory = Directory('/tmp/mcu-release-screens');
+          await directory.create(recursive: true);
+          await File('${directory.path}/format-picker-${scenario.name}.png')
+              .writeAsBytes(data!.buffer.asUint8List());
+          rendered.dispose();
+        });
+      }
+    });
+  }
+
+  testWidgets('customizer offers only presets for the selected format', (
+    tester,
+  ) async {
+    await model.applyPreset(.musicMp3);
+    await showPicker(
+      tester,
+      content: Builder(
+        builder: (context) => JobMakerSteps.customizeConfigs.build(context),
+      ),
+    );
+    expect(find.text('MP3 music'), findsOneWidget);
+    expect(find.text('Compatible video'), findsNothing);
+    expect(find.text('Lossless audio'), findsNothing);
+    await tester.tap(find.text('MP3 music'));
+    await tester.pumpAndSettle();
+    expect(model.selectedPreset, ConversionPreset.musicMp3);
+    expect(model.selectedFormatEntry?.name, 'mp3');
+    expect(tester.takeException(), isNull);
+  });
+}

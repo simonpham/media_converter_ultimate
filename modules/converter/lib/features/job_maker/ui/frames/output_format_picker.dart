@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:converter/converter.dart';
 import 'package:flutter/material.dart';
 import 'package:sofluffy_ui/sofluffy_ui.dart';
@@ -12,10 +14,14 @@ class const JobMakerOutputFormatPicker({super.key}) extends StatefulWidget {
 class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
     with AfterLayoutMixin {
   final ScrollController _scrollController = .new();
+  late final TextEditingController _searchController;
 
   @override
   void initState() {
     super.initState();
+    _searchController = .new(
+      text: this.context.read<JobMakerViewModel>().formatQuery,
+    );
     SettingsBox().outputFormatPickerAccessCount++;
     printLog(
       '[AdsSettings] outputFormatPickerAccessCount increased: ${SettingsBox().outputFormatPickerAccessCount}',
@@ -25,6 +31,7 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -40,7 +47,7 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
       (e) => e.name == SettingsBox().defaultOutputFormat,
     );
     if (defaultFormat != null) {
-      model.setSelectedFormatEntry(defaultFormat);
+      unawaited(model.setSelectedFormatEntry(defaultFormat));
     }
   }
 
@@ -49,20 +56,24 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
     final formatConfigModel = context
         .read<JobMakerViewModel>()
         .formatConfigModel;
-    final audioFormats = formatConfigModel.formats
-        .where((f) => f.outputType == .audio)
-        .toList();
-    final videoFormats = formatConfigModel.formats
-        .where((f) => f.outputType == .video)
-        .toList();
 
     return Column(
       crossAxisAlignment: .start,
       children: [
         Expanded(
-          child: Selector<JobMakerViewModel, FormatEntry?>(
-            selector: (context, model) => model.selectedFormatEntry,
-            builder: (context, selectedFormat, _) {
+          child: Consumer<JobMakerViewModel>(
+            builder: (context, model, _) {
+              final selectedFormat = model.selectedFormatEntry;
+              final audioFormats = model.visibleFormats
+                  .where(
+                    (format) => format.outputType == .audio,
+                  )
+                  .toList();
+              final videoFormats = model.visibleFormats
+                  .where(
+                    (format) => format.outputType == .video,
+                  )
+                  .toList();
               return Scrollbar(
                 controller: _scrollController,
                 thumbVisibility: true,
@@ -74,21 +85,38 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
                   ),
                   children: [
                     const OutputFormatAdItem(),
-                    _buildGridCategory(
-                      context,
-                      context.l10n.video,
-                      formatConfigModel,
-                      videoFormats,
-                      selectedFormat,
+                    InputText(
+                      controller: _searchController,
+                      hintText: context.l10n.searchFormatsHint,
+                      onChanged: model.setFormatQuery,
+                      textInputAction: .search,
+                      onSubmitted: (_) => FocusScope.of(context).unfocus(),
                     ),
                     Spacing.v16,
-                    _buildGridCategory(
-                      context,
-                      context.l10n.audio,
-                      formatConfigModel,
-                      audioFormats,
-                      selectedFormat,
-                    ),
+                    if (model.formatQuery.trim().isEmpty) ...[
+                      const ConversionPresetPicker(),
+                      Spacing.v16,
+                    ],
+                    if (model.visibleFormats.isEmpty)
+                      Text(context.l10n.noMatchingFormats),
+                    if (videoFormats.isNotEmpty)
+                      _buildGridCategory(
+                        context,
+                        context.l10n.video,
+                        formatConfigModel,
+                        videoFormats,
+                        selectedFormat,
+                      ),
+                    if (videoFormats.isNotEmpty && audioFormats.isNotEmpty)
+                      Spacing.v16,
+                    if (audioFormats.isNotEmpty)
+                      _buildGridCategory(
+                        context,
+                        context.l10n.audio,
+                        formatConfigModel,
+                        audioFormats,
+                        selectedFormat,
+                      ),
                   ],
                 ),
               );
@@ -120,8 +148,8 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           padding: .zero,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: Spacing.d96,
             mainAxisSpacing: Spacing.d16,
             crossAxisSpacing: Spacing.d16,
             childAspectRatio: 1,
@@ -135,8 +163,10 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
               format: format,
               isSelected: isSelected,
               onTap: () {
-                context.read<JobMakerViewModel>().setSelectedFormatEntry(
-                  format,
+                unawaited(
+                  context.read<JobMakerViewModel>().setSelectedFormatEntry(
+                    format,
+                  ),
                 );
               },
             );

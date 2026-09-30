@@ -164,5 +164,21 @@
   "video": "Video",
   "view": "Görüntüle",
   "viewChangelog": "Değişiklik Kaydını Görüntüle",
-  "zzzItsTheEnd": "dünyanın"
+  "zzzItsTheEnd": "dünyanın",
+  "quickPresetsTitle": "Hızlı ön ayarlar",
+  "quickPresetsDescription": "Bir görev seçin, ardından ayarları düzenleyin.",
+  "presetCompatibleVideo": "Uyumlu video",
+  "presetCompatibleVideoDescription": "Dengeli kalite ve geniş oynatma desteği.",
+  "presetSmallerVideo": "Daha küçük video",
+  "presetSmallerVideoDescription": "Daha düşük kalitede MP4. Son boyut kaynağa bağlıdır.",
+  "presetHighQualityVideo": "Yüksek kaliteli video",
+  "presetHighQualityVideoDescription": "Daha fazla ayrıntı ve daha büyük dosyalarla MP4.",
+  "presetMusicMp3": "MP3 müzik",
+  "presetMusicMp3Description": "Kapak görseli ve tam parçayla 320 kbps MP3.",
+  "presetCompactAudio": "Kompakt ses",
+  "presetCompactAudioDescription": "Daha küçük ses dosyaları için 128 kbps M4A.",
+  "presetLosslessAudio": "Kayıpsız ses",
+  "presetLosslessAudioDescription": "Ses kalitesini M4A (ALAC) ile koruyun. Daha büyük dosyalar.",
+  "searchFormatsHint": "Format ara, ör. MP4 veya MP3",
+  "noMatchingFormats": "Eşleşen format yok."
 }

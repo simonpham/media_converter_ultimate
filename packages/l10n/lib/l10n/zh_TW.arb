@@ -164,5 +164,21 @@
   "video": "影片",
   "view": "檢視",
   "viewChangelog": "檢視更新日誌",
-  "zzzItsTheEnd": "世界末日"
+  "zzzItsTheEnd": "世界末日",
+  "quickPresetsTitle": "快速預設",
+  "quickPresetsDescription": "選擇用途，再微調設定。",
+  "presetCompatibleVideo": "相容性影片",
+  "presetCompatibleVideoDescription": "兼顧畫質和廣泛的播放支援。",
+  "presetSmallerVideo": "更小的影片",
+  "presetSmallerVideoDescription": "降低畫質的 MP4。最終大小取決於來源檔案。",
+  "presetHighQualityVideo": "高畫質影片",
+  "presetHighQualityVideoDescription": "保留更多細節的 MP4，檔案更大。",
+  "presetMusicMp3": "MP3 音樂",
+  "presetMusicMp3Description": "320 kbps 的 MP3，保留封面和完整音軌。",
+  "presetCompactAudio": "精簡音訊",
+  "presetCompactAudioDescription": "128 kbps 的 M4A，音訊檔案更小。",
+  "presetLosslessAudio": "無損音訊",
+  "presetLosslessAudioDescription": "以 M4A（ALAC）保留音質。檔案更大。",
+  "searchFormatsHint": "搜尋格式，例如 MP4 或 MP3",
+  "noMatchingFormats": "沒有相符的格式。"
 }

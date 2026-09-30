@@ -164,5 +164,21 @@
   "video": "Video",
   "view": "View",
   "viewChangelog": "View Changelog",
-  "zzzItsTheEnd": "of the world"
+  "zzzItsTheEnd": "of the world",
+  "quickPresetsTitle": "Quick presets",
+  "quickPresetsDescription": "Choose a task, then fine-tune the settings.",
+  "presetCompatibleVideo": "Compatible video",
+  "presetCompatibleVideoDescription": "Balanced quality and broad playback support.",
+  "presetSmallerVideo": "Smaller video",
+  "presetSmallerVideoDescription": "MP4 with reduced quality. Final size depends on the source.",
+  "presetHighQualityVideo": "High-quality video",
+  "presetHighQualityVideoDescription": "MP4 with more detail and larger files.",
+  "presetMusicMp3": "MP3 music",
+  "presetMusicMp3Description": "MP3 at 320 kbps, with artwork and the full track.",
+  "presetCompactAudio": "Compact audio",
+  "presetCompactAudioDescription": "M4A at 128 kbps for smaller audio files.",
+  "presetLosslessAudio": "Lossless audio",
+  "presetLosslessAudioDescription": "Preserve audio quality in M4A (ALAC). Larger files.",
+  "searchFormatsHint": "Search formats, e.g. MP4 or MP3",
+  "noMatchingFormats": "No matching formats."
 }

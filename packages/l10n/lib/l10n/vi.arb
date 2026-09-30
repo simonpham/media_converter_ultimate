@@ -164,5 +164,21 @@
   "video": "Video",
   "view": "Xem",
   "viewChangelog": "Xem nhật ký thay đổi",
-  "zzzItsTheEnd": "của thế giới"
+  "zzzItsTheEnd": "của thế giới",
+  "quickPresetsTitle": "Thiết lập nhanh",
+  "quickPresetsDescription": "Chọn mục đích, rồi tinh chỉnh các cài đặt.",
+  "presetCompatibleVideo": "Video tương thích",
+  "presetCompatibleVideoDescription": "Cân bằng chất lượng và khả năng phát trên nhiều thiết bị.",
+  "presetSmallerVideo": "Video nhỏ hơn",
+  "presetSmallerVideoDescription": "MP4 với chất lượng giảm. Dung lượng cuối phụ thuộc vào nguồn.",
+  "presetHighQualityVideo": "Video chất lượng cao",
+  "presetHighQualityVideoDescription": "MP4 giữ nhiều chi tiết hơn, dung lượng lớn hơn.",
+  "presetMusicMp3": "Nhạc MP3",
+  "presetMusicMp3Description": "MP3 320 kbps, giữ ảnh bìa và toàn bộ bản nhạc.",
+  "presetCompactAudio": "Âm thanh gọn nhẹ",
+  "presetCompactAudioDescription": "M4A 128 kbps cho tệp âm thanh nhỏ hơn.",
+  "presetLosslessAudio": "Âm thanh không mất dữ liệu",
+  "presetLosslessAudioDescription": "Giữ chất lượng âm thanh trong M4A (ALAC). Dung lượng lớn hơn.",
+  "searchFormatsHint": "Tìm định dạng, ví dụ MP4 hoặc MP3",
+  "noMatchingFormats": "Không có định dạng phù hợp."
 }

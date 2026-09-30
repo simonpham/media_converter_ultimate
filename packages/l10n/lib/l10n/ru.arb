@@ -164,5 +164,21 @@
   "video": "Видео",
   "view": "Просмотр",
   "viewChangelog": "Посмотреть список изменений",
-  "zzzItsTheEnd": "конца света"
+  "zzzItsTheEnd": "конца света",
+  "quickPresetsTitle": "Быстрые настройки",
+  "quickPresetsDescription": "Выберите задачу, затем уточните настройки.",
+  "presetCompatibleVideo": "Совместимое видео",
+  "presetCompatibleVideoDescription": "Баланс качества и широкой совместимости воспроизведения.",
+  "presetSmallerVideo": "Видео меньшего размера",
+  "presetSmallerVideoDescription": "MP4 с пониженным качеством. Итоговый размер зависит от источника.",
+  "presetHighQualityVideo": "Видео высокого качества",
+  "presetHighQualityVideoDescription": "MP4 с большей детализацией и размером файлов.",
+  "presetMusicMp3": "Музыка MP3",
+  "presetMusicMp3Description": "MP3 с битрейтом 320 кбит/с, обложкой и полной дорожкой.",
+  "presetCompactAudio": "Компактное аудио",
+  "presetCompactAudioDescription": "M4A с битрейтом 128 кбит/с для небольших аудиофайлов.",
+  "presetLosslessAudio": "Аудио без потерь",
+  "presetLosslessAudioDescription": "Сохранение качества звука в M4A (ALAC). Файлы большего размера.",
+  "searchFormatsHint": "Поиск форматов, например MP4 или MP3",
+  "noMatchingFormats": "Подходящие форматы не найдены."
 }

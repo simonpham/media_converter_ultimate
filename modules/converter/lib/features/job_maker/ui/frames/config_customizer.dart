@@ -39,6 +39,14 @@ class _JobMakerConfigCustomizerState extends State<JobMakerConfigCustomizer> {
               controller: _scrollController,
               slivers: [
                 SliverToBoxAdapter(
+                  child: Padding(
+                    padding: .all(Spacing.d16),
+                    child: const ConversionPresetPicker(
+                      currentFormatOnly: true,
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
                   child: RoundCard(
                     margin: .symmetric(
                       horizontal: Spacing.d16,

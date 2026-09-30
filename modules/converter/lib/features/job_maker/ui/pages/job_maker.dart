@@ -243,14 +243,17 @@ class _JobMakerState extends State<JobMaker> {
                       builder: (context, currentStep, child) {
                         final isLastStep =
                             currentStep == JobMakerSteps.values.length - 1;
-                        return Button(
-                          variant: .primary,
-                          label: isLastStep
-                              ? context.l10n.startConversion
-                              : context.l10n.next,
-                          onPressed: () {
-                            _handleNext(context);
-                          },
+                        return Consumer<JobMakerViewModel>(
+                          builder: (context, model, _) => Button(
+                            variant: .primary,
+                            enable: !model.isLoadingFormat,
+                            label: isLastStep
+                                ? context.l10n.startConversion
+                                : context.l10n.next,
+                            onPressed: () {
+                              _handleNext(context);
+                            },
+                          ),
                         );
                       },
                     ),

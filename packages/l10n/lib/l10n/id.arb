@@ -164,5 +164,21 @@
   "video": "Video",
   "view": "Lihat",
   "viewChangelog": "Lihat Catatan Perubahan",
-  "zzzItsTheEnd": "dunia"
+  "zzzItsTheEnd": "dunia",
+  "quickPresetsTitle": "Preset cepat",
+  "quickPresetsDescription": "Pilih tugas, lalu sesuaikan pengaturannya.",
+  "presetCompatibleVideo": "Video kompatibel",
+  "presetCompatibleVideoDescription": "Kualitas seimbang dan dukungan pemutaran luas.",
+  "presetSmallerVideo": "Video lebih kecil",
+  "presetSmallerVideoDescription": "MP4 dengan kualitas lebih rendah. Ukuran akhir bergantung pada sumber.",
+  "presetHighQualityVideo": "Video berkualitas tinggi",
+  "presetHighQualityVideoDescription": "MP4 dengan lebih banyak detail dan berkas lebih besar.",
+  "presetMusicMp3": "Musik MP3",
+  "presetMusicMp3Description": "MP3 pada 320 kbps, dengan sampul dan trek lengkap.",
+  "presetCompactAudio": "Audio ringkas",
+  "presetCompactAudioDescription": "M4A pada 128 kbps untuk berkas audio lebih kecil.",
+  "presetLosslessAudio": "Audio tanpa kehilangan kualitas",
+  "presetLosslessAudioDescription": "Pertahankan kualitas audio dalam M4A (ALAC). Berkas lebih besar.",
+  "searchFormatsHint": "Cari format, misalnya MP4 atau MP3",
+  "noMatchingFormats": "Tidak ada format yang cocok."
 }

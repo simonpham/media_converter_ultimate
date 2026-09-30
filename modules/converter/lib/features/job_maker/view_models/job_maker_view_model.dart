@@ -20,6 +20,42 @@ class JobMakerViewModel({
   /// Map of output file names.
   Map<String, String?> _outputFileNames = const {};
   FormatEntry? _selectedFormatEntry;
+  ConversionPreset? _selectedPreset;
+  ConversionPreset? get selectedPreset => _selectedPreset;
+  int _configurationRevision = 0;
+  bool _isLoadingFormat = false;
+  bool get isLoadingFormat => _isLoadingFormat;
+  String _formatQuery = '';
+  String get formatQuery => _formatQuery;
+
+  List<ConversionPreset> get availablePresets => ConversionPreset.values
+      .where(
+        (preset) => formatConfigModel.formats.any(
+          (format) => format.name == preset.formatName,
+        ),
+      )
+      .toList();
+
+  List<FormatEntry> get visibleFormats {
+    final query = _formatQuery.trim().toLowerCase().replaceFirst(
+      RegExp(r'^\.'),
+      '',
+    );
+    return formatConfigModel.formats
+        .where(
+          (format) =>
+              format.name.toLowerCase().contains(query) ||
+              format.outputExtension.toLowerCase().contains(query),
+        )
+        .toList();
+  }
+
+  void setFormatQuery(String query) {
+    if (_formatQuery == query) return;
+    _formatQuery = query;
+    notifyListeners();
+  }
+
   Map<String, List<ConfigControl>> _configControls = const {};
   Map<String, String> _selectedValues = const {};
 
@@ -60,6 +96,8 @@ class JobMakerViewModel({
   Map<String, String?> get outputFileNames => _outputFileNames;
 
   void setSelectedValue(String name, String value) {
+    if (_isLoadingFormat) return;
+    _selectedPreset = null;
     final clone = {..._selectedValues};
     clone[name] = value;
     _selectedValues = ConfigurationSelection.normalizeValues(
@@ -179,44 +217,93 @@ class JobMakerViewModel({
     notifyListeners();
   }
 
-  Future<void> setSelectedFormatEntry(FormatEntry formatEntry) async {
-    if (_selectedFormatEntry == formatEntry) {
-      return;
-    }
-    _selectedFormatEntry = formatEntry;
-    notifyListeners();
-    await _loadConfigModel();
-    if (_isDisposed || _selectedFormatEntry != formatEntry) {
-      return;
-    }
-    _initOutputConfig();
-    refreshOutputFileNames();
+  Future<void> setSelectedFormatEntry(FormatEntry formatEntry) =>
+      _selectFormat(formatEntry);
+
+  Future<void> applyPreset(ConversionPreset preset) async {
+    final format = formatConfigModel.formats
+        .where(
+          (format) => format.name == preset.formatName,
+        )
+        .firstOrNull;
+    if (format == null) return;
+    await _selectFormat(format, preset: preset);
   }
 
-  void _initOutputConfig() {
+  Future<void> _selectFormat(
+    FormatEntry formatEntry, {
+    ConversionPreset? preset,
+  }) async {
+    if (_selectedFormatEntry == formatEntry &&
+        preset == null &&
+        !_isLoadingFormat) {
+      return;
+    }
+    final resetOutputNames = _selectedFormatEntry != formatEntry;
+    final revision = ++_configurationRevision;
+    _selectedFormatEntry = formatEntry;
+    _selectedPreset = null;
+    if (resetOutputNames) {
+      _outputFileNames = {
+        for (final file in _selectedFiles)
+          file.path: CommandBuilder.getOutputFileName(
+            inputFilePath: file.path,
+            formatEntry: formatEntry,
+          ),
+      };
+      _pathValidationRevision++;
+      _errorPaths = {};
+    }
+    _isLoadingFormat = true;
+    notifyListeners();
+    try {
+      final controls = await formatConfigModel.loadConfigControls(formatEntry);
+      if (_isDisposed || revision != _configurationRevision) return;
+      _configControls = controls;
+      _initOutputConfig(
+        overrides: preset?.selectedValues,
+      );
+      if (preset != null &&
+          preset.selectedValues.entries.every(
+            (entry) => _selectedValues[entry.key] == entry.value,
+          )) {
+        _selectedPreset = preset;
+      }
+      _isLoadingFormat = false;
+      refreshOutputFileNames();
+    } finally {
+      if (!_isDisposed &&
+          revision == _configurationRevision &&
+          _isLoadingFormat) {
+        _isLoadingFormat = false;
+        _selectedValues = const {};
+        _configControls = const {};
+        notifyListeners();
+      }
+    }
+  }
+
+  void _initOutputConfig({
+    Map<String, String>? overrides,
+  }) {
     final formatEntry = _selectedFormatEntry;
     if (formatEntry == null) {
       return;
     }
-
-    // Clear all file names.
-    final outputFileNames = {..._outputFileNames};
-    for (final key in outputFileNames.keys) {
-      outputFileNames[key] = null;
-    }
-    _outputFileNames = outputFileNames;
 
     // Initialize selected config state to defaults.
     // Then overwrite with last known configurations.
     _selectedValues = ConfigurationSelection.normalizeValues(
       groups: _configControls,
       roots: _rootConfigKeys,
-      overrides: formatEntry.lastKnownConfigurations,
+      overrides: overrides ?? formatEntry.lastKnownConfigurations,
     );
     notifyListeners();
   }
 
   void resetConfigurations() {
+    if (_isLoadingFormat) return;
+    _selectedPreset = null;
     final formatEntry = _selectedFormatEntry;
     if (formatEntry == null) {
       return;
@@ -228,26 +315,13 @@ class JobMakerViewModel({
     notifyListeners();
   }
 
-  Future<void> _loadConfigModel() async {
-    final formatEntry = _selectedFormatEntry;
-    if (formatEntry == null) {
-      return;
-    }
-    final configControls = await formatConfigModel.loadConfigControls(
-      formatEntry,
-    );
-    if (_isDisposed || _selectedFormatEntry != formatEntry) {
-      return;
-    }
-    _configControls = configControls;
-    notifyListeners();
-  }
-
   Future<List<ConvertJob>> cook() async {
+    if (_isLoadingFormat) throw const NoOutputConfigFailure();
     final formatEntry = _selectedFormatEntry;
     final selectedValues = {..._selectedValues};
     final outputDirectoryPath = _outputDirectoryPath;
     final controls = availableControls;
+    final configurationKeys = _configControls.keys.toSet();
     final outputFileNames = {
       for (final file in _selectedFiles) file.path: _outputFileNames[file.path],
     };
@@ -307,7 +381,7 @@ class JobMakerViewModel({
         availableControls: controls,
         outputFilePath: outputFilePath,
         threadCount: SettingsBox().threadCount,
-        configurationKeys: _configControls.keys.toSet(),
+        configurationKeys: configurationKeys,
       );
 
       final now = DateTime.now();
@@ -412,12 +486,13 @@ class JobMakerViewModel({
     if (_selectedFormatEntry == null) {
       return const NoOutputFormatFailure();
     }
+    if (_isLoadingFormat) return const NoOutputConfigFailure();
 
     return null;
   }
 
   Failure? _checkOutputConfigError() {
-    if (_selectedValues.isEmpty) {
+    if (_isLoadingFormat || _selectedValues.isEmpty) {
       return const NoOutputConfigFailure();
     }
 
@@ -451,12 +526,13 @@ class JobMakerViewModel({
     ];
   }
 
-  List<ConfigControl> get availableControls =>
-      ConfigurationSelection.resolveControls(
-        groups: _configControls,
-        roots: _rootConfigKeys,
-        selectedValues: _selectedValues,
-      );
+  List<ConfigControl> get availableControls => _isLoadingFormat
+      ? const []
+      : ConfigurationSelection.resolveControls(
+          groups: _configControls,
+          roots: _rootConfigKeys,
+          selectedValues: _selectedValues,
+        );
 
   void reorderFile(int oldIndex, int newIndex) {
     final clone = [..._selectedFiles];
@@ -478,6 +554,8 @@ class JobMakerViewModel({
   }
 
   void loadPreviousConfigurations() {
+    if (_isLoadingFormat) return;
+    _selectedPreset = null;
     final formatEntry = _selectedFormatEntry;
     if (formatEntry == null) {
       return;

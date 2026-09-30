@@ -11,72 +11,82 @@ class const OutputFormatGridItem({
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Tappable(
-      onTap: onTap,
-      enableAnimation: true,
-      enableHoverOverlay: false,
-      enableFocusBorder: false,
-      child: AnimatedScale(
-        scale: isSelected ? 1.08 : 0.96,
-        duration: Durations.medium4,
-        curve: Curves.easeOut,
-        child: Container(
-          decoration: ShapeDecoration(
-            gradient: config.getGradient(format),
-            shape: const RoundedSuperellipseBorder(
-              borderRadius: Spacing.r12,
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      child: Tappable(
+        onTap: onTap,
+        enableAnimation: true,
+        enableHoverOverlay: false,
+        enableFocusBorder: false,
+        child: AnimatedScale(
+          scale: isSelected ? 1.08 : 0.96,
+          duration: Durations.medium4,
+          curve: Curves.easeOut,
+          child: Container(
+            decoration: ShapeDecoration(
+              gradient: config.getGradient(format),
+              shape: const RoundedSuperellipseBorder(
+                borderRadius: Spacing.r12,
+              ),
+              shadows: isSelected
+                  ? [
+                      BoxShadow(
+                        color: context.theme.colorScheme.shadow.withValues(
+                          alpha: 0.05,
+                        ),
+                        blurRadius: Spacing.d1,
+                        spreadRadius: Spacing.d1,
+                        offset: .new(0, Spacing.d1),
+                      ),
+                      BoxShadow(
+                        color: context.theme.colorScheme.shadow.withValues(
+                          alpha: 0.1,
+                        ),
+                        blurRadius: Spacing.d2,
+                        spreadRadius: Spacing.d1,
+                        offset: .new(Spacing.d1, Spacing.d2),
+                      ),
+                    ]
+                  : null,
             ),
-            shadows: isSelected
-                ? [
-                    BoxShadow(
-                      color: context.theme.colorScheme.shadow.withValues(
-                        alpha: 0.05,
-                      ),
-                      blurRadius: Spacing.d1,
-                      spreadRadius: Spacing.d1,
-                      offset: .new(0, Spacing.d1),
+            child: Stack(
+              children: [
+                AnimatedScale(
+                  scale: isSelected ? 1 : 0,
+                  curve: Curves.easeOut,
+                  duration: Durations.medium1,
+                  alignment: .center,
+                  child: Container(
+                    margin: .only(
+                      left: Spacing.d8,
+                      top: Spacing.d8,
                     ),
-                    BoxShadow(
-                      color: context.theme.colorScheme.shadow.withValues(
-                        alpha: 0.1,
-                      ),
-                      blurRadius: Spacing.d2,
-                      spreadRadius: Spacing.d1,
-                      offset: .new(Spacing.d1, Spacing.d2),
+                    width: Spacing.d12,
+                    height: Spacing.d12,
+                    decoration: BoxDecoration(
+                      color: context.theme.colorScheme.surface,
+                      shape: .circle,
                     ),
-                  ]
-                : null,
-          ),
-          child: Stack(
-            children: [
-              AnimatedScale(
-                scale: isSelected ? 1 : 0,
-                curve: Curves.easeOut,
-                duration: Durations.medium1,
-                alignment: .center,
-                child: Container(
-                  margin: .only(
-                    left: Spacing.d8,
-                    top: Spacing.d8,
-                  ),
-                  width: Spacing.d12,
-                  height: Spacing.d12,
-                  decoration: BoxDecoration(
-                    color: context.theme.colorScheme.surface,
-                    shape: .circle,
                   ),
                 ),
-              ),
-              Center(
-                child: Text(
-                  format.outputExtension.toUpperCase(),
-                  style: context.theme.textTheme.labelMedium?.copyWith(
-                    color: Colors.white,
-                    fontSize: Spacing.d20,
+                Center(
+                  child: Padding(
+                    padding: .all(Spacing.d8),
+                    child: FittedBox(
+                      fit: .scaleDown,
+                      child: Text(
+                        format.outputExtension.toUpperCase(),
+                        style: context.theme.textTheme.labelMedium?.copyWith(
+                          color: context.theme.colorScheme.onPrimary,
+                          fontSize: Spacing.d20,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

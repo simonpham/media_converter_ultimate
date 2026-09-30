@@ -164,5 +164,21 @@
   "video": "ビデオ",
   "view": "表示",
   "viewChangelog": "変更ログを表示",
-  "zzzItsTheEnd": "世界の終わり"
+  "zzzItsTheEnd": "世界の終わり",
+  "quickPresetsTitle": "クイックプリセット",
+  "quickPresetsDescription": "用途を選んでから、設定を細かく調整できます。",
+  "presetCompatibleVideo": "互換性の高い動画",
+  "presetCompatibleVideoDescription": "画質と幅広い再生互換性のバランスを重視。",
+  "presetSmallerVideo": "小さい動画",
+  "presetSmallerVideoDescription": "画質を抑えたMP4。最終サイズは元のファイルによって異なります。",
+  "presetHighQualityVideo": "高画質の動画",
+  "presetHighQualityVideoDescription": "細部を保ったMP4。ファイルサイズは大きくなります。",
+  "presetMusicMp3": "MP3音楽",
+  "presetMusicMp3Description": "320 kbpsのMP3。アートワークと曲全体を保持。",
+  "presetCompactAudio": "コンパクトな音声",
+  "presetCompactAudioDescription": "128 kbpsのM4Aで音声ファイルを小さく。",
+  "presetLosslessAudio": "ロスレス音声",
+  "presetLosslessAudioDescription": "M4A（ALAC）で音質を保持。ファイルサイズは大きくなります。",
+  "searchFormatsHint": "形式を検索（例：MP4、MP3）",
+  "noMatchingFormats": "一致する形式がありません。"
 }
