@@ -10,7 +10,7 @@ echo "==> 1. Running JSON Schema & Localization Validator..."
 
 echo ""
 echo "==> 2. Running Flutter Unit & Model Tests..."
-flutter test apps/mcu packages/core modules/converter
+flutter test apps/mcu/test packages/core/test packages/core_storage_isar/test packages/platform_utils/test modules/converter/test
 
 echo ""
 echo "🎉 All Flutter & Dart test suites passed successfully!"
