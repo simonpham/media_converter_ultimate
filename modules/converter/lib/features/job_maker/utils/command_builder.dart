@@ -46,7 +46,8 @@ class CommandBuilder {
           } else {
             args.addAll([flag, option.value]);
           }
-        } else if (!configurationKeys.contains(option.value)) {
+        } else if (option.value.startsWith('-') ||
+            !configurationKeys.contains(option.value)) {
           _addValue(args, option.value);
         }
       }

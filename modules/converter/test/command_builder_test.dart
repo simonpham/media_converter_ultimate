@@ -20,7 +20,7 @@ void main() {
       shouldAddToArgs: false,
     );
 
-    test('builds standard MP4 command with -f and default thread count', () {
+    test('keeps encoder arguments that also trigger nested options', () {
       final controls = [
         const ConfigControl(
           type: ConfigControlType.singleChoice,
@@ -59,6 +59,7 @@ void main() {
         selectedValues: selectedValues,
         outputFilePath: '/path/to/output.mp4',
         threadCount: 0,
+        configurationKeys: {'-c:v libx264'},
       );
 
       expect(args, contains('-i'));
@@ -77,6 +78,7 @@ void main() {
         selectedValues: selectedValues,
         outputFilePath: '/path/to/output.mp4',
         threadCount: 0,
+        configurationKeys: {'-c:v libx264'},
       );
 
       expect(
