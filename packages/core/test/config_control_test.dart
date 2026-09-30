@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:core/core.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -59,6 +61,19 @@ void main() {
       expect(control.options.length, 2);
       expect(control.options.first.ffmpegArg, '-map 0:v:0');
       expect(control.options.first.value, '-map 0:v:0');
+    });
+
+    test('normalizes native multi-choice defaults to JSON strings', () {
+      final defaults = ['-map 0:v:0', "-map '0:a?'", '-map_metadata 0:g'];
+      final control = ConfigControl.fromJson({
+        'type': 'multi_choice',
+        'name': 'mapping',
+        'default': defaults,
+        'options': [
+          for (final value in defaults) {'ffmpeg_arg': value},
+        ],
+      });
+      expect(jsonDecode(control.defaultValue!), defaults);
     });
 
     test('handles single_choice with hidden visibility', () {

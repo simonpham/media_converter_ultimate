@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -25,7 +27,10 @@ class const ConfigControl({
       isVisible: json['is_visible'] != false,
       shouldAddToArgs: json['should_add_to_args'] == true,
       ffmpegFlag: json['ffmpeg_flag']?.toString(),
-      defaultValue: json['default']?.toString(),
+      defaultValue: switch (json['default']) {
+        final List value => jsonEncode(value),
+        final value => value?.toString(),
+      },
     );
   }
 }
