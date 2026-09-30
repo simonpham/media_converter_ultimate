@@ -41,7 +41,14 @@ class FfmpegJobRunnerService implements JobRunnerService {
     final mediaInfo = mediaInfoSession.getMediaInformation();
     final sourceDuration =
         ((double.tryParse('${mediaInfo?.getDuration()}') ?? 0) * 1000).toInt();
-    final arguments = CommandBuilder.parseCommand(job.command);
+    final arguments = AudioArtworkMapping.resolve(
+      CommandBuilder.parseCommand(job.command),
+      attachedPictureIndexes: [
+        for (final stream in mediaInfo?.getStreams() ?? [])
+          if (stream.getAllProperties()?['disposition']?['attached_pic'] == 1)
+            if (stream.getAllProperties()?['index'] case final int index) index,
+      ],
+    );
     final trim = ConversionTrim.fromArguments(arguments);
     final duration = trim?.effectiveDuration(sourceDuration) ?? sourceDuration;
     if (trim != null && sourceDuration > 0 && duration == 0) {
