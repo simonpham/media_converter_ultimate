@@ -169,6 +169,21 @@ void main() {
     expect(storage.jobs, isEmpty);
   });
 
+  test('a second export failure reuses the saved output instead of copying it again', () async {
+    files.moveFailures.addAll([
+      const DirectoryNotWritableFailure('/output'),
+      const DirectoryNotWritableFailure('/new-output'),
+    ]);
+    await model.addJobs([job('first')]);
+    runner.emit(storage.jobs['first']!.copyWith(status: const Some(.cleaning)));
+    await waitFor(() => storage.jobs['first']!.status == .actionRequired);
+    final recovery = storage.jobs['first']!;
+    await model.handleJobChooseAnotherPathAction(recovery, '/new-output');
+    expect(storage.jobs['first']!.status, JobStatus.actionRequired);
+    expect(storage.jobs['first']!.convertedFilePath, '/recovery/first.mp3');
+    expect(files.recoveryCopies, 1);
+  });
+
   test('a stale pending row cannot remove a job that has started', () async {
     final pending = job('first');
     await model.addJobs([pending]);
@@ -469,6 +484,7 @@ class FakeFiles implements FileService {
   final movedSources = <String>[];
   final cleanedInputs = <String>[];
   int moveAttempts = 0;
+  int recoveryCopies = 0;
   bool failCleanup = false;
 
   @override
@@ -489,7 +505,10 @@ class FakeFiles implements FileService {
   Future<(String?, Failure?)> copyTempOutputFileToConverted({
     required String jobId,
     required String convertedFilePath,
-  }) async => ('/recovery/$jobId.mp3', null);
+  }) async {
+    recoveryCopies++;
+    return ('/recovery/$jobId.mp3', null);
+  }
 
   @override
   Future<void> prepareConvertTempFolder({required String jobId}) async {}

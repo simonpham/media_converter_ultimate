@@ -187,6 +187,14 @@ class JobManagerViewModel extends ChangeNotifier {
 
     final failure = await _completeJob(updatedJob);
     if (failure != null) {
+      if (recoverOutput) {
+        await _jobStorage.update(
+          updatedJob.copyWith(status: const Some(.actionRequired)),
+        );
+        LogData().appendLog(updatedJob.id, failure.toString());
+        _requestPendingJobs();
+        return;
+      }
       final (
         newPath,
         copyFailure,

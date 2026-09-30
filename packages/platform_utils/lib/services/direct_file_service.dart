@@ -117,6 +117,9 @@ class DirectFileService implements FileService {
       final outputFile = File(
         path.join(convertedFolder.path, fileName),
       );
+      if (path.equals(inputFile.absolute.path, outputFile.absolute.path)) {
+        return (outputFile.path, null);
+      }
       await inputFile.copy(outputFile.path);
       return (outputFile.path, null);
     } catch (err, trace) {
