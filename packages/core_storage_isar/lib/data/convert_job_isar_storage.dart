@@ -265,6 +265,9 @@ class const ConvertJobIsarStorage({
           .map(
             (e) => e.toOriginalModel().copyWith(
               status: const Some(.pending),
+              sessionId: const Some(null),
+              progress: const Some(null),
+              duration: const Some(null),
             ),
           )
           .toList();

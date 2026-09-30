@@ -103,6 +103,68 @@ void main() {
       ]);
     },
   );
+  test(
+    'interrupted jobs restart with fresh session and progress metadata',
+    () async {
+      final interruptedStatuses = <JobStatus>[
+        .pending,
+        .preparing,
+        .ready,
+        .running,
+        .cleaning,
+      ];
+      final interrupted = [
+        for (final (index, status) in interruptedStatuses.indexed)
+          job(status.name, order: index, status: status).copyWith(
+            sessionId: const Some(42),
+            progress: const Some(500),
+            duration: const Some(1000),
+          ),
+      ];
+      await storage.addAll(interrupted);
+      final fixedJobs = await storage.fixInvalidJobs();
+      expect(fixedJobs, hasLength(interrupted.length));
+      for (final original in interrupted) {
+        final fixed = (await storage.get(original.id))!;
+        expect(fixed.status, JobStatus.pending);
+        expect(fixed.sessionId, isNull);
+        expect(fixed.progress, isNull);
+        expect(fixed.duration, isNull);
+        expect(fixed.createdAt, original.createdAt);
+        expect(fixed.command, original.command);
+        expect(fixed.inputFilePath, original.inputFilePath);
+      }
+      expect(
+        (await storage.getAllPendingJobs()).map((job) => job.id),
+        interruptedStatuses.map((status) => status.name),
+      );
+    },
+  );
+
+  test(
+    'restart recovery preserves saved outputs and completed history',
+    () async {
+      final preservedStatuses = <JobStatus>[
+        .actionRequired,
+        .completed,
+        .failed,
+        .cancelled,
+      ];
+      final preserved = [
+        for (final (index, status) in preservedStatuses.indexed)
+          job(status.name, order: index, status: status).copyWith(
+            sessionId: const Some(42),
+            progress: const Some(1000),
+            convertedFilePath: Some('/recovery/${status.name}.mp3'),
+          ),
+      ];
+      await storage.addAll(preserved);
+      expect(await storage.fixInvalidJobs(), isEmpty);
+      for (final original in preserved) {
+        expect((await storage.get(original.id))!.toJson(), original.toJson());
+      }
+    },
+  );
 }
 
 ConvertJob job(String id, {required int order, JobStatus status = .pending}) {
