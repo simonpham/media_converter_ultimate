@@ -91,6 +91,30 @@ void main() {
     },
   );
 
+  for (final status in <JobStatus>[.failed, .cancelled]) {
+    test('short ${status.name} runs advance without exporting', () async {
+      runner.returnStatuses['first'] = status;
+      await model.addJobs([job('first'), job('second')]);
+      expect(storage.jobs['first']!.status, status);
+      expect(storage.jobs['second']!.status, JobStatus.running);
+      expect(files.moveAttempts, 0);
+      expect(settings.successConversionCount, 0);
+    });
+  }
+
+  test('short successful runs export once without another callback', () async {
+    runner.returnStatuses['first'] = .cleaning;
+    await model.addJobs([job('first'), job('second')]);
+    expect(storage.jobs['first']!.status, JobStatus.completed);
+    expect(storage.jobs['second']!.status, JobStatus.running);
+    expect(files.moveAttempts, 1);
+    expect(settings.successConversionCount, 1);
+    runner.emit(storage.jobs['first']!.copyWith(status: const Some(.cleaning)));
+    await flushEvents();
+    expect(files.moveAttempts, 1);
+    expect(settings.successConversionCount, 1);
+  });
+
   test(
     'export failure keeps a recovery copy and starts the next queued job',
     () async {
@@ -439,6 +463,7 @@ class FakeRunner implements JobRunnerService {
   final started = <String>[];
   final stopped = <int?>[];
   final failStarts = <String>{};
+  final returnStatuses = <String, JobStatus>{};
   Completer<void>? startGate;
 
   @override
@@ -460,7 +485,7 @@ class FakeRunner implements JobRunnerService {
     }
     return job.copyWith(
       sessionId: Some(started.length),
-      status: const Some(.running),
+      status: Some(returnStatuses[job.id] ?? .running),
     );
   }
 

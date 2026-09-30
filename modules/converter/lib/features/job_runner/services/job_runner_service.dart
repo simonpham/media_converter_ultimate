@@ -58,22 +58,14 @@ class FfmpegJobRunnerService implements JobRunnerService {
         printLog(
           '[JobRunnerService] Session updated: session ${session.getSessionId()}, exitCode $exitCode, state ${state.toString()}.',
         );
-        final status = exitCode == null
-            ? state.toJobStatus()
-            : exitCode.isValueSuccess()
-            ? JobStatus.cleaning
-            : exitCode.isValueCancel()
-            ? JobStatus.cancelled
-            : exitCode.isValueError()
-            ? JobStatus.failed
-            : null;
+        final status = state.toJobStatus(returnCode: exitCode);
         _jobController.add(
           job.copyWith(
             sessionId: Some(
               session.getSessionId(),
             ),
             duration: Some(duration),
-            status: status != null ? Some(status) : null,
+            status: Some(status),
           ),
         );
       },
@@ -110,13 +102,14 @@ class FfmpegJobRunnerService implements JobRunnerService {
     }
 
     final state = await session.getState();
+    final returnCode = await session.getReturnCode();
 
     printLog(
       '[JobRunnerService] Init session ${session.getSessionId()} with command:\n${job.command}',
     );
     return job.copyWith(
       sessionId: Some(sessionId),
-      status: Some(state.toJobStatus()),
+      status: Some(state.toJobStatus(returnCode: returnCode)),
       duration: Some(duration),
     );
   }
@@ -179,6 +172,7 @@ class FfmpegJobRunnerService implements JobRunnerService {
     );
 
     final state = await session.getState();
-    return state.toJobStatus();
+    final returnCode = await session.getReturnCode();
+    return state.toJobStatus(returnCode: returnCode);
   }
 }
