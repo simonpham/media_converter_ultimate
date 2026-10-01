@@ -184,6 +184,28 @@ Use this file to:
 
 ---
 
+### Runtime stream compatibility
+
+The runner resolves the common optional maps using probed stream metadata before
+encoding. `MediaStreamMapping` chooses the source's default audio track (or first
+if no default is flagged) for formats supporting one audio track, and retains all
+mapped audio tracks for formats supporting multiple tracks. Explicit audio maps
+are unchanged. The stable configuration values remain the same.
+
+Optional subtitles retain compatible tracks: text becomes MOV text for MP4/MOV/
+3GP or WebVTT for WebM; Matroska copies supported text/bitmap tracks and converts
+other supported text to SubRip. Regular TS uses DVB subtitle signalling; PGS
+requires Blu-ray M2TS signalling and is omitted from the default TS output. Formats
+without a compatible subtitle encoder/container omit those optional tracks. The
+option's localized help explains this. Explicit subtitle maps/encoders retain
+their specified behavior.
+
+When adding a format or changing mappings, maintain the runtime compatibility
+policy and run `apps/mcu/integration_test/native_multitrack_test.dart` on the
+bundled Android engine. The host CLI matrix does not run the probe-based policy.
+The native fixture covers multiple audio languages, UTF-8 text subtitles, owned
+PGS/DVB bitmaps, track preservation, and decoding all 25 default outputs.
+
 ## 9. Localization
 
 - All strings shown to users must be translation keys (`label`, `description`, option `label`). Do not include raw human-language strings in config JSON.

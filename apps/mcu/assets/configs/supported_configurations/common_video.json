@@ -20,10 +20,12 @@
         },
         {
           "label": "configs.common.recommended_args.map_audio_optional",
+          "description": "configs.common.recommended_args.map_audio_optional_desc",
           "ffmpeg_arg": "-map '0:a?'"
         },
         {
           "label": "configs.common.recommended_args.map_subtitle_optional",
+          "description": "configs.common.recommended_args.map_subtitle_optional_desc",
           "ffmpeg_arg": "-map '0:s?'"
         }
       ]
