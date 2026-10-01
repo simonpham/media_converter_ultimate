@@ -298,6 +298,7 @@ class _JobMakerState extends State<JobMaker> {
       return;
     }
 
+    FocusManager.instance.primaryFocus?.unfocus();
     _viewModel.refreshOutputFileNames();
 
     setState(() => _isChangingStep = true);
@@ -327,6 +328,7 @@ class _JobMakerState extends State<JobMaker> {
 
   Future<void> _handleBack(BuildContext context) async {
     if (_isChangingStep || _viewModel.isPreparingJobs) return;
+    FocusManager.instance.primaryFocus?.unfocus();
     final currentPage = _pageController.page?.toInt();
     if (currentPage == null) {
       return;
