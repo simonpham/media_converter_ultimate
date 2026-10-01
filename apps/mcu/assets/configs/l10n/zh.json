@@ -63,7 +63,7 @@
   "configs.common.recommended_args.map_audio_optional": "存在时映射音频流",
   "configs.common.recommended_args.map_metadata": "从输入复制元数据",
   "configs.common.recommended_args.map_subtitle_optional": "存在时映射字幕流",
-  "configs.common.recommended_args.map_video": "映射所有视频流",
+  "configs.common.recommended_args.map_video": "包含现有视频",
   "configs.common.resolution.320": "320px 宽度",
   "configs.common.resolution.480": "480px 宽度",
   "configs.common.resolution.640": "640px 宽度",

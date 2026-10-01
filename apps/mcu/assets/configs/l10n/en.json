@@ -63,7 +63,7 @@
   "configs.common.recommended_args.map_audio_optional": "Map audio streams if present",
   "configs.common.recommended_args.map_metadata": "Copy metadata from input",
   "configs.common.recommended_args.map_subtitle_optional": "Map subtitle streams if present",
-  "configs.common.recommended_args.map_video": "Map all video streams",
+  "configs.common.recommended_args.map_video": "Include video if present",
   "configs.common.resolution.320": "320px Width",
   "configs.common.resolution.480": "480px Width",
   "configs.common.resolution.640": "640px Width",

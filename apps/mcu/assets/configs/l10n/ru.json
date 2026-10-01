@@ -63,7 +63,7 @@
   "configs.common.recommended_args.map_audio_optional": "Отобразить аудиопотоки при наличии",
   "configs.common.recommended_args.map_metadata": "Копировать метаданные из исходника",
   "configs.common.recommended_args.map_subtitle_optional": "Отобразить потоки субтитров при наличии",
-  "configs.common.recommended_args.map_video": "Отобразить все видеопотоки",
+  "configs.common.recommended_args.map_video": "Включить видео, если есть",
   "configs.common.resolution.320": "Ширина 320px",
   "configs.common.resolution.480": "Ширина 480px",
   "configs.common.resolution.640": "Ширина 640px",

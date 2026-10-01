@@ -170,6 +170,78 @@ void main() {
     }
   });
 
+  testWidgets('MP3 converts to audio-only MP4 with defaults and presets', (
+    _,
+  ) async {
+    final source = '${directory.path}/music.mp3';
+    await _execute([
+      '-i',
+      audio,
+      '-c:a',
+      'libmp3lame',
+      '-metadata',
+      'title=Audio-only source',
+      source,
+    ]);
+    final cover = '${directory.path}/mp4-cover.png';
+    await _execute([
+      '-f',
+      'lavfi',
+      '-i',
+      'color=size=32x32:duration=0.1',
+      '-frames:v',
+      '1',
+      cover,
+    ]);
+    final artworkSource = '${directory.path}/mp4-music-art.mp3';
+    await _execute([
+      '-i',
+      source,
+      '-i',
+      cover,
+      '-map',
+      '0:a',
+      '-map',
+      '1:v',
+      '-c',
+      'copy',
+      '-disposition:v',
+      'attached_pic',
+      artworkSource,
+    ]);
+    for (final (index, input) in [audio, source, artworkSource].indexed) {
+      for (final preset in <ConversionPreset?>[
+        null,
+        .compatibleVideo,
+        .smallerVideo,
+        .highQualityVideo,
+      ]) {
+        if (preset == null) {
+          await model.setSelectedFormatEntry(
+            model.formatConfigModel.formats.firstWhere(
+              (format) => format.name == 'mp4',
+            ),
+          );
+          model.resetConfigurations();
+        } else {
+          await model.applyPreset(preset);
+        }
+        final output =
+            '${directory.path}/audio-$index-${preset?.name ?? 'default'}.mp4';
+        await _execute(_arguments(model, input, output));
+        final media = await _probe(output);
+        final stream = (media['streams'] as List).single;
+        expect(stream['codec_type'], 'audio');
+        expect(stream['codec_name'], 'aac');
+        expect(double.parse(media['format']['duration']), closeTo(2, 0.1));
+        expect(
+          media['format']['tags']['title'],
+          index == 0 ? 'Native QA' : 'Audio-only source',
+        );
+      }
+    }
+  });
+
   testWidgets('presets and precise lossless trim use native codecs', (_) async {
     for (final preset in ConversionPreset.values) {
       await model.applyPreset(preset);

@@ -63,7 +63,7 @@
   "configs.common.recommended_args.map_audio_optional": "Petakan aliran audio jika ada",
   "configs.common.recommended_args.map_metadata": "Salin metadata dari input",
   "configs.common.recommended_args.map_subtitle_optional": "Petakan aliran subtitle jika ada",
-  "configs.common.recommended_args.map_video": "Petakan semua aliran video",
+  "configs.common.recommended_args.map_video": "Sertakan video jika ada",
   "configs.common.resolution.320": "Lebar 320px",
   "configs.common.resolution.480": "Lebar 480px",
   "configs.common.resolution.640": "Lebar 640px",

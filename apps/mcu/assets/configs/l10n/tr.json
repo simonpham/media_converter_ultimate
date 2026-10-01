@@ -63,7 +63,7 @@
   "configs.common.recommended_args.map_audio_optional": "Varsa ses akışlarını eşle",
   "configs.common.recommended_args.map_metadata": "Meta verileri girdiden kopyala",
   "configs.common.recommended_args.map_subtitle_optional": "Varsa altyazı akışlarını eşle",
-  "configs.common.recommended_args.map_video": "Tüm video akışlarını eşle",
+  "configs.common.recommended_args.map_video": "Varsa videoyu dahil et",
   "configs.common.resolution.320": "320px Genişlik",
   "configs.common.resolution.480": "480px Genişlik",
   "configs.common.resolution.640": "640px Genişlik",

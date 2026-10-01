@@ -63,7 +63,7 @@
   "configs.common.recommended_args.map_audio_optional": "Mappa i flussi audio se presenti",
   "configs.common.recommended_args.map_metadata": "Copia i metadati dall'input",
   "configs.common.recommended_args.map_subtitle_optional": "Mappa i flussi di sottotitoli se presenti",
-  "configs.common.recommended_args.map_video": "Mappa tutti i flussi video",
+  "configs.common.recommended_args.map_video": "Includi video se presente",
   "configs.common.resolution.320": "Larghezza 320px",
   "configs.common.resolution.480": "Larghezza 480px",
   "configs.common.resolution.640": "Larghezza 640px",

@@ -63,7 +63,7 @@
   "configs.common.recommended_args.map_audio_optional": "Ánh xạ luồng âm thanh nếu có",
   "configs.common.recommended_args.map_metadata": "Sao chép siêu dữ liệu từ đầu vào",
   "configs.common.recommended_args.map_subtitle_optional": "Ánh xạ luồng phụ đề nếu có",
-  "configs.common.recommended_args.map_video": "Ánh xạ tất cả luồng video",
+  "configs.common.recommended_args.map_video": "Bao gồm video nếu có",
   "configs.common.resolution.320": "Chiều rộng 320px",
   "configs.common.resolution.480": "Chiều rộng 480px",
   "configs.common.resolution.640": "Chiều rộng 640px",

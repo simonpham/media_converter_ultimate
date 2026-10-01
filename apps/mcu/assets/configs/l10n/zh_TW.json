@@ -63,7 +63,7 @@
   "configs.common.recommended_args.map_audio_optional": "存在時對應音訊串流",
   "configs.common.recommended_args.map_metadata": "從輸入複製中繼資料",
   "configs.common.recommended_args.map_subtitle_optional": "存在時對應字幕串流",
-  "configs.common.recommended_args.map_video": "對應所有影片串流",
+  "configs.common.recommended_args.map_video": "包含現有影片",
   "configs.common.resolution.320": "320px 寬度",
   "configs.common.resolution.480": "480px 寬度",
   "configs.common.resolution.640": "640px 寬度",

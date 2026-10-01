@@ -63,7 +63,7 @@
   "configs.common.recommended_args.map_audio_optional": "存在する場合にオーディオストリームをマッピング",
   "configs.common.recommended_args.map_metadata": "入力からメタデータをコピー",
   "configs.common.recommended_args.map_subtitle_optional": "存在する場合に字幕ストリームをマッピング",
-  "configs.common.recommended_args.map_video": "すべてのビデオストリームをマッピング",
+  "configs.common.recommended_args.map_video": "動画がある場合に含める",
   "configs.common.resolution.320": "320px 幅",
   "configs.common.resolution.480": "480px 幅",
   "configs.common.resolution.640": "640px 幅",

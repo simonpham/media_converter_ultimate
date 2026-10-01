@@ -15,7 +15,8 @@
         },
         {
           "label": "configs.common.recommended_args.map_video",
-          "ffmpeg_arg": "-map 0:v"
+          "value": "-map 0:v",
+          "ffmpeg_arg": "-map '0:V?'"
         },
         {
           "label": "configs.common.recommended_args.map_audio_optional",

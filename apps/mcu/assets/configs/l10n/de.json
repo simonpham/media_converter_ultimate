@@ -63,7 +63,7 @@
   "configs.common.recommended_args.map_audio_optional": "Audiostreams zuordnen, falls vorhanden",
   "configs.common.recommended_args.map_metadata": "Metadaten von der Eingabe kopieren",
   "configs.common.recommended_args.map_subtitle_optional": "Untertitel-Streams zuordnen, falls vorhanden",
-  "configs.common.recommended_args.map_video": "Alle Videostreams zuordnen",
+  "configs.common.recommended_args.map_video": "Video einbeziehen, falls vorhanden",
   "configs.common.resolution.320": "320px Breite",
   "configs.common.resolution.480": "480px Breite",
   "configs.common.resolution.640": "640px Breite",
