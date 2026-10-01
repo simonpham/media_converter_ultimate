@@ -343,6 +343,37 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final locale in [const Locale('en'), const Locale('de')]) {
+    testWidgets('home title leaves room for its menu at 2x text ($locale)', (
+      tester,
+    ) async {
+      await showPicker(
+        tester,
+        locale: locale,
+        scale: 2,
+        size: const Size(320, 844),
+        content: ChangeNotifierProvider<JobManagerViewModel>(
+          create: (_) => _EmptyJobManager(),
+          child: const JobManager(),
+        ),
+      );
+      final context = tester.element(find.byType(JobManager));
+      final title = find.text(context.l10n.jobManager);
+      final menu = find.descendant(
+        of: find.byType(SliverAppBar),
+        matching: find.byType(Button),
+      );
+      expect(
+        tester.getRect(title).right,
+        lessThanOrEqualTo(tester.getRect(menu).left),
+      );
+      await tester.tap(menu);
+      await tester.pumpAndSettle();
+      expect(find.text(context.l10n.settingsTitle), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('preview includes only enabled audio editing choices', (
     tester,
   ) async {
@@ -489,4 +520,19 @@ class _PickerFiles extends TestMediaFiles {
     pickCount++;
     return [];
   }
+}
+
+class _EmptyJobManager extends ChangeNotifier implements JobManagerViewModel {
+  @override
+  final Stream<List<ConvertJob>> pendingJobsStream = const Stream.empty();
+  @override
+  final Stream<List<ConvertJob>> runningJobsStream = const Stream.empty();
+  @override
+  final Stream<List<ConvertJob>> completedJobsStream = const Stream.empty();
+  @override
+  final Stream<List<ConvertJob>> actionRequiredJobsStream =
+      const Stream.empty();
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

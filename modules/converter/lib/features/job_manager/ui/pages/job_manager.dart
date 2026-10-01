@@ -44,11 +44,11 @@ class _JobManagerState extends State<JobManager> {
                   SliverAppBar(
                     expandedHeight: kToolbarHeight * 1.2,
                     collapsedHeight: kToolbarHeight,
-                    flexibleSpace: FlexibleSpaceBar(
-                      centerTitle: true,
-                      title: Text(
-                        context.l10n.jobManager,
-                      ),
+                    centerTitle: true,
+                    title: Text(
+                      context.l10n.jobManager,
+                      maxLines: 1,
+                      overflow: .ellipsis,
                     ),
                     pinned: true,
                     backgroundColor: context.theme.scaffoldBackgroundColor,
@@ -282,6 +282,7 @@ class _JobManagerState extends State<JobManager> {
       ),
       floatingActionButton: Button(
         mainAxisSize: .min,
+        titleExpand: .shrink,
         variant: .primary,
         icon: ImageView(
           Assets.add01,
