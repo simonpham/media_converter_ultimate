@@ -95,8 +95,8 @@ class JobNotificationServiceImpl implements JobNotificationService {
       ),
       foregroundTaskOptions: ForegroundTaskOptions(
         eventAction: ForegroundTaskEventAction.repeat(5000),
-        autoRunOnBoot: true,
-        autoRunOnMyPackageReplaced: true,
+        autoRunOnBoot: false,
+        autoRunOnMyPackageReplaced: false,
         allowWakeLock: true,
         allowWifiLock: false,
       ),
@@ -111,10 +111,9 @@ class JobNotificationServiceImpl implements JobNotificationService {
     }
 
     if (await isServiceRunning()) {
-      await FlutterForegroundTask.restartService();
       return;
     }
-    await FlutterForegroundTask.startService(
+    final result = await FlutterForegroundTask.startService(
       serviceId: kJobNotificationServiceId,
       notificationTitle: params.notificationTitle,
       notificationText: params.notificationText,
@@ -126,6 +125,7 @@ class JobNotificationServiceImpl implements JobNotificationService {
         ForegroundServiceTypes.mediaProcessing,
       ],
     );
+    if (result case ServiceRequestFailure(:final error)) throw error;
   }
 
   @override
@@ -137,7 +137,8 @@ class JobNotificationServiceImpl implements JobNotificationService {
     if (!await isServiceRunning()) {
       return;
     }
-    await FlutterForegroundTask.stopService();
+    final result = await FlutterForegroundTask.stopService();
+    if (result case ServiceRequestFailure(:final error)) throw error;
   }
 }
 

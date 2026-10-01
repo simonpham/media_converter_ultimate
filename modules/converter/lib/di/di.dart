@@ -34,6 +34,10 @@ class ConverterInjector {
       () => JobNotificationServiceImpl(),
     );
 
+    injector.registerLazySingleton<JobNotificationCoordinator>(
+      () => JobNotificationCoordinator(injector<JobNotificationService>()),
+    );
+
     final mobileAdsService = GoogleMobileAdsService();
     unawaited(mobileAdsService.initialize());
     injector.registerSingleton<MobileAdsService>(mobileAdsService);

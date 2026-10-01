@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:converter/converter.dart';
 import 'package:core_storage_base/core_storage_base.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sofluffy_ui/utils/utils.dart';
 
@@ -26,48 +27,74 @@ class _JobNotificationWrapperState extends State<JobNotificationWrapper>
 
   bool get _isEnabled => SettingsBox().keepAppRunning;
 
+  late final JobNotificationCoordinator _coordinator;
+  late final ValueListenable<void> _settingsListenable;
+  JobNotificationServiceStartParams? _startParameters;
+  AppLifecycleState _lifecycleState = .resumed;
+
   StreamSubscription<bool>? _isJobProcessingSubscription;
 
   bool _isJobProcessing = false;
 
   @override
-  Future<void> afterFirstLayout(BuildContext context) async {
-    if (!_isEnabled) {
-      return;
-    }
-    await _jobNotificationService.requestPermission();
-    await _jobNotificationService.init(
-      JobNotificationServiceInitParams(
-        channelName: kAppName,
-        channelDescription: context.l10n.notificationChannelDescription,
-      ),
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _startParameters = .new(
+      notificationTitle: kAppName,
+      notificationText: context.l10n.notificationChannelDescription,
+      iconBackgroundColor: context.theme.primaryColor,
     );
+    _updateService();
+  }
+
+  @override
+  Future<void> afterFirstLayout(BuildContext context) async {
+    if (_isEnabled) {
+      await _jobNotificationService.requestPermission();
+      if (!mounted) return;
+      await _jobNotificationService.init(
+        JobNotificationServiceInitParams(
+          channelName: kAppName,
+          channelDescription: context.l10n.notificationChannelDescription,
+        ),
+      );
+    }
+    if (mounted) _updateService();
   }
 
   @override
   void initState() {
     super.initState();
+    _coordinator = injector<JobNotificationCoordinator>();
+    _lifecycleState = WidgetsBinding.instance.lifecycleState ?? .resumed;
+    _settingsListenable = [JobRunnerSettings.keepAppRunning].of(SettingsBox());
+    _settingsListenable.addListener(_updateService);
     WidgetsBinding.instance.addObserver(this);
     _isJobProcessingSubscription = _jobStorage
         .watchIsJobPendingOrProcessing()
         .listen(
-          (isProcessing) async {
+          (isProcessing) {
             _isJobProcessing = isProcessing;
+            _updateService();
           },
         );
   }
 
   @override
   void dispose() {
-    _isJobProcessingSubscription?.cancel();
+    if (_isJobProcessingSubscription case final subscription?) {
+      unawaited(subscription.cancel());
+    }
+    _settingsListenable.removeListener(_updateService);
     WidgetsBinding.instance.removeObserver(this);
-    _jobNotificationService.stop();
+    unawaited(_coordinator.update(shouldRun: false));
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    _handleAppLifecycleState(state);
+    _lifecycleState = state;
+    _updateService();
   }
 
   @override
@@ -75,26 +102,17 @@ class _JobNotificationWrapperState extends State<JobNotificationWrapper>
     return widget.child;
   }
 
-  Future<void> _handleAppLifecycleState(AppLifecycleState state) async {
-    if (!_isEnabled || !_isJobProcessing) {
-      await _jobNotificationService.stop();
-      return;
-    }
-    if (state == AppLifecycleState.paused && _isJobProcessing) {
-      // App is going to the background, start the service.
-      await _jobNotificationService.start(
-        JobNotificationServiceStartParams(
-          notificationTitle: kAppName,
-          notificationText: context.l10n.notificationChannelDescription,
-          iconBackgroundColor: context.theme.primaryColor,
-        ),
-      );
-      return;
-    }
-
-    if (state == AppLifecycleState.resumed) {
-      // App is returning to the foreground, stop the service.
-      await _jobNotificationService.stop();
-    }
+  void _updateService() {
+    if (!mounted || _startParameters == null) return;
+    final isBackground = switch (_lifecycleState) {
+      .hidden || .paused || .detached => true,
+      .resumed || .inactive => false,
+    };
+    unawaited(
+      _coordinator.update(
+        shouldRun: _isEnabled && _isJobProcessing && isBackground,
+        parameters: _startParameters,
+      ),
+    );
   }
 }
