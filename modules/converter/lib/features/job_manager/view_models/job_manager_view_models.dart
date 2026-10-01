@@ -27,6 +27,11 @@ class JobManagerViewModel extends ChangeNotifier {
   StreamSubscription? _logSubscription;
   final _jobOperations = <String, Future<void>>{};
   final _startingJobs = <String>{};
+  final _activeExecutions = <String, String>{};
+  final _stopRequests = <String, Future<void>>{};
+  final _runnerStarts = <String, Completer<void>>{};
+
+  String? activeExecutionId(String jobId) => _activeExecutions[jobId];
   final _retiredSessions = <String, Set<int>>{};
   Future<void>? _pendingRun;
   bool _shouldRescanQueue = false;
@@ -63,34 +68,94 @@ class JobManagerViewModel extends ChangeNotifier {
     await _runPendingJobs();
   }
 
-  Future<void> removeRunningJob(ConvertJob job) async {
+  Future<void> removeRunningJob(ConvertJob job, {String? executionId}) async {
     final currentJob = await _jobStorage.get(job.id);
+    final active = _activeExecutions[job.id];
+    final requested = executionId ?? job.executionId;
     if (currentJob == null ||
         !currentJob.status.isProcessing ||
-        currentJob.sessionId != job.sessionId ||
-        currentJob.sessionId == null) {
+        currentJob.status == .cleaning ||
+        (job.sessionId != null && currentJob.sessionId != job.sessionId) ||
+        (requested != null && requested != active) ||
+        (job.sessionId == null && (requested == null || requested != active))) {
       return;
     }
+    final key = '${job.id}:${active ?? job.sessionId}';
+    final existing = _stopRequests[key];
+    if (existing != null) return existing;
+    if (currentJob.status == .stopping) return;
+    final execution = currentJob.copyWith(executionId: Some(active));
+    final operation = _stopExecution(execution).whenComplete(() {
+      _stopRequests.remove(key);
+    });
+    _stopRequests[key] = operation;
+    await operation;
+  }
 
-    await _jobRunnerService.stop(currentJob);
+  Future<void> _stopExecution(ConvertJob job) async {
+    await _queueJobUpdate(job.copyWith(status: const Some(.stopping)));
+    var acknowledged = false;
+    try {
+      await _runnerStarts[job.executionId]?.future;
+      acknowledged = await _jobRunnerService.stop(job);
+    } catch (err, trace) {
+      printError(err, trace);
+      LogData().appendLog(job.id, err.toString());
+    }
+    // Drain native completion events before deciding whether to restore Stop.
+    await _jobOperations[job.id];
+    final current = await _jobStorage.get(job.id);
+    if (current?.status != .stopping ||
+        (job.executionId != null &&
+            _activeExecutions[job.id] != job.executionId)) {
+      return;
+    }
+    await _queueJobUpdate(
+      current!.copyWith(
+        executionId: Some(job.executionId),
+        status: Some(
+          acknowledged
+              ? .cancelled
+              : job.sessionId == null && current.sessionId != null
+              ? .running
+              : job.status,
+        ),
+      ),
+      restoreAfterStop: !acknowledged,
+    );
   }
 
   Future<void> runJob(ConvertJob job) async {
     if (_isDisposed || !_startingJobs.add(job.id)) {
       return;
     }
+    Completer<void>? registered;
+    String? executionId;
     try {
       final currentJob = await _jobStorage.get(job.id);
       if (currentJob == null || !currentJob.status.isQueued) {
         return;
       }
-      final preparingJob = currentJob.copyWith(status: const Some(.preparing));
+      executionId = kUuid.v4();
+      registered = Completer<void>();
+      _runnerStarts[executionId] = registered;
+      _activeExecutions[job.id] = executionId;
+      final preparingJob = currentJob.copyWith(
+        status: const Some(.preparing),
+        executionId: Some(executionId),
+      );
       final failure = await _jobStorage.update(preparingJob);
       if (failure != null) {
         throw failure;
       }
       try {
-        final startedJob = await _jobRunnerService.run(preparingJob);
+        late final Future<ConvertJob> running;
+        try {
+          running = _jobRunnerService.run(preparingJob);
+        } finally {
+          registered.complete();
+        }
+        final startedJob = await running;
         await _queueJobUpdate(startedJob);
       } catch (err, trace) {
         printError(err, trace);
@@ -100,11 +165,19 @@ class JobManagerViewModel extends ChangeNotifier {
         );
       }
     } finally {
+      final didRegister = registered?.isCompleted ?? false;
+      if (!didRegister && _activeExecutions[job.id] == executionId) {
+        _activeExecutions.remove(job.id);
+      }
+      if (registered != null && !registered.isCompleted) registered.complete();
+      _runnerStarts.remove(executionId);
       _startingJobs.remove(job.id);
+      if (didRegister) _requestPendingJobs();
     }
   }
 
   Future<void> restartJob(ConvertJob job) async {
+    await _jobOperations[job.id];
     final currentJob = await _jobStorage.get(job.id);
     if (currentJob == null || !currentJob.status.isDone) {
       return;
@@ -123,14 +196,22 @@ class JobManagerViewModel extends ChangeNotifier {
     await _runPendingJobs();
   }
 
-  Future<void> _queueJobUpdate(ConvertJob job, {bool recoverOutput = false}) {
+  Future<void> _queueJobUpdate(
+    ConvertJob job, {
+    bool recoverOutput = false,
+    bool restoreAfterStop = false,
+  }) {
     final previous = _jobOperations[job.id] ?? Future<void>.value();
     final operation = previous.then((_) async {
       if (_isDisposed) {
         return;
       }
       try {
-        await _handleJobUpdate(job, recoverOutput: recoverOutput);
+        await _handleJobUpdate(
+          job,
+          recoverOutput: recoverOutput,
+          restoreAfterStop: restoreAfterStop,
+        );
       } catch (err, trace) {
         printError(err, trace);
         LogData().appendLog(job.id, err.toString());
@@ -150,7 +231,13 @@ class JobManagerViewModel extends ChangeNotifier {
   Future<void> _handleJobUpdate(
     ConvertJob job, {
     bool recoverOutput = false,
+    bool restoreAfterStop = false,
   }) async {
+    if (!recoverOutput &&
+        job.executionId != null &&
+        _activeExecutions[job.id] != job.executionId) {
+      return;
+    }
     if (_retiredSessions[job.id]?.contains(job.sessionId) == true) {
       return;
     }
@@ -161,14 +248,29 @@ class JobManagerViewModel extends ChangeNotifier {
     if (currentJob.status == .actionRequired && !recoverOutput) {
       return;
     }
-    if (currentJob.status.isProcessing &&
-        job.status.isProcessing &&
-        job.status.index < currentJob.status.index) {
-      return;
-    }
     if (currentJob.sessionId != null &&
         job.sessionId != null &&
         currentJob.sessionId != job.sessionId) {
+      return;
+    }
+    if (currentJob.status == .stopping &&
+        job.status.isProcessing &&
+        job.status != .cleaning &&
+        !restoreAfterStop) {
+      // Keep real session/progress metadata if encoder startup won the race.
+      await _jobStorage.update(
+        currentJob.copyWith(
+          sessionId: job.sessionId == null ? null : Some(job.sessionId),
+          progress: job.progress == null ? null : Some(job.progress),
+          duration: job.duration == null ? null : Some(job.duration),
+        ),
+      );
+      return;
+    }
+    if (currentJob.status != .stopping &&
+        currentJob.status.isProcessing &&
+        job.status.isProcessing &&
+        job.status.index < currentJob.status.index) {
       return;
     }
     await _jobStorage.update(job);
@@ -178,6 +280,7 @@ class JobManagerViewModel extends ChangeNotifier {
       try {
         await _cleanFailedJob(updatedJob);
       } finally {
+        _finishExecution(updatedJob);
         _requestPendingJobs();
       }
       return;
@@ -194,6 +297,7 @@ class JobManagerViewModel extends ChangeNotifier {
           updatedJob.copyWith(status: const Some(.actionRequired)),
         );
         LogData().appendLog(updatedJob.id, failure.toString());
+        _finishExecution(updatedJob);
         _requestPendingJobs();
         return;
       }
@@ -211,6 +315,7 @@ class JobManagerViewModel extends ChangeNotifier {
         );
         await _jobStorage.update(failedJob);
         LogData().appendLog(failedJob.id, failure.toString());
+        _finishExecution(updatedJob);
         _requestPendingJobs();
         return;
       }
@@ -221,6 +326,7 @@ class JobManagerViewModel extends ChangeNotifier {
       );
       await _jobStorage.update(recoveryJob);
       LogData().appendLog(recoveryJob.id, failure.toString());
+      _finishExecution(updatedJob);
       _requestPendingJobs();
       return;
     }
@@ -237,7 +343,14 @@ class JobManagerViewModel extends ChangeNotifier {
     try {
       await _fileService.cleanUpInputFile(jobId: updatedJob.id);
     } finally {
+      _finishExecution(updatedJob);
       _requestPendingJobs();
+    }
+  }
+
+  void _finishExecution(ConvertJob job) {
+    if (_activeExecutions[job.id] == job.executionId) {
+      _activeExecutions.remove(job.id);
     }
   }
 

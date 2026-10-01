@@ -21,6 +21,7 @@ class FfmpegJobRunnerService implements JobRunnerService {
       StreamController.broadcast();
   final StreamController<JobLog> _logController = StreamController.broadcast();
   final _stoppingSessions = <int, Future<bool>>{};
+  final _preparations = <String, _Preparation>{};
 
   @override
   Stream<ConvertJob> get onJobUpdate => _jobController.stream;
@@ -29,16 +30,51 @@ class FfmpegJobRunnerService implements JobRunnerService {
   Stream<JobLog> get onLogUpdate => _logController.stream;
 
   @override
-  Future<ConvertJob> run(ConvertJob job) async {
+  Future<ConvertJob> run(ConvertJob job) {
+    if (_preparations.containsKey(job.id)) {
+      return Future.error(StateError('Job preparation is already running'));
+    }
+    final execution = job.copyWith(
+      executionId: Some(job.executionId ?? kUuid.v4()),
+    );
+    final preparation = _Preparation(execution.executionId!);
+    _preparations[job.id] = preparation;
+    preparation.started = _prepareAndStart(execution, preparation).whenComplete(
+      () {
+        if (identical(_preparations[job.id], preparation)) {
+          _preparations.remove(job.id);
+        }
+      },
+    );
+    return preparation.started;
+  }
+
+  ConvertJob _cancelPreparation(ConvertJob job) {
+    final cancelled = job.copyWith(status: const Some(.cancelled));
+    _jobController.add(cancelled);
+    return cancelled;
+  }
+
+  Future<ConvertJob> _prepareAndStart(
+    ConvertJob job,
+    _Preparation preparation,
+  ) async {
     _jobController.add(
       job.copyWith(
         status: const Some(JobStatus.preparing),
       ),
     );
 
-    final mediaInfoSession = await FFprobeKit.getMediaInformation(
-      job.inputFilePath,
-    );
+    late final MediaInformationSession mediaInfoSession;
+    try {
+      mediaInfoSession = await FFprobeKit.getMediaInformation(
+        job.inputFilePath,
+      );
+    } catch (_) {
+      if (preparation.cancelRequested) return _cancelPreparation(job);
+      rethrow;
+    }
+    if (preparation.cancelRequested) return _cancelPreparation(job);
     final mediaInfo = mediaInfoSession.getMediaInformation();
     final sourceDuration =
         ((double.tryParse('${mediaInfo?.getDuration()}') ?? 0) * 1000).toInt();
@@ -56,7 +92,13 @@ class FfmpegJobRunnerService implements JobRunnerService {
       throw EmptyTrimRangeFailure(job.inputFilePath);
     }
 
-    await injector<FileService>().prepareConvertTempFolder(jobId: job.id);
+    try {
+      await injector<FileService>().prepareConvertTempFolder(jobId: job.id);
+    } catch (_) {
+      if (preparation.cancelRequested) return _cancelPreparation(job);
+      rethrow;
+    }
+    if (preparation.cancelRequested) return _cancelPreparation(job);
 
     _jobController.add(
       job.copyWith(
@@ -131,13 +173,33 @@ class FfmpegJobRunnerService implements JobRunnerService {
   @override
   Future<bool> stop(ConvertJob job) {
     final sessionId = job.sessionId;
-    if (sessionId == null) return Future.value(false);
+    if (sessionId == null) {
+      final preparation = _preparations[job.id];
+      if (preparation == null || job.executionId != preparation.executionId) {
+        return Future.value(false);
+      }
+      return preparation.stopping ??= _stopPreparation(job, preparation);
+    }
     return _stoppingSessions.putIfAbsent(
       sessionId,
       () => _stopSession(job).whenComplete(() {
         _stoppingSessions.remove(sessionId);
       }),
     );
+  }
+
+  Future<bool> _stopPreparation(
+    ConvertJob job,
+    _Preparation preparation,
+  ) async {
+    preparation.cancelRequested = true;
+    _jobController.add(job.copyWith(status: const Some(.stopping)));
+    final started = await preparation.started;
+    if (started.status == .cancelled) return true;
+    if (started.sessionId == null) return false;
+    // A stop can arrive while the platform creates the encoder session.
+    // In that case, wait for that session's real cancellation acknowledgement.
+    return stop(started);
   }
 
   Future<bool> _stopSession(ConvertJob job) async {
@@ -194,4 +256,10 @@ class FfmpegJobRunnerService implements JobRunnerService {
     final returnCode = await session.getReturnCode();
     return state.toJobStatus(returnCode: returnCode);
   }
+}
+
+class _Preparation(final String executionId) {
+  bool cancelRequested = false;
+  late final Future<ConvertJob> started;
+  Future<bool>? stopping;
 }

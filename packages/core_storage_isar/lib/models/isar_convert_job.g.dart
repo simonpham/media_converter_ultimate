@@ -242,6 +242,7 @@ const _IsarConvertJobstatusEnumValueMap = {
   r'failed': r'failed',
   r'actionRequired': r'actionRequired',
   r'completed': r'completed',
+  r'stopping': r'stopping',
 };
 const _IsarConvertJobstatusValueEnumMap = {
   r'pending': JobStatus.pending,
@@ -253,6 +254,7 @@ const _IsarConvertJobstatusValueEnumMap = {
   r'failed': JobStatus.failed,
   r'actionRequired': JobStatus.actionRequired,
   r'completed': JobStatus.completed,
+  r'stopping': JobStatus.stopping,
 };
 
 Id _isarConvertJobGetId(IsarConvertJob object) {

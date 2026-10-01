@@ -94,6 +94,7 @@
   "jobStatusCancelled": "Отменено",
   "jobStatusCleaning": "Очистка",
   "jobStatusCompleted": "Завершено",
+  "jobStatusStopping": "Остановка…",
   "jobStatusFailed": "Ошибка",
   "jobStatusPending": "В ожидании",
   "jobStatusPreparing": "Подготовка",

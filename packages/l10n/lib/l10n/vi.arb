@@ -94,6 +94,7 @@
   "jobStatusCancelled": "Đã hủy",
   "jobStatusCleaning": "Đang dọn dẹp",
   "jobStatusCompleted": "Đã hoàn thành",
+  "jobStatusStopping": "Đang dừng…",
   "jobStatusFailed": "Thất bại",
   "jobStatusPending": "Đang chờ",
   "jobStatusPreparing": "Đang chuẩn bị",

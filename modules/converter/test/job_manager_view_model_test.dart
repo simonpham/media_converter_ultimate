@@ -76,6 +76,154 @@ void main() {
   );
 
   test(
+    'preparation stop retains the queue slot until acknowledgement',
+    () async {
+      runner.startGate = Completer<void>();
+      runner.stopGate = Completer<void>();
+      runner.returnStatuses['first'] = .cancelled;
+      final adding = model.addJobs([job('first'), job('second')]);
+      await waitFor(() => runner.started.isNotEmpty);
+      final preparing = storage.jobs['first']!;
+      final executionId = model.activeExecutionId('first');
+      final stopping = model.removeRunningJob(
+        preparing,
+        executionId: executionId,
+      );
+      await waitFor(() => runner.stopped.isNotEmpty);
+      final repeated = model.removeRunningJob(
+        preparing,
+        executionId: executionId,
+      );
+      await flushEvents();
+      expect(storage.jobs['first']!.status, JobStatus.stopping);
+      expect(runner.started, ['first']);
+      expect(runner.stopped, [null]);
+      runner.startGate!.complete();
+      runner.stopGate!.complete();
+      await Future.wait([adding, stopping, repeated]);
+      expect(storage.jobs['first']!.status, JobStatus.cancelled);
+      expect(runner.started, ['first', 'second']);
+      expect(files.moveAttempts, 0);
+    },
+  );
+
+  test('Stop before runner registration waits for that execution', () async {
+    storage.preparingCommitGate = Completer<void>();
+    final adding = model.addJobs([job('first')]);
+    await waitFor(() => storage.jobs['first']?.status == .preparing);
+    final preparing = storage.jobs['first']!;
+    final stopping = model.removeRunningJob(preparing);
+    await waitFor(() => storage.jobs['first']?.status == .stopping);
+    expect(runner.started, isEmpty);
+    expect(runner.stopped, isEmpty);
+    storage.preparingCommitGate!.complete();
+    await Future.wait([adding, stopping]);
+    expect(runner.started, ['first']);
+    expect(runner.stopped, [null]);
+    expect(storage.jobs['first']!.status, JobStatus.cancelled);
+  });
+
+  test(
+    'a stale preparation Stop and null-session update cannot affect retry',
+    () async {
+      runner.startGate = Completer<void>();
+      final adding = model.addJobs([job('first')]);
+      await waitFor(() => runner.started.isNotEmpty);
+      final old = storage.jobs['first']!;
+      final oldExecution = model.activeExecutionId('first');
+      runner.startGate!.complete();
+      await adding;
+      runner.emit(
+        storage.jobs['first']!.copyWith(status: const Some(.cancelled)),
+      );
+      await waitFor(() => model.activeExecutionId('first') == null);
+      await model.restartJob(storage.jobs['first']!);
+      final current = storage.jobs['first']!;
+      expect(current.executionId, isNot(oldExecution));
+      await model.removeRunningJob(old, executionId: oldExecution);
+      runner.emit(old.copyWith(status: const Some(.cancelled)));
+      await flushEvents();
+      expect(runner.stopped, isEmpty);
+      expect(storage.jobs['first']!.status, JobStatus.running);
+      expect(storage.jobs['first']!.sessionId, current.sessionId);
+    },
+  );
+
+  test(
+    'same preparation Stop remains valid after the encoder gets an ID',
+    () async {
+      runner.startGate = Completer<void>();
+      final adding = model.addJobs([job('first')]);
+      await waitFor(() => runner.started.isNotEmpty);
+      final preparing = storage.jobs['first']!;
+      final executionId = model.activeExecutionId('first');
+      runner.startGate!.complete();
+      await adding;
+      await model.removeRunningJob(preparing, executionId: executionId);
+      expect(runner.stopped, [1]);
+      expect(storage.jobs['first']!.status, JobStatus.cancelled);
+    },
+  );
+
+  test(
+    'an unacknowledged stop restores running and keeps the queue slot',
+    () async {
+      runner.stopResult = false;
+      await model.addJobs([job('first'), job('second')]);
+      await model.removeRunningJob(storage.jobs['first']!);
+      expect(storage.jobs['first']!.status, JobStatus.running);
+      expect(storage.jobs['second']!.status, JobStatus.pending);
+      expect(runner.started, ['first']);
+      expect(files.moveAttempts, 0);
+    },
+  );
+
+  test('successful completion wins a stop race and exports once', () async {
+    runner.stopGate = Completer<void>();
+    runner.stopResult = false;
+    await model.addJobs([job('first')]);
+    final current = storage.jobs['first']!;
+    final stopping = model.removeRunningJob(current);
+    await waitFor(() => runner.stopped.isNotEmpty);
+    runner.emit(current.copyWith(status: const Some(.cleaning)));
+    await waitFor(() => storage.jobs['first']!.status == .completed);
+    runner.stopGate!.complete();
+    await stopping;
+    expect(storage.jobs['first']!.status, JobStatus.completed);
+    expect(files.moveAttempts, 1);
+    expect(settings.successConversionCount, 1);
+  });
+
+  test(
+    'encoder metadata is retained while stop waits for acknowledgement',
+    () async {
+      runner.startGate = Completer<void>();
+      runner.stopGate = Completer<void>();
+      final adding = model.addJobs([job('first')]);
+      await waitFor(() => runner.started.isNotEmpty);
+      final preparing = storage.jobs['first']!;
+      final stopping = model.removeRunningJob(preparing);
+      await waitFor(() => runner.stopped.isNotEmpty);
+      runner.emit(
+        preparing.copyWith(
+          sessionId: const Some(1),
+          status: const Some(.running),
+          progress: const Some(500),
+          duration: const Some(1000),
+        ),
+      );
+      await flushEvents();
+      expect(storage.jobs['first']!.status, JobStatus.stopping);
+      expect(storage.jobs['first']!.sessionId, 1);
+      expect(storage.jobs['first']!.progress, 500);
+      runner.startGate!.complete();
+      runner.stopGate!.complete();
+      await Future.wait([adding, stopping]);
+      expect(storage.jobs['first']!.status, JobStatus.cancelled);
+    },
+  );
+
+  test(
     'restart joins the queue while another conversion uses the slot',
     () async {
       await model.addJobs([job('first')]);
@@ -92,6 +240,21 @@ void main() {
       expect(queued.sessionId, isNull);
       expect(queued.progress, isNull);
       expect(queued.duration, isNull);
+    },
+  );
+
+  test(
+    'a failed preparation commit does not spin or retain execution state',
+    () async {
+      storage.updateFailure = const Failure('Commit failed');
+      await expectLater(model.addJobs([job('first')]), throwsA(isA<Failure>()));
+      await flushEvents();
+      expect(runner.started, isEmpty);
+      expect(storage.updateAttempts, 1);
+      expect(model.activeExecutionId('first'), isNull);
+      storage.updateFailure = null;
+      await model.runJob(storage.jobs['first']!);
+      expect(storage.jobs['first']!.status, JobStatus.running);
     },
   );
 
@@ -433,6 +596,9 @@ class MemoryLogs implements LogData {
 
 class MemoryJobStorage implements ConvertJobStorage {
   final jobs = <String, ConvertJob>{};
+  Completer<void>? preparingCommitGate;
+  Failure? updateFailure;
+  int updateAttempts = 0;
 
   @override
   Future<Failure?> addAll(List<ConvertJob> items) async {
@@ -447,7 +613,10 @@ class MemoryJobStorage implements ConvertJobStorage {
 
   @override
   Future<Failure?> update(ConvertJob item) async {
+    updateAttempts++;
+    if (updateFailure != null) return updateFailure;
     jobs[item.id] = item;
+    if (item.status == .preparing) await preparingCommitGate?.future;
     return null;
   }
 
@@ -480,6 +649,8 @@ class FakeRunner implements JobRunnerService {
   final failStarts = <String>{};
   final returnStatuses = <String, JobStatus>{};
   Completer<void>? startGate;
+  Completer<void>? stopGate;
+  bool stopResult = true;
 
   @override
   Stream<ConvertJob> get onJobUpdate => updates.stream;
@@ -507,7 +678,8 @@ class FakeRunner implements JobRunnerService {
   @override
   Future<bool> stop(ConvertJob job) async {
     stopped.add(job.sessionId);
-    return true;
+    await stopGate?.future;
+    return stopResult;
   }
 
   Future<void> close() async {

@@ -94,6 +94,7 @@
   "jobStatusCancelled": "Dibatalkan",
   "jobStatusCleaning": "Membersihkan",
   "jobStatusCompleted": "Selesai",
+  "jobStatusStopping": "Menghentikan…",
   "jobStatusFailed": "Gagal",
   "jobStatusPending": "Menunggu",
   "jobStatusPreparing": "Mempersiapkan",

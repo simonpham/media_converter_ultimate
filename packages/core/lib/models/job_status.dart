@@ -8,7 +8,8 @@ extension JobStatusExtension on JobStatus {
       this == .running ||
       this == .preparing ||
       this == .ready ||
-      this == .cleaning;
+      this == .cleaning ||
+      this == .stopping;
 
   bool get isDone =>
       this == .completed || this == .failed || this == .cancelled;
@@ -25,14 +26,15 @@ enum JobStatus {
   cancelled, // FFmpeg session is cancelled.
   failed, // FFmpeg session is failed.
   actionRequired, // Conversion success, but needs user action to finalize.
-  completed // Conversion job is completed.
+  completed, // Conversion job is completed.
+  stopping // Waiting for the current native operation to end.
   ;
 
   Color getColor(BuildContext context) {
     final colors = context.theme.colorScheme;
     return switch (this) {
       .pending => colors.onSurfaceVariant,
-      .preparing || .running || .cleaning => colors.primary,
+      .preparing || .running || .cleaning || .stopping => colors.primary,
       .ready || .completed => colors.secondary,
       .cancelled || .failed => colors.error,
       .actionRequired => colors.tertiary,
@@ -43,7 +45,7 @@ enum JobStatus {
     final colors = context.theme.colorScheme;
     return switch (this) {
       .pending => colors.surface,
-      .preparing || .running || .cleaning => colors.onPrimary,
+      .preparing || .running || .cleaning || .stopping => colors.onPrimary,
       .ready || .completed => colors.onSecondary,
       .cancelled || .failed => colors.onError,
       .actionRequired => colors.onTertiary,
@@ -61,6 +63,7 @@ enum JobStatus {
       .cleaning => context.l10n.jobStatusCleaning,
       .actionRequired => context.l10n.jobStatusActionRequired,
       .completed => context.l10n.jobStatusCompleted,
+      .stopping => context.l10n.jobStatusStopping,
     };
   }
 }

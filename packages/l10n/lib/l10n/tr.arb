@@ -94,6 +94,7 @@
   "jobStatusCancelled": "İptal Edildi",
   "jobStatusCleaning": "Temizleme",
   "jobStatusCompleted": "Tamamlandı",
+  "jobStatusStopping": "Durduruluyor…",
   "jobStatusFailed": "Başarısız",
   "jobStatusPending": "Beklemede",
   "jobStatusPreparing": "Hazırlık",

@@ -328,6 +328,50 @@ void main() {
     }
   });
 
+  testWidgets('preparation Stop captures its execution before startup', (
+    tester,
+  ) async {
+    final manager = _ProcessingJobManager(.preparing);
+    addTearDown(manager.dispose);
+    await showPicker(
+      tester,
+      content: ChangeNotifierProvider<JobManagerViewModel>.value(
+        value: manager,
+        child: const JobManager(),
+      ),
+    );
+    expect(find.text('Stop'), findsOneWidget);
+    manager.executionId = 'later-execution';
+    await tester.tap(find.text('Stop'));
+    await tester.pump();
+    expect(manager.stoppedExecutionId, 'preparation-execution');
+    expect(manager.stoppedJob?.sessionId, isNull);
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final status in <JobStatus>[.stopping, .cleaning]) {
+    testWidgets('${status.name} job hides Stop until the operation ends', (
+      tester,
+    ) async {
+      final manager = _ProcessingJobManager(status);
+      addTearDown(manager.dispose);
+      await showPicker(
+        tester,
+        content: ChangeNotifierProvider<JobManagerViewModel>.value(
+          value: manager,
+          child: const JobManager(),
+        ),
+      );
+      final context = tester.element(find.byType(JobManager));
+      expect(
+        find.textContaining(status.getLabel(context), findRichText: true),
+        findsOneWidget,
+      );
+      expect(find.text('Stop'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('output recovery actions fit large German text', (tester) async {
     await showPicker(
       tester,
@@ -535,4 +579,35 @@ class _EmptyJobManager extends ChangeNotifier implements JobManagerViewModel {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _ProcessingJobManager(final JobStatus status) extends _EmptyJobManager {
+  String executionId = 'preparation-execution';
+  String? stoppedExecutionId;
+  ConvertJob? stoppedJob;
+
+  @override
+  Stream<List<ConvertJob>> get runningJobsStream => Stream.value([
+    ConvertJob(
+      id: 'preparation',
+      inputFilePath: '/input.wav',
+      outputFileName: 'output.m4a',
+      outputExtension: 'm4a',
+      outputDirectoryPath: '/output',
+      command: '[]',
+      convertedFilePath: '/temporary/output.m4a',
+      createdAt: DateTime(2026),
+      updatedAt: DateTime(2026),
+      status: status,
+    ),
+  ]);
+
+  @override
+  String? activeExecutionId(String jobId) => executionId;
+
+  @override
+  Future<void> removeRunningJob(ConvertJob job, {String? executionId}) async {
+    stoppedJob = job;
+    stoppedExecutionId = executionId;
+  }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:converter/converter.dart';
 import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
@@ -178,11 +180,17 @@ class _JobManagerState extends State<JobManager> {
                       separatorBuilder: (_, _) => Spacing.v8,
                       itemBuilder: (BuildContext context, int index) {
                         final job = runningJobs[index];
+                        final executionId = model.activeExecutionId(job.id);
                         return JobItem(
                           job,
                           onRemoveItem: () => _handleRemoveItem(context, job),
                           onOpenLogs: () => _handleOpenLogs(context, job),
-                          onStop: () => _handleStop(context, job),
+                          onStop:
+                              job.status == .stopping ||
+                                  job.status == .cleaning ||
+                                  (job.sessionId == null && executionId == null)
+                              ? null
+                              : () => _handleStop(context, job, executionId),
                         );
                       },
                     ),
@@ -377,8 +385,17 @@ class _JobManagerState extends State<JobManager> {
     await _handleRemoveItem(context, job);
   }
 
-  void _handleStop(BuildContext context, ConvertJob job) {
-    context.read<JobManagerViewModel>().removeRunningJob(job);
+  void _handleStop(
+    BuildContext context,
+    ConvertJob job,
+    String? executionId,
+  ) {
+    unawaited(
+      context.read<JobManagerViewModel>().removeRunningJob(
+        job,
+        executionId: executionId,
+      ),
+    );
   }
 
   Future<void> _handleRestart(BuildContext context, ConvertJob job) async {

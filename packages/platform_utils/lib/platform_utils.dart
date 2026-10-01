@@ -8,6 +8,7 @@ export 'package:ffmpeg_kit_flutter_new/ffmpeg_session_complete_callback.dart';
 export 'package:ffmpeg_kit_flutter_new/ffprobe_kit.dart';
 export 'package:ffmpeg_kit_flutter_new/ffprobe_session.dart';
 export 'package:ffmpeg_kit_flutter_new/ffprobe_session_complete_callback.dart';
+export 'package:ffmpeg_kit_flutter_new/media_information_session.dart';
 export 'package:ffmpeg_kit_flutter_new/return_code.dart';
 export 'package:ffmpeg_kit_flutter_new/session_state.dart';
 export 'package:file_picker/file_picker.dart';

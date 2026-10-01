@@ -142,6 +142,47 @@ void main() {
   );
 
   test(
+    'stopping jobs keep the queue and background service occupied',
+    () async {
+      await storage.add(job('stopping', order: 0, status: .stopping));
+      expect(
+        (await storage.getAllRunningJobs()).single.status,
+        JobStatus.stopping,
+      );
+      expect(
+        (await storage.watchRunningJobs().first).single.status,
+        JobStatus.stopping,
+      );
+      expect(await storage.watchIsJobPendingOrProcessing().first, isTrue);
+      expect(await storage.getAllPendingJobs(), isEmpty);
+      expect(await storage.watchCompletedJobs().first, isEmpty);
+    },
+  );
+
+  test('restart recovery preserves an interrupted stop request', () async {
+    await storage.add(
+      job('stopping', order: 0, status: .stopping).copyWith(
+        sessionId: const Some(42),
+        progress: const Some(500),
+        duration: const Some(1000),
+        executionId: const Some('previous-process'),
+      ),
+    );
+    expect((await storage.get('stopping'))!.executionId, isNull);
+    final repaired = (await storage.fixInvalidJobs()).single;
+    expect(repaired.status, JobStatus.cancelled);
+    expect(repaired.sessionId, isNull);
+    expect(repaired.progress, isNull);
+    expect(repaired.duration, isNull);
+    expect(await storage.getAllPendingJobs(), isEmpty);
+    expect(await storage.watchIsJobPendingOrProcessing().first, isFalse);
+    expect(
+      (await storage.watchCompletedJobs().first).single.status,
+      JobStatus.cancelled,
+    );
+  });
+
+  test(
     'restart recovery preserves saved outputs and completed history',
     () async {
       final preservedStatuses = <JobStatus>[

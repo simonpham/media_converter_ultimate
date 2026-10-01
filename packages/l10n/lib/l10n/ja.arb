@@ -94,6 +94,7 @@
   "jobStatusCancelled": "キャンセル済み",
   "jobStatusCleaning": "クリーンアップ中",
   "jobStatusCompleted": "完了",
+  "jobStatusStopping": "停止中…",
   "jobStatusFailed": "失敗",
   "jobStatusPending": "保留中",
   "jobStatusPreparing": "準備中",

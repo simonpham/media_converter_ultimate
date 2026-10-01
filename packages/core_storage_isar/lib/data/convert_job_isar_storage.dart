@@ -141,6 +141,8 @@ class const ConvertJobIsarStorage({
         .statusEqualTo(.ready)
         .or()
         .statusEqualTo(.cleaning)
+        .or()
+        .statusEqualTo(.stopping)
         .sortByUpdatedAtDesc()
         .watch(fireImmediately: true)
         .map(
@@ -192,6 +194,8 @@ class const ConvertJobIsarStorage({
         .statusEqualTo(.ready)
         .or()
         .statusEqualTo(.cleaning)
+        .or()
+        .statusEqualTo(.stopping)
         .sortByUpdatedAtDesc()
         .findAll()
         .then(
@@ -259,12 +263,14 @@ class const ConvertJobIsarStorage({
           .or()
           .statusEqualTo(.cleaning)
           .or()
+          .statusEqualTo(.stopping)
+          .or()
           .statusEqualTo(.preparing)
           .findAll();
       final fixedJobs = invalidIsarJobs
           .map(
             (e) => e.toOriginalModel().copyWith(
-              status: const Some(.pending),
+              status: Some(e.status == .stopping ? .cancelled : .pending),
               sessionId: const Some(null),
               progress: const Some(null),
               duration: const Some(null),
@@ -298,6 +304,8 @@ class const ConvertJobIsarStorage({
         .statusEqualTo(.ready)
         .or()
         .statusEqualTo(.cleaning)
+        .or()
+        .statusEqualTo(.stopping)
         .watch(fireImmediately: true)
         .map((list) => list.isNotEmpty);
   }

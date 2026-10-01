@@ -94,6 +94,7 @@
   "jobStatusCancelled": "Abgebrochen",
   "jobStatusCleaning": "Bereinigung",
   "jobStatusCompleted": "Abgeschlossen",
+  "jobStatusStopping": "Wird gestoppt…",
   "jobStatusFailed": "Fehlgeschlagen",
   "jobStatusPending": "Ausstehend",
   "jobStatusPreparing": "Vorbereitung",
