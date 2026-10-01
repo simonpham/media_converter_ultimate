@@ -211,5 +211,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "viewLogs": "Xem nhật ký",
+  "shareFile": "Chia sẻ tệp",
+  "openFile": "Mở tệp",
+  "openFolder": "Mở thư mục",
+  "removeFromHistory": "Xóa khỏi lịch sử"
 }

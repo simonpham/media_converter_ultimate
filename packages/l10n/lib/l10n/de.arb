@@ -211,5 +211,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "viewLogs": "Protokolle anzeigen",
+  "shareFile": "Datei teilen",
+  "openFile": "Datei öffnen",
+  "openFolder": "Ordner öffnen",
+  "removeFromHistory": "Aus Verlauf entfernen"
 }

@@ -211,5 +211,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "viewLogs": "檢視記錄",
+  "shareFile": "分享檔案",
+  "openFile": "開啟檔案",
+  "openFolder": "開啟資料夾",
+  "removeFromHistory": "從歷史記錄移除"
 }

@@ -211,5 +211,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "viewLogs": "Günlükleri görüntüle",
+  "shareFile": "Dosyayı paylaş",
+  "openFile": "Dosyayı aç",
+  "openFolder": "Klasörü aç",
+  "removeFromHistory": "Geçmişten kaldır"
 }

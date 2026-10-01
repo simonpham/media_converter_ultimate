@@ -242,6 +242,80 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('output actions expose labels and invoke the matching action', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      final invoked = <String>[];
+      await showPicker(
+        tester,
+        content: JobItem(
+          ConvertJob(
+            id: 'output-actions',
+            inputFilePath: '/source.wav',
+            outputFileName: 'output.m4a',
+            outputExtension: 'm4a',
+            outputDirectoryPath: '/output',
+            command: '[]',
+            convertedFilePath: '/temp/output.m4a',
+            status: .completed,
+            createdAt: DateTime(2026),
+            updatedAt: DateTime(2026),
+          ),
+          onRemoveItem: () => invoked.add('Remove from history'),
+          onOpenLogs: () => invoked.add('View logs'),
+          onShare: () => invoked.add('Share file'),
+          onOpenFile: () => invoked.add('Open file'),
+          onOpenFolder: () => invoked.add('Open folder'),
+          onDelete: () => invoked.add('Delete'),
+        ),
+      );
+      for (final label in [
+        'Remove from history',
+        'View logs',
+        'Share file',
+        'Open file',
+        'Open folder',
+        'Delete',
+      ]) {
+        expect(
+          tester.getSemantics(find.bySemanticsLabel(label)),
+          isSemantics(label: label, isButton: true, hasTapAction: true),
+        );
+        await tester.tap(find.bySemanticsLabel(label));
+        await tester.pump();
+      }
+      expect(invoked, [
+        'Remove from history',
+        'View logs',
+        'Share file',
+        'Open file',
+        'Open folder',
+        'Delete',
+      ]);
+      expect(find.bySemanticsLabel('Stop'), findsNothing);
+      expect(tester.takeException(), isNull);
+    } finally {
+      semantics.dispose();
+    }
+  });
+
+  testWidgets('output recovery actions fit large German text', (tester) async {
+    await showPicker(
+      tester,
+      locale: const Locale('de'),
+      scale: 2,
+      size: const Size(320, 844),
+      content: JobActionBar(
+        onOpenLogs: () {},
+        onRenameOutputFile: () {},
+        onSelectNewOutputPath: () {},
+      ),
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('preview includes only enabled audio editing choices', (
     tester,
   ) async {

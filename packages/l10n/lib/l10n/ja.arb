@@ -211,5 +211,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "viewLogs": "ログを表示",
+  "shareFile": "ファイルを共有",
+  "openFile": "ファイルを開く",
+  "openFolder": "フォルダを開く",
+  "removeFromHistory": "履歴から削除"
 }

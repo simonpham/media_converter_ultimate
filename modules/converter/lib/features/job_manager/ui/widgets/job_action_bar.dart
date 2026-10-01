@@ -18,11 +18,13 @@ class const JobActionBar({
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: .start,
       children: [
         if (onOpenLogs != null) ...[
           Button(
             mainAxisSize: .min,
             variant: .ghost,
+            tooltip: context.l10n.viewLogs,
             padding: .all(Spacing.d8),
             child: ImageView(
               Assets.note01,
@@ -33,146 +35,154 @@ class const JobActionBar({
           ),
           Spacing.h8,
         ],
-        const Spacer(),
-        if (onShare != null) ...[
-          Spacing.h8,
-          Button(
-            mainAxisSize: .min,
-            variant: .ghost,
-            padding: .all(Spacing.d8),
-            child: ImageView(
-              Assets.share01,
-              size: Spacing.d16,
-              color: context.theme.colorScheme.onSurface,
-            ),
-            onPressed: onShare,
+        Expanded(
+          child: Wrap(
+            alignment: .end,
+            spacing: Spacing.d8,
+            runSpacing: Spacing.d8,
+            children: [
+              if (onShare != null) ...[
+                Button(
+                  mainAxisSize: .min,
+                  variant: .ghost,
+                  tooltip: context.l10n.shareFile,
+                  padding: .all(Spacing.d8),
+                  child: ImageView(
+                    Assets.share01,
+                    size: Spacing.d16,
+                    color: context.theme.colorScheme.onSurface,
+                  ),
+                  onPressed: onShare,
+                ),
+              ],
+              if (onOpenFile != null) ...[
+                Button(
+                  mainAxisSize: .min,
+                  variant: .ghost,
+                  tooltip: context.l10n.openFile,
+                  padding: .all(Spacing.d8),
+                  child: ImageView(
+                    Assets.share05,
+                    size: Spacing.d16,
+                    color: context.theme.colorScheme.onSurface,
+                  ),
+                  onPressed: onOpenFile,
+                ),
+              ],
+              if (onOpenFolder != null) ...[
+                Button(
+                  mainAxisSize: .min,
+                  variant: .ghost,
+                  tooltip: context.l10n.openFolder,
+                  padding: .all(Spacing.d8),
+                  child: ImageView(
+                    Assets.folderOpen,
+                    size: Spacing.d16,
+                    color: context.theme.colorScheme.onSurface,
+                  ),
+                  onPressed: onOpenFolder,
+                ),
+              ],
+              if (onDelete != null) ...[
+                Button(
+                  mainAxisSize: .min,
+                  variant: .ghost,
+                  tooltip: context.l10n.delete,
+                  padding: .all(Spacing.d8),
+                  child: ImageView(
+                    Assets.delete01,
+                    size: Spacing.d16,
+                    color: context.theme.colorScheme.error,
+                  ),
+                  onPressed: onDelete,
+                ),
+              ],
+              if (onStop != null) ...[
+                Button(
+                  mainAxisSize: .min,
+                  titleExpand: .shrink,
+                  variant: .ghost,
+                  padding: .symmetric(
+                    vertical: Spacing.d4,
+                    horizontal: Spacing.d8,
+                  ),
+                  icon: ImageView(
+                    Assets.stop,
+                    size: Spacing.d16,
+                    color: context.theme.colorScheme.error,
+                  ),
+                  child: Text(
+                    context.l10n.stop,
+                    style: context.theme.textTheme.bodyMedium?.copyWith(
+                      color: context.theme.colorScheme.error,
+                    ),
+                  ),
+                  onPressed: onStop,
+                ),
+              ],
+              if (onRestart != null) ...[
+                Button(
+                  mainAxisSize: .min,
+                  titleExpand: .shrink,
+                  variant: .ghost,
+                  padding: .all(Spacing.d8),
+                  icon: ImageView(
+                    Assets.reload,
+                    size: Spacing.d16,
+                    color: JobStatus.completed.getColor(),
+                  ),
+                  child: Text(
+                    context.l10n.restart,
+                    style: context.theme.textTheme.bodyMedium?.copyWith(
+                      color: JobStatus.completed.getColor(),
+                    ),
+                  ),
+                  onPressed: onRestart,
+                ),
+              ],
+              if (onRenameOutputFile != null) ...[
+                Button(
+                  mainAxisSize: .min,
+                  titleExpand: .shrink,
+                  variant: .ghost,
+                  padding: .all(Spacing.d8),
+                  icon: ImageView(
+                    Assets.edit02,
+                    size: Spacing.d16,
+                    color: context.theme.colorScheme.onSurface,
+                  ),
+                  child: Text(
+                    context.l10n.rename,
+                    style: context.theme.textTheme.bodyMedium?.copyWith(
+                      color: context.theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  onPressed: onRenameOutputFile,
+                ),
+              ],
+              if (onSelectNewOutputPath != null) ...[
+                Button(
+                  mainAxisSize: .min,
+                  titleExpand: .shrink,
+                  variant: .ghost,
+                  padding: .all(Spacing.d8),
+                  icon: ImageView(
+                    Assets.folderOpen,
+                    size: Spacing.d16,
+                    color: context.theme.colorScheme.onSurface,
+                  ),
+                  child: Text(
+                    context.l10n.selectFolder,
+                    style: context.theme.textTheme.bodyMedium?.copyWith(
+                      color: context.theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  onPressed: onSelectNewOutputPath,
+                ),
+              ],
+            ],
           ),
-        ],
-        if (onOpenFile != null) ...[
-          Spacing.h8,
-          Button(
-            mainAxisSize: .min,
-            variant: .ghost,
-            padding: .all(Spacing.d8),
-            child: ImageView(
-              Assets.share05,
-              size: Spacing.d16,
-              color: context.theme.colorScheme.onSurface,
-            ),
-            onPressed: onOpenFile,
-          ),
-        ],
-        if (onOpenFolder != null) ...[
-          Spacing.h8,
-          Button(
-            mainAxisSize: .min,
-            variant: .ghost,
-            padding: .all(Spacing.d8),
-            child: ImageView(
-              Assets.folderOpen,
-              size: Spacing.d16,
-              color: context.theme.colorScheme.onSurface,
-            ),
-            onPressed: onOpenFolder,
-          ),
-        ],
-        if (onDelete != null) ...[
-          Spacing.h8,
-          Button(
-            mainAxisSize: .min,
-            variant: .ghost,
-            padding: .all(Spacing.d8),
-            child: ImageView(
-              Assets.delete01,
-              size: Spacing.d16,
-              color: context.theme.colorScheme.error,
-            ),
-            onPressed: onDelete,
-          ),
-        ],
-        if (onStop != null) ...[
-          Spacing.h8,
-          Button(
-            mainAxisSize: .min,
-            variant: .ghost,
-            padding: .symmetric(
-              vertical: Spacing.d4,
-              horizontal: Spacing.d8,
-            ),
-            icon: ImageView(
-              Assets.stop,
-              size: Spacing.d16,
-              color: context.theme.colorScheme.error,
-            ),
-            child: Text(
-              context.l10n.stop,
-              style: context.theme.textTheme.bodyMedium?.copyWith(
-                color: context.theme.colorScheme.error,
-              ),
-            ),
-            onPressed: onStop,
-          ),
-        ],
-        if (onRestart != null) ...[
-          Spacing.h8,
-          Button(
-            mainAxisSize: .min,
-            variant: .ghost,
-            padding: .all(Spacing.d8),
-            icon: ImageView(
-              Assets.reload,
-              size: Spacing.d16,
-              color: JobStatus.completed.getColor(),
-            ),
-            child: Text(
-              context.l10n.restart,
-              style: context.theme.textTheme.bodyMedium?.copyWith(
-                color: JobStatus.completed.getColor(),
-              ),
-            ),
-            onPressed: onRestart,
-          ),
-        ],
-        if (onRenameOutputFile != null) ...[
-          Spacing.h8,
-          Button(
-            mainAxisSize: .min,
-            variant: .ghost,
-            padding: .all(Spacing.d8),
-            icon: ImageView(
-              Assets.edit02,
-              size: Spacing.d16,
-              color: context.theme.colorScheme.onSurface,
-            ),
-            child: Text(
-              context.l10n.rename,
-              style: context.theme.textTheme.bodyMedium?.copyWith(
-                color: context.theme.colorScheme.onSurface,
-              ),
-            ),
-            onPressed: onRenameOutputFile,
-          ),
-        ],
-        if (onSelectNewOutputPath != null) ...[
-          Spacing.h8,
-          Button(
-            mainAxisSize: .min,
-            variant: .ghost,
-            padding: .all(Spacing.d8),
-            icon: ImageView(
-              Assets.folderOpen,
-              size: Spacing.d16,
-              color: context.theme.colorScheme.onSurface,
-            ),
-            child: Text(
-              context.l10n.selectFolder,
-              style: context.theme.textTheme.bodyMedium?.copyWith(
-                color: context.theme.colorScheme.onSurface,
-              ),
-            ),
-            onPressed: onSelectNewOutputPath,
-          ),
-        ],
+        ),
       ],
     );
   }

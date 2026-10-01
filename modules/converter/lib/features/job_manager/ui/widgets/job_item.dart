@@ -60,6 +60,7 @@ class const JobItem(
                 ),
                 Spacing.h8,
                 Button(
+                  tooltip: context.l10n.removeFromHistory,
                   mainAxisSize: .min,
                   variant: .ghost,
                   padding: .all(Spacing.d8),

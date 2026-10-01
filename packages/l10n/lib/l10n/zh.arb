@@ -211,5 +211,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "viewLogs": "查看日志",
+  "shareFile": "分享文件",
+  "openFile": "打开文件",
+  "openFolder": "打开文件夹",
+  "removeFromHistory": "从历史记录中移除"
 }

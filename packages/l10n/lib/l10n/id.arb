@@ -211,5 +211,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "viewLogs": "Lihat log",
+  "shareFile": "Bagikan berkas",
+  "openFile": "Buka berkas",
+  "openFolder": "Buka folder",
+  "removeFromHistory": "Hapus dari riwayat"
 }

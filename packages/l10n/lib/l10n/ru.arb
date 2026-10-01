@@ -211,5 +211,10 @@
         "type": "String"
       }
     }
-  }
+  },
+  "viewLogs": "Просмотреть журнал",
+  "shareFile": "Поделиться файлом",
+  "openFile": "Открыть файл",
+  "openFolder": "Открыть папку",
+  "removeFromHistory": "Убрать из истории"
 }
