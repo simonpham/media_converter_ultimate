@@ -14,6 +14,7 @@ dependencies:
     path: ../core
 
   ffmpeg_kit_flutter_new: ^4.6.2-full-gpl
+  audioplayers: ^6.8.1
   flutter_local_notifications: ^22.3.0
   flutter_foreground_task: ^11.0.1
 

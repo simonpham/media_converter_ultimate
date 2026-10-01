@@ -16,6 +16,9 @@ class ConverterInjector {
     injector.registerLazySingleton<FileService>(
       () => DirectFileService(),
     );
+    injector.registerFactory<MediaPreviewSession>(
+      FfmpegMediaPreviewSession.new,
+    );
 
     injector.registerLazySingleton<JobConfigurationData>(
       () => JobConfigurationData.create(),

@@ -73,6 +73,14 @@ class JobMakerViewModel({
     notifyListeners();
   }
 
+  void setTrimRange(ConversionTrim trim) {
+    _trimEnabled = true;
+    _trimStartText = MediaTimestamp.display(trim.start);
+    _trimEndText = trim.end == null ? '' : MediaTimestamp.display(trim.end!);
+    _selectedPreset = null;
+    notifyListeners();
+  }
+
   Failure? get trimStartFailure =>
       _trimEnabled &&
           _trimStartText.trim().isNotEmpty &&

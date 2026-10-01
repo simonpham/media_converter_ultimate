@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:converter/converter.dart';
 import 'package:flutter/material.dart';
+import 'package:platform_utils/platform_utils.dart';
 import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 class const TrimEditor({super.key}) extends StatefulWidget {
@@ -75,6 +78,14 @@ class _TrimEditorState extends State<TrimEditor> {
                       onSubmitted: (_) => FocusScope.of(context).unfocus(),
                     ),
                     Spacing.v12,
+                    Button(
+                      variant: .secondary,
+                      label: context.l10n.trimPreviewTitle,
+                      titleExpand: .shrink,
+                      enable: model.selectedFiles.isNotEmpty,
+                      onPressed: () => unawaited(_openTimeline(context, model)),
+                    ),
+                    Spacing.v12,
                     Text(
                       context.l10n.trimAccuracyHint,
                       style: context.theme.textTheme.bodySmall,
@@ -87,4 +98,33 @@ class _TrimEditorState extends State<TrimEditor> {
       );
     },
   );
+
+  Future<void> _openTimeline(
+    BuildContext context,
+    JobMakerViewModel model,
+  ) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    final files = [...model.selectedFiles];
+    if (files.isEmpty) return;
+    final file = files.length == 1
+        ? files.first
+        : await RadioOptionsDialog.show<File>(
+            context,
+            title: context.l10n.preview,
+            message: null,
+            cancelText: context.l10n.cancel,
+            confirmText: context.l10n.ok,
+            initialValue: files.first,
+            values: files,
+            itemLabelBuilder: (file) => file.fileName,
+          );
+    if (!context.mounted || file == null) return;
+    final range = await context.navigator.push<ConversionTrim>(
+      MaterialPageRoute(
+        builder: (context) =>
+            TrimTimeline(path: file.path, initial: model.selectedTrim),
+      ),
+    );
+    if (context.mounted && range != null) model.setTrimRange(range);
+  }
 }
