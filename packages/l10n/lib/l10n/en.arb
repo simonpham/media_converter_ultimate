@@ -217,5 +217,41 @@
   "shareFile": "Share file",
   "openFile": "Open file",
   "openFolder": "Open folder",
-  "removeFromHistory": "Remove from history"
+  "removeFromHistory": "Remove from history",
+  "showPresetGrid": "Show grid",
+  "showPresetList": "Show list",
+  "searchLogs": "Search logs",
+  "copyFullLog": "Copy full log",
+  "exportFullLog": "Export full log",
+  "noMatchingLogs": "No matching log lines.",
+  "logCopied": "Log copied.",
+  "logExported": "Log saved to {path}.",
+  "@logExported": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "trimPreviewTitle": "Preview & trim",
+  "trimPreviewDescription": "Choose a range on the timeline. It applies to all selected files.",
+  "trimPreviewUnavailable": "Preview unavailable. You can still enter precise trim times.",
+  "trimFramePreview": "Video frame preview",
+  "trimSeekStep": "{seconds} s",
+  "trimZoomIn": "Zoom in",
+  "trimZoomOut": "Zoom out",
+  "trimSetStart": "Set start here",
+  "trimSetEnd": "Set end here",
+  "trimPreparingAudio": "Preparing audio…",
+  "trimPauseAudio": "Pause audio",
+  "trimPlayAudio": "Play audio",
+  "trimAudioPreviewLimit": "Plays up to 30 seconds from the cursor. Press Play again to continue.",
+  "trimApplyRange": "Apply range",
+  "@trimSeekStep": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  }
 }
