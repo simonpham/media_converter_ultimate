@@ -28,17 +28,25 @@ enum JobStatus {
   completed // Conversion job is completed.
   ;
 
-  Color getColor() {
+  Color getColor(BuildContext context) {
+    final colors = context.theme.colorScheme;
     return switch (this) {
-      .pending => Colors.grey,
-      .preparing => Colors.lightBlue,
-      .ready => Colors.green,
-      .running => Colors.blue,
-      .cancelled => Colors.red,
-      .failed => Colors.red,
-      .cleaning => Colors.lightBlue,
-      .completed => Colors.green,
-      .actionRequired => Colors.amber,
+      .pending => colors.onSurfaceVariant,
+      .preparing || .running || .cleaning => colors.primary,
+      .ready || .completed => colors.secondary,
+      .cancelled || .failed => colors.error,
+      .actionRequired => colors.tertiary,
+    };
+  }
+
+  Color getOnColor(BuildContext context) {
+    final colors = context.theme.colorScheme;
+    return switch (this) {
+      .pending => colors.surface,
+      .preparing || .running || .cleaning => colors.onPrimary,
+      .ready || .completed => colors.onSecondary,
+      .cancelled || .failed => colors.onError,
+      .actionRequired => colors.onTertiary,
     };
   }
 

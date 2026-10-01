@@ -12,7 +12,7 @@ class const JobFileFormatIndicator({
     final fileExtension = outputFileExtension.toUpperCase();
     return Container(
       decoration: ShapeDecoration(
-        color: status.getColor(),
+        color: status.getColor(context),
         shape: const RoundedSuperellipseBorder(
           borderRadius: Spacing.r8,
         ),
@@ -24,9 +24,9 @@ class const JobFileFormatIndicator({
       child: Center(
         child: Text(
           fileExtension,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
+          style: TextStyle(
+            color: status.getOnColor(context),
+            fontSize: Spacing.d12,
             fontWeight: .bold,
           ),
         ),

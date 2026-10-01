@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:converter/converter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mcu/theme_adapter.dart';
@@ -9,6 +10,9 @@ import 'package:sofluffy_ui/sofluffy_ui.dart';
 import 'support/conversion_test_support.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(installShippedAssetHandler);
+  tearDown(clearShippedAssetHandler);
   final brand = FluffyThemeData.fromJson(
     jsonDecode(
       File.fromUri(
@@ -102,6 +106,90 @@ void main() {
         );
       }
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('$mode job labels and format badges remain legible', (
+      tester,
+    ) async {
+      final theme = brand.getTheme(isDark: isDark);
+      for (final status in JobStatus.values) {
+        await tester.pumpWidget(
+          MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            theme: theme,
+            home: FluffyTheme(
+              data: brand.getFluffyTheme(isDark: isDark),
+              child: Scaffold(
+                body: JobItem(
+                  ConvertJob(
+                    id: 'contrast-$status',
+                    inputFilePath: '/source.wav',
+                    outputFileName: 'output.mp4',
+                    outputExtension: 'mp4',
+                    outputDirectoryPath: '/output',
+                    command: '[]',
+                    convertedFilePath: '/temp/output.mp4',
+                    status: status,
+                    progress: 500,
+                    duration: 1000,
+                    createdAt: DateTime(2026),
+                    updatedAt: DateTime(2026),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final statusText = tester.widget<Text>(
+          find.byWidgetPredicate(
+            (widget) => widget is Text && widget.textSpan != null,
+          ),
+        );
+        final statusSpan =
+            (statusText.textSpan! as TextSpan).children!.single as TextSpan;
+        final input = tester.widget<Text>(find.text('Input: source.wav'));
+        for (final foreground in [
+          statusText.style!.color!,
+          statusSpan.style!.color!,
+          input.style!.color!,
+        ]) {
+          expect(
+            contrastRatio(foreground, theme.cardColor),
+            greaterThanOrEqualTo(4.5),
+            reason: '$mode $status labels must remain readable',
+          );
+        }
+        final badge = tester.widget<Container>(
+          find.descendant(
+            of: find.byType(JobFileFormatIndicator),
+            matching: find.byType(Container),
+          ),
+        );
+        final extension = tester.widget<Text>(find.text('MP4'));
+        expect(
+          contrastRatio(
+            extension.style!.color!,
+            (badge.decoration! as ShapeDecoration).color!,
+          ),
+          greaterThanOrEqualTo(4.5),
+          reason: '$mode $status format badge must remain readable',
+        );
+        if (status.isProcessing) {
+          final progress = tester.widget<LinearProgressIndicator>(
+            find.byType(LinearProgressIndicator),
+          );
+          expect(
+            contrastRatio(
+              progress.color!,
+              Color.alphaBlend(progress.backgroundColor!, theme.cardColor),
+            ),
+            greaterThanOrEqualTo(3),
+          );
+        }
+        expect(tester.takeException(), isNull);
+      }
     });
   }
 }

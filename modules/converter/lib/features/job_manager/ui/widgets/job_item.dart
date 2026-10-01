@@ -86,14 +86,14 @@ class const JobItem(
                   TextSpan(
                     text: job.status.getLabel(context),
                     style: TextStyle(
-                      color: job.status.getColor(),
+                      color: job.status.getColor(context),
                     ),
                   ),
                 ],
               ),
               style: TextStyle(
                 fontSize: Spacing.d12,
-                color: Colors.grey,
+                color: context.theme.colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -105,7 +105,7 @@ class const JobItem(
               context.l10n.inputFile(basename(job.inputFilePath)),
               style: TextStyle(
                 fontSize: Spacing.d12,
-                color: Colors.grey,
+                color: context.theme.colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -125,11 +125,13 @@ class const JobItem(
                   Expanded(
                     child: LinearProgressIndicator(
                       value: max(0, min(1.0, progress / duration)),
-                      color: JobStatus.running.getColor(),
+                      color: JobStatus.running.getColor(context),
                       borderRadius: BorderRadius.circular(Spacing.d4),
-                      backgroundColor: JobStatus.running.getColor().withValues(
-                        alpha: 0.1,
-                      ),
+                      backgroundColor: JobStatus.running
+                          .getColor(context)
+                          .withValues(
+                            alpha: 0.1,
+                          ),
                     ),
                   ),
                 ],

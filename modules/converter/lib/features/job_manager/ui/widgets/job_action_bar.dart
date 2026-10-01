@@ -129,12 +129,12 @@ class const JobActionBar({
                   icon: ImageView(
                     Assets.reload,
                     size: Spacing.d16,
-                    color: JobStatus.completed.getColor(),
+                    color: JobStatus.completed.getColor(context),
                   ),
                   child: Text(
                     context.l10n.restart,
                     style: context.theme.textTheme.bodyMedium?.copyWith(
-                      color: JobStatus.completed.getColor(),
+                      color: JobStatus.completed.getColor(context),
                     ),
                   ),
                   onPressed: onRestart,
