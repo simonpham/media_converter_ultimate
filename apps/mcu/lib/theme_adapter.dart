@@ -3,6 +3,39 @@ import 'package:flutter/material.dart';
 import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 extension ThemeDataExt on FluffyThemeData {
+  FluffyThemeData getFluffyTheme({required bool isDark}) {
+    final scheme = _brandColorScheme(isDark: isDark);
+    return copyWith(
+      brightness: scheme.brightness,
+      colors: colors.copyWith(
+        primary: scheme.primary,
+        secondary: scheme.secondary,
+      ),
+    );
+  }
+
+  ColorScheme _brandColorScheme({required bool isDark}) {
+    final brightness = isDark ? Brightness.dark : Brightness.light;
+    final primary = ColorScheme.fromSeed(
+      seedColor: colors.primary,
+      brightness: brightness,
+      dynamicSchemeVariant: .fidelity,
+    );
+    final secondary = ColorScheme.fromSeed(
+      seedColor: colors.secondary,
+      brightness: brightness,
+      dynamicSchemeVariant: .fidelity,
+    );
+    return primary.copyWith(
+      primary: isDark ? primary.primary : colors.primary,
+      onPrimary: isDark ? colors.neutral7 : colors.neutral1,
+      secondary: secondary.primary,
+      onSecondary: secondary.onPrimary,
+      secondaryContainer: secondary.primaryContainer,
+      onSecondaryContainer: secondary.onPrimaryContainer,
+    );
+  }
+
   ThemeData getTheme({
     required bool isDark,
     String? fontFamily,
@@ -11,19 +44,19 @@ extension ThemeDataExt on FluffyThemeData {
     final effectiveFontFamily = configuredFontFamily.trim().isEmpty
         ? null
         : configuredFontFamily;
-    final baseTheme = isDark ? ThemeData.dark() : ThemeData.light();
+    final brandScheme = _brandColorScheme(isDark: isDark);
+    final colors = this.colors.copyWith(
+      primary: brandScheme.primary,
+      secondary: brandScheme.secondary,
+    );
+    final baseTheme = ThemeData(colorScheme: brandScheme);
     final colorScheme = baseTheme.colorScheme.copyWith(
       primary: colors.primary,
       secondary: colors.secondary,
       surface: isDark ? colors.neutral7 : colors.neutral1,
       surfaceContainer: isDark ? colors.neutral5 : colors.neutral2,
-      onPrimary: colors.neutral1,
-      onSecondary: colors.neutral1,
       onSurface: isDark ? colors.neutral1 : colors.neutral7,
-      onSurfaceVariant: isDark ? colors.neutral1 : colors.neutral7,
       surfaceTint: Colors.transparent,
-      error: Colors.red,
-      onError: colors.neutral1,
     );
     final dividerColor = isDark ? colors.neutral4 : colors.neutral3;
     final menuStyle = MenuStyle(
@@ -62,7 +95,7 @@ extension ThemeDataExt on FluffyThemeData {
       dividerColor: dividerColor,
       dividerTheme: DividerThemeData(color: dividerColor),
       disabledColor: isDark ? colors.neutral5 : colors.neutral4,
-      hintColor: isDark ? colors.neutral4 : colors.neutral5,
+      hintColor: colorScheme.onSurfaceVariant,
       dialogTheme: DialogThemeData(
         surfaceTintColor: Colors.transparent,
         backgroundColor: isDark ? colors.neutral7 : colors.neutral1,
@@ -92,7 +125,7 @@ extension ThemeDataExt on FluffyThemeData {
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: colors.primary,
-        foregroundColor: isDark ? colors.neutral1 : colors.neutral7,
+        foregroundColor: colorScheme.onPrimary,
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
@@ -140,7 +173,7 @@ extension ThemeDataExt on FluffyThemeData {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: colors.primary,
-          foregroundColor: isDark ? colors.neutral1 : colors.neutral7,
+          foregroundColor: colorScheme.onPrimary,
           surfaceTintColor: Colors.transparent,
         ),
       ),

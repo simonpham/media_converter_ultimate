@@ -76,7 +76,7 @@ void main() {
           supportedLocales: AppLocalizations.supportedLocales,
           theme: theme.getTheme(isDark: isDark),
           builder: (context, child) => FluffyTheme(
-            data: theme.copyWith(brightness: isDark ? .dark : .light),
+            data: theme.getFluffyTheme(isDark: isDark),
             child: MediaQuery(
               data: MediaQuery.of(context).copyWith(textScaler: .linear(scale)),
               child: child!,

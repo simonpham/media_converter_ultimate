@@ -33,9 +33,7 @@ class MediaConverterUltimate extends StatelessWidget {
                 MediaQuery.platformBrightnessOf(context) == Brightness.dark,
             };
             return FluffyTheme(
-              data: appTheme.copyWith(
-                brightness: isDark ? Brightness.dark : Brightness.light,
-              ),
+              data: appTheme.getFluffyTheme(isDark: isDark),
               child: JobNotificationWrapper(
                 child: child!,
               ),
