@@ -146,6 +146,104 @@ void main() {
     }
   });
 
+  test('all audio defaults preserve silence and old truncating settings are repaired', () async {
+    for (final format in model.formatConfigModel.formats.where(
+      (format) => format.outputType == .audio,
+    )) {
+      await model.setSelectedFormatEntry(format);
+      model.resetConfigurations();
+      expect(model.selectedValues['configs.common.trim_silence'], '[]');
+      final arguments = CommandBuilder.buildArgs(
+        inputFilePath: 'source.wav',
+        formatEntry: format,
+        availableControls: model.availableControls,
+        selectedValues: model.selectedValues,
+        outputFilePath: 'output.${format.outputExtension}',
+        threadCount: 1,
+        configurationKeys: model.configControls.keys.toSet(),
+      );
+      expect(arguments, isNot(contains('-af')), reason: format.name);
+    }
+    final format = model.formatConfigModel.formats.firstWhere(
+      (format) => format.name == 'mp3',
+    );
+    format.setLastKnownConfigurations({
+      'configs.mp3.audio_encoder': 'libmp3lame',
+      'configs.mp3.bitrate_type': 'configs.mp3.bitrate_type.cbr.value',
+      'configs.mp3.bitrate': '320k',
+      'configs.common.trim_silence': jsonEncode([
+        '-af silenceremove=start_periods=1:start_duration=0:start_threshold=-50dB:stop_periods=1:stop_duration=1:stop_threshold=-50dB',
+      ]),
+    });
+    await model.setSelectedFormatEntry(format);
+    expect(model.selectedValues['configs.common.trim_silence'], '[]');
+    expect(model.selectedValues['configs.mp3.bitrate'], '320k');
+  });
+
+  test(
+    'silence removal is optional and retains audio after a long pause',
+    () async {
+      final directory = await Directory.systemTemp.createTemp('mcu-silence-');
+      addTearDown(() => directory.delete(recursive: true));
+      final source = '${directory.path}/source.wav';
+      await runFfmpeg([
+        '-f',
+        'lavfi',
+        '-i',
+        r'aevalsrc=if(between(t\,0.5\,1)\,0.2*sin(2*PI*440*t)\,if(between(t\,2.5\,3.5)\,0.2*sin(2*PI*880*t)\,0)):s=48000:d=4',
+        '-c:a',
+        'pcm_s16le',
+        source,
+      ]);
+      await model.setSelectedFormatEntry(
+        model.formatConfigModel.formats.firstWhere(
+          (format) => format.name == 'm4a',
+        ),
+      );
+      model.resetConfigurations();
+      model.setSelectedValue(
+        'configs.m4a.audio_encoder',
+        'configs.m4a.audio_encoder.value.alac',
+      );
+      final original = await decodedPcm(source);
+      for (final enabled in [false, true]) {
+        if (enabled) {
+          final control = model.availableControls.singleWhere(
+            (control) => control.name == 'configs.common.trim_silence',
+          );
+          model.setSelectedValue(
+            control.name,
+            jsonEncode([control.options.single.value]),
+          );
+        }
+        final output = '${directory.path}/edited-$enabled.m4a';
+        await runFfmpeg(
+          CommandBuilder.buildArgs(
+            inputFilePath: source,
+            formatEntry: model.selectedFormatEntry!,
+            availableControls: model.availableControls,
+            selectedValues: model.selectedValues,
+            outputFilePath: output,
+            threadCount: 1,
+            configurationKeys: model.configControls.keys.toSet(),
+          ),
+        );
+        final pcm = await decodedPcm(output);
+        if (!enabled) {
+          expect(pcm, original);
+        } else {
+          expect(pcm.length, greaterThan(48000 * 2 * 1.4));
+          expect(pcm.length, lessThan(48000 * 2 * 3.25));
+          final laterTone = original.sublist(
+            48000 * 2 * 3,
+            48000 * 2 * 3 + 4800,
+          );
+          expect(latin1.decode(pcm).contains(latin1.decode(laterTone)), isTrue);
+        }
+      }
+    },
+  );
+
   test('format search accepts case, surrounding spaces, and extensions', () {
     model.setFormatQuery(' .MP4 ');
     expect(model.visibleFormats.map((format) => format.name), ['mp4']);

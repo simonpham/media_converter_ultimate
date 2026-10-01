@@ -98,6 +98,48 @@ void main() {
     expect(failures, isEmpty, reason: failures.join('\n'));
   });
 
+  testWidgets('optional silence editing keeps audio after long pauses', (
+    _,
+  ) async {
+    final source = '${directory.path}/pauses.wav';
+    await _execute([
+      '-f',
+      'lavfi',
+      '-i',
+      r'aevalsrc=if(between(t\,0.5\,1)\,0.2*sin(2*PI*440*t)\,if(between(t\,2.5\,3.5)\,0.2*sin(2*PI*880*t)\,0)):s=48000:d=4',
+      '-c:a',
+      'pcm_s16le',
+      source,
+    ]);
+    await model.applyPreset(.losslessAudio);
+    final original = await _pcm(source, directory);
+    for (final enabled in [false, true]) {
+      if (enabled) {
+        final control = model.availableControls.singleWhere(
+          (control) => control.name == 'configs.common.trim_silence',
+        );
+        model.setSelectedValue(
+          control.name,
+          jsonEncode([control.options.single.value]),
+        );
+      }
+      final output = '${directory.path}/pauses-$enabled.m4a';
+      await _execute(_arguments(model, source, output));
+      final pcm = await _pcm(output, directory);
+      if (!enabled) {
+        expect(pcm, original);
+      } else {
+        expect(pcm.length, greaterThan(48000 * 2 * 1.4));
+        expect(pcm.length, lessThan(48000 * 2 * 3.25));
+        final laterTone = original.sublist(
+          48000 * 2 * 3,
+          48000 * 2 * 3 + 4800,
+        );
+        expect(latin1.decode(pcm).contains(latin1.decode(laterTone)), isTrue);
+      }
+    }
+  });
+
   testWidgets('presets and precise lossless trim use native codecs', (_) async {
     for (final preset in ConversionPreset.values) {
       await model.applyPreset(preset);
