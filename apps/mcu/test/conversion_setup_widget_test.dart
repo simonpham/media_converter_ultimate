@@ -149,6 +149,49 @@ void main() {
     }
   });
 
+  testWidgets(
+    'presets toggle grid/list with aligned headers and format badges',
+    (tester) async {
+      await showPicker(tester);
+      expect(model.showPresetGrid, isTrue);
+      final first = find.byKey(const ValueKey('preset-format-compatibleVideo'));
+      final second = find.byKey(const ValueKey('preset-format-smallerVideo'));
+      expect(tester.getTopLeft(first).dy, tester.getTopLeft(second).dy);
+      expect(
+        tester.getTopLeft(find.text('Quick presets')).dx,
+        tester
+            .getTopLeft(
+              find.text('Choose a task, then fine-tune the settings.'),
+            )
+            .dx,
+      );
+      await tester.tap(find.byKey(const ValueKey('preset-layout-toggle')));
+      await tester.pumpAndSettle();
+      expect(model.showPresetGrid, isFalse);
+      for (final preset in ConversionPreset.values) {
+        expect(
+          tester
+              .getTopLeft(find.byKey(ValueKey('preset-format-${preset.name}')))
+              .dy,
+          tester.getTopLeft(first).dy,
+        );
+      }
+      await tester.tap(find.byKey(const ValueKey('preset-layout-toggle')));
+      await tester.pumpAndSettle();
+      expect(model.showPresetGrid, isTrue);
+      await tester.tap(find.text('Compatible video'));
+      await tester.pumpAndSettle();
+      final settings = {...model.selectedValues};
+      await tester.tap(find.text('Compatible video'));
+      await tester.pumpAndSettle();
+      expect(model.selectedPreset, isNull);
+      expect(model.selectedValues, settings);
+      expect(find.text('Load Previous Configs'), findsOneWidget);
+      expect(find.text('Reset To Default'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('selecting a preset updates settings and selection semantics', (
     tester,
   ) async {
@@ -564,6 +607,9 @@ void main() {
     expect(find.text('MP3 music'), findsOneWidget);
     expect(find.text('Compatible video'), findsNothing);
     expect(find.text('Lossless audio'), findsNothing);
+    await tester.tap(find.text('MP3 music'));
+    await tester.pumpAndSettle();
+    expect(model.selectedPreset, isNull);
     await tester.tap(find.text('MP3 music'));
     await tester.pumpAndSettle();
     expect(model.selectedPreset, ConversionPreset.musicMp3);

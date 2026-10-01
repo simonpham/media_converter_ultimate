@@ -74,6 +74,29 @@ void main() {
     },
   );
 
+  test(
+    'leaving a preset retains edits and can reload saved or default settings',
+    () async {
+      await model.applyPreset(.compatibleVideo);
+      final presetValues = {...model.selectedValues};
+      model.clearPreset();
+      expect(model.selectedPreset, isNull);
+      expect(model.selectedValues, presetValues);
+      model.resetConfigurations();
+      final defaults = {...model.selectedValues};
+      model.selectedFormatEntry!.setLastKnownConfigurations({
+        'configs.mp4.crf.x264': '28',
+      });
+      await model.applyPreset(.highQualityVideo);
+      model.loadPreviousConfigurations();
+      expect(model.selectedPreset, isNull);
+      expect(model.selectedValues['configs.mp4.crf.x264'], '28');
+      model.resetConfigurations();
+      expect(model.selectedPreset, isNull);
+      expect(model.selectedValues, defaults);
+    },
+  );
+
   test('a slower preset load cannot replace the latest selection', () async {
     final delayed = Completer<void>();
     final loading = Completer<void>();

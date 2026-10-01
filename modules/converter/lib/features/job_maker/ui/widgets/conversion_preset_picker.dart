@@ -36,42 +36,149 @@ class _ConversionPresetPickerState extends State<ConversionPresetPicker> {
       return Column(
         crossAxisAlignment: .start,
         children: [
-          SectionTitle(context.l10n.quickPresetsTitle),
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: SectionTitle(
+                  context.l10n.quickPresetsTitle,
+                  padding: .zero,
+                ),
+              ),
+              Spacing.h8,
+              Flexible(
+                child: Button(
+                  key: const ValueKey('preset-layout-toggle'),
+                  variant: .ghost,
+                  padding: .all(Spacing.d8),
+                  label: model.showPresetGrid
+                      ? context.l10n.showPresetList
+                      : context.l10n.showPresetGrid,
+                  titleExpand: .shrink,
+                  onPressed: model.togglePresetLayout,
+                ),
+              ),
+            ],
+          ),
           Spacing.v4,
           Text(
             context.l10n.quickPresetsDescription,
             style: context.theme.textTheme.bodyMedium,
           ),
           Spacing.v12,
-          Scrollbar(
-            controller: _scrollController,
-            thumbVisibility: true,
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              scrollDirection: .horizontal,
-              padding: .only(bottom: Spacing.d12),
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: .stretch,
+          if (model.selectedFormatEntry != null) ...[
+            Wrap(
+              spacing: Spacing.d8,
+              runSpacing: Spacing.d8,
+              children: [
+                if (model.selectedPreset != null)
+                  Button(
+                    variant: .ghost,
+                    label: context.l10n.customSettings,
+                    titleExpand: .shrink,
+                    enable: !model.isLoadingFormat,
+                    onPressed: model.clearPreset,
+                  ),
+                Button(
+                  variant: .ghost,
+                  label: context.l10n.loadPreviousConfigs,
+                  titleExpand: .shrink,
+                  enable: !model.isLoadingFormat,
+                  onPressed: model.loadPreviousConfigurations,
+                ),
+                Button(
+                  variant: .ghost,
+                  label: context.l10n.resetToDefault,
+                  titleExpand: .shrink,
+                  enable: !model.isLoadingFormat,
+                  onPressed: model.resetConfigurations,
+                ),
+              ],
+            ),
+            Spacing.v12,
+          ],
+          if (model.showPresetGrid)
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final scale =
+                    MediaQuery.textScalerOf(context).scale(Spacing.d12) /
+                    Spacing.d12;
+                final minWidth = (Spacing.d96 + Spacing.d64) * scale;
+                final columns =
+                    ((constraints.maxWidth + Spacing.d12) /
+                            (minWidth + Spacing.d12))
+                        .floor()
+                        .clamp(1, 3);
+                return Column(
                   children: [
-                    for (final preset in presets) ...[
-                      if (preset != presets.first) Spacing.h12,
-                      SizedBox(
-                        width: Spacing.d96 * 2,
-                        child: _PresetCard(
-                          preset: preset,
-                          isSelected: model.selectedPreset == preset,
-                          onTap: () => unawaited(model.applyPreset(preset)),
+                    for (
+                      var first = 0;
+                      first < presets.length;
+                      first += columns
+                    ) ...[
+                      if (first != 0) Spacing.v12,
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: .stretch,
+                          children: [
+                            for (
+                              var column = 0;
+                              column < columns;
+                              column++
+                            ) ...[
+                              if (column != 0) Spacing.h12,
+                              Expanded(
+                                child: first + column < presets.length
+                                    ? _card(model, presets[first + column])
+                                    : const SizedBox.shrink(),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ],
                   ],
+                );
+              },
+            )
+          else
+            Scrollbar(
+              controller: _scrollController,
+              thumbVisibility: true,
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                scrollDirection: .horizontal,
+                padding: .only(bottom: Spacing.d12),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: .stretch,
+                    children: [
+                      for (final preset in presets) ...[
+                        if (preset != presets.first) Spacing.h12,
+                        SizedBox(
+                          width: Spacing.d96 * 2,
+                          child: _card(model, preset),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       );
+    },
+  );
+
+  Widget _card(JobMakerViewModel model, ConversionPreset preset) => _PresetCard(
+    preset: preset,
+    isSelected: model.selectedPreset == preset,
+    onTap: () {
+      if (model.selectedPreset == preset) {
+        model.clearPreset();
+      } else {
+        unawaited(model.applyPreset(preset));
+      }
     },
   );
 }
@@ -139,26 +246,38 @@ class const _PresetCard({
                     color: colors.primary,
                   ),
                   const Spacer(),
-                  if (isSelected)
+                  Text(
+                    key: ValueKey('preset-format-${preset.name}'),
+                    preset.formatName.toUpperCase() +
+                        (preset == .losslessAudio ? ' · ALAC' : ''),
+                    style: context.theme.textTheme.labelSmall?.copyWith(
+                      color: colors.primary,
+                    ),
+                  ),
+                ],
+              ),
+              Spacing.v8,
+              Row(
+                crossAxisAlignment: .start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: context.theme.textTheme.titleSmall,
+                    ),
+                  ),
+                  if (isSelected) ...[
+                    Spacing.h4,
                     ImageView(
                       Assets.tick02,
                       size: Spacing.d20,
                       color: colors.primary,
                     ),
+                  ],
                 ],
               ),
-              Spacing.v8,
-              Text(title, style: context.theme.textTheme.titleSmall),
               Spacing.v4,
               Text(description, style: context.theme.textTheme.bodySmall),
-              Spacing.v12,
-              Text(
-                preset.formatName.toUpperCase() +
-                    (preset == .losslessAudio ? ' · ALAC' : ''),
-                style: context.theme.textTheme.labelSmall?.copyWith(
-                  color: colors.primary,
-                ),
-              ),
             ],
           ),
         ),

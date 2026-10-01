@@ -25,6 +25,21 @@ class JobMakerViewModel({
   FormatEntry? _selectedFormatEntry;
   ConversionPreset? _selectedPreset;
   ConversionPreset? get selectedPreset => _selectedPreset;
+  bool _showPresetGrid = true;
+  bool get showPresetGrid => _showPresetGrid;
+
+  void togglePresetLayout() {
+    _showPresetGrid = !_showPresetGrid;
+    notifyListeners();
+  }
+
+  /// Return to custom editing without discarding the current settings.
+  void clearPreset() {
+    if (_isLoadingFormat || _selectedPreset == null) return;
+    _selectedPreset = null;
+    notifyListeners();
+  }
+
   int _configurationRevision = 0;
   bool _isLoadingFormat = false;
   bool get isLoadingFormat => _isLoadingFormat;
