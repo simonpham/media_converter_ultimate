@@ -214,12 +214,15 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                 right: Spacing.d16,
                 top: Spacing.d16,
               ),
-              child: Button(
-                variant: .secondary,
-                label: context.l10n.addFiles,
-                onPressed: () {
-                  _handleChooseFilesPressed(context);
-                },
+              child: Semantics(
+                container: true,
+                child: Button(
+                  variant: .secondary,
+                  label: context.l10n.addFiles,
+                  onPressed: () {
+                    _handleChooseFilesPressed(context);
+                  },
+                ),
               ),
             ),
           ],

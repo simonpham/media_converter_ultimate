@@ -122,6 +122,33 @@ void main() {
     },
   );
 
+  testWidgets('Add Files semantics stay within the actual button', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      final files = _PickerFiles();
+      injector.registerSingleton<FileService>(files);
+      await showPicker(tester, content: const JobMakerFilePicker());
+      final button = find.widgetWithText(Button, 'Add Files');
+      final node = tester.getSemantics(find.bySemanticsLabel('Add Files'));
+      expect(
+        node,
+        isSemantics(label: 'Add Files', isButton: true, hasTapAction: true),
+      );
+      expect(
+        node.rect.height,
+        lessThanOrEqualTo(tester.getSize(button).height),
+      );
+      await tester.tap(find.bySemanticsLabel('Add Files'));
+      await tester.pumpAndSettle();
+      expect(files.pickCount, 1);
+      expect(tester.takeException(), isNull);
+    } finally {
+      semantics.dispose();
+    }
+  });
+
   testWidgets('selecting a preset updates settings and selection semantics', (
     tester,
   ) async {
@@ -452,4 +479,14 @@ void main() {
     expect(model.selectedFormatEntry?.name, 'mp3');
     expect(tester.takeException(), isNull);
   });
+}
+
+class _PickerFiles extends TestMediaFiles {
+  int pickCount = 0;
+
+  @override
+  Future<List<File>> chooseFiles(dynamic context) async {
+    pickCount++;
+    return [];
+  }
 }
