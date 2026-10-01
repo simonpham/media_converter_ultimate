@@ -198,5 +198,10 @@
   "ui_codec_description.vp8": "VP8 (HD)",
   "ui_codec_description.vp9": "VP9 (HD)",
   "ui_codec_description.wmav2": "WMA v2",
-  "ui_codec_description.wmv2": "WMV v2"
+  "ui_codec_description.wmv2": "WMV v2",
+  "configs.mp4.pixel_format.label": "Formato pixel",
+  "configs.mp4.pixel_format.desc": "8 bit è adatto ai lettori comuni. 10 bit richiede riproduzione compatibile; ridurre la profondità può cambiare i colori.",
+  "configs.mp4.pixel_format.auto": "Automatico",
+  "configs.mp4.pixel_format.compatible": "8 bit 4:2:0 (compatibile)",
+  "configs.mp4.pixel_format.high_depth": "10 bit 4:2:0"
 }

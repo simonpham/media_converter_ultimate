@@ -48,6 +48,28 @@
   "-c:v libx264": [
     {
       "type": "dropdown",
+      "name": "configs.mp4.pixel_format.x264",
+      "label": "configs.mp4.pixel_format.label",
+      "description": "configs.mp4.pixel_format.desc",
+      "should_add_to_args": true,
+      "default": "[]",
+      "options": [
+        {
+          "label": "configs.mp4.pixel_format.auto",
+          "value": "[]"
+        },
+        {
+          "label": "configs.mp4.pixel_format.compatible",
+          "value": "-pix_fmt yuv420p"
+        },
+        {
+          "label": "configs.mp4.pixel_format.high_depth",
+          "value": "-pix_fmt yuv420p10le"
+        }
+      ]
+    },
+    {
+      "type": "dropdown",
       "name": "configs.mp4.video_preset.x264",
       "label": "configs.common.preset.label",
       "should_add_to_args": true,

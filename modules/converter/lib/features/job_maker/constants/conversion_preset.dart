@@ -5,6 +5,7 @@ enum ConversionPreset(
   compatibleVideo('mp4', {
     'configs.mp4.video_encoder': '-c:v libx264',
     'configs.mp4.video_preset.x264': 'fast',
+    'configs.mp4.pixel_format.x264': '-pix_fmt yuv420p',
     'configs.mp4.crf.x264': '23',
     'configs.mp4.audio_encoder': 'aac',
     'configs.common.video.recommended_args':
@@ -13,6 +14,7 @@ enum ConversionPreset(
   smallerVideo('mp4', {
     'configs.mp4.video_encoder': '-c:v libx264',
     'configs.mp4.video_preset.x264': 'medium',
+    'configs.mp4.pixel_format.x264': '-pix_fmt yuv420p',
     'configs.mp4.crf.x264': '28',
     'configs.mp4.audio_encoder': 'aac',
     'configs.common.video.recommended_args':

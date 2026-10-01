@@ -198,5 +198,10 @@
   "ui_codec_description.vp8": "VP8 (HD)",
   "ui_codec_description.vp9": "VP9 (HD)",
   "ui_codec_description.wmav2": "WMA v2",
-  "ui_codec_description.wmv2": "WMV v2"
+  "ui_codec_description.wmv2": "WMV v2",
+  "configs.mp4.pixel_format.label": "Format piksel",
+  "configs.mp4.pixel_format.desc": "8-bit cocok untuk pemutar umum. 10-bit memerlukan pemutar yang kompatibel; mengurangi kedalaman sumber dapat mengubah warna.",
+  "configs.mp4.pixel_format.auto": "Otomatis",
+  "configs.mp4.pixel_format.compatible": "8-bit 4:2:0 (kompatibel)",
+  "configs.mp4.pixel_format.high_depth": "10-bit 4:2:0"
 }

@@ -198,5 +198,10 @@
   "ui_codec_description.vp8": "VP8 (HD)",
   "ui_codec_description.vp9": "VP9 (HD)",
   "ui_codec_description.wmav2": "WMA v2",
-  "ui_codec_description.wmv2": "WMV v2"
+  "ui_codec_description.wmv2": "WMV v2",
+  "configs.mp4.pixel_format.label": "ピクセル形式",
+  "configs.mp4.pixel_format.desc": "8ビットは一般的なプレーヤー向けです。10ビットには対応機器が必要で、元の色深度を下げると色が変わる場合があります。",
+  "configs.mp4.pixel_format.auto": "自動",
+  "configs.mp4.pixel_format.compatible": "8ビット 4:2:0（互換性）",
+  "configs.mp4.pixel_format.high_depth": "10ビット 4:2:0"
 }

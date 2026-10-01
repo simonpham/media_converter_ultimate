@@ -140,6 +140,36 @@ void main() {
     }
   });
 
+  testWidgets('compatible video converts 10-bit sources to 8-bit', (_) async {
+    final source = '${directory.path}/ten-bit.mkv';
+    await _execute([
+      '-f',
+      'lavfi',
+      '-i',
+      'testsrc2=size=128x96:rate=8:duration=1',
+      '-pix_fmt',
+      'yuv420p10le',
+      '-c:v',
+      'ffv1',
+      source,
+    ]);
+    for (final depth in ['-pix_fmt yuv420p', '[]', '-pix_fmt yuv420p10le']) {
+      await model.applyPreset(.compatibleVideo);
+      if (depth != '-pix_fmt yuv420p') {
+        model.setSelectedValue('configs.mp4.pixel_format.x264', depth);
+      }
+      final output = '${directory.path}/depth-${depth.length}.mp4';
+      await _execute(_arguments(model, source, output));
+      final media = await _probe(output);
+      final stream = (media['streams'] as List).single;
+      expect(stream['codec_name'], 'h264');
+      expect(
+        stream['pix_fmt'],
+        depth == '-pix_fmt yuv420p' ? 'yuv420p' : 'yuv420p10le',
+      );
+    }
+  });
+
   testWidgets('presets and precise lossless trim use native codecs', (_) async {
     for (final preset in ConversionPreset.values) {
       await model.applyPreset(preset);

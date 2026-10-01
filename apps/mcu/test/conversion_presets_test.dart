@@ -244,6 +244,57 @@ void main() {
     },
   );
 
+  test('compatible video uses 8-bit output for a 10-bit source', () async {
+    final directory = await Directory.systemTemp.createTemp('mcu-bit-depth-');
+    addTearDown(() => directory.delete(recursive: true));
+    final source = '${directory.path}/source.mkv';
+    await runFfmpeg([
+      '-f',
+      'lavfi',
+      '-i',
+      'testsrc2=size=128x96:rate=8:duration=1',
+      '-pix_fmt',
+      'yuv420p10le',
+      '-c:v',
+      'ffv1',
+      source,
+    ]);
+    for (final depth in ['-pix_fmt yuv420p', '[]', '-pix_fmt yuv420p10le']) {
+      await model.applyPreset(.compatibleVideo);
+      if (depth != '-pix_fmt yuv420p') {
+        model.setSelectedValue('configs.mp4.pixel_format.x264', depth);
+      }
+      final output = '${directory.path}/depth-${depth.length}.mp4';
+      await runFfmpeg(
+        CommandBuilder.buildArgs(
+          inputFilePath: source,
+          formatEntry: model.selectedFormatEntry!,
+          availableControls: model.availableControls,
+          selectedValues: model.selectedValues,
+          outputFilePath: output,
+          threadCount: 1,
+          configurationKeys: model.configControls.keys.toSet(),
+        ),
+      );
+      final probe = await Process.run('ffprobe', [
+        '-v',
+        'error',
+        '-show_streams',
+        '-of',
+        'json',
+        output,
+      ]);
+      expect(probe.exitCode, 0, reason: probe.stderr.toString());
+      final stream =
+          (jsonDecode(probe.stdout as String)['streams'] as List).single;
+      expect(stream['codec_name'], 'h264');
+      expect(
+        stream['pix_fmt'],
+        depth == '-pix_fmt yuv420p' ? 'yuv420p' : 'yuv420p10le',
+      );
+    }
+  });
+
   test('format search accepts case, surrounding spaces, and extensions', () {
     model.setFormatQuery(' .MP4 ');
     expect(model.visibleFormats.map((format) => format.name), ['mp4']);

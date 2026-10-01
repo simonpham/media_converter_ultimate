@@ -198,5 +198,10 @@
   "ui_codec_description.vp8": "VP8 (高畫質)",
   "ui_codec_description.vp9": "VP9 (高畫質)",
   "ui_codec_description.wmav2": "WMA v2",
-  "ui_codec_description.wmv2": "WMV v2"
+  "ui_codec_description.wmv2": "WMV v2",
+  "configs.mp4.pixel_format.label": "像素格式",
+  "configs.mp4.pixel_format.desc": "8 位元適用於常見播放器。10 位元需要相容的播放裝置；降低來源色深可能改變顏色。",
+  "configs.mp4.pixel_format.auto": "自動",
+  "configs.mp4.pixel_format.compatible": "8 位元 4:2:0（相容）",
+  "configs.mp4.pixel_format.high_depth": "10 位元 4:2:0"
 }
