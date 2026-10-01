@@ -242,6 +242,30 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('preview includes only enabled audio editing choices', (
+    tester,
+  ) async {
+    await model.applyPreset(.losslessAudio);
+    await showPicker(tester, content: const ConversionSummary());
+    expect(find.textContaining('Silence removal:'), findsNothing);
+    final control = model.availableControls.singleWhere(
+      (control) => control.name == 'configs.common.trim_silence',
+    );
+    model.setSelectedValue(
+      control.name,
+      jsonEncode([control.options.single.value]),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Silence removal: Shorten quiet gaps (-50 dB)'),
+      findsOneWidget,
+    );
+    model.setSelectedValue(control.name, '[]');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Silence removal:'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('reopening the picker keeps the search field in sync', (
     tester,
   ) async {

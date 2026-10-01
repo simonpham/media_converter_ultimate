@@ -33,7 +33,7 @@ class const ConversionSummary({super.key}) extends StatelessWidget {
             for (final setting in model.configurationSummary) ...[
               Spacing.v8,
               Text(
-                '${context.configL10n(setting.label)}: ${context.configL10n(setting.value)}',
+                '${context.configL10n(setting.label)}: ${setting.values.map(context.configL10n).join(', ')}',
                 style: context.theme.textTheme.bodyMedium,
               ),
             ],

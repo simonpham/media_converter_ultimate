@@ -4,6 +4,18 @@ import 'package:core/core.dart';
 
 /// Resolves only the branches selected by their own parent controls.
 abstract final class ConfigurationSelection {
+  static List<ConfigControlOption> selectedOptions(
+    ConfigControl control,
+    String? value,
+  ) {
+    final selected = control.type == .multiChoice
+        ? _array(value) ?? const <String>[]
+        : [value];
+    return control.options
+        .where((option) => selected.contains(option.value))
+        .toList();
+  }
+
   static List<ConfigControl> resolveControls({
     required Map<String, List<ConfigControl>> groups,
     required Iterable<String> roots,

@@ -726,16 +726,17 @@ class JobMakerViewModel({
     ];
   }
 
-  List<({String label, String value})> get configurationSummary {
-    final result = <({String label, String value})>[];
+  List<({String label, List<String> values})> get configurationSummary {
+    final result = <({String label, List<String> values})>[];
     for (final control in availableControls) {
-      if (!control.isVisible || control.type == .multiChoice) continue;
+      if (!control.isVisible) continue;
       final value = _selectedValues[control.name] ?? control.defaultValue;
-      final option = control.options
-          .where((option) => option.value == value)
-          .firstOrNull;
-      if (option == null || option.label.isEmpty) continue;
-      result.add((label: control.label, value: option.label));
+      final labels = ConfigurationSelection.selectedOptions(control, value)
+          .map((option) => option.label)
+          .where((label) => label.isNotEmpty)
+          .toList();
+      if (labels.isEmpty) continue;
+      result.add((label: control.label, values: labels));
     }
     return result;
   }
