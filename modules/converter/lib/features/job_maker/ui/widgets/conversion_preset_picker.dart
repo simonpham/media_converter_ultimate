@@ -39,7 +39,7 @@ class _ConversionPresetPickerState extends State<ConversionPresetPicker> {
           Row(
             children: [
               Expanded(
-                flex: 3,
+                flex: 2,
                 child: SectionTitle(
                   context.l10n.quickPresetsTitle,
                   padding: .zero,
