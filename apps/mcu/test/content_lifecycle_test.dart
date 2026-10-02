@@ -15,6 +15,7 @@ import 'support/conversion_test_support.dart';
 void main() {
   late FluffyThemeData theme;
   late _ContentBundle bundle;
+  late _Settings settings;
   late BuildContext pageContext;
 
   setUp(() {
@@ -26,9 +27,8 @@ void main() {
       buildSignature: '',
     );
     installShippedAssetHandler();
-    injector.registerSingleton<SettingsBox>(
-      MemorySettings()..lastKnownVersion = 'previous',
-    );
+    settings = _Settings()..lastKnownVersion = 'previous';
+    injector.registerSingleton<SettingsBox>(settings);
     theme = FluffyThemeData.fromJson(
       jsonDecode(
         File('${findRepository().path}/apps/mcu/assets/themes/default.json')
@@ -149,6 +149,53 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final failWrite in [false, true]) {
+    testWidgets(
+      'release acknowledgment awaits ${failWrite ? 'failed' : 'delayed'} preference save',
+      (tester) async {
+        await showPage(tester);
+        settings.versionWriteGate = Completer<void>();
+        settings.failVersionWrite = failWrite;
+        var settled = false;
+        Object? observedError;
+        final pending = ChangelogUtils.check(pageContext).then<void>(
+          (_) {
+            settled = true;
+          },
+          onError: (Object error) {
+            observedError = error;
+            settled = true;
+          },
+        );
+        await tester.pump();
+        bundle.content.complete('<p>Release content</p>');
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(Button, 'OK'));
+        await tester.pumpAndSettle();
+        final settledBeforeSave = settled;
+        expect(SettingsBox().lastKnownVersion, 'previous');
+        settings.versionWriteGate!.complete();
+        await tester.pumpAndSettle();
+        await pending;
+        expect(settledBeforeSave, isFalse);
+        expect(observedError, failWrite ? isStateError : isNull);
+        expect(SettingsBox().lastKnownVersion, failWrite ? 'previous' : 'next');
+        if (failWrite) {
+          settings.versionWriteGate = null;
+          settings.failVersionWrite = false;
+          final retry = ChangelogUtils.check(pageContext);
+          await tester.pumpAndSettle();
+          expect(find.byType(DialogCard), findsOneWidget);
+          await tester.tap(find.widgetWithText(Button, 'OK'));
+          await tester.pumpAndSettle();
+          await retry;
+          expect(SettingsBox().lastKnownVersion, 'next');
+        }
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   testWidgets('closing a pending support page prevents a late dialog', (
     tester,
   ) async {
@@ -183,5 +230,18 @@ class _ContentBundle extends CachingAssetBundle {
     return contentRequests.length == 1
         ? content.future
         : Future.value('<p>English fallback</p>');
+  }
+}
+
+class _Settings extends MemorySettings {
+  Completer<void>? versionWriteGate;
+  bool failVersionWrite = false;
+  @override
+  Future<void> put(dynamic key, dynamic value) async {
+    if (key == CoreSettings.lastKnownVersion && value == 'next') {
+      await versionWriteGate?.future;
+      if (failVersionWrite) throw StateError('Preference write failed');
+    }
+    await super.put(key, value);
   }
 }

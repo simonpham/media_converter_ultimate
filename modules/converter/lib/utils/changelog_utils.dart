@@ -17,7 +17,7 @@ class ChangelogUtils {
 
     await showChangelogDialog(context);
     if (!context.mounted) return;
-    SettingsBox().lastKnownVersion = currentVersion;
+    await SettingsBox().put(CoreSettings.lastKnownVersion, currentVersion);
   }
 
   static Future<void> showChangelogDialog(BuildContext context) async {
