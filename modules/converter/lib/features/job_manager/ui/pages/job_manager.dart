@@ -96,7 +96,9 @@ class _JobManagerState extends State<JobManager> {
                                   title: context.l10n.clearConversionHistory,
                                   onTap: () {
                                     _menuController.close();
-                                    _handleClearFinishedJobs(context);
+                                    unawaited(
+                                      _handleClearFinishedJobs(context),
+                                    );
                                   },
                                 ),
                               ),
@@ -159,17 +161,17 @@ class _JobManagerState extends State<JobManager> {
                         return JobItem(
                           job,
                           onOpenLogs: () => _handleOpenLogs(context, job),
-                          onRemoveItem: () => _handleRemoveItem(context, job),
-                          onRetryExport: () async {
-                            final failure = await model.retryExport(job);
-                            if (context.mounted && failure != null) {
-                              context.toastFailure(failure);
-                            }
-                          },
-                          onRenameOutputFile: () =>
-                              _handleRenameOutputFile(context, job),
-                          onSelectNewOutputPath: () =>
-                              _handleSelectNewOutputPath(context, job),
+                          onRemoveItem: () =>
+                              unawaited(_handleRemoveItem(context, job)),
+                          onRetryExport: () => unawaited(
+                            _handleRetryExport(context, job),
+                          ),
+                          onRenameOutputFile: () => unawaited(
+                            _handleRenameOutputFile(context, job),
+                          ),
+                          onSelectNewOutputPath: () => unawaited(
+                            _handleSelectNewOutputPath(context, job),
+                          ),
                         );
                       },
                     ),
@@ -198,14 +200,17 @@ class _JobManagerState extends State<JobManager> {
                         final executionId = model.activeExecutionId(job.id);
                         return JobItem(
                           job,
-                          onRemoveItem: () => _handleRemoveItem(context, job),
+                          onRemoveItem: () =>
+                              unawaited(_handleRemoveItem(context, job)),
                           onOpenLogs: () => _handleOpenLogs(context, job),
                           onStop:
                               job.status == .stopping ||
                                   job.status == .cleaning ||
                                   (job.sessionId == null && executionId == null)
                               ? null
-                              : () => _handleStop(context, job, executionId),
+                              : () => unawaited(
+                                  _handleStop(context, job, executionId),
+                                ),
                         );
                       },
                     ),
@@ -233,7 +238,8 @@ class _JobManagerState extends State<JobManager> {
                         final job = pendingJobs[index];
                         return JobItem(
                           job,
-                          onRemoveItem: () => _handleRemoveItem(context, job),
+                          onRemoveItem: () =>
+                              unawaited(_handleRemoveItem(context, job)),
                           onOpenLogs: () => _handleOpenLogs(context, job),
                         );
                       },
@@ -263,20 +269,21 @@ class _JobManagerState extends State<JobManager> {
                         final isSuccess = job.status == .completed;
                         return JobItem(
                           job,
-                          onRemoveItem: () => _handleRemoveItem(context, job),
+                          onRemoveItem: () =>
+                              unawaited(_handleRemoveItem(context, job)),
                           onOpenLogs: () => _handleOpenLogs(context, job),
                           onShare: !isSuccess
                               ? null
-                              : () => _handleShare(context, job),
+                              : () => unawaited(_handleShare(context, job)),
                           onOpenFile: isSuccess
-                              ? () => _handleOpenFile(context, job)
+                              ? () => unawaited(_handleOpenFile(context, job))
                               : null,
                           onDelete: !isSuccess
                               ? null
-                              : () => _handleDelete(context, job),
+                              : () => unawaited(_handleDelete(context, job)),
                           onRestart: isSuccess
                               ? null
-                              : () => _handleRestart(context, job),
+                              : () => unawaited(_handleRestart(context, job)),
                         );
                       },
                     ),
@@ -318,7 +325,7 @@ class _JobManagerState extends State<JobManager> {
         label: context.l10n.create,
         enable: !_isCreatingJob,
         onPressed: () {
-          _handleCreateJob(context);
+          unawaited(_handleCreateJob(context));
         },
       ),
     );
@@ -370,10 +377,10 @@ class _JobManagerState extends State<JobManager> {
   Future<void> _handleShare(BuildContext context, ConvertJob job) async {
     try {
       final files = injector<FileService>();
-      if (!await files.isFileExist(job.outputLocation)) {
-        if (context.mounted) {
-          context.toastError(context.l10n.outputFileUnavailable);
-        }
+      final exists = await files.isFileExist(job.outputLocation);
+      if (!context.mounted) return;
+      if (!exists) {
+        context.toastError(context.l10n.outputFileUnavailable);
         return;
       }
       await files.shareOutput(job.outputLocation);
@@ -386,10 +393,10 @@ class _JobManagerState extends State<JobManager> {
   Future<void> _handleOpenFile(BuildContext context, ConvertJob job) async {
     try {
       final files = injector<FileService>();
-      if (!await files.isFileExist(job.outputLocation)) {
-        if (context.mounted) {
-          context.toastError(context.l10n.outputFileUnavailable);
-        }
+      final exists = await files.isFileExist(job.outputLocation);
+      if (!context.mounted) return;
+      if (!exists) {
+        context.toastError(context.l10n.outputFileUnavailable);
         return;
       }
       await files.openOutput(job.outputLocation);
@@ -417,11 +424,27 @@ class _JobManagerState extends State<JobManager> {
     }
   }
 
-  Future<void> _handleDelete(BuildContext context, ConvertJob job) async {
-    if (job.status.isProcessing) {
-      return;
+  Future<void> _runJobAction(
+    BuildContext context,
+    Future<void> Function() action,
+  ) async {
+    try {
+      await action();
+    } catch (error, trace) {
+      printError(error, trace);
+      if (context.mounted) {
+        context.toastFailure(
+          error is Failure ? error : Failure(error.toString()),
+        );
+      }
     }
+  }
 
+  Future<void> _handleDelete(
+    BuildContext context,
+    ConvertJob job,
+  ) => _runJobAction(context, () async {
+    if (job.status.isProcessing) return;
     final action = await ConfirmDialog.show(
       context,
       title: context.l10n.deleteFileConfirmationTitle,
@@ -429,37 +452,46 @@ class _JobManagerState extends State<JobManager> {
       negativeText: context.l10n.delete,
       positiveText: context.l10n.cancel,
     );
+    if (!context.mounted || action != .negative) return;
 
-    if (action != .negative) {
-      return;
-    }
-
-    final fileName = job.outputFileName;
-    final failure = await context.read<JobManagerViewModel>().deleteOutputFile(
-      job,
-    );
+    final model = context.read<JobManagerViewModel>();
+    final failure = await model.deleteOutputFile(job);
     if (failure != null) {
-      context.toastFailure(failure);
+      if (context.mounted) context.toastFailure(failure);
       return;
     }
+    if (context.mounted) {
+      context.toastSuccess(
+        context.l10n.outputFileHasBeenDeleted(job.outputFileName),
+      );
+    }
+    // Confirmation accepted both output deletion and history cleanup. Finish
+    // with the captured app owner even if Home closes during deletion.
+    final removalFailure = await model.removeJob(job);
+    if (context.mounted && removalFailure != null) {
+      context.toastFailure(removalFailure);
+    }
+  });
 
-    context.toastSuccess(context.l10n.outputFileHasBeenDeleted(fileName));
-
-    await _handleRemoveItem(context, job);
-  }
-
-  void _handleStop(
+  Future<void> _handleStop(
     BuildContext context,
     ConvertJob job,
     String? executionId,
-  ) {
-    unawaited(
-      context.read<JobManagerViewModel>().removeRunningJob(
-        job,
-        executionId: executionId,
-      ),
-    );
-  }
+  ) => _runJobAction(
+    context,
+    () => context.read<JobManagerViewModel>().removeRunningJob(
+      job,
+      executionId: executionId,
+    ),
+  );
+
+  Future<void> _handleRetryExport(BuildContext context, ConvertJob job) =>
+      _runJobAction(context, () async {
+        final failure = await context.read<JobManagerViewModel>().retryExport(
+          job,
+        );
+        if (context.mounted && failure != null) context.toastFailure(failure);
+      });
 
   Future<void> _handleRestart(BuildContext context, ConvertJob job) async {
     try {
@@ -493,101 +525,86 @@ class _JobManagerState extends State<JobManager> {
     }
   }
 
-  Future<void> _handleClearFinishedJobs(BuildContext context) async {
-    final result = await RadioOptionsDialog.show<ClearFinishedJobsOption>(
-      context,
-      title: context.l10n.clearHistory,
-      message: context.l10n.clearConversionHistoryConfirmationMessage(
-        Colors.orange.toWebHex(),
-      ),
-      useHtmlMessage: true,
-      cancelText: context.l10n.cancel,
-      confirmText: context.l10n.clearHistory,
-      initialValue: .everything,
-      values: ClearFinishedJobsOption.values,
-      itemLabelBuilder: (option) {
-        return option.getLabel(context);
-      },
-    );
+  Future<void> _handleClearFinishedJobs(BuildContext context) =>
+      _runJobAction(context, () async {
+        final result = await RadioOptionsDialog.show<ClearFinishedJobsOption>(
+          context,
+          title: context.l10n.clearHistory,
+          message: context.l10n.clearConversionHistoryConfirmationMessage(
+            context.theme.colorScheme.error.toWebHex(),
+          ),
+          useHtmlMessage: true,
+          cancelText: context.l10n.cancel,
+          confirmText: context.l10n.clearHistory,
+          initialValue: .everything,
+          values: ClearFinishedJobsOption.values,
+          itemLabelBuilder: (option) => option.getLabel(context),
+        );
+        if (!context.mounted || result == null) return;
+        final failure = await context
+            .read<JobManagerViewModel>()
+            .clearFinishedJobs(result);
+        if (!context.mounted) return;
+        if (failure != null) {
+          context.toastFailure(failure);
+          return;
+        }
+        context.toastSuccess(result.getSuccessMessage(context));
+      });
 
-    if (result == null) {
-      return;
-    }
-
-    final failure = await context.read<JobManagerViewModel>().clearFinishedJobs(
-      result,
-    );
-    if (failure != null) {
-      context.toastFailure(failure);
-      return;
-    }
-
-    context.toastSuccess(
-      result.getSuccessMessage(context),
-    );
-  }
-
-  Future<void> _handleRenameOutputFile(
-    BuildContext context,
-    ConvertJob job,
-  ) async {
-    final outputFileName = job.outputFileName;
-    final newName = await InputTextDialog.show(
-      context,
-      initialValue: outputFileName,
-      title: context.l10n.outputFileName,
-      labelText: context.l10n.fileName,
-      hintText: context.l10n.enterNewName,
-      cancelText: context.l10n.cancel,
-      confirmText: context.l10n.ok,
-    );
-
-    if (newName == null) {
-      return;
-    }
-
-    final trimmedNewName = newName.trim();
-    if (!isValidFilename(trimmedNewName)) {
-      context.toastError(context.l10n.failureFileNameIsNotValid);
-      return;
-    }
-
-    final model = context.read<JobManagerViewModel>();
-    final failure = await model.handleJobRenameAction(job, trimmedNewName);
-    if (failure != null) {
-      context.toastFailure(failure);
-      return;
-    }
-
-    context.toastSuccess(
-      context.l10n.outputFileNameHasBeenChanged(trimmedNewName),
-    );
-  }
+  Future<void> _handleRenameOutputFile(BuildContext context, ConvertJob job) =>
+      _runJobAction(context, () async {
+        final newName = await InputTextDialog.show(
+          context,
+          initialValue: job.outputFileName,
+          title: context.l10n.outputFileName,
+          labelText: context.l10n.fileName,
+          hintText: context.l10n.enterNewName,
+          cancelText: context.l10n.cancel,
+          confirmText: context.l10n.ok,
+        );
+        if (!context.mounted || newName == null) return;
+        final trimmedNewName = newName.trim();
+        if (!isValidFilename(trimmedNewName)) {
+          context.toastError(context.l10n.failureFileNameIsNotValid);
+          return;
+        }
+        final failure = await context
+            .read<JobManagerViewModel>()
+            .handleJobRenameAction(job, trimmedNewName);
+        if (!context.mounted) return;
+        if (failure != null) {
+          context.toastFailure(failure);
+          return;
+        }
+        context.toastSuccess(
+          context.l10n.outputFileNameHasBeenChanged(trimmedNewName),
+        );
+      });
 
   Future<void> _handleSelectNewOutputPath(
     BuildContext context,
     ConvertJob job,
-  ) async {
-    final currentPath = job.outputDirectoryPath;
-
+  ) => _runJobAction(context, () async {
     final path = await OutputDestinationPicker.show(
       context,
-      initialPath: currentPath,
+      initialPath: job.outputDirectoryPath,
     );
     if (!context.mounted || path == null) return;
-    final model = context.read<JobManagerViewModel>();
-    final failure = await model.handleJobChooseAnotherPathAction(job, path);
+    final failure = await context
+        .read<JobManagerViewModel>()
+        .handleJobChooseAnotherPathAction(job, path);
+    if (!context.mounted) return;
     if (failure != null) {
       context.toastFailure(failure);
       return;
     }
-
     context.toastSuccess(
       context.l10n.outputFolderHasBeenChanged(
         outputDestinationLabel(context, path),
       ),
     );
-  }
+  });
 
   Future<void> _handlePermissionDenied(BuildContext context) async {
     final action = await ConfirmDialog.show(
@@ -598,7 +615,7 @@ class _JobManagerState extends State<JobManager> {
       positiveText: context.l10n.openSettings,
     );
 
-    if (action != ConfirmAction.positive) {
+    if (!context.mounted || action != .positive) {
       return;
     }
 
