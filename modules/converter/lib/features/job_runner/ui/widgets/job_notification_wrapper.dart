@@ -49,17 +49,21 @@ class _JobNotificationWrapperState extends State<JobNotificationWrapper>
 
   @override
   Future<void> afterFirstLayout(BuildContext context) async {
-    if (_isEnabled) {
-      await _jobNotificationService.requestPermission();
-      if (!mounted) return;
-      await _jobNotificationService.init(
-        JobNotificationServiceInitParams(
-          channelName: kAppName,
-          channelDescription: context.l10n.notificationChannelDescription,
-        ),
-      );
+    try {
+      if (_isEnabled) {
+        await _jobNotificationService.requestPermission();
+        if (!mounted || !_isEnabled) return;
+        await _jobNotificationService.init(
+          JobNotificationServiceInitParams(
+            channelName: kAppName,
+            channelDescription: context.l10n.notificationChannelDescription,
+          ),
+        );
+      }
+      if (mounted) _updateService();
+    } catch (error, trace) {
+      printError(error, trace);
     }
-    if (mounted) _updateService();
   }
 
   @override

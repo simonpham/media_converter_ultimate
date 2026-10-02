@@ -18,6 +18,7 @@ void main() {
   late _Settings settings;
   late _Storage storage;
   late _Runner runner;
+  late _Notifications notifications;
   late FluffyThemeData theme;
   setUp(() {
     installShippedAssetHandler();
@@ -31,7 +32,7 @@ void main() {
     settings = _Settings()..lastKnownVersion = 'seen';
     storage = _Storage();
     runner = _Runner();
-    final notifications = _Notifications();
+    notifications = _Notifications();
     injector.registerSingleton<SettingsBox>(settings);
     injector.registerSingleton<ConvertJobStorage>(storage);
     injector.registerSingleton<JobRunnerService>(runner);
@@ -50,6 +51,92 @@ void main() {
     settings.changes.dispose();
     clearShippedAssetHandler();
     await injector.reset();
+  });
+  for (final stage in ['permission', 'initialization']) {
+    for (final closeApp in [false, true]) {
+      testWidgets(
+        '$stage startup failure is observed with app closed=$closeApp',
+        (
+          tester,
+        ) async {
+          await settings.put(JobRunnerSettings.keepAppRunning, true);
+          final gate = Completer<void>();
+          final error = StateError('Native $stage unavailable');
+          if (stage == 'permission') {
+            notifications.permissionGate = gate;
+            notifications.permissionFailure = error;
+          } else {
+            notifications.initGate = gate;
+            notifications.initFailure = error;
+          }
+          await tester.pumpWidget(MediaConverterUltimate(appTheme: theme));
+          await tester.pumpAndSettle();
+          expect(notifications.permissions, 1);
+          expect(notifications.initializations, stage == 'permission' ? 0 : 1);
+          if (closeApp) {
+            await tester.pumpWidget(const SizedBox.shrink());
+          }
+          gate.complete();
+          await tester.pumpAndSettle();
+          expect(settings.keepAppRunning, isTrue);
+          expect(tester.takeException(), isNull);
+          if (!closeApp) {
+            expect(find.byType(JobManager), findsOneWidget);
+            expect(runner.jobs.listeners, 1);
+            await tester.pumpWidget(const SizedBox.shrink());
+            await tester.pumpAndSettle();
+          }
+          expect(runner.jobs.listeners, 0);
+        },
+      );
+    }
+  }
+  testWidgets('turning background setting off cancels pending startup setup', (
+    tester,
+  ) async {
+    await settings.put(JobRunnerSettings.keepAppRunning, true);
+    notifications.permissionGate = Completer<void>();
+    await tester.pumpWidget(MediaConverterUltimate(appTheme: theme));
+    await tester.pumpAndSettle();
+    expect(notifications.permissions, 1);
+    await settings.put(JobRunnerSettings.keepAppRunning, false);
+    notifications.permissionGate!.complete();
+    await tester.pumpAndSettle();
+    expect(notifications.initializations, 0);
+    expect(settings.keepAppRunning, isFalse);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+  testWidgets('closing app cancels pending startup permission setup', (
+    tester,
+  ) async {
+    await settings.put(JobRunnerSettings.keepAppRunning, true);
+    notifications.permissionGate = Completer<void>();
+    await tester.pumpWidget(MediaConverterUltimate(appTheme: theme));
+    await tester.pumpAndSettle();
+    await tester.pumpWidget(const SizedBox.shrink());
+    notifications.permissionGate!.complete();
+    await tester.pumpAndSettle();
+    expect(notifications.initializations, 0);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('startup initializes enabled background service only once', (
+    tester,
+  ) async {
+    await settings.put(JobRunnerSettings.keepAppRunning, true);
+    await tester.pumpWidget(MediaConverterUltimate(appTheme: theme));
+    await tester.pumpAndSettle();
+    await settings.put(CoreSettings.language, 'de');
+    await settings.put(CoreSettings.appTheme, ThemeMode.dark);
+    await tester.pumpAndSettle();
+    expect(notifications.permissions, 1);
+    expect(notifications.initializations, 1);
+    expect(notifications.parameters!.channelName, kAppName);
+    expect(notifications.parameters!.channelDescription, isNotEmpty);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
   });
   testWidgets('app teardown releases native queue and log listeners', (
     tester,
@@ -274,6 +361,28 @@ class _Settings extends MemorySettings {
 }
 
 class _Notifications implements JobNotificationService {
+  int permissions = 0;
+  int initializations = 0;
+  Completer<void>? permissionGate;
+  Completer<void>? initGate;
+  Object? permissionFailure;
+  Object? initFailure;
+  JobNotificationServiceInitParams? parameters;
+  @override
+  Future<void> requestPermission() async {
+    permissions++;
+    await permissionGate?.future;
+    if (permissionFailure case final error?) throw error;
+  }
+
+  @override
+  Future<void> init(JobNotificationServiceInitParams params) async {
+    initializations++;
+    parameters = params;
+    await initGate?.future;
+    if (initFailure case final error?) throw error;
+  }
+
   @override
   Future<bool> isServiceRunning() async => false;
   @override
