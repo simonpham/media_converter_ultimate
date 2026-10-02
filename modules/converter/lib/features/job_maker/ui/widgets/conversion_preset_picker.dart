@@ -66,37 +66,6 @@ class _ConversionPresetPickerState extends State<ConversionPresetPicker> {
             style: context.theme.textTheme.bodyMedium,
           ),
           Spacing.v12,
-          if (model.selectedFormatEntry != null) ...[
-            Wrap(
-              spacing: Spacing.d8,
-              runSpacing: Spacing.d8,
-              children: [
-                if (model.selectedPreset != null)
-                  Button(
-                    variant: .ghost,
-                    label: context.l10n.customSettings,
-                    titleExpand: .shrink,
-                    enable: !model.isLoadingFormat,
-                    onPressed: model.clearPreset,
-                  ),
-                Button(
-                  variant: .ghost,
-                  label: context.l10n.loadPreviousConfigs,
-                  titleExpand: .shrink,
-                  enable: !model.isLoadingFormat,
-                  onPressed: model.loadPreviousConfigurations,
-                ),
-                Button(
-                  variant: .ghost,
-                  label: context.l10n.resetToDefault,
-                  titleExpand: .shrink,
-                  enable: !model.isLoadingFormat,
-                  onPressed: model.resetConfigurations,
-                ),
-              ],
-            ),
-            Spacing.v12,
-          ],
           if (model.showPresetGrid)
             LayoutBuilder(
               builder: (context, constraints) {

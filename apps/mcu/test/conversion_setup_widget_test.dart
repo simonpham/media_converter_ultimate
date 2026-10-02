@@ -182,12 +182,13 @@ void main() {
       await tester.tap(find.text('Compatible video'));
       await tester.pumpAndSettle();
       final settings = {...model.selectedValues};
+      expect(find.widgetWithText(Button, 'Custom settings'), findsNothing);
       await tester.tap(find.text('Compatible video'));
       await tester.pumpAndSettle();
       expect(model.selectedPreset, isNull);
       expect(model.selectedValues, settings);
-      expect(find.text('Load Previous Configs'), findsOneWidget);
-      expect(find.text('Reset To Default'), findsOneWidget);
+      expect(find.text('Load Previous Configs'), findsNothing);
+      expect(find.text('Reset To Default'), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );
