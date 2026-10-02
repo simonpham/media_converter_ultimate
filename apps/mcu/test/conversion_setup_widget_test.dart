@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -105,6 +106,27 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Finder buttonWithTooltip(String label) => find.byWidgetPredicate(
+    (widget) => widget is Button && widget.tooltip == label,
+  );
+
+  Widget presetCards() => SingleChildScrollView(
+    padding: .all(Spacing.d16),
+    child: Consumer<JobMakerViewModel>(
+      builder: (context, model, _) => ConversionPresetPicker(
+        presets: model.availablePresets,
+        selectedPreset: model.selectedPreset,
+        onSelected: (preset) {
+          if (preset == model.selectedPreset) {
+            model.clearPreset();
+          } else {
+            unawaited(model.applyPreset(preset));
+          }
+        },
+      ),
+    ),
+  );
+
   testWidgets(
     'a vanished file renders its cached icon without filesystem access',
     (tester) async {
@@ -154,8 +176,8 @@ void main() {
   testWidgets(
     'presets toggle grid/list with aligned headers and format badges',
     (tester) async {
-      await showPicker(tester);
-      expect(model.showPresetGrid, isTrue);
+      await showPicker(tester, content: presetCards());
+      expect(buttonWithTooltip('Show list'), findsOneWidget);
       final first = find.byKey(const ValueKey('preset-format-compatibleVideo'));
       final second = find.byKey(const ValueKey('preset-format-smallerVideo'));
       expect(tester.getTopLeft(first).dy, tester.getTopLeft(second).dy);
@@ -169,7 +191,7 @@ void main() {
       );
       await tester.tap(find.byKey(const ValueKey('preset-layout-toggle')));
       await tester.pumpAndSettle();
-      expect(model.showPresetGrid, isFalse);
+      expect(buttonWithTooltip('Show grid'), findsOneWidget);
       for (final preset in ConversionPreset.values) {
         expect(
           tester
@@ -180,15 +202,17 @@ void main() {
       }
       await tester.tap(find.byKey(const ValueKey('preset-layout-toggle')));
       await tester.pumpAndSettle();
-      expect(model.showPresetGrid, isTrue);
+      expect(buttonWithTooltip('Show list'), findsOneWidget);
       await tester.tap(find.text('Compatible video'));
       await tester.pumpAndSettle();
-      final settings = {...model.selectedValues};
+      await model.applyPreset(.highQualityVideo);
+      await tester.pumpAndSettle();
+      expect(model.selectedValues['configs.mp4.crf.x264'], '18');
       expect(find.widgetWithText(Button, 'Custom settings'), findsNothing);
-      await tester.tap(find.text('Compatible video'));
+      await tester.tap(find.text('High-quality video'));
       await tester.pumpAndSettle();
       expect(model.selectedPreset, isNull);
-      expect(model.selectedValues, settings);
+      expect(model.selectedValues['configs.mp4.crf.x264'], '23');
       expect(find.text('Load Previous Configs'), findsNothing);
       expect(find.text('Reset To Default'), findsNothing);
       expect(tester.takeException(), isNull);
@@ -198,7 +222,7 @@ void main() {
   testWidgets('selecting a preset updates settings and selection semantics', (
     tester,
   ) async {
-    await showPicker(tester);
+    await showPicker(tester, content: presetCards());
     expect(find.text('Quick presets'), findsOneWidget);
     await tester.tap(find.text('Compatible video'));
     await tester.pumpAndSettle();
@@ -212,6 +236,173 @@ void main() {
         .evaluate()
         .map((element) => (element.widget as Semantics).properties.selected);
     expect(selection, contains(true));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('format step opens chooser and cancel preserves settings', (
+    tester,
+  ) async {
+    await model.applyPreset(.highQualityVideo);
+    final settings = {...model.selectedValues};
+    await showPicker(tester);
+    expect(find.byType(ConversionPresetPicker), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('choose-conversion-preset')));
+    await tester.pumpAndSettle();
+    expect(find.byType(ConversionPresetPicker), findsOneWidget);
+    expect(find.byKey(const ValueKey('preset-layout-toggle')), findsNothing);
+    expect(find.text('High-quality video'), findsOneWidget);
+    expect(buttonWithTooltip('Cancel'), findsNothing);
+    await tester.tapAt(Offset(Spacing.d8, Spacing.d8));
+    await tester.pumpAndSettle();
+    expect(model.selectedPreset, ConversionPreset.highQualityVideo);
+    expect(model.selectedValues, settings);
+    await tester.tap(find.byKey(const ValueKey('choose-conversion-preset')));
+    await tester.pumpAndSettle();
+    final sheet = tester.getRect(find.byType(BottomSheet));
+    await tester.dragFrom(
+      Offset(sheet.center.dx, sheet.top + Spacing.d16),
+      Offset(0, sheet.height),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(ConversionPresetPicker), findsNothing);
+    expect(model.selectedPreset, ConversionPreset.highQualityVideo);
+    expect(model.selectedValues, settings);
+    await tester.tap(find.byKey(const ValueKey('choose-conversion-preset')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('High-quality video'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ConversionPresetPicker), findsNothing);
+    expect(model.selectedPreset, isNull);
+    expect(model.selectedValues['configs.mp4.crf.x264'], '23');
+    expect(find.text('Choose preset'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'home cards report shortcuts and collapse without changing a draft',
+    (tester) async {
+      final selected = <ConversionPreset>[];
+      await showPicker(
+        tester,
+        content: SingleChildScrollView(
+          child: HomePresetShortcuts(onSelected: selected.add),
+        ),
+      );
+      expect(find.text('Quick convert'), findsOneWidget);
+      expect(find.text('Quick presets'), findsNothing);
+      expect(
+        find.text('Balanced quality and broad playback support.'),
+        findsNothing,
+      );
+      await tester.tap(find.text('Compatible video'));
+      await tester.pumpAndSettle();
+      expect(selected, [ConversionPreset.compatibleVideo]);
+      expect(model.selectedPreset, isNull);
+      await tester.tap(find.byKey(const ValueKey('home-presets-toggle')));
+      await tester.pumpAndSettle();
+      expect(find.byType(ConversionPresetPicker), findsNothing);
+      expect(buttonWithTooltip('Show quick presets'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('home-presets-toggle')));
+      await tester.pumpAndSettle();
+      expect(find.text('Compatible video'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'preset shortcut skips format and preserves trims through changes',
+    (tester) async {
+      injector.registerSingleton<FileService>(TestMediaFiles());
+      await showPicker(
+        tester,
+        content: JobMaker(
+          formatConfigModel: model.formatConfigModel,
+          translations: model.translations,
+          initialPreset: .musicMp3,
+        ),
+      );
+      final wizard = tester
+          .element(find.byType(JobMakerFilePicker))
+          .read<JobMakerViewModel>();
+      expect(wizard.selectedPreset, ConversionPreset.musicMp3);
+      expect(
+        tester.widget<StepperWidget>(find.byType(StepperWidget)).stepCount,
+        3,
+      );
+      final directory = Directory.systemTemp.createTempSync('mcu-shortcut-');
+      addTearDown(() => directory.deleteSync(recursive: true));
+      final source = File('${directory.path}/song.wav')
+        ..writeAsBytesSync(utf8.encode('RIFF0000WAVE'));
+      await wizard.addFiles([source]);
+      const trim = ConversionTrim(
+        start: Duration(seconds: 1),
+        end: Duration(seconds: 3),
+      );
+      wizard.setFileTrim(
+        source.path,
+        const FileTrimResult(trim: trim, duration: Duration(seconds: 4)),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+      expect(find.byType(JobMakerConfigCustomizer), findsOneWidget);
+      expect(find.byType(JobMakerOutputFormatPicker), findsNothing);
+      expect(find.byType(ConversionPresetPicker), findsNothing);
+      expect(find.text('MP3 music · Change'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('choose-conversion-preset')));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Compact audio'));
+      await tester.tap(find.text('Compact audio'));
+      await tester.pumpAndSettle();
+      expect(wizard.selectedPreset, ConversionPreset.compactAudio);
+      expect(wizard.selectedFormatEntry!.name, 'm4a');
+      expect(wizard.selectedFiles.single.path, source.path);
+      expect(wizard.trimFor(source.path), trim);
+      expect(wizard.outputFileNames[source.path], 'song.m4a');
+      await tester.tap(find.byKey(const ValueKey('choose-conversion-preset')));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Compact audio'));
+      await tester.tap(find.text('Compact audio'));
+      await tester.pumpAndSettle();
+      expect(wizard.selectedPreset, isNull);
+      expect(wizard.trimFor(source.path), trim);
+      expect(find.text('Choose preset'), findsOneWidget);
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+      expect(find.byType(JobMakerPreview), findsOneWidget);
+      expect(
+        tester.widget<StepperWidget>(find.byType(StepperWidget)).currentStep,
+        2,
+      );
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(JobMakerConfigCustomizer), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(JobMakerFilePicker), findsOneWidget);
+      expect(find.byType(JobMakerOutputFormatPicker), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('unsupported shortcut falls back to four steps', (tester) async {
+    await showPicker(
+      tester,
+      content: JobMaker(
+        formatConfigModel: FormatConfigModel(
+          formats: model.formatConfigModel.formats
+              .where((format) => format.name != 'mp4')
+              .toList(),
+          uiGradients: model.formatConfigModel.uiGradients,
+        ),
+        translations: model.translations,
+        initialPreset: .compatibleVideo,
+      ),
+    );
+    expect(
+      tester.widget<StepperWidget>(find.byType(StepperWidget)).stepCount,
+      4,
+    );
     expect(tester.takeException(), isNull);
   });
 
@@ -231,7 +422,7 @@ void main() {
     expect(find.text('No matching formats.'), findsOneWidget);
     await tester.enterText(find.byType(EditableText), '');
     await tester.pumpAndSettle();
-    expect(find.text('Quick presets'), findsOneWidget);
+    expect(find.text('Choose preset'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -264,7 +455,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(JobMakerOutputFormatPicker), findsOneWidget);
       expect(find.byType(JobMakerConfigCustomizer), findsNothing);
-      expect(find.text('Quick presets'), findsOneWidget);
+      expect(find.text('Choose preset'), findsOneWidget);
       await wizard.applyPreset(.compatibleVideo);
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(EditableText), 'MP4');
@@ -625,6 +816,20 @@ void main() {
       size: const Size(390, 844),
     ),
   ]) {
+    testWidgets('reusable preset layouts fit ${scenario.name}', (tester) async {
+      await showPicker(
+        tester,
+        isDark: scenario.isDark,
+        scale: scenario.scale,
+        locale: scenario.locale,
+        size: scenario.size,
+        content: presetCards(),
+      );
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.byKey(const ValueKey('preset-layout-toggle')));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
     testWidgets('format picker lays out in ${scenario.name}', (tester) async {
       final key = GlobalKey();
       await showPicker(
@@ -636,6 +841,11 @@ void main() {
         screenshotKey: key,
       );
       expect(tester.takeException(), isNull);
+      await tester.tap(find.byKey(const ValueKey('choose-conversion-preset')));
+      await tester.pumpAndSettle();
+      expect(find.byType(ConversionPresetPicker), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(const ValueKey('preset-layout-toggle')), findsNothing);
       if (Platform.environment['MCU_CAPTURE_WIDGETS'] == '1') {
         final boundary =
             key.currentContext!.findRenderObject() as RenderRepaintBoundary;

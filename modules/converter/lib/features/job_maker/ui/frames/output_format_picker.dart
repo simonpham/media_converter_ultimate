@@ -94,7 +94,7 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
                     ),
                     Spacing.v16,
                     if (model.formatQuery.trim().isEmpty) ...[
-                      const ConversionPresetPicker(),
+                      const JobMakerPresetSelection(),
                       Spacing.v16,
                     ],
                     if (model.visibleFormats.isEmpty)

@@ -66,8 +66,9 @@ void main() {
       await model.applyPreset(.compatibleVideo);
       expect(model.selectedValues['configs.mp4.video_encoder'], '-c:v libx264');
       expect(model.selectedValues['configs.mp4.crf.x264'], '23');
-      model.setSelectedValue('configs.mp4.crf.x264', '24');
+      model.setSelectedValue('configs.mp4.crf.x264', '28');
       expect(model.selectedPreset, isNull);
+      expect(model.selectedValues['configs.mp4.crf.x264'], '28');
       await model.applyPreset(.highQualityVideo);
       model.resetConfigurations();
       expect(model.selectedPreset, isNull);
@@ -75,24 +76,46 @@ void main() {
   );
 
   test(
-    'leaving a preset retains edits and can reload saved or default settings',
+    'deselecting restores built-in defaults and preserves the file draft',
     () async {
-      await model.applyPreset(.compatibleVideo);
-      final presetValues = {...model.selectedValues};
-      model.clearPreset();
-      expect(model.selectedPreset, isNull);
-      expect(model.selectedValues, presetValues);
+      injector.registerSingleton<FileService>(TestMediaFiles());
+      await model.addFiles([File('/source/movie.mkv')]);
+      await model.applyPreset(.highQualityVideo);
       model.resetConfigurations();
       final defaults = {...model.selectedValues};
       model.selectedFormatEntry!.setLastKnownConfigurations({
         'configs.mp4.crf.x264': '28',
       });
       await model.applyPreset(.highQualityVideo);
+      model.setOutputFileName('/source/movie.mkv', 'holiday.mp4');
+      const trim = ConversionTrim(
+        start: Duration(seconds: 1),
+        end: Duration(seconds: 3),
+      );
+      model.setFileTrim(
+        '/source/movie.mkv',
+        const FileTrimResult(
+          trim: trim,
+          duration: Duration(seconds: 4),
+        ),
+      );
+      final directory = model.outputDirectoryPath;
+      model.clearPreset();
+      expect(model.selectedPreset, isNull);
+      expect(model.selectedFormatEntry!.name, 'mp4');
+      expect(model.selectedValues, defaults);
+      expect(model.selectedFiles.single.path, '/source/movie.mkv');
+      expect(model.trimFor('/source/movie.mkv'), trim);
+      expect(model.outputFileNames['/source/movie.mkv'], 'holiday.mp4');
+      expect(model.outputDirectoryPath, directory);
+      // Clearing an already custom draft does not discard further edits.
+      model.setSelectedValue('configs.mp4.crf.x264', '18');
+      model.clearPreset();
+      expect(model.selectedValues['configs.mp4.crf.x264'], '18');
       model.loadPreviousConfigurations();
       expect(model.selectedPreset, isNull);
       expect(model.selectedValues['configs.mp4.crf.x264'], '28');
       model.resetConfigurations();
-      expect(model.selectedPreset, isNull);
       expect(model.selectedValues, defaults);
     },
   );

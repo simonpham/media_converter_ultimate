@@ -9,7 +9,7 @@ enum JobMakerSteps {
 
   bool get isLastStep => index == JobMakerSteps.values.length - 1;
 
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, {bool showPresetSelection = false}) {
     return switch (this) {
       .pickFiles => const JobMakerFilePicker(),
       .chooseOutputFormat => const JobMakerOutputFormatPicker(),
@@ -21,6 +21,7 @@ enum JobMakerSteps {
           }
 
           return JobMakerConfigCustomizer(
+            showPresetSelection: showPresetSelection,
             availableControls: availableControls,
             selectedValues: model.selectedValues,
             shouldRememberConfigs: model.shouldRememberConfigs,

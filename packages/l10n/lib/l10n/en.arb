@@ -263,5 +263,11 @@
         "type": "String"
       }
     }
-  }
+  },
+  "quickConvertTitle": "Quick convert",
+  "choosePreset": "Choose preset",
+  "changePreset": "Change",
+  "showQuickPresets": "Show quick presets",
+  "hideQuickPresets": "Hide quick presets",
+  "presetDeselectionHint": "Tap the selected preset again to restore this format’s defaults."
 }

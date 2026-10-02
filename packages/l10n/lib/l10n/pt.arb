@@ -242,5 +242,11 @@
   "trimApplyRange": "Aplicar intervalo",
   "trimFullFile": "Arquivo inteiro",
   "trimFileDuration": "Duração do arquivo: {duration}",
-  "trimInvalidBounds": "O intervalo deve estar dentro da duração deste arquivo."
+  "trimInvalidBounds": "O intervalo deve estar dentro da duração deste arquivo.",
+  "quickConvertTitle": "Conversão rápida",
+  "choosePreset": "Escolher predefinição",
+  "changePreset": "Alterar",
+  "showQuickPresets": "Mostrar predefinições rápidas",
+  "hideQuickPresets": "Ocultar predefinições rápidas",
+  "presetDeselectionHint": "Toque novamente na predefinição selecionada para restaurar os valores padrão deste formato."
 }

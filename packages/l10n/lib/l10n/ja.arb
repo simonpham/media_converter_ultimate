@@ -242,5 +242,11 @@
   "trimApplyRange": "範囲を適用",
   "trimFullFile": "ファイル全体",
   "trimFileDuration": "ファイルの長さ：{duration}",
-  "trimInvalidBounds": "範囲はこのファイルの長さ以内にしてください。"
+  "trimInvalidBounds": "範囲はこのファイルの長さ以内にしてください。",
+  "quickConvertTitle": "クイック変換",
+  "choosePreset": "プリセットを選択",
+  "changePreset": "変更",
+  "showQuickPresets": "クイックプリセットを表示",
+  "hideQuickPresets": "クイックプリセットを非表示",
+  "presetDeselectionHint": "選択中のプリセットをもう一度タップすると、この形式の既定値に戻ります。"
 }

@@ -242,5 +242,11 @@
   "trimApplyRange": "Áp dụng khoảng cắt",
   "trimFullFile": "Toàn bộ tệp",
   "trimFileDuration": "Thời lượng tệp: {duration}",
-  "trimInvalidBounds": "Khoảng thời gian phải nằm trong thời lượng của tệp này."
+  "trimInvalidBounds": "Khoảng thời gian phải nằm trong thời lượng của tệp này.",
+  "quickConvertTitle": "Chuyển đổi nhanh",
+  "choosePreset": "Chọn cấu hình có sẵn",
+  "changePreset": "Đổi",
+  "showQuickPresets": "Hiện cấu hình nhanh",
+  "hideQuickPresets": "Ẩn cấu hình nhanh",
+  "presetDeselectionHint": "Chạm lại vào cấu hình đang chọn để khôi phục mặc định của định dạng này."
 }

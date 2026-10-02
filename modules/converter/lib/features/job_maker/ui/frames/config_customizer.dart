@@ -9,6 +9,7 @@ class const JobMakerConfigCustomizer({
   final void Function(String, String)? onChanged,
   required final bool shouldRememberConfigs,
   final ValueChanged<bool>? onRememberConfigsChanged,
+  final bool showPresetSelection = false,
 }) extends StatefulWidget {
   @override
   State<JobMakerConfigCustomizer> createState() =>
@@ -38,6 +39,13 @@ class _JobMakerConfigCustomizerState extends State<JobMakerConfigCustomizer> {
             child: CustomScrollView(
               controller: _scrollController,
               slivers: [
+                if (widget.showPresetSelection)
+                  SliverPadding(
+                    padding: .symmetric(horizontal: Spacing.d16),
+                    sliver: const SliverToBoxAdapter(
+                      child: JobMakerPresetSelection(),
+                    ),
+                  ),
                 SliverToBoxAdapter(
                   child: RoundCard(
                     margin: .symmetric(

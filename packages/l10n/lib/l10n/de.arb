@@ -242,5 +242,11 @@
   "trimApplyRange": "Bereich anwenden",
   "trimFullFile": "Ganze Datei",
   "trimFileDuration": "Dateidauer: {duration}",
-  "trimInvalidBounds": "Der Bereich muss innerhalb der Dauer dieser Datei liegen."
+  "trimInvalidBounds": "Der Bereich muss innerhalb der Dauer dieser Datei liegen.",
+  "quickConvertTitle": "Schnell konvertieren",
+  "choosePreset": "Voreinstellung wählen",
+  "changePreset": "Ändern",
+  "showQuickPresets": "Schnellvorlagen anzeigen",
+  "hideQuickPresets": "Schnellvorlagen ausblenden",
+  "presetDeselectionHint": "Tippe erneut auf die gewählte Vorlage, um die Standardwerte dieses Formats wiederherzustellen."
 }

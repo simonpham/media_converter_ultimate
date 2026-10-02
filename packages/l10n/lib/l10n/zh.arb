@@ -242,5 +242,11 @@
   "trimApplyRange": "应用范围",
   "trimFullFile": "完整文件",
   "trimFileDuration": "文件时长：{duration}",
-  "trimInvalidBounds": "范围必须在此文件的时长以内。"
+  "trimInvalidBounds": "范围必须在此文件的时长以内。",
+  "quickConvertTitle": "快速转换",
+  "choosePreset": "选择预设",
+  "changePreset": "更改",
+  "showQuickPresets": "显示快捷预设",
+  "hideQuickPresets": "隐藏快捷预设",
+  "presetDeselectionHint": "再次点击已选预设，恢复此格式的默认设置。"
 }

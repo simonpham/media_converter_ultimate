@@ -242,5 +242,11 @@
   "trimApplyRange": "Terapkan rentang",
   "trimFullFile": "Seluruh file",
   "trimFileDuration": "Durasi file: {duration}",
-  "trimInvalidBounds": "Rentang harus berada dalam durasi file ini."
+  "trimInvalidBounds": "Rentang harus berada dalam durasi file ini.",
+  "quickConvertTitle": "Konversi cepat",
+  "choosePreset": "Pilih preset",
+  "changePreset": "Ubah",
+  "showQuickPresets": "Tampilkan preset cepat",
+  "hideQuickPresets": "Sembunyikan preset cepat",
+  "presetDeselectionHint": "Ketuk lagi preset yang dipilih untuk memulihkan pengaturan bawaan format ini."
 }

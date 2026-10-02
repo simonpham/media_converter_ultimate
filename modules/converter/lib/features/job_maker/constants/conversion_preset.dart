@@ -42,5 +42,12 @@ enum ConversionPreset(
   losslessAudio('m4a', {
     'configs.m4a.audio_encoder': 'configs.m4a.audio_encoder.value.alac',
     'configs.common.trim_silence': '[]',
-  }),
+  });
+
+  static List<ConversionPreset> forFormats(Iterable<String> formatNames) {
+    final supported = formatNames.toSet();
+    return values
+        .where((preset) => supported.contains(preset.formatName))
+        .toList();
+  }
 }

@@ -16,6 +16,7 @@ class const JobManager({
 
 class _JobManagerState extends State<JobManager> {
   final MenuController _menuController = .new();
+  bool _isCreatingJob = false;
 
   @override
   Widget build(BuildContext context) {
@@ -125,6 +126,14 @@ class _JobManagerState extends State<JobManager> {
                   const SliverToBoxAdapter(
                     key: ValueKey('job_manager_ad_item'),
                     child: JobAdItem(),
+                  ),
+                  SliverToBoxAdapter(
+                    child: HomePresetShortcuts(
+                      enabled: !_isCreatingJob,
+                      onSelected: (preset) => unawaited(
+                        _handleCreateJob(context, initialPreset: preset),
+                      ),
+                    ),
                   ),
                   if (actionRequiredJobs.isNotEmpty) ...[
                     SliverToBoxAdapter(child: Spacing.v16),
@@ -298,6 +307,7 @@ class _JobManagerState extends State<JobManager> {
           color: context.theme.colorScheme.onPrimary,
         ),
         label: context.l10n.create,
+        enable: !_isCreatingJob,
         onPressed: () {
           _handleCreateJob(context);
         },
@@ -305,32 +315,43 @@ class _JobManagerState extends State<JobManager> {
     );
   }
 
-  Future<void> _handleCreateJob(BuildContext context) async {
-    final androidInfo = await DeviceInfoPlugin().androidInfo;
-    final sdkInt = androidInfo.version.sdkInt;
-    if (sdkInt < 33) {
-      final status = await Permission.storage.request();
-      if (!status.isGranted) {
-        await _handlePermissionDenied(context);
-        return;
-      }
-    }
-
+  Future<void> _handleCreateJob(
+    BuildContext context, {
+    ConversionPreset? initialPreset,
+  }) async {
+    if (_isCreatingJob) return;
+    setState(() => _isCreatingJob = true);
     try {
-      final defaultOutputPath =
-          await JobMakerPathUtils.getDefaultOutputDirectoryPath();
-      if (defaultOutputPath == null) {
-        throw Exception('Failed to get default output directory path.');
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      final sdkInt = androidInfo.version.sdkInt;
+      if (sdkInt < 33) {
+        final status = await Permission.storage.request();
+        if (!status.isGranted) {
+          await _handlePermissionDenied(context);
+          return;
+        }
       }
-    } catch (_) {
-      context.toastError(
-        context.l10n.failureDirectoryNotWritable,
-      );
-    }
 
-    final jobs = await JobMaker.cook(context);
-    final viewModel = context.read<JobManagerViewModel>();
-    await viewModel.addJobs(jobs);
+      try {
+        final defaultOutputPath =
+            await JobMakerPathUtils.getDefaultOutputDirectoryPath();
+        if (defaultOutputPath == null) {
+          throw Exception('Failed to get default output directory path.');
+        }
+      } catch (_) {
+        context.toastError(
+          context.l10n.failureDirectoryNotWritable,
+        );
+      }
+
+      if (!context.mounted) return;
+      final jobs = await JobMaker.cook(context, initialPreset: initialPreset);
+      if (!context.mounted) return;
+      final viewModel = context.read<JobManagerViewModel>();
+      await viewModel.addJobs(jobs);
+    } finally {
+      if (mounted) setState(() => _isCreatingJob = false);
+    }
   }
 
   void _handleOpenLogs(BuildContext context, ConvertJob job) {

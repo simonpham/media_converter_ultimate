@@ -242,5 +242,11 @@
   "trimApplyRange": "套用範圍",
   "trimFullFile": "完整檔案",
   "trimFileDuration": "檔案時長：{duration}",
-  "trimInvalidBounds": "範圍必須在此檔案的時長以內。"
+  "trimInvalidBounds": "範圍必須在此檔案的時長以內。",
+  "quickConvertTitle": "快速轉換",
+  "choosePreset": "選擇預設",
+  "changePreset": "變更",
+  "showQuickPresets": "顯示快捷預設",
+  "hideQuickPresets": "隱藏快捷預設",
+  "presetDeselectionHint": "再次點選已選預設，還原此格式的預設設定。"
 }

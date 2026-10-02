@@ -25,19 +25,12 @@ class JobMakerViewModel({
   FormatEntry? _selectedFormatEntry;
   ConversionPreset? _selectedPreset;
   ConversionPreset? get selectedPreset => _selectedPreset;
-  bool _showPresetGrid = true;
-  bool get showPresetGrid => _showPresetGrid;
 
-  void togglePresetLayout() {
-    _showPresetGrid = !_showPresetGrid;
-    notifyListeners();
-  }
-
-  /// Return to custom editing without discarding the current settings.
+  /// Explicit deselection restores built-in defaults for the current format.
+  /// Editing a control instead clears the label while preserving that edit.
   void clearPreset() {
     if (_isLoadingFormat || _selectedPreset == null) return;
-    _selectedPreset = null;
-    notifyListeners();
+    resetConfigurations();
   }
 
   int _configurationRevision = 0;
@@ -80,13 +73,9 @@ class JobMakerViewModel({
     notifyListeners();
   }
 
-  List<ConversionPreset> get availablePresets => ConversionPreset.values
-      .where(
-        (preset) => formatConfigModel.formats.any(
-          (format) => format.name == preset.formatName,
-        ),
-      )
-      .toList();
+  List<ConversionPreset> get availablePresets => ConversionPreset.forFormats(
+    formatConfigModel.formats.map((format) => format.name),
+  );
 
   List<FormatEntry> get visibleFormats {
     final query = _formatQuery.trim().toLowerCase().replaceFirst(

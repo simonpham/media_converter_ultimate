@@ -242,5 +242,11 @@
   "trimApplyRange": "Применить диапазон",
   "trimFullFile": "Весь файл",
   "trimFileDuration": "Длительность файла: {duration}",
-  "trimInvalidBounds": "Диапазон должен быть в пределах длительности этого файла."
+  "trimInvalidBounds": "Диапазон должен быть в пределах длительности этого файла.",
+  "quickConvertTitle": "Быстрое преобразование",
+  "choosePreset": "Выбрать шаблон",
+  "changePreset": "Изменить",
+  "showQuickPresets": "Показать быстрые шаблоны",
+  "hideQuickPresets": "Скрыть быстрые шаблоны",
+  "presetDeselectionHint": "Нажмите выбранный шаблон ещё раз, чтобы восстановить настройки по умолчанию для этого формата."
 }

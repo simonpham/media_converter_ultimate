@@ -9,11 +9,15 @@ class const JobMaker({
   super.key,
   required final FormatConfigModel formatConfigModel,
   required final Map<String, String?> translations,
+  final ConversionPreset? initialPreset,
 }) extends StatefulWidget {
   static const String routeName = 'job-maker';
   static const String routePath = routeName;
 
-  static Future<List<ConvertJob>> cook(BuildContext context) async {
+  static Future<List<ConvertJob>> cook(
+    BuildContext context, {
+    ConversionPreset? initialPreset,
+  }) async {
     final formatConfigModel = await FormatConfigModel.get(context);
     if (formatConfigModel == null) {
       return const [];
@@ -33,9 +37,11 @@ class const JobMaker({
     SettingsBox().lastOutputDirectoryPath ??=
         await JobMakerPathUtils.getDefaultOutputDirectoryPath();
 
+    if (!context.mounted) return const [];
+
     final result = await context.router.pushNamed(
       routeName,
-      extra: (formatConfigModel, translations),
+      extra: (formatConfigModel, translations, initialPreset),
     );
     if (result is! List<ConvertJob> || result.isEmpty) {
       return const [];
@@ -45,11 +51,24 @@ class const JobMaker({
   }
 
   static JobMaker fromRouterState(GoRouterState state) {
-    final (formatConfigModel, translations) =
-        state.extra as (FormatConfigModel, Map<String, String?>);
+    final (formatConfigModel, translations, preset) = switch (state.extra) {
+      (
+        FormatConfigModel config,
+        Map<String, String?> translations,
+        ConversionPreset? preset,
+      ) =>
+        (config, translations, preset),
+      (FormatConfigModel config, Map<String, String?> translations) => (
+        config,
+        translations,
+        null,
+      ),
+      _ => throw ArgumentError('Invalid conversion setup arguments'),
+    };
     return JobMaker(
       formatConfigModel: formatConfigModel,
       translations: translations,
+      initialPreset: preset,
     );
   }
 
@@ -67,6 +86,23 @@ class _JobMakerState extends State<JobMaker> {
   final PageController _pageController = .new();
   final ValueNotifier<int> _currentStepNotifier = .new(0);
   bool _isChangingStep = false;
+  late final bool _isPresetShortcut =
+      widget.initialPreset != null &&
+      _viewModel.availablePresets.contains(widget.initialPreset);
+  late final List<JobMakerSteps> _steps = [
+    JobMakerSteps.pickFiles,
+    if (!_isPresetShortcut) JobMakerSteps.chooseOutputFormat,
+    JobMakerSteps.customizeConfigs,
+    JobMakerSteps.preview,
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    if (_isPresetShortcut) {
+      unawaited(_viewModel.applyPreset(widget.initialPreset!));
+    }
+  }
 
   @override
   void dispose() {
@@ -98,7 +134,7 @@ class _JobMakerState extends State<JobMaker> {
                   ValueListenableBuilder(
                     valueListenable: _currentStepNotifier,
                     builder: (context, currentStep, child) {
-                      final step = JobMakerSteps.values.elementAt(currentStep);
+                      final step = _steps[currentStep];
                       return AppBar(
                         centerTitle: true,
                         title: Column(
@@ -110,7 +146,7 @@ class _JobMakerState extends State<JobMaker> {
                             ),
                             Spacing.v4,
                             StepperWidget(
-                              stepCount: JobMakerSteps.values.length,
+                              stepCount: _steps.length,
                               currentStep: currentStep,
                             ),
                           ],
@@ -227,14 +263,17 @@ class _JobMakerState extends State<JobMaker> {
                         absorbing: model.isPreparingJobs,
                         child: PageView.builder(
                           controller: _pageController,
-                          itemCount: JobMakerSteps.values.length,
+                          itemCount: _steps.length,
                           physics: const NeverScrollableScrollPhysics(),
                           onPageChanged: (page) {
                             _currentStepNotifier.value = page;
                           },
                           itemBuilder: (context, index) {
-                            final step = JobMakerSteps.values.elementAt(index);
-                            return step.build(context);
+                            final step = _steps[index];
+                            return step.build(
+                              context,
+                              showPresetSelection: _isPresetShortcut,
+                            );
                           },
                         ),
                       ),
@@ -248,8 +287,7 @@ class _JobMakerState extends State<JobMaker> {
                     child: ValueListenableBuilder(
                       valueListenable: _currentStepNotifier,
                       builder: (context, currentStep, child) {
-                        final isLastStep =
-                            currentStep == JobMakerSteps.values.length - 1;
+                        final isLastStep = currentStep == _steps.length - 1;
                         return Consumer<JobMakerViewModel>(
                           builder: (context, model, _) => Button(
                             variant: .primary,
@@ -287,11 +325,11 @@ class _JobMakerState extends State<JobMaker> {
       return;
     }
     final currentPage = _pageController.page?.toInt();
-    if (currentPage == null || currentPage >= JobMakerSteps.values.length) {
+    if (currentPage == null || currentPage >= _steps.length) {
       return;
     }
 
-    final currentStep = JobMakerSteps.values.elementAt(currentPage);
+    final currentStep = _steps[currentPage];
     final error = _viewModel.checkError(currentStep);
     if (error != null) {
       context.toastFailure(error);
