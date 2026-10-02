@@ -234,6 +234,29 @@ void main() {
   );
 
   test(
+    'fine boundary adjustment stays anchored after preview moves the cursor',
+    () async {
+      await model.initialize();
+      for (final target in [TrimTarget.start, TrimTarget.end]) {
+        model.setRange(2000, 8000);
+        model.selectTarget(target);
+        await model.play();
+        preview.positionEvents.add(const Duration(seconds: 4));
+        await Future<void>.delayed(Duration.zero);
+        expect(model.position, 4000);
+        expect(model.target, target);
+        model.nudge(100);
+        expect(
+          (model.start, model.end),
+          target == .start ? (2100, 8000) : (2000, 8100),
+        );
+        expect(model.position, target == .start ? 2100 : 8100);
+        expect(model.playing, isFalse);
+      }
+    },
+  );
+
+  test(
     'pause during audio preparation prevents later playback startup',
     () async {
       preview.playGate = Completer<void>();

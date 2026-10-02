@@ -190,8 +190,14 @@ class TrimTimelineViewModel({
     seek(position, preview: preview);
   }
 
-  void nudge(int milliseconds) =>
-      adjustBoundary(_target, _position + milliseconds);
+  void nudge(int milliseconds) {
+    final anchor = switch (_target) {
+      .start => _start,
+      .cursor => _position,
+      .end => _end,
+    };
+    adjustBoundary(_target, anchor + milliseconds);
+  }
 
   void panWindow(bool forward) {
     unawaited(pause());
