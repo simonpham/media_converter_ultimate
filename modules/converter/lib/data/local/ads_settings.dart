@@ -8,6 +8,16 @@ enum AdsSettings {
 }
 
 extension AdsSettingsExt on SettingsBox {
+  /// Keep usage recording independent from conversion and navigation success.
+  Future<void> incrementUsageCounter(AdsSettings key) async {
+    try {
+      await put(key, _readCounter(key) + 1);
+      printLog('[AdsSettings] ${key.name} increased: ${_readCounter(key)}');
+    } catch (error, trace) {
+      printError(error, trace);
+    }
+  }
+
   int _readCounter(AdsSettings key) {
     final value = readSetting(key, defaultValue: 0);
     return value < 0 ? 0 : value;

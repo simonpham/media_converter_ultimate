@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:converter/converter.dart';
 import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
@@ -15,9 +17,8 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
   @override
   void initState() {
     super.initState();
-    SettingsBox().filePickerAccessCount++;
-    printLog(
-      '[AdsSettings] filePickerAccessCount increased: ${SettingsBox().filePickerAccessCount}',
+    unawaited(
+      SettingsBox().incrementUsageCounter(.filePickerAccessCount),
     );
   }
 

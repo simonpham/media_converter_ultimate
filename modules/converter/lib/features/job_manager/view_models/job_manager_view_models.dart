@@ -419,7 +419,7 @@ class JobManagerViewModel extends ChangeNotifier {
     );
     if (failure != null) throw failure;
     _exportFailures.remove(job.id);
-    _recordSuccessfulConversion();
+    unawaited(SettingsBox().incrementUsageCounter(.successConversionCount));
     try {
       await _fileService.acknowledgeExport(job.id);
       await _fileService.deleteFileAtPath(job.convertedFilePath);
@@ -428,20 +428,6 @@ class JobManagerViewModel extends ChangeNotifier {
       _finishExecution(job);
       _requestPendingJobs();
     }
-  }
-
-  void _recordSuccessfulConversion() {
-    unawaited(
-      Future<void>.sync(() {
-        final settings = SettingsBox();
-        return settings.put(
-          AdsSettings.successConversionCount,
-          settings.successConversionCount + 1,
-        );
-      }).catchError((Object error, StackTrace trace) {
-        printError(error, trace);
-      }),
-    );
   }
 
   void _finishExecution(ConvertJob job) {

@@ -22,9 +22,8 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
     _searchController = .new(
       text: this.context.read<JobMakerViewModel>().formatQuery,
     );
-    SettingsBox().outputFormatPickerAccessCount++;
-    printLog(
-      '[AdsSettings] outputFormatPickerAccessCount increased: ${SettingsBox().outputFormatPickerAccessCount}',
+    unawaited(
+      SettingsBox().incrementUsageCounter(.outputFormatPickerAccessCount),
     );
   }
 

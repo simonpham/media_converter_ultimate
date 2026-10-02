@@ -18,6 +18,7 @@ void main() {
   late Directory directory;
   late _Files files;
   late _Manager manager;
+  late _Settings settings;
   late GoRouter router;
   late FluffyThemeData theme;
 
@@ -25,9 +26,9 @@ void main() {
     directory = Directory.systemTemp.createTempSync('mcu-submission-');
     files = _Files(directory);
     installShippedAssetHandler();
-    injector.registerSingleton<SettingsBox>(
-      MemorySettings()..lastOutputDirectoryPath = '${directory.path}/output',
-    );
+    settings = _Settings()
+      ..lastOutputDirectoryPath = '${directory.path}/output';
+    injector.registerSingleton<SettingsBox>(settings);
     injector.registerSingleton<JobConfigurationData>(MemoryConfigurations());
     injector.registerSingleton<FileService>(files);
     manager = _Manager();
@@ -96,6 +97,66 @@ void main() {
     await injector.reset();
     directory.deleteSync(recursive: true);
   });
+
+  for (final key in [
+    AdsSettings.filePickerAccessCount,
+    AdsSettings.outputFormatPickerAccessCount,
+  ]) {
+    for (final synchronous in [true, false]) {
+      testWidgets(
+        '${key.name} save failure keeps Review reachable, sync=$synchronous',
+        (
+          tester,
+        ) async {
+          settings.failedCounter = key;
+          settings.synchronousFailure = synchronous;
+          await tester.pumpWidget(
+            ChangeNotifierProvider<JobManagerViewModel>.value(
+              value: manager,
+              child: MaterialApp.router(
+                routerConfig: router,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                theme: theme.getTheme(isDark: false),
+                builder: (_, child) => FluffyTheme(
+                  data: theme.getFluffyTheme(isDark: false),
+                  child: child!,
+                ),
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+          await tester.tap(find.widgetWithText(Button, 'Create'));
+          await tester.pumpAndSettle();
+          await tester.tap(find.widgetWithText(Button, 'Add Files'));
+          await tester.pumpAndSettle();
+          final model = tester
+              .element(find.byType(JobMakerFilePicker))
+              .read<JobMakerViewModel>();
+          await model.applyPreset(.musicMp3);
+          for (var step = 0; step < 3; step++) {
+            await tester.tap(find.widgetWithText(Button, 'Next'));
+            await tester.pumpAndSettle();
+          }
+          expect(settings.failedWrites, 1);
+          expect(settings.values[key], isNull);
+          expect(
+            find.widgetWithText(Button, 'Start Conversion'),
+            findsOneWidget,
+          );
+          expect(model.selectedFiles.single.path, files.source.path);
+          expect(model.selectedPreset, ConversionPreset.musicMp3);
+          expect(model.selectedFormatEntry!.name, 'mp3');
+          expect(model.outputDirectoryPath, '${directory.path}/output');
+          expect(manager.submitted, isEmpty);
+          expect(files.cleanups, isEmpty);
+          expect(tester.takeException(), isNull);
+          await tester.pumpWidget(const SizedBox.shrink());
+          await tester.pumpAndSettle();
+        },
+      );
+    }
+  }
 
   testWidgets(
     'Home keeps Review and its draft after save failure, then queues retry once',
@@ -202,6 +263,21 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+}
+
+class _Settings extends MemorySettings {
+  AdsSettings? failedCounter;
+  bool synchronousFailure = false;
+  int failedWrites = 0;
+  @override
+  Future<void> put(dynamic key, dynamic value) {
+    if (key == failedCounter) {
+      failedWrites++;
+      if (synchronousFailure) throw StateError('Counter save rejected');
+      return Future<void>.error(StateError('Counter save rejected'));
+    }
+    return super.put(key, value);
+  }
 }
 
 class _Files(final Directory directory) extends DirectFileService {
