@@ -10,22 +10,16 @@ class const JobMakerPresetSelection({super.key}) extends StatelessWidget {
     builder: (context, model, _) {
       if (model.availablePresets.isEmpty) return const SizedBox.shrink();
       final preset = model.selectedPreset;
-      return Button(
+      final action = Button(
         key: const ValueKey('choose-conversion-preset'),
         variant: .ghost,
-        titleExpand: .expand,
+        mainAxisSize: .min,
+        titleExpand: .shrink,
+        padding: .symmetric(horizontal: Spacing.d12, vertical: Spacing.d8),
         enable: !model.isLoadingFormat && !model.isPreparingJobs,
-        icon: ImageView(
-          Assets.flash,
-          size: Spacing.d24,
-          color: context.theme.colorScheme.primary,
-        ),
-        child: Text(
-          preset == null
-              ? context.l10n.choosePreset
-              : '${preset.getTitle(context)} · ${context.l10n.changePreset}',
-          textAlign: .start,
-        ),
+        label: preset == null
+            ? context.l10n.choosePreset
+            : context.l10n.changePreset,
         onPressed: () async {
           final selection = await ConversionPresetPicker.show(
             context,
@@ -39,6 +33,64 @@ class const JobMakerPresetSelection({super.key}) extends StatelessWidget {
             await model.applyPreset(selection);
           }
         },
+      );
+      if (preset == null) {
+        return Button(
+          key: const ValueKey('choose-conversion-preset'),
+          variant: .ghost,
+          titleExpand: .expand,
+          enable: !model.isLoadingFormat && !model.isPreparingJobs,
+          icon: ImageView(
+            Assets.flash,
+            size: Spacing.d24,
+            color: context.theme.colorScheme.primary,
+          ),
+          child: Text(context.l10n.choosePreset, textAlign: .start),
+          onPressed: action.onPressed,
+        );
+      }
+      final title = Row(
+        children: [
+          ImageView(
+            Assets.flash,
+            size: Spacing.d24,
+            color: context.theme.colorScheme.primary,
+          ),
+          Spacing.h12,
+          Expanded(
+            child: Text(
+              preset.getTitle(context),
+              style: context.theme.textTheme.titleSmall,
+            ),
+          ),
+        ],
+      );
+      return RoundCard(
+        padding: .all(Spacing.d16),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final scale =
+                MediaQuery.textScalerOf(context).scale(Spacing.d12) /
+                Spacing.d12;
+            if (constraints.maxWidth < Spacing.d96 * 3 * scale) {
+              return Column(
+                crossAxisAlignment: .stretch,
+                children: [
+                  title,
+                  Spacing.v12,
+                  Align(alignment: .centerRight, child: action),
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: title),
+                Spacing.h12,
+                action,
+              ],
+            );
+          },
+        ),
       );
     },
   );

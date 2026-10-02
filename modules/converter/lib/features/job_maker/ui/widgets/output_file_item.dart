@@ -35,102 +35,90 @@ class const OutputFileItem(
             borderRadius: Spacing.r12,
           ),
         ),
-        child: Column(
-          crossAxisAlignment: .stretch,
+        padding: .symmetric(horizontal: Spacing.d8, vertical: Spacing.d4),
+        child: Row(
           children: [
-            Row(
-              children: [
-                Spacing.h16,
-                Text(
-                  '$index',
-                  style: context.theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: .bold,
-                    color: hasError ? context.theme.colorScheme.error : null,
-                  ),
-                  maxLines: 1,
-                ),
-                Spacing.h8,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: .start,
-                    children: [
-                      Text(
-                        outputFileName,
-                        style: context.theme.textTheme.bodyMedium?.copyWith(
-                          color: hasError
-                              ? context.theme.colorScheme.error
-                              : null,
-                        ),
-                        maxLines: 1,
-                        overflow: .ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-                Spacing.h8,
-                Tappable(
-                  behavior: .translucent,
-                  tooltip: context.l10n.rename,
-                  onTap: onRenamePressed,
-                  child: Container(
-                    padding: .all(
-                      Spacing.d12,
-                    ),
-                    child: ImageView(
-                      Assets.edit02,
-                      color: hasError
-                          ? context.theme.colorScheme.error
-                          : context.theme.colorScheme.primary,
-                      size: Spacing.d20,
-                    ),
-                  ),
-                ),
-                Spacing.h4,
-              ],
+            Spacing.h8,
+            Text(
+              '$index',
+              style: context.theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: .bold,
+                color: hasError ? context.theme.colorScheme.error : null,
+              ),
             ),
-            if (onTrimPressed != null)
-              Padding(
-                padding: .only(
-                  left: Spacing.d16,
-                  right: Spacing.d12,
-                  bottom: Spacing.d12,
-                ),
-                child: Wrap(
-                  alignment: .spaceBetween,
-                  crossAxisAlignment: .center,
-                  spacing: Spacing.d8,
-                  runSpacing: Spacing.d8,
-                  children: [
+            Spacing.h8,
+            Expanded(
+              child: Column(
+                mainAxisSize: .min,
+                crossAxisAlignment: .start,
+                children: [
+                  Text(
+                    outputFileName,
+                    style: context.theme.textTheme.bodyMedium?.copyWith(
+                      color: hasError ? context.theme.colorScheme.error : null,
+                    ),
+                    maxLines: 2,
+                    overflow: .ellipsis,
+                  ),
+                  if (trim case final range?) ...[
+                    Spacing.v4,
                     Text(
-                      trim == null
-                          ? context.l10n.trimFullFile
-                          : context.l10n.trimRangeSummary(
-                              MediaTimestamp.display(trim!.start),
-                              trim!.end == null
-                                  ? context.l10n.trimEndOfFile
-                                  : MediaTimestamp.display(trim!.end!),
-                            ),
+                      context.l10n.trimRangeSummary(
+                        MediaTimestamp.display(range.start),
+                        range.end == null
+                            ? context.l10n.trimEndOfFile
+                            : MediaTimestamp.display(range.end!),
+                      ),
                       style: context.theme.textTheme.bodySmall,
                     ),
-                    Button(
-                      key: ValueKey('trim-file-${file.path}'),
-                      variant: .ghost,
-                      tooltip: context.l10n.trimMediaTitle,
-                      padding: .all(Spacing.d8),
-                      mainAxisSize: .min,
-                      child: ImageView(
-                        Assets.scissor,
-                        size: Spacing.d24,
-                        color: context.theme.colorScheme.primary,
-                      ),
-                      onPressed: onTrimPressed,
-                    ),
                   ],
-                ),
+                ],
+              ),
+            ),
+            Spacing.h8,
+            _action(
+              context,
+              key: ValueKey('rename-file-${file.path}'),
+              tooltip: context.l10n.rename,
+              asset: Assets.edit02,
+              onTap: onRenamePressed,
+              color: hasError
+                  ? context.theme.colorScheme.error
+                  : context.theme.colorScheme.primary,
+            ),
+            if (onTrimPressed != null || trim != null)
+              _action(
+                context,
+                key: ValueKey('trim-file-${file.path}'),
+                tooltip: context.l10n.trimMediaTitle,
+                asset: Assets.scissor,
+                onTap: onTrimPressed,
+                color: context.theme.colorScheme.primary,
               ),
           ],
         ),
       ),
     );
   }
+
+  Widget _action(
+    BuildContext context, {
+    required Key key,
+    required String tooltip,
+    required String asset,
+    required VoidCallback? onTap,
+    required Color color,
+  }) => Semantics(
+    button: true,
+    enabled: onTap != null,
+    child: Tappable(
+      key: key,
+      tooltip: tooltip,
+      onTap: onTap,
+      child: Padding(
+        padding: .all(Spacing.d12),
+        child: ImageView(asset, size: Spacing.d24, color: color),
+      ),
+    ),
+  );
 }

@@ -39,13 +39,16 @@ class _JobMakerConfigCustomizerState extends State<JobMakerConfigCustomizer> {
             child: CustomScrollView(
               controller: _scrollController,
               slivers: [
-                if (widget.showPresetSelection)
+                SliverToBoxAdapter(child: Spacing.v16),
+                if (widget.showPresetSelection) ...[
                   SliverPadding(
                     padding: .symmetric(horizontal: Spacing.d16),
                     sliver: const SliverToBoxAdapter(
                       child: JobMakerPresetSelection(),
                     ),
                   ),
+                  SliverToBoxAdapter(child: Spacing.v16),
+                ],
                 SliverToBoxAdapter(
                   child: RoundCard(
                     margin: .symmetric(
