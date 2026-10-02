@@ -256,5 +256,5 @@
   "trimFineAdjustment": "Ajuste fino",
   "trimOverview": "Vista completa",
   "trimHandlesHint": "Arrastra los tiradores para recortar. Toca la línea de tiempo para previsualizar.",
-  "trimWaveformZoom": "Amplía para ver la forma de onda."
+  "trimPreparingWaveform": "Generando forma de onda…"
 }

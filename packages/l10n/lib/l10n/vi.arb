@@ -256,5 +256,5 @@
   "trimFineAdjustment": "Tinh chỉnh",
   "trimOverview": "Toàn cảnh",
   "trimHandlesHint": "Kéo tay nắm để cắt. Chạm dòng thời gian để xem trước.",
-  "trimWaveformZoom": "Phóng to để xem dạng sóng."
+  "trimPreparingWaveform": "Đang tạo dạng sóng…"
 }

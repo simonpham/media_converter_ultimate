@@ -256,5 +256,5 @@
   "trimFineAdjustment": "Regola",
   "trimOverview": "Panoramica",
   "trimHandlesHint": "Trascina le maniglie per tagliare. Tocca la timeline per l’anteprima.",
-  "trimWaveformZoom": "Ingrandisci per vedere la forma d’onda."
+  "trimPreparingWaveform": "Generazione della forma d’onda…"
 }

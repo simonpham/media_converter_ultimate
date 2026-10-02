@@ -256,5 +256,5 @@
   "trimFineAdjustment": "İnce ayar",
   "trimOverview": "Genel bakış",
   "trimHandlesHint": "Kırpmak için tutamaçları sürükleyin. Önizleme için zaman çizelgesine dokunun.",
-  "trimWaveformZoom": "Dalga biçimini görmek için yakınlaştırın."
+  "trimPreparingWaveform": "Dalga biçimi oluşturuluyor…"
 }

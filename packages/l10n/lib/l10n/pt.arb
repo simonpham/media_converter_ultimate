@@ -256,5 +256,5 @@
   "trimFineAdjustment": "Ajuste fino",
   "trimOverview": "Visão geral",
   "trimHandlesHint": "Arraste as alças para cortar. Toque na linha do tempo para visualizar.",
-  "trimWaveformZoom": "Amplie para ver a forma de onda."
+  "trimPreparingWaveform": "Gerando forma de onda…"
 }

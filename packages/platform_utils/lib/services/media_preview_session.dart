@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:core/core.dart';
 import 'package:platform_utils/platform_utils.dart';
+import 'package:platform_utils/services/waveform_envelope.dart';
 
 class const PreviewMediaInfo(
   final Duration duration, {
@@ -36,6 +40,9 @@ class FfmpegMediaPreviewSession implements MediaPreviewSession {
   final _sessions = <int>{};
   final _images = <String>[];
   final _waveImages = <String>[];
+  final _waveforms = <(int, int, String), String>{};
+  final _pendingWaveforms = <(int, int, String), Future<String?>>{};
+  int _audioSampleRate = 48000;
   Directory? _directory;
   PreviewMediaInfo? _info;
   AudioPlayer? _player;
@@ -94,6 +101,8 @@ class FfmpegMediaPreviewSession implements MediaPreviewSession {
               s['disposition']?['attached_pic'] != 1,
         )
         .firstOrNull;
+    _audioSampleRate =
+        int.tryParse('${preferred?['sample_rate']}')?.clamp(1, 768000) ?? 48000;
     _info = PreviewMediaInfo(
       Duration(milliseconds: (seconds * 1000).round().clamp(1, 1 << 62)),
       videoIndex: video?['index'] as int?,
@@ -268,21 +277,136 @@ class FfmpegMediaPreviewSession implements MediaPreviewSession {
     String color,
   ) => _track(() async {
     if (_info?.audioIndex == null) return null;
-    return _image([
-      '-ss',
-      (start.inMilliseconds / 1000).toStringAsFixed(3),
-      '-t',
-      (length.inMilliseconds.clamp(1, 30000) / 1000).toStringAsFixed(3),
-      '-i',
-      path,
-      '-filter_complex',
-      '[0:${_info!.audioIndex}]aformat=channel_layouts=mono,showwavespic=s=640x96:colors=0x$color[out]',
-      '-map',
-      '[out]',
-      '-an',
-      '-sn',
-    ], wave: true);
+    final duration = _info!.duration.inMilliseconds;
+    final at = start.inMilliseconds.clamp(0, duration - 1);
+    final span = length.inMilliseconds.clamp(1, duration - at);
+    final key = (at, span, color);
+    final cached = _waveforms.remove(key);
+    if (cached != null && await File(cached).exists()) {
+      _waveforms[key] = cached;
+      return cached;
+    }
+    final pending = _pendingWaveforms[key];
+    if (pending != null) return pending;
+    final rendering = _renderWaveform(path, at, span, color);
+    _pendingWaveforms[key] = rendering;
+    try {
+      final image = await rendering;
+      if (image != null && !_closed) {
+        _waveforms[key] = image;
+        // Keep the full-file overview when evicting older detailed windows.
+        while (_waveforms.length > 4) {
+          final oldest = _waveforms.keys.firstWhere(
+            (candidate) => candidate != (0, duration, color),
+            orElse: () => _waveforms.keys.first,
+          );
+          await File(_waveforms.remove(oldest)!).delete();
+        }
+      }
+      return image;
+    } finally {
+      final _ = _pendingWaveforms.remove(key);
+    }
   });
+
+  Future<String?> _renderWaveform(
+    String path,
+    int start,
+    int span,
+    String color,
+  ) async {
+    const width = 640;
+    const height = 96;
+    final metadata = File(_newPath('txt'));
+    // Fixed-size audio frames cap working memory regardless of file duration.
+    final samples = (_audioSampleRate * span / 1000 / width).ceil().clamp(
+      32,
+      16384,
+    );
+    try {
+      await _encode([
+        '-ss',
+        (start / 1000).toStringAsFixed(3),
+        '-i',
+        path,
+        '-map',
+        '0:${_info!.audioIndex}',
+        '-t',
+        (span / 1000).toStringAsFixed(3),
+        '-af',
+        'atrim=duration=${(span / 1000).toStringAsFixed(3)},'
+            'aformat=sample_fmts=fltp,asetpts=PTS-STARTPTS,'
+            'asetnsamples=n=$samples:p=1,'
+            'astats=metadata=1:reset=1:measure_perchannel=none:measure_overall=Peak_level,'
+            'ametadata=mode=print:key=lavfi.astats.Overall.Peak_level:file=${escapeFilterValue(metadata.path)}',
+        '-vn',
+        '-sn',
+        '-f',
+        'null',
+        '-',
+      ]);
+      if (_closed) return null;
+      final envelope = WaveformEnvelope(
+        length: Duration(milliseconds: span),
+        frameLength: Duration(
+          microseconds:
+              (samples / _audioSampleRate * Duration.microsecondsPerSecond)
+                  .ceil(),
+        ),
+        bins: width,
+      );
+      await for (final line
+          in metadata
+              .openRead()
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())) {
+        if (_closed) return null;
+        envelope.addLine(line);
+      }
+      final recorder = ui.PictureRecorder();
+      final canvas = ui.Canvas(recorder);
+      final tint = ui.Color(0xff000000 | int.parse(color, radix: 16));
+      final paint = ui.Paint()..color = tint;
+      const center = height / 2;
+      canvas.drawLine(
+        const ui.Offset(0, height / 2),
+        ui.Offset(width.toDouble(), height / 2),
+        ui.Paint()
+          ..color = tint.withValues(alpha: 0.3)
+          ..strokeWidth = 1,
+      );
+      for (var index = 0; index < width; index++) {
+        final extent = math.sqrt(envelope.peaks[index]) * (center - 2);
+        if (extent > 0) {
+          canvas.drawRect(
+            ui.Rect.fromLTRB(
+              index.toDouble(),
+              center - extent,
+              index + 1.0,
+              center + extent,
+            ),
+            paint,
+          );
+        }
+      }
+      final picture = recorder.endRecording();
+      final image = await picture.toImage(width, height);
+      try {
+        final data = await image.toByteData(format: ui.ImageByteFormat.png);
+        if (data == null || _closed) return null;
+        final output = _newPath('png');
+        await File(output).writeAsBytes(
+          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+        );
+        return output;
+      } finally {
+        image.dispose();
+        picture.dispose();
+      }
+    } finally {
+      if (await metadata.exists()) await metadata.delete();
+    }
+  }
 
   @override
   Future<bool> play(String path, Duration start, Duration end) =>

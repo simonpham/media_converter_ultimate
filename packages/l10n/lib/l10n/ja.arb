@@ -256,5 +256,5 @@
   "trimFineAdjustment": "微調整",
   "trimOverview": "全体表示",
   "trimHandlesHint": "ハンドルをドラッグしてトリミング。タイムラインをタップしてプレビュー。",
-  "trimWaveformZoom": "拡大すると波形を表示できます。"
+  "trimPreparingWaveform": "波形を生成中…"
 }

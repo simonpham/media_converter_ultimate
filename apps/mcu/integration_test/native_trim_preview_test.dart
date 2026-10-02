@@ -130,6 +130,76 @@ void main() {
     },
   );
 
+  testWidgets('full waveform preserves quiet audio, late peaks and cache', (
+    _,
+  ) async {
+    final audio = '${directory.path}/ninety-second overview.wav';
+    await _execute([
+      '-f',
+      'lavfi',
+      '-i',
+      "aevalsrc='if(lt(t,5),0.02*sin(2*PI*440*t),if(gte(t,85),0.8*sin(2*PI*880*t),0))':s=48000:d=90",
+      '-af',
+      'pan=stereo|c0=c0|c1=-1*c0',
+      '-c:a',
+      'pcm_s16le',
+      audio,
+    ]);
+    final escapedCache = await Directory(
+      "${cache.path}/wave-cache Việt ' :[,]",
+    ).create();
+    final files = injector<FileService>() as _Files;
+    files.previewCache = escapedCache;
+    final preview = injector<MediaPreviewSession>();
+    addTearDown(() async {
+      await preview.close();
+      await escapedCache.delete();
+    });
+    late PreviewMediaInfo info;
+    try {
+      info = await preview.inspect(audio);
+    } finally {
+      files.previewCache = null;
+    }
+    expect(info.duration.inSeconds, 90);
+    final wave = await preview.waveform(
+      audio,
+      Duration.zero,
+      info.duration,
+      '800080',
+    );
+    expect(wave, isNotNull);
+    expect(await _waveHeight(wave!, 0.03), inInclusiveRange(8, 20));
+    expect(await _waveHeight(wave, 0.5), 0);
+    expect(await _waveHeight(wave, 0.97), greaterThan(75));
+    // Opposite-phase stereo must remain visible rather than cancel in downmix.
+    final zoom = await preview.waveform(
+      audio,
+      const Duration(seconds: 80),
+      const Duration(seconds: 10),
+      '800080',
+    );
+    expect(await _waveHeight(zoom!, 0.25), 0);
+    expect(await _waveHeight(zoom, 0.75), greaterThan(75));
+    for (var i = 0; i < 5; i++) {
+      await preview.waveform(
+        audio,
+        Duration(seconds: i * 10),
+        const Duration(seconds: 5),
+        '800080',
+      );
+    }
+    expect(
+      await preview.waveform(audio, Duration.zero, info.duration, '800080'),
+      wave,
+    );
+    expect(await File(wave).exists(), isTrue);
+    final folder = File(wave).parent;
+    final cachedFiles = await folder.list().toList();
+    expect(cachedFiles.length, 4);
+    expect(cachedFiles.every((file) => file.path.endsWith('.png')), isTrue);
+  });
+
   testWidgets('overview thumbnails sample both ends of a long video', (
     _,
   ) async {
@@ -601,6 +671,21 @@ Future<(int, int, int)> _pixel(String path, {double horizontal = 0.5}) async {
   return result;
 }
 
+Future<int> _waveHeight(String path, double horizontal) async {
+  final codec = await ui.instantiateImageCodec(await File(path).readAsBytes());
+  final frame = await codec.getNextFrame();
+  final image = frame.image;
+  final data = (await image.toByteData(format: ui.ImageByteFormat.rawRgba))!;
+  final column = ((image.width - 1) * horizontal).round();
+  var height = 0;
+  for (var row = 0; row < image.height; row++) {
+    if (data.getUint8((row * image.width + column) * 4 + 3) > 200) height++;
+  }
+  image.dispose();
+  codec.dispose();
+  return height;
+}
+
 Future<void> _until(WidgetTester tester, bool Function() condition) async {
   final deadline = DateTime.now().add(const Duration(seconds: 15));
   while (!condition() && DateTime.now().isBefore(deadline)) {
@@ -610,8 +695,9 @@ Future<void> _until(WidgetTester tester, bool Function() condition) async {
 }
 
 class _Files(final Directory cache) extends DirectFileService {
+  Directory? previewCache;
   @override
-  Future<Directory> getAppCacheDirectory() async => cache;
+  Future<Directory> getAppCacheDirectory() async => previewCache ?? cache;
   @override
   Future<Directory> getConvertTemporaryDirectory(String? jobId) async {
     final base = Directory('${cache.path}/convert');

@@ -256,5 +256,5 @@
   "trimFineAdjustment": "微調",
   "trimOverview": "全覽",
   "trimHandlesHint": "拖曳把手裁剪，點選時間軸預覽。",
-  "trimWaveformZoom": "放大以查看波形。"
+  "trimPreparingWaveform": "正在產生波形…"
 }

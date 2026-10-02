@@ -88,8 +88,7 @@ void main() {
     );
     await model.initialize();
     expect(model.isOverview, isTrue);
-    expect(model.needsWaveformZoom, isTrue);
-    expect(preview.windows, isEmpty);
+    expect(preview.windows, [(0, 120000)]);
     model.zoom(true);
     model.zoom(true);
     model.seek(60000);
@@ -111,6 +110,49 @@ void main() {
     model.fitTimeline();
     expect(model.windowLength, 120000);
     expect(model.windowStart, 0);
+  });
+
+  test(
+    'overview scans once while scrubbing during waveform preparation',
+    () async {
+      preview.information = const PreviewMediaInfo(
+        Duration(hours: 2),
+        audioIndex: 1,
+      );
+      preview.waveGate = Completer<void>();
+      await model.initialize();
+      expect(model.preparingWaveform, isTrue);
+      model.seek(150000);
+      model.seek(180000);
+      model.setRange(20000, 7000000);
+      expect(preview.windows, [(0, 7200000)]);
+      preview.waveGate!.complete();
+      await Future<void>.delayed(Duration.zero);
+      expect(preview.windows, [(0, 7200000)]);
+      expect(model.waveform, 'wave-0-7200000.png');
+      expect(model.preparingWaveform, isFalse);
+      expect((model.start, model.end), (20000, 7000000));
+    },
+  );
+
+  test('obsolete waveform cannot replace the zoomed viewport', () async {
+    preview.information = const PreviewMediaInfo(
+      Duration(minutes: 2),
+      audioIndex: 1,
+    );
+    preview.waveGate = Completer<void>();
+    await model.initialize();
+    model.seek(60000);
+    model.zoom(true);
+    model.zoom(true);
+    expect(model.waveform, isNull);
+    preview.waveGate!.complete();
+    await Future<void>.delayed(Duration.zero);
+    expect(preview.windows, [(0, 120000), (45000, 30000)]);
+    expect(model.waveform, 'wave-45000-30000.png');
+    model.fitTimeline();
+    await Future<void>.delayed(Duration.zero);
+    expect(model.waveform, 'wave-0-120000.png');
   });
 
   test(
@@ -250,6 +292,7 @@ class _Preview implements MediaPreviewSession {
   Completer<void>? frameGate;
   Completer<void>? playGate;
   Completer<void>? stripGate;
+  Completer<void>? waveGate;
   final strips = <(int, int)>[];
   final frames = <int>[];
   final windows = <(int, int)>[];
@@ -298,7 +341,8 @@ class _Preview implements MediaPreviewSession {
     String color,
   ) async {
     windows.add((start.inMilliseconds, length.inMilliseconds));
-    return 'wave.png';
+    await waveGate?.future;
+    return 'wave-${start.inMilliseconds}-${length.inMilliseconds}.png';
   }
 
   @override

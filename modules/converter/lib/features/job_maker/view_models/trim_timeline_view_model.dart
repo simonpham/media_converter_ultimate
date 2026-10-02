@@ -42,6 +42,7 @@ class TrimTimelineViewModel({
   bool _imageFailed = false;
   String? _frame;
   String? _waveform;
+  (int, int)? _waveRenderingWindow;
   int? _waveStart;
   int? _waveLength;
   StreamSubscription<Duration>? _positions;
@@ -65,10 +66,7 @@ class TrimTimelineViewModel({
   int get windowLength => _window.clamp(1, duration);
   bool get isOverview => windowLength == duration;
   bool get canZoomIn => windowLength > duration.clamp(1, 100);
-  bool get needsWaveformZoom =>
-      _info?.videoIndex == null &&
-      _info?.audioIndex != null &&
-      windowLength > 30000;
+  bool get preparingWaveform => _waveBusy && waveform == null;
   int get windowStart => _windowStart;
   int get windowEnd => windowStart + windowLength;
   ConversionTrim get result => ConversionTrim(
@@ -297,16 +295,17 @@ class TrimTimelineViewModel({
   }
 
   void requestWaveform() {
-    if (_disposed ||
-        _info?.audioIndex == null ||
-        _info?.videoIndex != null ||
-        needsWaveformZoom) {
+    if (_disposed || _info?.audioIndex == null || _info?.videoIndex != null) {
       return;
     }
     if (!_waveBusy &&
         _waveform != null &&
         _waveStart == windowStart &&
         _waveLength == windowLength) {
+      return;
+    }
+    if (_waveBusy && _waveRenderingWindow == (windowStart, windowLength)) {
+      _waveRequested = false;
       return;
     }
     _waveRequested = true;
@@ -316,11 +315,12 @@ class TrimTimelineViewModel({
   Future<void> _renderWaveform() async {
     _waveBusy = true;
     try {
-      while (_waveRequested && !_disposed && !needsWaveformZoom) {
+      while (_waveRequested && !_disposed) {
         _waveRequested = false;
-        // Waveform windows are bounded even when the full media is many hours.
-        final length = windowLength.clamp(1, 30000);
+        final length = windowLength;
         final start = windowStart;
+        _waveRenderingWindow = (start, length);
+        _notify();
         final image = await session.waveform(
           path,
           Duration(milliseconds: start),
@@ -340,6 +340,8 @@ class TrimTimelineViewModel({
       _notify();
     } finally {
       _waveBusy = false;
+      _waveRenderingWindow = null;
+      _notify();
     }
   }
 

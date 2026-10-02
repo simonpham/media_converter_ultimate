@@ -256,5 +256,5 @@
   "trimFineAdjustment": "Feinabstimmung",
   "trimOverview": "Übersicht",
   "trimHandlesHint": "Griffe zum Zuschneiden ziehen. Zur Vorschau auf die Zeitleiste tippen.",
-  "trimWaveformZoom": "Vergrößern, um die Wellenform zu sehen."
+  "trimPreparingWaveform": "Wellenform wird erstellt…"
 }

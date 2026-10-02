@@ -76,13 +76,6 @@ class _TrimTimelinePanelState extends State<TrimTimelinePanel> {
               ),
             ],
           ),
-          if (model.needsWaveformZoom) ...[
-            Spacing.v4,
-            Text(
-              context.l10n.trimWaveformZoom,
-              style: context.theme.textTheme.bodySmall,
-            ),
-          ],
           Spacing.v12,
           widget.rangeControls ??
               Wrap(
@@ -457,6 +450,18 @@ class _TrimTrackState extends State<_TrimTrack> {
                           ? model.thumbnails
                           : model.waveform) {
                         final String path => ImageView(path, fit: .fill),
+                        _ when model.preparingWaveform => Center(
+                          child: Semantics(
+                            label: context.l10n.trimPreparingWaveform,
+                            child: SizedBox(
+                              width: Spacing.d24,
+                              height: Spacing.d24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: Spacing.d2,
+                              ),
+                            ),
+                          ),
+                        ),
                         _ => const SizedBox.expand(),
                       },
                     ),

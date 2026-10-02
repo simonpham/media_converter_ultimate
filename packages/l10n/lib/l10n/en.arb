@@ -277,5 +277,5 @@
   "trimFineAdjustment": "Fine tune",
   "trimOverview": "Overview",
   "trimHandlesHint": "Drag handles to trim. Tap the timeline to preview.",
-  "trimWaveformZoom": "Zoom in to see the waveform."
+  "trimPreparingWaveform": "Generating waveform…"
 }
