@@ -113,6 +113,21 @@ class JobMakerViewModel({
   Future<List<ConvertJob>>? _preparation;
   final _preparedInputJobs = <String, String>{};
   bool get isPreparingJobs => _preparation != null;
+  bool _isPickingFiles = false;
+  bool get isPickingFiles => _isPickingFiles;
+
+  bool beginFileSelection() {
+    if (_isDisposed || isPreparingJobs || _isPickingFiles) return false;
+    _isPickingFiles = true;
+    notifyListeners();
+    return true;
+  }
+
+  void endFileSelection() {
+    if (!_isPickingFiles) return;
+    _isPickingFiles = false;
+    if (!_isDisposed) notifyListeners();
+  }
 
   @override
   void dispose() {

@@ -98,6 +98,184 @@ void main() {
     directory.deleteSync(recursive: true);
   });
 
+  Future<JobMakerViewModel> openWizard(WidgetTester tester) async {
+    await tester.pumpWidget(
+      ChangeNotifierProvider<JobManagerViewModel>.value(
+        value: manager,
+        child: MaterialApp.router(
+          routerConfig: router,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: theme.getTheme(isDark: false),
+          builder: (_, child) => FluffyTheme(
+            data: theme.getFluffyTheme(isDark: false),
+            child: child!,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(Button, 'Create'));
+    await tester.pumpAndSettle();
+    return tester
+        .element(find.byType(JobMakerFilePicker))
+        .read<JobMakerViewModel>();
+  }
+
+  for (final fails in [false, true]) {
+    testWidgets('closed setup ignores late file picker result, fails=$fails', (
+      tester,
+    ) async {
+      final model = await openWizard(tester);
+      final original = files.source.readAsBytesSync();
+      files.pickGate = Completer<void>();
+      if (fails) files.pickFailure = StateError('Picker unavailable');
+      await tester.tap(find.widgetWithText(Button, 'Add Files'));
+      await tester.pumpAndSettle();
+      expect(files.pickCalls, 1);
+      await tester.pumpWidget(const SizedBox.shrink());
+      files.pickGate!.complete();
+      await tester.pumpAndSettle();
+      expect(files.mimeCalls, 0);
+      expect(model.selectedFiles, isEmpty);
+      expect(files.source.readAsBytesSync(), original);
+      expect(files.cleanups, isEmpty);
+      expect(manager.submitted, isEmpty);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('file picker failure releases Add Files for retry', (
+    tester,
+  ) async {
+    final model = await openWizard(tester);
+    files.pickFailure = StateError('Picker unavailable');
+    await tester.tap(find.widgetWithText(Button, 'Add Files'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(
+      tester.widget<Button>(find.widgetWithText(Button, 'Add Files')).enable,
+      isTrue,
+    );
+    expect(model.selectedFiles, isEmpty);
+    files.pickFailure = null;
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(Button, 'Add Files'));
+    await tester.pumpAndSettle();
+    expect(files.pickCalls, 2);
+    expect(model.selectedFiles.single.path, files.source.path);
+    expect(files.source.existsSync(), isTrue);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('Add Files stays busy through selection and metadata detection', (
+    tester,
+  ) async {
+    final model = await openWizard(tester);
+    files.selection = [files.source, files.second];
+    files.pickGate = Completer<void>();
+    files.mimeGate = Completer<void>();
+    final add = find.widgetWithText(Button, 'Add Files');
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+    expect(tester.widget<Button>(add).enable, isFalse);
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+    expect(files.pickCalls, 1);
+    files.pickGate!.complete();
+    await tester.pumpAndSettle();
+    expect(files.mimeCalls, 1);
+    expect(tester.widget<Button>(add).enable, isFalse);
+    expect(model.selectedFiles, isEmpty);
+    files.mimeGate!.complete();
+    await tester.pumpAndSettle();
+    expect(tester.widget<Button>(add).enable, isTrue);
+    expect(files.mimeCalls, 2);
+    expect(model.selectedFiles.map((file) => file.path), [
+      files.source.path,
+      files.second.path,
+    ]);
+    expect(find.text('Selected Files: 2'), findsOneWidget);
+    expect(files.cleanups, isEmpty);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('picker cancellation preserves draft and permits a later batch', (
+    tester,
+  ) async {
+    final model = await openWizard(tester);
+    files.selection = [files.source];
+    final add = find.widgetWithText(Button, 'Add Files');
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+    files.selection = [];
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+    expect(model.selectedFiles.single.path, files.source.path);
+    expect(tester.widget<Button>(add).enable, isTrue);
+    files.selection = [files.source, files.second];
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+    expect(files.pickCalls, 3);
+    expect(model.selectedFiles.map((file) => file.path), [
+      files.source.path,
+      files.second.path,
+    ]);
+    expect(files.cleanups, isEmpty);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('Next waits for a new import into an existing batch', (
+    tester,
+  ) async {
+    final model = await openWizard(tester);
+    final add = find.widgetWithText(Button, 'Add Files');
+    final next = find.widgetWithText(Button, 'Next');
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+    await model.applyPreset(.musicMp3);
+    await tester.pumpAndSettle();
+    expect(tester.widget<Button>(next).enable, isTrue);
+    files.selection = [files.second];
+    files.pickGate = Completer<void>();
+    files.mimeGate = Completer<void>();
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+    expect(tester.widget<Button>(next).enable, isFalse);
+    await tester.tap(next);
+    await tester.pumpAndSettle();
+    expect(find.byType(JobMakerFilePicker).hitTestable(), findsOneWidget);
+    files.pickGate!.complete();
+    await tester.pumpAndSettle();
+    expect(tester.widget<Button>(next).enable, isFalse);
+    expect(model.selectedFiles, hasLength(1));
+    files.mimeGate!.complete();
+    await tester.pumpAndSettle();
+    expect(tester.widget<Button>(next).enable, isTrue);
+    expect(model.selectedFiles.map((file) => file.path), [
+      files.source.path,
+      files.second.path,
+    ]);
+    await tester.tap(next);
+    await tester.pumpAndSettle();
+    expect(
+      find.byType(JobMakerOutputFormatPicker).hitTestable(),
+      findsOneWidget,
+    );
+    expect(manager.submitted, isEmpty);
+    expect(files.cleanups, isEmpty);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+
   for (final key in [
     AdsSettings.filePickerAccessCount,
     AdsSettings.outputFormatPickerAccessCount,
@@ -284,12 +462,32 @@ class _Files(final Directory directory) extends DirectFileService {
   late final File source = File('${directory.path}/source.wav')
     ..writeAsBytesSync([82, 73, 70, 70, 36, 0, 0, 0, 87, 65, 86, 69]);
   final cleanups = <String>[];
+  late final File second = File('${directory.path}/second.wav')
+    ..writeAsBytesSync(source.readAsBytesSync());
+  int pickCalls = 0;
+  int mimeCalls = 0;
+  Completer<void>? pickGate;
+  Completer<void>? mimeGate;
+  Object? pickFailure;
+  List<File>? selection;
   @override
-  Future<List<File>> chooseFiles(dynamic context) async => [source];
+  Future<List<File>> chooseFiles(dynamic context) async {
+    pickCalls++;
+    await pickGate?.future;
+    if (pickFailure case final error?) throw error;
+    return selection ?? [source];
+  }
+
   @override
-  Future<String?> getFileMimeType(File file) async => 'audio/wav';
+  Future<String?> getFileMimeType(File file) async {
+    mimeCalls++;
+    await mimeGate?.future;
+    return 'audio/wav';
+  }
+
   @override
-  Future<bool> isFileExist(String path) async => path == source.path;
+  Future<bool> isFileExist(String path) async =>
+      path == source.path || path == second.path;
   @override
   Future<bool> outputExists(String destination, String name) async => false;
   @override

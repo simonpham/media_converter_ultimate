@@ -30,12 +30,17 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<JobMakerViewModel, List<File>>(
-      selector: (context, model) => model.selectedFiles,
-      builder: (context, files, _) {
-        final excludedFiles = context.select(
-          (JobMakerViewModel model) => model.excludedFiles,
-        );
+    return Selector<
+      JobMakerViewModel,
+      ({List<File> files, List<File> excludedFiles, bool isPickingFiles})
+    >(
+      selector: (context, model) => (
+        files: model.selectedFiles,
+        excludedFiles: model.excludedFiles,
+        isPickingFiles: model.isPickingFiles,
+      ),
+      builder: (context, selection, _) {
+        final (:files, :excludedFiles, :isPickingFiles) = selection;
         return Column(
           children: [
             Expanded(
@@ -148,9 +153,9 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                   variant: .secondary,
                   titleExpand: .shrink,
                   label: context.l10n.addFiles,
-                  onPressed: () {
-                    _handleChooseFilesPressed(context);
-                  },
+                  enable: !isPickingFiles,
+                  onPressed: () =>
+                      unawaited(_handleChooseFilesPressed(context)),
                 ),
               ),
             ),
@@ -161,13 +166,23 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
   }
 
   Future<void> _handleChooseFilesPressed(BuildContext context) async {
-    final files = await injector<FileService>().chooseFiles(context);
-    if (files.isEmpty) {
-      return;
+    if (!mounted || !context.mounted) return;
+    final model = context.read<JobMakerViewModel>();
+    if (!model.beginFileSelection()) return;
+    try {
+      final files = await injector<FileService>().chooseFiles(context);
+      if (!mounted || !context.mounted || files.isEmpty) return;
+      await model.addFiles(files);
+    } catch (error, trace) {
+      printError(error, trace);
+      if (context.mounted) {
+        context.toastFailure(
+          error is Failure ? error : Failure(error.toString()),
+        );
+      }
+    } finally {
+      model.endFileSelection();
     }
-
-    final viewModel = context.read<JobMakerViewModel>();
-    await viewModel.addFiles(files);
   }
 }
 

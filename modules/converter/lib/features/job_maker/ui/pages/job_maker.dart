@@ -319,6 +319,7 @@ class _JobMakerState extends State<JobMaker> {
                             enable:
                                 !model.isLoadingFormat &&
                                 !model.isPreparingJobs &&
+                                !model.isPickingFiles &&
                                 !_isChangingStep,
                             label: model.isPreparingJobs
                                 ? context.l10n.preparingJobs
@@ -346,6 +347,7 @@ class _JobMakerState extends State<JobMaker> {
   Future<void> _handleNext(BuildContext context) async {
     if (_isChangingStep ||
         _viewModel.isPreparingJobs ||
+        _viewModel.isPickingFiles ||
         _viewModel.isLoadingFormat) {
       return;
     }
