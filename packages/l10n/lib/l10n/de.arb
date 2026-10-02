@@ -256,5 +256,18 @@
   "trimFineAdjustment": "Feinabstimmung",
   "trimOverview": "Übersicht",
   "trimHandlesHint": "Griffe zum Zuschneiden ziehen. Zur Vorschau auf die Zeitleiste tippen.",
-  "trimPreparingWaveform": "Wellenform wird erstellt…"
+  "trimPreparingWaveform": "Wellenform wird erstellt…",
+  "outputSaveTo": "Speichern in",
+  "outputChangeFolder": "Ändern",
+  "outputRememberFolder": "Diesen Ordner für zukünftige Konvertierungen verwenden",
+  "outputDownloads": "Downloads",
+  "outputInternalStorage": "Interner Speicher",
+  "outputAppStorage": "In der App behalten",
+  "outputChooseFolderHint": "Einen Ordner mit der Systemauswahl wählen.",
+  "outputDownloadsHint": "In Downloads speichern, ohne einen Ordner auszuwählen.",
+  "outputAppStorageHint": "Dateien aus der App teilen. Beim Deinstallieren werden diese Dateien gelöscht.",
+  "outputPickerUnavailable": "Die Systemordnerauswahl ist nicht verfügbar. Downloads wählen oder Dateien in der App behalten.",
+  "outputAccessExpired": "Ordnerzugriff ist nicht verfügbar. Den Ordner erneut auswählen, um Zugriff zu gewähren.",
+  "outputExportFailed": "Die Datei konnte nicht gespeichert werden. Die konvertierte Datei bleibt für einen erneuten Versuch erhalten.",
+  "outputRetryExport": "Export erneut versuchen"
 }

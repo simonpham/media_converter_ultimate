@@ -98,6 +98,23 @@ void main() {
     },
   );
 
+  test(
+    'provider destinations keep FFmpeg output in the app temporary directory',
+    () async {
+      await model.addFiles([File('/input/song.wav')]);
+      await model.setSelectedFormatEntry(mp3);
+      model.setOutputDirectoryPath(OutputDestination.downloads);
+      final cooked = (await model.cook()).single;
+      expect(cooked.outputDirectoryPath, OutputDestination.downloads);
+      expect(cooked.convertedFilePath, startsWith('/temporary/'));
+      expect(
+        CommandBuilder.parseCommand(cooked.command).last,
+        cooked.convertedFilePath,
+      );
+      expect(cooked.outputUri, isNull);
+    },
+  );
+
   test('missing MIME information safely excludes an unreadable file', () async {
     final file = File('/input/deleted.wav');
     files.delayedMimeTypes[file.path] = Future.value(null);
@@ -487,6 +504,10 @@ class FakeFileService implements FileService {
   final stagedOwners = <String, String>{};
   final restoredInputs = <String>[];
   final cleanedInputs = <String>[];
+
+  @override
+  Future<bool> outputExists(String destination, String name) =>
+      isFileExist(join(destination, name));
 
   @override
   Future<Directory> getAppCacheDirectory() async => Directory('/service-cache');

@@ -256,5 +256,18 @@
   "trimFineAdjustment": "微調整",
   "trimOverview": "全体表示",
   "trimHandlesHint": "ハンドルをドラッグしてトリミング。タイムラインをタップしてプレビュー。",
-  "trimPreparingWaveform": "波形を生成中…"
+  "trimPreparingWaveform": "波形を生成中…",
+  "outputSaveTo": "保存先",
+  "outputChangeFolder": "変更",
+  "outputRememberFolder": "今後の変換にもこのフォルダを使用",
+  "outputDownloads": "ダウンロード",
+  "outputInternalStorage": "内部ストレージ",
+  "outputAppStorage": "アプリ内に保存",
+  "outputChooseFolderHint": "システムの選択画面でフォルダを選びます。",
+  "outputDownloadsHint": "フォルダを選ばずにダウンロードへ保存します。",
+  "outputAppStorageHint": "アプリからファイルを共有できます。アプリを削除すると、これらのファイルも削除されます。",
+  "outputPickerUnavailable": "システムのフォルダ選択画面を利用できません。ダウンロードを選ぶか、アプリ内に保存してください。",
+  "outputAccessExpired": "フォルダにアクセスできません。もう一度フォルダを選んでアクセスを許可してください。",
+  "outputExportFailed": "ファイルを保存できませんでした。変換済みのファイルは再試行のために保持されています。",
+  "outputRetryExport": "書き出しを再試行"
 }

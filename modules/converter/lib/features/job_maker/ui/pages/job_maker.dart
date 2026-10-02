@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:converter/converter.dart';
 import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
+import 'package:platform_utils/platform_utils.dart';
 import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 class const JobMaker({
@@ -34,6 +35,14 @@ class const JobMaker({
       ),
     };
 
+    if (Platform.isAndroid &&
+        {
+          '/storage/emulated/0/Download/MediaConverterPro',
+          '/sdcard/Download/MediaConverterPro',
+        }.contains(SettingsBox().lastOutputDirectoryPath)) {
+      final downloads = await injector<FileService>().getDownloadsDestination();
+      if (downloads != null) SettingsBox().lastOutputDirectoryPath = downloads;
+    }
     SettingsBox().lastOutputDirectoryPath ??=
         await JobMakerPathUtils.getDefaultOutputDirectoryPath();
 

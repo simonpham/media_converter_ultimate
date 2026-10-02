@@ -1,7 +1,27 @@
 import 'package:core/core.dart' show Failure;
-import 'package:platform_utils/platform_utils.dart' show Directory, File;
+import 'package:platform_utils/platform_utils.dart'
+    show Directory, File, ExportedFile;
 
 abstract class FileService {
+  /// Resolves a supported Downloads destination without changing remembered folders.
+  Future<String?> getDownloadsDestination();
+
+  Future<bool> outputExists(String destination, String name);
+
+  /// Retains the staged source until the caller has persisted the returned location.
+  Future<(ExportedFile?, Failure?)> exportFile({
+    required String exportId,
+    required String source,
+    required String destination,
+    required String name,
+  });
+
+  Future<ExportedFile?> recoverExport(String exportId);
+  Future<void> acknowledgeExport(String exportId);
+  Future<void> openOutput(String location);
+  Future<void> shareOutput(String location);
+  Future<void> deleteOutput(String location);
+
   Future<bool> isFileExist(String path);
 
   Future<List<File>> chooseFiles(dynamic context);

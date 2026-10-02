@@ -66,6 +66,41 @@ void main() {
   });
 
   test(
+    'provider output location and staged recovery survive storage round trips',
+    () async {
+      final completed = job('provider', order: 0, status: .completed).copyWith(
+        outputDirectoryPath: const Some('mcu-output://downloads'),
+        outputUri: const Some('content://media/external/downloads/42'),
+        outputFileName: const Some('provider (1).mp3'),
+        outputStaged: const Some(true),
+      );
+      final staged = job('staged', order: 1, status: .cleaning).copyWith(
+        convertedFilePath: const Some('/app/converted/staged.mp3'),
+        outputStaged: const Some(true),
+      );
+      await storage.addAll([completed, staged, job('legacy', order: 2)]);
+      expect(
+        (await storage.get('provider'))!.outputLocation,
+        completed.outputUri,
+      );
+      expect(
+        (await storage.get('provider'))!.outputFileName,
+        'provider (1).mp3',
+      );
+      expect((await storage.get('legacy'))!.outputUri, isNull);
+      await storage.fixInvalidJobs();
+      final recovered = (await storage.get('staged'))!;
+      expect(recovered.status, JobStatus.actionRequired);
+      expect(recovered.convertedFilePath, '/app/converted/staged.mp3');
+      expect(recovered.outputStaged, isTrue);
+      expect((await storage.getAllPendingJobs()).map((job) => job.id), [
+        'legacy',
+      ]);
+      expect((await storage.get('provider'))!.toJson(), completed.toJson());
+    },
+  );
+
+  test(
     'pending query and stream preserve creation order after updates',
     () async {
       final first = job('first', order: 0);

@@ -15,6 +15,8 @@ class IsarConvertJob {
   final String outputDirectoryPath;
   final String command;
   final String convertedFilePath;
+  final String? outputUri;
+  final bool outputStaged;
 
   @Index()
   final DateTime createdAt;
@@ -38,6 +40,8 @@ class IsarConvertJob {
     required this.convertedFilePath,
     required this.createdAt,
     required this.updatedAt,
+    this.outputUri,
+    this.outputStaged = false,
     this.sessionId,
     this.status = JobStatus.pending,
     this.progress,

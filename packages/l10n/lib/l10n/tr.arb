@@ -256,5 +256,18 @@
   "trimFineAdjustment": "İnce ayar",
   "trimOverview": "Genel bakış",
   "trimHandlesHint": "Kırpmak için tutamaçları sürükleyin. Önizleme için zaman çizelgesine dokunun.",
-  "trimPreparingWaveform": "Dalga biçimi oluşturuluyor…"
+  "trimPreparingWaveform": "Dalga biçimi oluşturuluyor…",
+  "outputSaveTo": "Şuraya kaydet",
+  "outputChangeFolder": "Değiştir",
+  "outputRememberFolder": "Gelecekteki dönüştürmeler için bu klasörü kullan",
+  "outputDownloads": "İndirilenler",
+  "outputInternalStorage": "Dahili depolama",
+  "outputAppStorage": "Uygulamada tut",
+  "outputChooseFolderHint": "Sistem seçicisiyle bir klasör seçin.",
+  "outputDownloadsHint": "Klasör seçmeden İndirilenler içine kaydedin.",
+  "outputAppStorageHint": "Dosyaları uygulamadan paylaşın. Uygulamayı kaldırmak bu dosyaları siler.",
+  "outputPickerUnavailable": "Sistem klasör seçicisi kullanılamıyor. İndirilenler seçin veya dosyaları uygulamada tutun.",
+  "outputAccessExpired": "Klasöre erişilemiyor. Erişim vermek için klasörü tekrar seçin.",
+  "outputExportFailed": "Dosya kaydedilemedi. Dönüştürülen dosya yeniden denemek için saklanıyor.",
+  "outputRetryExport": "Dışa aktarmayı yeniden dene"
 }

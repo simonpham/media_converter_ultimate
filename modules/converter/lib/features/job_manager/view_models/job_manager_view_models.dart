@@ -26,6 +26,7 @@ class JobManagerViewModel extends ChangeNotifier {
   StreamSubscription? _jobSubscription;
   StreamSubscription? _logSubscription;
   final _jobOperations = <String, Future<void>>{};
+  final _exportFailures = <String, Failure>{};
   final _startingJobs = <String>{};
   final _activeExecutions = <String, String>{};
   final _stopRequests = <String, Future<void>>{};
@@ -186,8 +187,11 @@ class JobManagerViewModel extends ChangeNotifier {
     if (sessionId != null) {
       (_retiredSessions[job.id] ??= {}).add(sessionId);
     }
+    await _fileService.acknowledgeExport(currentJob.id);
     final newJob = currentJob.copyWith(
       status: const Some(.pending),
+      outputUri: const Some(null),
+      outputStaged: const Some(false),
       sessionId: const Some(null),
       progress: const Some(null),
       duration: const Some(null),
@@ -273,7 +277,8 @@ class JobManagerViewModel extends ChangeNotifier {
         job.status.index < currentJob.status.index) {
       return;
     }
-    await _jobStorage.update(job);
+    final updateFailure = await _jobStorage.update(job);
+    if (updateFailure != null) throw updateFailure;
     final updatedJob = job;
 
     if (updatedJob.status.isFailure) {
@@ -290,60 +295,73 @@ class JobManagerViewModel extends ChangeNotifier {
       return;
     }
 
-    final failure = await _completeJob(updatedJob);
-    if (failure != null) {
-      if (recoverOutput) {
+    var finishing = updatedJob;
+    if (!finishing.outputStaged) {
+      final (savedPath, saveFailure) = await _fileService
+          .copyTempOutputFileToConverted(
+            jobId: finishing.id,
+            convertedFilePath: finishing.convertedFilePath,
+          );
+      if (savedPath == null || saveFailure != null) {
+        _exportFailures[finishing.id] =
+            saveFailure ?? const OutputExportFailure();
         await _jobStorage.update(
-          updatedJob.copyWith(status: const Some(.actionRequired)),
+          finishing.copyWith(status: const Some(.failed)),
         );
-        LogData().appendLog(updatedJob.id, failure.toString());
-        _finishExecution(updatedJob);
+        LogData().appendLog(
+          finishing.id,
+          (saveFailure ?? const OutputExportFailure()).toString(),
+        );
+        _finishExecution(finishing);
         _requestPendingJobs();
         return;
       }
-      final (
-        newPath,
-        copyFailure,
-      ) = await _fileService.copyTempOutputFileToConverted(
-        jobId: job.id,
-        convertedFilePath: job.convertedFilePath,
+      finishing = finishing.copyWith(
+        convertedFilePath: Some(savedPath),
+        outputStaged: const Some(true),
       );
-
-      if (newPath == null || copyFailure != null) {
-        final failedJob = updatedJob.copyWith(
-          status: const Some(JobStatus.failed),
-        );
-        await _jobStorage.update(failedJob);
-        LogData().appendLog(failedJob.id, failure.toString());
-        _finishExecution(updatedJob);
-        _requestPendingJobs();
-        return;
-      }
-
-      final recoveryJob = updatedJob.copyWith(
-        status: const Some(JobStatus.actionRequired),
-        convertedFilePath: Some(newPath),
+      final saveFailureResult = await _jobStorage.update(finishing);
+      if (saveFailureResult != null) throw saveFailureResult;
+    }
+    final (exported, failure) = await _fileService.exportFile(
+      exportId: finishing.id,
+      source: finishing.convertedFilePath,
+      destination: finishing.outputDirectoryPath,
+      name: finishing.outputFileName,
+    );
+    if (failure != null || exported == null) {
+      _exportFailures[finishing.id] = failure ?? const OutputExportFailure();
+      await _jobStorage.update(
+        finishing.copyWith(status: const Some(.actionRequired)),
       );
-      await _jobStorage.update(recoveryJob);
-      LogData().appendLog(recoveryJob.id, failure.toString());
-      _finishExecution(updatedJob);
+      LogData().appendLog(
+        finishing.id,
+        (failure ?? const OutputExportFailure()).toString(),
+      );
+      _finishExecution(finishing);
       _requestPendingJobs();
       return;
     }
+    await _commitExport(finishing, exported);
+  }
 
-    await _jobStorage.update(
-      updatedJob.copyWith(
-        status: const Some(JobStatus.completed),
+  Future<void> _commitExport(ConvertJob job, ExportedFile exported) async {
+    final failure = await _jobStorage.update(
+      job.copyWith(
+        status: const Some(.completed),
+        outputUri: Some(exported.location),
+        outputFileName: Some(exported.name),
       ),
     );
+    if (failure != null) throw failure;
+    _exportFailures.remove(job.id);
     SettingsBox().successConversionCount++;
-    printLog(
-      '[AdsSettings] successConversionCount increased: ${SettingsBox().successConversionCount}',
-    );
     try {
-      await _fileService.cleanUpInputFile(jobId: updatedJob.id);
+      await _fileService.acknowledgeExport(job.id);
+      await _fileService.deleteFileAtPath(job.convertedFilePath);
+      await _fileService.cleanUpInputFile(jobId: job.id);
     } finally {
-      _finishExecution(updatedJob);
+      _finishExecution(job);
       _requestPendingJobs();
     }
   }
@@ -367,24 +385,6 @@ class JobManagerViewModel extends ChangeNotifier {
     final message = event.message;
     printLog('[JobManagerViewModel]: Log: $message');
     LogData().appendLog(jobId, message);
-  }
-
-  Future<Failure?> _completeJob(ConvertJob job) async {
-    if (job.status != JobStatus.cleaning) {
-      return const InvalidStatusFailure();
-    }
-
-    // Move completed job to output directory.
-    final failure = await _fileService.moveConvertedFileToPath(
-      convertedFilePath: job.convertedFilePath,
-      outputFileName: job.outputFileName,
-      outputFilePath: job.outputDirectoryPath,
-    );
-    if (failure != null) {
-      return failure;
-    }
-
-    return null;
   }
 
   Future<void> _runPendingJobs() {
@@ -427,16 +427,16 @@ class JobManagerViewModel extends ChangeNotifier {
       return const InvalidStatusFailure();
     }
 
-    final outputFile = job.outputFile;
+    final outputLocation = job.outputLocation;
     try {
       printLog(
-        '[JobManagerViewModel]: Removing output file: ${outputFile.path}',
+        '[JobManagerViewModel]: Removing output file: $outputLocation',
       );
-      await outputFile.delete();
+      await _fileService.deleteOutput(outputLocation);
     } catch (err, trace) {
       printError(err, trace);
       LogData().appendLog(job.id, err.toString());
-      return FileDeleteFailure(outputFile.path);
+      return FileDeleteFailure(outputLocation);
     }
 
     return null;
@@ -478,51 +478,65 @@ class JobManagerViewModel extends ChangeNotifier {
     return null;
   }
 
+  Future<Failure?> retryExport(ConvertJob job) async {
+    final current = await _jobStorage.get(job.id);
+    if (current == null || current.status != .actionRequired) {
+      return const InvalidStatusFailure();
+    }
+    await _queueJobUpdate(
+      current.copyWith(status: const Some(.cleaning)),
+      recoverOutput: true,
+    );
+    return (await _jobStorage.get(job.id))?.status == .completed
+        ? null
+        : _exportFailures[job.id] ?? const OutputExportFailure();
+  }
+
   Future<Failure?> handleJobRenameAction(
     ConvertJob job,
     String newName,
   ) async {
-    if (job.status != JobStatus.actionRequired) {
+    final current = await _jobStorage.get(job.id);
+    if (current == null || current.status != .actionRequired) {
       return const InvalidStatusFailure();
     }
-
-    final newJob = job.copyWith(
+    final newJob = current.copyWith(
       outputFileName: Some(newName),
-      status: const Some(JobStatus.cleaning),
+      status: const Some(.cleaning),
     );
-
-    if (await isOutputFileExists(newJob)) {
-      return OutputFileAlreadyExistsFailure(newJob.outputFile.path);
-    }
-
     await _queueJobUpdate(newJob, recoverOutput: true);
-    return null;
+    return (await _jobStorage.get(job.id))?.status == .completed
+        ? null
+        : _exportFailures[job.id] ?? const OutputExportFailure();
   }
 
   Future<Failure?> handleJobChooseAnotherPathAction(
     ConvertJob job,
     String newPath,
   ) async {
-    if (job.status != JobStatus.actionRequired) {
+    final current = await _jobStorage.get(job.id);
+    if (current == null || current.status != .actionRequired) {
       return const InvalidStatusFailure();
     }
-
-    final newJob = job.copyWith(
+    final newJob = current.copyWith(
       outputDirectoryPath: Some(newPath),
-      status: const Some(JobStatus.cleaning),
+      status: const Some(.cleaning),
     );
-
-    if (await isOutputFileExists(newJob)) {
-      return OutputFileAlreadyExistsFailure(newJob.outputFile.path);
-    }
-
     await _queueJobUpdate(newJob, recoverOutput: true);
-    return null;
+    return (await _jobStorage.get(job.id))?.status == .completed
+        ? null
+        : _exportFailures[job.id] ?? const OutputExportFailure();
   }
 
   Future<bool> isOutputFileExists(ConvertJob job) async {
     try {
-      return await _fileService.isFileExist(job.outputFile.path);
+      if (job.outputUri != null) {
+        return await _fileService.isFileExist(job.outputUri!);
+      }
+      return await _fileService.outputExists(
+        job.outputDirectoryPath,
+        job.outputFileName,
+      );
     } catch (err, trace) {
       printError(err, trace);
       LogData().appendLog(job.id, err.toString());
@@ -532,6 +546,16 @@ class JobManagerViewModel extends ChangeNotifier {
 
   Future<void> restartPendingJobs() async {
     await _jobStorage.fixInvalidJobs();
+    final recoveryJobs = await _jobStorage.watchActionRequiredJobs().first;
+    for (final job in recoveryJobs.where((job) => job.outputStaged)) {
+      try {
+        final exported = await _fileService.recoverExport(job.id);
+        if (exported != null) await _commitExport(job, exported);
+      } catch (error, trace) {
+        printError(error, trace);
+        LogData().appendLog(job.id, error.toString());
+      }
+    }
     await _runPendingJobs();
   }
 }

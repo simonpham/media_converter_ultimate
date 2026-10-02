@@ -12,6 +12,7 @@ class const JobActionBar({
   final VoidCallback? onDelete,
   final VoidCallback? onStop,
   final VoidCallback? onRestart,
+  final VoidCallback? onRetryExport,
   final VoidCallback? onRenameOutputFile,
   final VoidCallback? onSelectNewOutputPath,
 }) extends StatelessWidget {
@@ -140,6 +141,20 @@ class const JobActionBar({
                   onPressed: onRestart,
                 ),
               ],
+              if (onRetryExport != null)
+                Button(
+                  mainAxisSize: .min,
+                  titleExpand: .shrink,
+                  variant: .ghost,
+                  padding: .all(Spacing.d8),
+                  label: context.l10n.outputRetryExport,
+                  icon: ImageView(
+                    Assets.reload,
+                    size: Spacing.d16,
+                    color: context.theme.colorScheme.primary,
+                  ),
+                  onPressed: onRetryExport,
+                ),
               if (onRenameOutputFile != null) ...[
                 Button(
                   mainAxisSize: .min,

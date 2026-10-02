@@ -276,7 +276,13 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
       final fixedJobs = invalidIsarJobs
           .map(
             (e) => e.toOriginalModel().copyWith(
-              status: Some(e.status == .stopping ? .cancelled : .pending),
+              status: Some(
+                e.status == .stopping
+                    ? .cancelled
+                    : e.status == .cleaning && e.outputStaged
+                    ? .actionRequired
+                    : .pending,
+              ),
               sessionId: const Some(null),
               progress: const Some(null),
               duration: const Some(null),

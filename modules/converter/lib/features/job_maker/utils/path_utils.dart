@@ -8,6 +8,10 @@ class JobMakerPathUtils {
   static FileService get _fileService => injector<FileService>();
 
   static Future<String?> getDefaultOutputDirectoryPath() async {
+    if (Platform.isAndroid) {
+      return await _fileService.getDownloadsDestination() ??
+          OutputDestination.appStorage;
+    }
     for (final path in kStoragePaths) {
       final directory = Directory(path + kDefaultOutputDirectoryPath);
       await directory.createIfNotExists();

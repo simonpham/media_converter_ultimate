@@ -256,5 +256,18 @@
   "trimFineAdjustment": "Tinh chỉnh",
   "trimOverview": "Toàn cảnh",
   "trimHandlesHint": "Kéo tay nắm để cắt. Chạm dòng thời gian để xem trước.",
-  "trimPreparingWaveform": "Đang tạo dạng sóng…"
+  "trimPreparingWaveform": "Đang tạo dạng sóng…",
+  "outputSaveTo": "Lưu vào",
+  "outputChangeFolder": "Thay đổi",
+  "outputRememberFolder": "Dùng thư mục này cho các lần chuyển đổi sau",
+  "outputDownloads": "Tải xuống",
+  "outputInternalStorage": "Bộ nhớ trong",
+  "outputAppStorage": "Giữ trong ứng dụng",
+  "outputChooseFolderHint": "Chọn thư mục bằng trình chọn của hệ thống.",
+  "outputDownloadsHint": "Lưu vào Tải xuống mà không cần chọn thư mục.",
+  "outputAppStorageHint": "Chia sẻ tệp từ ứng dụng. Gỡ ứng dụng sẽ xóa các tệp này.",
+  "outputPickerUnavailable": "Trình chọn thư mục hệ thống không khả dụng. Chọn Tải xuống hoặc giữ tệp trong ứng dụng.",
+  "outputAccessExpired": "Không thể truy cập thư mục. Chọn lại thư mục để cấp quyền.",
+  "outputExportFailed": "Không thể lưu tệp. Tệp đã chuyển đổi được giữ lại để thử lại.",
+  "outputRetryExport": "Thử lưu lại"
 }

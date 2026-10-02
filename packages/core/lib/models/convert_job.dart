@@ -8,7 +8,10 @@ import 'package:utils/utils.dart';
 extension ConvertJobExtension on ConvertJob {
   Directory get outputDirectory => Directory(outputDirectoryPath);
 
-  File get outputFile => File(join(outputDirectoryPath, outputFileName));
+  String get outputLocation =>
+      outputUri ?? join(outputDirectoryPath, outputFileName);
+
+  File get outputFile => File(outputLocation);
 }
 
 @immutable
@@ -24,6 +27,9 @@ class const ConvertJob({
   required final DateTime updatedAt,
   // In-memory identity for one execution; intentionally not persisted.
   final String? executionId,
+  // Nullable for jobs created before provider-backed exports.
+  final String? outputUri,
+  final bool outputStaged = false,
   final int? sessionId,
   final JobStatus status = JobStatus.pending,
   final int? progress,
@@ -45,6 +51,8 @@ class const ConvertJob({
     'createdAt': createdAt.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),
     'executionId': executionId,
+    'outputUri': outputUri,
+    'outputStaged': outputStaged,
     'sessionId': sessionId,
     'status': status.name,
     'progress': progress,
@@ -62,6 +70,8 @@ class const ConvertJob({
     Some<DateTime>? createdAt,
     Some<DateTime>? updatedAt,
     Some<String?>? executionId,
+    Some<String?>? outputUri,
+    Some<bool>? outputStaged,
     Some<int?>? sessionId,
     Some<JobStatus>? status,
     Some<int?>? progress,
@@ -87,6 +97,8 @@ class const ConvertJob({
     createdAt: createdAt != null ? createdAt.value : this.createdAt,
     updatedAt: updatedAt != null ? updatedAt.value : this.updatedAt,
     executionId: executionId != null ? executionId.value : this.executionId,
+    outputUri: outputUri != null ? outputUri.value : this.outputUri,
+    outputStaged: outputStaged != null ? outputStaged.value : this.outputStaged,
     sessionId: sessionId != null ? sessionId.value : this.sessionId,
     status: status != null ? status.value : this.status,
     progress: progress != null ? progress.value : this.progress,

@@ -17,6 +17,7 @@ class const JobItem(
   final VoidCallback? onDelete,
   final VoidCallback? onStop,
   final VoidCallback? onRestart,
+  final VoidCallback? onRetryExport,
   final VoidCallback? onRenameOutputFile,
   final VoidCallback? onSelectNewOutputPath,
 }) extends StatelessWidget {
@@ -151,6 +152,7 @@ class const JobItem(
               onDelete: onDelete,
               onStop: onStop,
               onRestart: onRestart,
+              onRetryExport: onRetryExport,
               onRenameOutputFile: onRenameOutputFile,
               onSelectNewOutputPath: onSelectNewOutputPath,
             ),

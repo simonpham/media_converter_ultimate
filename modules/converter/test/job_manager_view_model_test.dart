@@ -178,6 +178,76 @@ void main() {
     },
   );
 
+  test(
+    'provider URI is committed before acknowledging and deleting the stage',
+    () async {
+      files.returnedOutput = const ExportedFile(
+        location: 'content://media/downloads/42',
+        name: 'actual.mp3',
+      );
+      files.onAcknowledge = () {
+        expect(storage.jobs['first']!.status, JobStatus.completed);
+        expect(
+          storage.jobs['first']!.outputUri,
+          'content://media/downloads/42',
+        );
+        expect(files.deletedStages, isEmpty);
+      };
+      await model.addJobs([job('first')]);
+      runner.emit(
+        storage.jobs['first']!.copyWith(status: const Some(.cleaning)),
+      );
+      await waitFor(() => storage.jobs['first']!.status == .completed);
+      await flushEvents();
+      expect(storage.jobs['first']!.outputFileName, 'actual.mp3');
+      expect(files.acknowledged, ['first']);
+      expect(files.deletedStages, ['/recovery/first.mp3']);
+      await model.deleteOutputFile(storage.jobs['first']!);
+      expect(files.deletedOutputs, ['content://media/downloads/42']);
+    },
+  );
+
+  test(
+    'failed job commit keeps export receipt and stage for restart recovery',
+    () async {
+      const exported = ExportedFile(
+        location: 'content://media/downloads/42',
+        name: 'actual.mp3',
+      );
+      files.returnedOutput = exported;
+      storage.failCompletedCommit = true;
+      await model.addJobs([job('first')]);
+      runner.emit(
+        storage.jobs['first']!.copyWith(status: const Some(.cleaning)),
+      );
+      await waitFor(() => files.moveAttempts == 1);
+      await flushEvents();
+      expect(storage.jobs['first']!.status, JobStatus.cleaning);
+      expect(storage.jobs['first']!.outputStaged, isTrue);
+      expect(files.acknowledged, isEmpty);
+      expect(files.deletedStages, isEmpty);
+      storage.failCompletedCommit = false;
+      files.recoveredOutputs['first'] = exported;
+      await model.restartPendingJobs();
+      expect(storage.jobs['first']!.status, JobStatus.completed);
+      expect(storage.jobs['first']!.outputUri, exported.location);
+      expect(files.moveAttempts, 1);
+      expect(runner.started, ['first']);
+      expect(files.acknowledged, ['first']);
+    },
+  );
+
+  test('retry export reuses the stage without running FFmpeg again', () async {
+    files.moveFailures.add(const OutputFolderAccessExpiredFailure());
+    await model.addJobs([job('first')]);
+    runner.emit(storage.jobs['first']!.copyWith(status: const Some(.cleaning)));
+    await waitFor(() => storage.jobs['first']!.status == .actionRequired);
+    expect(await model.retryExport(storage.jobs['first']!), isNull);
+    expect(files.recoveryCopies, 1);
+    expect(files.moveAttempts, 2);
+    expect(runner.started, ['first']);
+  });
+
   test('successful completion wins a stop race and exports once', () async {
     runner.stopGate = Completer<void>();
     runner.stopResult = false;
@@ -523,7 +593,7 @@ void main() {
       expect(storage.jobs['first']!.status, JobStatus.completed);
       expect(storage.jobs['first']!.outputDirectoryPath, '/new-output');
       expect(files.movedSources, [
-        '/temporary/first.mp3',
+        '/recovery/first.mp3',
         '/recovery/first.mp3',
       ]);
       expect(settings.successConversionCount, 1);
@@ -599,6 +669,7 @@ class MemoryJobStorage implements ConvertJobStorage {
   Completer<void>? preparingCommitGate;
   Failure? updateFailure;
   int updateAttempts = 0;
+  bool failCompletedCommit = false;
 
   @override
   Future<Failure?> addAll(List<ConvertJob> items) async {
@@ -615,6 +686,9 @@ class MemoryJobStorage implements ConvertJobStorage {
   Future<Failure?> update(ConvertJob item) async {
     updateAttempts++;
     if (updateFailure != null) return updateFailure;
+    if (failCompletedCommit && item.status == .completed) {
+      return const Failure('commit failed');
+    }
     jobs[item.id] = item;
     if (item.status == .preparing) await preparingCommitGate?.future;
     return null;
@@ -633,6 +707,23 @@ class MemoryJobStorage implements ConvertJobStorage {
   @override
   Future<List<ConvertJob>> getAllRunningJobs() async =>
       jobs.values.where((job) => job.status.isProcessing).toList();
+
+  @override
+  Stream<List<ConvertJob>> watchActionRequiredJobs() => Stream.value(
+    jobs.values.where((job) => job.status == .actionRequired).toList(),
+  );
+
+  @override
+  Future<List<ConvertJob>> fixInvalidJobs() async {
+    final fixed = jobs.values
+        .where((job) => job.status == .cleaning && job.outputStaged)
+        .map((job) => job.copyWith(status: const Some(.actionRequired)))
+        .toList();
+    for (final job in fixed) {
+      jobs[job.id] = job;
+    }
+    return fixed;
+  }
 
   @override
   void onDispose() {}
@@ -698,9 +789,49 @@ class FakeFiles implements FileService {
   int moveAttempts = 0;
   int recoveryCopies = 0;
   bool failCleanup = false;
+  ExportedFile? returnedOutput;
+  void Function()? onAcknowledge;
+  final acknowledged = <String>[];
+  final deletedStages = <String>[];
+  final deletedOutputs = <String>[];
+  final recoveredOutputs = <String, ExportedFile>{};
 
   @override
   Future<bool> isFileExist(String path) async => false;
+
+  @override
+  Future<bool> outputExists(String destination, String name) async => false;
+
+  @override
+  Future<void> acknowledgeExport(String exportId) async {
+    onAcknowledge?.call();
+    acknowledged.add(exportId);
+  }
+
+  @override
+  Future<ExportedFile?> recoverExport(String exportId) async =>
+      recoveredOutputs[exportId];
+
+  @override
+  Future<(ExportedFile?, Failure?)> exportFile({
+    required String exportId,
+    required String source,
+    required String destination,
+    required String name,
+  }) async {
+    final failure = await moveConvertedFileToPath(
+      convertedFilePath: source,
+      outputFileName: name,
+      outputFilePath: destination,
+    );
+    return failure == null
+        ? (
+            returnedOutput ??
+                ExportedFile(location: join(destination, name), name: name),
+            null,
+          )
+        : (null, failure);
+  }
 
   @override
   Future<Failure?> moveConvertedFileToPath({
@@ -734,7 +865,14 @@ class FakeFiles implements FileService {
   }
 
   @override
-  Future<void> deleteFileAtPath(String convertedFilePath) async {}
+  Future<void> deleteFileAtPath(String convertedFilePath) async {
+    deletedStages.add(convertedFilePath);
+  }
+
+  @override
+  Future<void> deleteOutput(String location) async {
+    deletedOutputs.add(location);
+  }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

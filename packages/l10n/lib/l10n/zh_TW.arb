@@ -256,5 +256,18 @@
   "trimFineAdjustment": "微調",
   "trimOverview": "全覽",
   "trimHandlesHint": "拖曳把手裁剪，點選時間軸預覽。",
-  "trimPreparingWaveform": "正在產生波形…"
+  "trimPreparingWaveform": "正在產生波形…",
+  "outputSaveTo": "儲存至",
+  "outputChangeFolder": "變更",
+  "outputRememberFolder": "之後的轉換使用此資料夾",
+  "outputDownloads": "下載",
+  "outputInternalStorage": "內部儲存空間",
+  "outputAppStorage": "保留在應用程式中",
+  "outputChooseFolderHint": "使用系統選擇器選擇資料夾。",
+  "outputDownloadsHint": "無需選擇資料夾即可儲存至下載。",
+  "outputAppStorageHint": "從應用程式分享檔案。解除安裝應用程式會刪除這些檔案。",
+  "outputPickerUnavailable": "系統資料夾選擇器無法使用。請選擇下載或將檔案保留在應用程式中。",
+  "outputAccessExpired": "無法存取資料夾。請重新選擇資料夾以授予存取權限。",
+  "outputExportFailed": "無法儲存檔案。已轉換的檔案會保留以便重試。",
+  "outputRetryExport": "重試匯出"
 }

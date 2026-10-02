@@ -256,5 +256,18 @@
   "trimFineAdjustment": "Ajuste fino",
   "trimOverview": "Vista completa",
   "trimHandlesHint": "Arrastra los tiradores para recortar. Toca la línea de tiempo para previsualizar.",
-  "trimPreparingWaveform": "Generando forma de onda…"
+  "trimPreparingWaveform": "Generando forma de onda…",
+  "outputSaveTo": "Guardar en",
+  "outputChangeFolder": "Cambiar",
+  "outputRememberFolder": "Usar esta carpeta para futuras conversiones",
+  "outputDownloads": "Descargas",
+  "outputInternalStorage": "Almacenamiento interno",
+  "outputAppStorage": "Mantener en la aplicación",
+  "outputChooseFolderHint": "Elige una carpeta con el selector del sistema.",
+  "outputDownloadsHint": "Guarda en Descargas sin elegir una carpeta.",
+  "outputAppStorageHint": "Comparte los archivos desde la aplicación. Al desinstalarla se eliminan estos archivos.",
+  "outputPickerUnavailable": "El selector de carpetas del sistema no está disponible. Elige Descargas o mantén los archivos en la aplicación.",
+  "outputAccessExpired": "No se puede acceder a la carpeta. Selecciónala de nuevo para conceder acceso.",
+  "outputExportFailed": "No se pudo guardar el archivo. El archivo convertido se conserva para reintentar.",
+  "outputRetryExport": "Reintentar exportación"
 }

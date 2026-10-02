@@ -29,11 +29,6 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
           final selectedPaths = model.selectedFiles;
           final outputFileNames = model.outputFileNames;
           final formatEntry = model.selectedFormatEntry;
-          final outputDirectoryName = switch (model.outputDirectoryPath) {
-            String path => basename(path),
-            _ => null,
-          };
-          final isFolderSelected = model.outputDirectoryPath != null;
 
           if (selectedPaths.isEmpty) {
             return Text(context.l10n.noFilesSelected);
@@ -50,101 +45,72 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
               const SliverToBoxAdapter(
                 child: PreviewPageAdItem(),
               ),
-              const SliverToBoxAdapter(child: ConversionSummary()),
               SliverToBoxAdapter(
-                child: Divider(
-                  height: Spacing.d16,
-                ),
-              ),
-              PinnedHeaderSliver(
-                child: Container(
-                  color: context.theme.colorScheme.surface,
-                  padding: .only(
-                    top: Spacing.d8,
+                child: RoundCard(
+                  margin: .symmetric(
+                    horizontal: Spacing.d16,
+                    vertical: Spacing.d8,
                   ),
-                  child: RoundCard(
-                    margin: .symmetric(
-                      horizontal: Spacing.d16,
-                    ),
-                    padding: .only(
-                      bottom: Spacing.d16,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: .start,
-                      mainAxisSize: .min,
-                      children: [
-                        Container(
-                          padding: .only(
-                            left: Spacing.d16,
-                            right: Spacing.d16,
-                            top: Spacing.d4,
+                  padding: .all(Spacing.d16),
+                  child: Column(
+                    crossAxisAlignment: .start,
+                    children: [
+                      Row(
+                        children: [
+                          ImageView(
+                            Assets.folder01,
+                            size: Spacing.d24,
+                            color: context.theme.colorScheme.primary,
                           ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: SectionTitle(
-                                  context.l10n.outputFolder,
-                                  padding: .zero,
+                          Spacing.h8,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: .start,
+                              children: [
+                                Text(
+                                  context.l10n.outputSaveTo,
+                                  style: context.theme.textTheme.labelMedium,
                                 ),
-                              ),
-                              CheckBoxListTile(
-                                style: .compact,
-                                alignment: .left,
-                                title: context.l10n.setAsDefault,
-                                value: model.shouldRememberOutputFolder,
-                                onChanged: (value) {
-                                  model.setRememberOutputFolder(value);
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: .only(
-                            left: Spacing.d16,
-                            right: Spacing.d16,
-                          ),
-                          child: Button(
-                            tooltip: model.outputDirectoryPath,
-                            variant: .ghost,
-                            padding: .symmetric(
-                              horizontal: Spacing.d16,
-                              vertical: Spacing.d12,
-                            ),
-                            icon: Padding(
-                              padding: .only(right: Spacing.d4),
-                              child: ImageView(
-                                Assets.folder01,
-                                color: context.theme.primaryColor,
-                                size: Spacing.d24,
-                              ),
-                            ),
-                            label:
-                                outputDirectoryName ??
-                                context.l10n.selectFolder,
-                            labelTextAlign: .start,
-                            titleExpand: .expand,
-                            trailingIcon: !isFolderSelected
-                                ? null
-                                : Text(
-                                    context.l10n.selectFolder,
-                                    style: context.theme.textTheme.labelSmall
-                                        ?.copyWith(
-                                          color:
-                                              context.theme.colorScheme.primary,
-                                        ),
+                                Text(
+                                  outputDestinationLabel(
+                                    context,
+                                    model.outputDirectoryPath,
                                   ),
-                            mainAxisAlignment: .start,
-                            onPressed: () {
-                              _handleChooseOutputDirectoryPressed(context);
-                            },
+                                  style: context.theme.textTheme.bodyLarge,
+                                ),
+                              ],
+                            ),
                           ),
+                          Spacing.h8,
+                          Button(
+                            variant: .ghost,
+                            label: context.l10n.outputChangeFolder,
+                            onPressed: () =>
+                                _handleChooseOutputDirectoryPressed(context),
+                          ),
+                        ],
+                      ),
+                      Spacing.v8,
+                      CheckBoxListTile(
+                        style: .compact,
+                        alignment: .left,
+                        title: context.l10n.outputRememberFolder,
+                        value: model.shouldRememberOutputFolder,
+                        onChanged: model.setRememberOutputFolder,
+                      ),
+                      if (model.outputDirectoryPath ==
+                          OutputDestination.appStorage) ...[
+                        Spacing.v8,
+                        Text(
+                          context.l10n.outputAppStorageHint,
+                          style: context.theme.textTheme.bodySmall,
                         ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
               ),
+              const SliverToBoxAdapter(child: ConversionSummary()),
               PinnedHeaderSliver(
                 child: ColoredBox(
                   color: context.theme.colorScheme.surface,
@@ -203,18 +169,11 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
     final viewModel = context.read<JobMakerViewModel>();
     final currentPath = viewModel.outputDirectoryPath;
 
-    final (path, failure) = await injector<FileService>().chooseSavePath(
+    final path = await OutputDestinationPicker.show(
       context,
       initialPath: currentPath,
     );
-
-    if (failure != null) {
-      context.toastFailure(failure);
-    }
-
-    if (path == null) {
-      return;
-    }
+    if (!context.mounted || path == null) return;
 
     viewModel.setOutputDirectoryPath(path);
   }

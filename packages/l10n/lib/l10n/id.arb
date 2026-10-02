@@ -256,5 +256,18 @@
   "trimFineAdjustment": "Penyesuaian",
   "trimOverview": "Ikhtisar",
   "trimHandlesHint": "Seret pegangan untuk memangkas. Ketuk linimasa untuk pratinjau.",
-  "trimPreparingWaveform": "Membuat bentuk gelombang…"
+  "trimPreparingWaveform": "Membuat bentuk gelombang…",
+  "outputSaveTo": "Simpan ke",
+  "outputChangeFolder": "Ubah",
+  "outputRememberFolder": "Gunakan folder ini untuk konversi berikutnya",
+  "outputDownloads": "Unduhan",
+  "outputInternalStorage": "Penyimpanan internal",
+  "outputAppStorage": "Simpan di aplikasi",
+  "outputChooseFolderHint": "Pilih folder menggunakan pemilih sistem.",
+  "outputDownloadsHint": "Simpan di Unduhan tanpa memilih folder.",
+  "outputAppStorageHint": "Bagikan file dari aplikasi. Menghapus aplikasi juga menghapus file ini.",
+  "outputPickerUnavailable": "Pemilih folder sistem tidak tersedia. Pilih Unduhan atau simpan file di aplikasi.",
+  "outputAccessExpired": "Akses folder tidak tersedia. Pilih kembali folder untuk memberikan akses.",
+  "outputExportFailed": "Tidak dapat menyimpan file. File hasil konversi disimpan untuk dicoba lagi.",
+  "outputRetryExport": "Coba ekspor lagi"
 }

@@ -1,11 +1,147 @@
 import 'package:core/core.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:platform_utils/platform_utils.dart';
 
 class DirectFileService implements FileService {
+  DirectFileService({AndroidOutputStorage? androidStorage, bool? isAndroid})
+    : _androidStorage = androidStorage ?? const AndroidOutputStorage(),
+      _isAndroid = isAndroid ?? Platform.isAndroid;
+
+  final AndroidOutputStorage _androidStorage;
+  final bool _isAndroid;
+
+  @override
+  Future<String?> getDownloadsDestination() async {
+    if (_isAndroid && await _androidStorage.supportsDownloads()) {
+      return OutputDestination.downloads;
+    }
+    if (_isAndroid) {
+      final directory = Directory(
+        '/storage/emulated/0/Download/MediaConverterPro',
+      );
+      try {
+        await createIfNotExists(directory);
+        return await isDirectoryWritable(directory) ? directory.path : null;
+      } catch (error, trace) {
+        printError(error, trace);
+        return null;
+      }
+    }
+    return null;
+  }
+
+  Future<String> _directoryPath(OutputDestination destination) async =>
+      destination.kind == .appStorage
+      ? (await getConvertedDirectory('exports')).path
+      : destination.location;
+
+  @override
+  Future<bool> outputExists(String destination, String name) async {
+    final target = OutputDestination.parse(destination);
+    if (target.kind == .tree || target.kind == .downloads) {
+      try {
+        return await _androidStorage.contains(target.location, name);
+      } on PlatformException catch (error) {
+        throw AndroidOutputStorage.failure(error, name);
+      }
+    }
+    return isFileExist(path.join(await _directoryPath(target), name));
+  }
+
+  @override
+  Future<(ExportedFile?, Failure?)> exportFile({
+    required String exportId,
+    required String source,
+    required String destination,
+    required String name,
+  }) async {
+    try {
+      if (name.isEmpty ||
+          name == '.' ||
+          name == '..' ||
+          name.contains('/') ||
+          name.contains('\\')) {
+        return (null, FileNameIsNotSetFailure(name));
+      }
+      if (!await File(source).exists()) {
+        return (null, InputFileNotExistFailure(source));
+      }
+      final target = OutputDestination.parse(destination);
+      if (target.kind == .tree || target.kind == .downloads) {
+        final exported = await _androidStorage.export(
+          id: exportId,
+          source: source,
+          name: name,
+          destination: target.location,
+          mime: lookupMimeType(name),
+        );
+        return (exported, null);
+      }
+      final directory = Directory(await _directoryPath(target));
+      await createIfNotExists(directory);
+      final output = File(path.join(directory.path, name));
+      if (await output.exists()) {
+        return (null, OutputFileAlreadyExistsFailure(output.path));
+      }
+      try {
+        await output.create(exclusive: true);
+      } on FileSystemException {
+        if (await output.exists()) {
+          return (null, OutputFileAlreadyExistsFailure(output.path));
+        }
+        rethrow;
+      }
+      try {
+        await File(source).copy(output.path);
+      } catch (error, trace) {
+        if (await output.exists()) await output.delete();
+        Error.throwWithStackTrace(error, trace);
+      }
+      return (ExportedFile(location: output.path, name: name), null);
+    } on PlatformException catch (error) {
+      return (null, AndroidOutputStorage.failure(error, name));
+    } catch (error, trace) {
+      printError(error, trace);
+      return (null, const OutputExportFailure());
+    }
+  }
+
+  @override
+  Future<ExportedFile?> recoverExport(String exportId) async =>
+      _isAndroid ? await _androidStorage.recover(exportId) : null;
+
+  @override
+  Future<void> acknowledgeExport(String exportId) async {
+    if (_isAndroid) await _androidStorage.acknowledge(exportId);
+  }
+
+  @override
+  Future<void> openOutput(String location) async {
+    if (location.startsWith('content://')) {
+      await _androidStorage.open(location);
+    } else if (!await launchUrl(Uri.file(location))) {
+      throw StateError('No application can open this file');
+    }
+  }
+
+  @override
+  Future<void> shareOutput(String location) => location.startsWith('content://')
+      ? _androidStorage.share(location)
+      : File(location).share();
+
+  @override
+  Future<void> deleteOutput(String location) =>
+      location.startsWith('content://')
+      ? _androidStorage.delete(location)
+      : File(location).delete();
+
   @override
   Future<bool> isFileExist(String filePath) async {
+    if (filePath.startsWith('content://')) {
+      return _androidStorage.exists(filePath);
+    }
     return await File(filePath).exists();
   }
 
@@ -45,26 +181,29 @@ class DirectFileService implements FileService {
     String? initialPath,
   }) async {
     try {
+      if (_isAndroid) {
+        final target = initialPath == null
+            ? null
+            : OutputDestination.parse(initialPath);
+        final selected = await _androidStorage.pickTree(
+          target?.kind == .tree ? target!.location : null,
+        );
+        return (selected, null);
+      }
       final folderPath = await FilePicker.getDirectoryPath(
         initialDirectory: initialPath,
       );
-      if (folderPath == null || folderPath.isEmpty) {
-        printLog('[DirectFileService] chooseSavePath: empty folderPath');
-        return (null, const NoOutputFolderFailure());
-      }
-
-      final dir = Directory(folderPath);
-      await createIfNotExists(dir);
-
-      final isWritable = await isDirectoryWritable(dir);
-      if (!isWritable) {
+      if (folderPath == null || folderPath.isEmpty) return (null, null);
+      final dir = await createIfNotExists(Directory(folderPath));
+      if (!await isDirectoryWritable(dir)) {
         return (null, DirectoryNotWritableFailure(folderPath));
       }
-
       return (folderPath, null);
-    } catch (err, trace) {
-      printError(err, trace);
-      return (null, null);
+    } on PlatformException catch (error) {
+      return (null, AndroidOutputStorage.failure(error, initialPath ?? ''));
+    } catch (error, trace) {
+      printError(error, trace);
+      return (null, const OutputExportFailure());
     }
   }
 
@@ -74,31 +213,19 @@ class DirectFileService implements FileService {
     required String outputFileName,
     required String outputFilePath,
   }) async {
-    try {
-      final tempFile = File(convertedFilePath);
-      if (!await tempFile.exists()) {
-        return InputFileNotExistFailure(convertedFilePath);
-      }
-
-      final dir = Directory(outputFilePath);
-      await createIfNotExists(dir);
-
-      final outputPath = path.join(dir.path, outputFileName);
-      if (await File(outputPath).exists()) {
-        return OutputFileAlreadyExistsFailure(outputPath);
-      }
-
-      try {
-        await tempFile.rename(outputPath);
-      } catch (_) {
-        await tempFile.copy(outputPath);
-        await tempFile.delete();
-      }
-      return null;
-    } catch (err, trace) {
-      printError(err, trace);
-      return Failure(err.toString());
+    final id = 'export-${DateTime.now().microsecondsSinceEpoch}';
+    final (exported, failure) = await exportFile(
+      exportId: id,
+      source: convertedFilePath,
+      destination: outputFilePath,
+      name: outputFileName,
+    );
+    if (failure != null || exported == null) {
+      return failure ?? const OutputExportFailure();
     }
+    await acknowledgeExport(id);
+    await deleteFileAtPath(convertedFilePath);
+    return null;
   }
 
   @override

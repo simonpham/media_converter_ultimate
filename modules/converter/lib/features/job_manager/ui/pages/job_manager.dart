@@ -160,6 +160,12 @@ class _JobManagerState extends State<JobManager> {
                           job,
                           onOpenLogs: () => _handleOpenLogs(context, job),
                           onRemoveItem: () => _handleRemoveItem(context, job),
+                          onRetryExport: () async {
+                            final failure = await model.retryExport(job);
+                            if (context.mounted && failure != null) {
+                              context.toastFailure(failure);
+                            }
+                          },
                           onRenameOutputFile: () =>
                               _handleRenameOutputFile(context, job),
                           onSelectNewOutputPath: () =>
@@ -262,6 +268,23 @@ class _JobManagerState extends State<JobManager> {
                           onShare: !isSuccess
                               ? null
                               : () => _handleShare(context, job),
+                          onOpenFile:
+                              isSuccess &&
+                                  job.outputUri?.startsWith('content://') ==
+                                      true
+                              ? () async {
+                                  try {
+                                    await injector<FileService>().openOutput(
+                                      job.outputLocation,
+                                    );
+                                  } catch (error, trace) {
+                                    printError(error, trace);
+                                    if (context.mounted) {
+                                      context.toastError(context.l10n.failureUnknown);
+                                    }
+                                  }
+                                }
+                              : null,
                           onDelete: !isSuccess
                               ? null
                               : () => _handleDelete(context, job),
@@ -359,8 +382,12 @@ class _JobManagerState extends State<JobManager> {
   }
 
   Future<void> _handleShare(BuildContext context, ConvertJob job) async {
-    final file = job.outputFile;
-    await file.share();
+    try {
+      await injector<FileService>().shareOutput(job.outputLocation);
+    } catch (error, trace) {
+      printError(error, trace);
+      if (context.mounted) context.toastFailure(const OutputExportFailure());
+    }
   }
 
   Future<void> _handleRemoveItem(BuildContext context, ConvertJob job) async {
@@ -516,18 +543,11 @@ class _JobManagerState extends State<JobManager> {
   ) async {
     final currentPath = job.outputDirectoryPath;
 
-    final (path, pickFailure) = await injector<FileService>().chooseSavePath(
+    final path = await OutputDestinationPicker.show(
       context,
       initialPath: currentPath,
     );
-
-    if (pickFailure != null) {
-      context.toastFailure(pickFailure);
-    }
-
-    if (path == null) {
-      return;
-    }
+    if (!context.mounted || path == null) return;
     final model = context.read<JobManagerViewModel>();
     final failure = await model.handleJobChooseAnotherPathAction(job, path);
     if (failure != null) {
@@ -536,7 +556,9 @@ class _JobManagerState extends State<JobManager> {
     }
 
     context.toastSuccess(
-      context.l10n.outputFolderHasBeenChanged(path),
+      context.l10n.outputFolderHasBeenChanged(
+        outputDestinationLabel(context, path),
+      ),
     );
   }
 

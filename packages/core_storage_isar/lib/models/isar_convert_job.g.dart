@@ -50,20 +50,30 @@ const IsarConvertJobSchema = CollectionSchema(
       name: r'outputFileName',
       type: IsarType.string,
     ),
-    r'progress': PropertySchema(id: 9, name: r'progress', type: IsarType.long),
-    r'sessionId': PropertySchema(
+    r'outputStaged': PropertySchema(
+      id: 9,
+      name: r'outputStaged',
+      type: IsarType.bool,
+    ),
+    r'outputUri': PropertySchema(
       id: 10,
+      name: r'outputUri',
+      type: IsarType.string,
+    ),
+    r'progress': PropertySchema(id: 11, name: r'progress', type: IsarType.long),
+    r'sessionId': PropertySchema(
+      id: 12,
       name: r'sessionId',
       type: IsarType.long,
     ),
     r'status': PropertySchema(
-      id: 11,
+      id: 13,
       name: r'status',
       type: IsarType.string,
       enumMap: _IsarConvertJobstatusEnumValueMap,
     ),
     r'updatedAt': PropertySchema(
-      id: 12,
+      id: 14,
       name: r'updatedAt',
       type: IsarType.dateTime,
     ),
@@ -137,6 +147,12 @@ int _isarConvertJobEstimateSize(
   bytesCount += 3 + object.outputDirectoryPath.length * 3;
   bytesCount += 3 + object.outputExtension.length * 3;
   bytesCount += 3 + object.outputFileName.length * 3;
+  {
+    final value = object.outputUri;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.status.name.length * 3;
   return bytesCount;
 }
@@ -156,10 +172,12 @@ void _isarConvertJobSerialize(
   writer.writeString(offsets[6], object.outputDirectoryPath);
   writer.writeString(offsets[7], object.outputExtension);
   writer.writeString(offsets[8], object.outputFileName);
-  writer.writeLong(offsets[9], object.progress);
-  writer.writeLong(offsets[10], object.sessionId);
-  writer.writeString(offsets[11], object.status.name);
-  writer.writeDateTime(offsets[12], object.updatedAt);
+  writer.writeBool(offsets[9], object.outputStaged);
+  writer.writeString(offsets[10], object.outputUri);
+  writer.writeLong(offsets[11], object.progress);
+  writer.writeLong(offsets[12], object.sessionId);
+  writer.writeString(offsets[13], object.status.name);
+  writer.writeDateTime(offsets[14], object.updatedAt);
 }
 
 IsarConvertJob _isarConvertJobDeserialize(
@@ -178,14 +196,16 @@ IsarConvertJob _isarConvertJobDeserialize(
     outputDirectoryPath: reader.readString(offsets[6]),
     outputExtension: reader.readString(offsets[7]),
     outputFileName: reader.readString(offsets[8]),
-    progress: reader.readLongOrNull(offsets[9]),
-    sessionId: reader.readLongOrNull(offsets[10]),
+    outputStaged: reader.readBoolOrNull(offsets[9]) ?? false,
+    outputUri: reader.readStringOrNull(offsets[10]),
+    progress: reader.readLongOrNull(offsets[11]),
+    sessionId: reader.readLongOrNull(offsets[12]),
     status:
         _IsarConvertJobstatusValueEnumMap[reader.readStringOrNull(
-          offsets[11],
+          offsets[13],
         )] ??
         JobStatus.pending,
-    updatedAt: reader.readDateTime(offsets[12]),
+    updatedAt: reader.readDateTime(offsets[14]),
   );
   return object;
 }
@@ -216,16 +236,20 @@ P _isarConvertJobDeserializeProp<P>(
     case 8:
       return (reader.readString(offset)) as P;
     case 9:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readBoolOrNull(offset) ?? false) as P;
     case 10:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 11:
+      return (reader.readLongOrNull(offset)) as P;
+    case 12:
+      return (reader.readLongOrNull(offset)) as P;
+    case 13:
       return (_IsarConvertJobstatusValueEnumMap[reader.readStringOrNull(
                 offset,
               )] ??
               JobStatus.pending)
           as P;
-    case 12:
+    case 14:
       return (reader.readDateTime(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1796,6 +1820,174 @@ extension IsarConvertJobQueryFilter
   }
 
   QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputStagedEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'outputStaged', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputUriIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'outputUri'),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputUriIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'outputUri'),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputUriEqualTo(String? value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'outputUri',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputUriGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'outputUri',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputUriLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'outputUri',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputUriBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'outputUri',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputUriStartsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'outputUri',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputUriEndsWith(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'outputUri',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputUriContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'outputUri',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputUriMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'outputUri',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputUriIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'outputUri', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
+  outputUriIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'outputUri', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterFilterCondition>
   progressIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -2267,6 +2459,33 @@ extension IsarConvertJobQuerySortBy
     });
   }
 
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  sortByOutputStaged() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'outputStaged', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  sortByOutputStagedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'outputStaged', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy> sortByOutputUri() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'outputUri', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  sortByOutputUriDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'outputUri', Sort.desc);
+    });
+  }
+
   QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy> sortByProgress() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'progress', Sort.asc);
@@ -2456,6 +2675,33 @@ extension IsarConvertJobQuerySortThenBy
     });
   }
 
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  thenByOutputStaged() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'outputStaged', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  thenByOutputStagedDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'outputStaged', Sort.desc);
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy> thenByOutputUri() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'outputUri', Sort.asc);
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy>
+  thenByOutputUriDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'outputUri', Sort.desc);
+    });
+  }
+
   QueryBuilder<IsarConvertJob, IsarConvertJob, QAfterSortBy> thenByProgress() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'progress', Sort.asc);
@@ -2590,6 +2836,21 @@ extension IsarConvertJobQueryWhereDistinct
     });
   }
 
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QDistinct>
+  distinctByOutputStaged() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'outputStaged');
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, IsarConvertJob, QDistinct> distinctByOutputUri({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'outputUri', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<IsarConvertJob, IsarConvertJob, QDistinct> distinctByProgress() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'progress');
@@ -2683,6 +2944,18 @@ extension IsarConvertJobQueryProperty
   outputFileNameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'outputFileName');
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, bool, QQueryOperations> outputStagedProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'outputStaged');
+    });
+  }
+
+  QueryBuilder<IsarConvertJob, String?, QQueryOperations> outputUriProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'outputUri');
     });
   }
 

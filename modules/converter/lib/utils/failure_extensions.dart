@@ -22,6 +22,10 @@ extension FailureExtension on Failure {
       NoOutputFormatFailure _ => context.l10n.failureNoOutputFormat,
       NoOutputConfigFailure _ => context.l10n.failureNoOutputConfig,
       NoOutputFolderFailure _ => context.l10n.failureNoOutputFolder,
+      OutputFolderPickerUnavailableFailure _ =>
+        context.l10n.outputPickerUnavailable,
+      OutputFolderAccessExpiredFailure _ => context.l10n.outputAccessExpired,
+      OutputExportFailure _ => context.l10n.outputExportFailed,
       InvalidTrimTimestampFailure _ => context.l10n.trimInvalidTime,
       InvalidTrimRangeFailure _ => context.l10n.trimInvalidRange,
       InvalidTrimBoundsFailure _ => context.l10n.trimInvalidBounds,

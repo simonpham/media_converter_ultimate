@@ -256,5 +256,18 @@
   "trimFineAdjustment": "微调",
   "trimOverview": "全览",
   "trimHandlesHint": "拖动手柄裁剪，点击时间轴预览。",
-  "trimPreparingWaveform": "正在生成波形…"
+  "trimPreparingWaveform": "正在生成波形…",
+  "outputSaveTo": "保存到",
+  "outputChangeFolder": "更改",
+  "outputRememberFolder": "以后的转换使用此文件夹",
+  "outputDownloads": "下载",
+  "outputInternalStorage": "内部存储",
+  "outputAppStorage": "保留在应用中",
+  "outputChooseFolderHint": "使用系统选择器选择文件夹。",
+  "outputDownloadsHint": "无需选择文件夹即可保存到下载。",
+  "outputAppStorageHint": "从应用中分享文件。卸载应用会删除这些文件。",
+  "outputPickerUnavailable": "系统文件夹选择器不可用。请选择下载或将文件保留在应用中。",
+  "outputAccessExpired": "无法访问文件夹。请重新选择文件夹以授予访问权限。",
+  "outputExportFailed": "无法保存文件。已转换的文件会保留以便重试。",
+  "outputRetryExport": "重试导出"
 }

@@ -159,7 +159,10 @@ extension SettingsPageItemExtensions on SettingsPageItem {
 
   String? getDescription(BuildContext context) {
     return switch (this) {
-      .defaultOutputFolder => SettingsBox().lastOutputDirectoryPath,
+      .defaultOutputFolder => outputDestinationLabel(
+        context,
+        SettingsBox().lastOutputDirectoryPath,
+      ),
       .defaultOutputFormat =>
         context.l10n.conversionDefaultOutputFormatDescription,
       .overwriteBehavior => context.l10n.conversionOverwriteBehaviorDescription,

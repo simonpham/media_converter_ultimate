@@ -181,7 +181,12 @@ class _JobLogViewerState extends State<JobLogViewer> {
 
   Future<void> _export(BuildContext context) async {
     FocusManager.instance.primaryFocus?.unfocus();
-    final (path, failure) = await _model.exportLogs(context);
+    final destination = await OutputDestinationPicker.show(context);
+    if (!context.mounted || destination == null) return;
+    final (path, failure) = await _model.exportLogs(
+      context,
+      selectedDestination: destination,
+    );
     if (!context.mounted) return;
     if (failure != null) {
       context.toastFailure(failure);

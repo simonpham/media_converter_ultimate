@@ -85,3 +85,18 @@ class const FileDeleteFailure(final String path) extends Failure {
 class const FailedToClearJobsFailure() extends Failure {
   this : super('Failed to clear finished jobs.');
 }
+
+@immutable
+class const OutputFolderPickerUnavailableFailure() extends Failure {
+  this : super('System folder picker is unavailable.');
+}
+
+@immutable
+class const OutputFolderAccessExpiredFailure() extends Failure {
+  this : super('Output folder access must be granted again.');
+}
+
+@immutable
+class const OutputExportFailure() extends Failure {
+  this : super('Could not export the output file.');
+}

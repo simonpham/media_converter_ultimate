@@ -256,5 +256,18 @@
   "trimFineAdjustment": "Regola",
   "trimOverview": "Panoramica",
   "trimHandlesHint": "Trascina le maniglie per tagliare. Tocca la timeline per l’anteprima.",
-  "trimPreparingWaveform": "Generazione della forma d’onda…"
+  "trimPreparingWaveform": "Generazione della forma d’onda…",
+  "outputSaveTo": "Salva in",
+  "outputChangeFolder": "Cambia",
+  "outputRememberFolder": "Usa questa cartella per le conversioni future",
+  "outputDownloads": "Download",
+  "outputInternalStorage": "Memoria interna",
+  "outputAppStorage": "Conserva nell’app",
+  "outputChooseFolderHint": "Scegli una cartella con il selettore di sistema.",
+  "outputDownloadsHint": "Salva in Download senza scegliere una cartella.",
+  "outputAppStorageHint": "Condividi i file dall’app. Disinstallando l’app, questi file vengono eliminati.",
+  "outputPickerUnavailable": "Il selettore di cartelle di sistema non è disponibile. Scegli Download o conserva i file nell’app.",
+  "outputAccessExpired": "L’accesso alla cartella non è disponibile. Selezionala di nuovo per concedere l’accesso.",
+  "outputExportFailed": "Impossibile salvare il file. Il file convertito viene conservato per riprovare.",
+  "outputRetryExport": "Riprova esportazione"
 }

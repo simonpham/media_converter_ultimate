@@ -277,5 +277,18 @@
   "trimFineAdjustment": "Fine tune",
   "trimOverview": "Overview",
   "trimHandlesHint": "Drag handles to trim. Tap the timeline to preview.",
-  "trimPreparingWaveform": "Generating waveform…"
+  "trimPreparingWaveform": "Generating waveform…",
+  "outputSaveTo": "Save to",
+  "outputChangeFolder": "Change",
+  "outputRememberFolder": "Use this folder for future conversions",
+  "outputDownloads": "Downloads",
+  "outputInternalStorage": "Internal storage",
+  "outputAppStorage": "Keep in app",
+  "outputChooseFolderHint": "Choose a folder using the system picker.",
+  "outputDownloadsHint": "Save in Downloads without choosing a folder.",
+  "outputAppStorageHint": "Share files from the app. Uninstalling the app deletes these files.",
+  "outputPickerUnavailable": "The system folder picker is unavailable. Choose Downloads or keep files in the app.",
+  "outputAccessExpired": "Folder access is unavailable. Select the folder again to grant access.",
+  "outputExportFailed": "Could not save the file. Your converted file is kept for retry.",
+  "outputRetryExport": "Retry export"
 }

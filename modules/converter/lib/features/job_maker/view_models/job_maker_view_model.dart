@@ -610,12 +610,15 @@ class JobMakerViewModel({
 
       /// Check for output file existence.
       if (formatEntry != null) {
-        final outputFilePath = CommandBuilder.getOutputFilePath(
-          inputFilePath: filePath,
-          formatEntry: formatEntry,
-          outputDirectoryPath: outputDirectoryPath,
-          overrideFileName: fileName,
-        );
+        final outputFilePath =
+            OutputDestination.parse(outputDirectoryPath).kind != .directory
+            ? fileName
+            : CommandBuilder.getOutputFilePath(
+                inputFilePath: filePath,
+                formatEntry: formatEntry,
+                outputDirectoryPath: outputDirectoryPath,
+                overrideFileName: fileName,
+              );
 
         /// Check for duplicated file path.
         if (outputPaths.contains(outputFilePath)) {
@@ -628,7 +631,17 @@ class JobMakerViewModel({
         outputPaths.add(outputFilePath);
 
         /// Check if output file already exists.
-        if (await _fileService.isFileExist(outputFilePath)) {
+        bool exists;
+        try {
+          exists = await _fileService.outputExists(
+            outputDirectoryPath,
+            fileName,
+          );
+        } on Failure catch (failure) {
+          errorPaths[filePath] = failure;
+          continue;
+        }
+        if (exists) {
           errorPaths[filePath] = OutputFileAlreadyExistsFailure(outputFilePath);
           printLog(
             '[JobMakerViewModel]: Output file already exists: $outputFilePath',

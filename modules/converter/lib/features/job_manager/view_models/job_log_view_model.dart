@@ -2,6 +2,7 @@ import 'package:converter/converter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:platform_utils/platform_utils.dart';
+import 'package:utils/utils.dart';
 
 class JobLogViewModel(final ConvertJob job) extends ChangeNotifier {
   late final LogData _data = injector<LogData>();
@@ -45,7 +46,10 @@ class JobLogViewModel(final ConvertJob job) extends ChangeNotifier {
   Future<void> copyLogs() => Clipboard.setData(.new(text: _logs));
 
   /// Export a snapshot of the complete log, including lines hidden by search.
-  Future<(String?, Failure?)> exportLogs(dynamic context) async {
+  Future<(String?, Failure?)> exportLogs(
+    dynamic context, {
+    String? selectedDestination,
+  }) async {
     if (_isExporting || _logs.isEmpty) return (null, null);
     final snapshot = _logs;
     _isExporting = true;
@@ -53,22 +57,32 @@ class JobLogViewModel(final ConvertJob job) extends ChangeNotifier {
     Directory? temporary;
     try {
       final files = injector<FileService>();
-      final (destination, failure) = await files.chooseSavePath(context);
-      if (failure != null || destination == null) return (null, failure);
+      final (destination, pickFailure) = selectedDestination == null
+          ? await files.chooseSavePath(context)
+          : (selectedDestination, null);
+      if (destination == null || pickFailure != null) {
+        return (null, pickFailure);
+      }
       final cache = await files.getAppCacheDirectory();
       temporary = await cache.createTemp('job_log_export_');
       final name =
           '${job.outputFileName.replaceAll(RegExp(r'[<>:"/\\|?*\x00-\x1f]'), '_')}.log.txt';
       final staged = File(join(temporary.path, name));
       await staged.writeAsString(snapshot, flush: true);
-      final exportFailure = await files.moveConvertedFileToPath(
-        convertedFilePath: staged.path,
-        outputFileName: name,
-        outputFilePath: destination,
+      final id = kUuid.v4();
+      final (exported, exportFailure) = await files.exportFile(
+        exportId: id,
+        source: staged.path,
+        name: name,
+        destination: destination,
       );
-      return exportFailure == null
-          ? (join(destination, name), null)
-          : (null, exportFailure);
+      if (exported != null) await files.acknowledgeExport(id);
+      final location = exported == null
+          ? null
+          : exported.location.startsWith('content://')
+          ? exported.name
+          : exported.location;
+      return (location, exportFailure);
     } catch (error, trace) {
       printError(error, trace);
       return (null, error is Failure ? error : Failure(error.toString()));
