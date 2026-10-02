@@ -7,6 +7,7 @@ import 'package:sofluffy_ui/sofluffy_ui.dart' show ContentDialog;
 class ChangelogUtils {
   static Future<void> check(BuildContext context) async {
     final packageInfo = await PackageInfo.fromPlatform();
+    if (!context.mounted) return;
     final String currentVersion = packageInfo.version;
 
     final String lastKnownVersion = SettingsBox().lastKnownVersion;
@@ -14,8 +15,9 @@ class ChangelogUtils {
       return;
     }
 
-    SettingsBox().lastKnownVersion = currentVersion;
     await showChangelogDialog(context);
+    if (!context.mounted) return;
+    SettingsBox().lastKnownVersion = currentVersion;
   }
 
   static Future<void> showChangelogDialog(BuildContext context) async {
@@ -23,6 +25,7 @@ class ChangelogUtils {
       context,
       name: 'changelog',
     );
+    if (!context.mounted) return;
     await ContentDialog.show(
       context,
       title: context.l10n.changelog,

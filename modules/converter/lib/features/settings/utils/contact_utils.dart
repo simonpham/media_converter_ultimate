@@ -12,6 +12,7 @@ class ContactUtils {
       context,
       name: 'contact_us',
     );
+    if (!context.mounted) return;
     final result = await ContentDialog.show(
       context,
       title: context.l10n.aboutContactUs,

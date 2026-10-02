@@ -8,8 +8,9 @@ class ContentUtils {
     String extension = 'html',
   }) async {
     final language = SettingsBox().language;
+    final bundle = DefaultAssetBundle.of(context);
     final content = await _load(
-      context,
+      bundle,
       name: name,
       language: language,
       extension: extension,
@@ -17,7 +18,7 @@ class ContentUtils {
     if (content == null) {
       // Retry with default language.
       return _load(
-        context,
+        bundle,
         name: name,
         language: kDefaultLanguage,
         extension: extension,
@@ -28,13 +29,13 @@ class ContentUtils {
   }
 
   static Future<String?> _load(
-    BuildContext context, {
+    AssetBundle bundle, {
     required String name,
     required String language,
     required String extension,
   }) async {
     try {
-      final content = await DefaultAssetBundle.of(context).loadString(
+      final content = await bundle.loadString(
         'assets/content/$name/$language.$extension',
       );
       return content;

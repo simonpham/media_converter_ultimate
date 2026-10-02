@@ -84,6 +84,7 @@ extension SettingsHandlers on SettingsPageItem {
       context,
       name: 'support_developer',
     );
+    if (!context.mounted) return;
     final result = await ContentDialog.show(
       context,
       title: context.l10n.monetizationSupportTheDeveloper,
