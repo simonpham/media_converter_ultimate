@@ -17,6 +17,7 @@ abstract class MediaPreviewSession {
   Duration get audioEnd;
   Future<PreviewMediaInfo> inspect(String path);
   Future<String?> frame(String path, Duration position);
+  Future<String?> thumbnails(String path, Duration start, Duration length);
   Future<String?> waveform(
     String path,
     Duration start,
@@ -172,6 +173,35 @@ class FfmpegMediaPreviewSession implements MediaPreviewSession {
     return image ??
         await _image(arguments((milliseconds - 100).clamp(0, milliseconds)));
   });
+
+  @override
+  Future<String?> thumbnails(String path, Duration start, Duration length) =>
+      _track(() async {
+        if (_info?.videoIndex == null) return null;
+        final at = start.inMilliseconds.clamp(
+          0,
+          _info!.duration.inMilliseconds - 1,
+        );
+        final span = length.inMilliseconds
+            .clamp(1, 30000)
+            .clamp(1, _info!.duration.inMilliseconds - at);
+        final seconds = (span / 1000).toStringAsFixed(3);
+        return _image([
+          '-ss',
+          (at / 1000).toStringAsFixed(3),
+          '-i',
+          path,
+          '-t',
+          seconds,
+          '-map',
+          '0:${_info!.videoIndex}',
+          '-an',
+          '-sn',
+          '-vf',
+          'trim=duration=$seconds,fps=${6 / (span / 1000)},'
+              'scale=96:96:force_original_aspect_ratio=increase,crop=96:96,tile=6x1',
+        ], wave: true);
+      });
 
   @override
   Future<String?> waveform(

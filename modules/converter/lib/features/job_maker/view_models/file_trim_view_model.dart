@@ -11,6 +11,8 @@ class FileTrimViewModel({
   final ConversionTrim? initial,
 }) extends ChangeNotifier {
   Duration? _duration;
+  PreviewMediaInfo? _info;
+  PreviewMediaInfo? get info => _info;
   Duration? get duration => _duration;
   bool _loading = true;
   bool get loading => _loading;
@@ -31,6 +33,7 @@ class FileTrimViewModel({
       final info = await session.inspect(path);
       if (_disposed) return;
       if (info.duration <= Duration.zero) throw StateError('Invalid duration');
+      _info = info;
       _duration = info.duration;
     } catch (error, trace) {
       if (_disposed) return;

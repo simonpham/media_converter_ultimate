@@ -248,5 +248,8 @@
   "changePreset": "更改",
   "showQuickPresets": "显示快捷预设",
   "hideQuickPresets": "隐藏快捷预设",
-  "presetDeselectionHint": "再次点击已选预设，恢复此格式的默认设置。"
+  "presetDeselectionHint": "再次点击已选预设，恢复此格式的默认设置。",
+  "trimCursor": "播放位置",
+  "trimPreviousWindow": "上一时间段",
+  "trimNextWindow": "下一时间段"
 }

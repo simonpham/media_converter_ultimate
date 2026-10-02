@@ -248,5 +248,8 @@
   "changePreset": "Cambiar",
   "showQuickPresets": "Mostrar preajustes rápidos",
   "hideQuickPresets": "Ocultar preajustes rápidos",
-  "presetDeselectionHint": "Toca de nuevo el preajuste seleccionado para restaurar los valores predeterminados de este formato."
+  "presetDeselectionHint": "Toca de nuevo el preajuste seleccionado para restaurar los valores predeterminados de este formato.",
+  "trimCursor": "Cabezal de reproducción",
+  "trimPreviousWindow": "Ventana anterior",
+  "trimNextWindow": "Ventana siguiente"
 }

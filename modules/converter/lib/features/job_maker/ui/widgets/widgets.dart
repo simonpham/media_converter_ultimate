@@ -9,3 +9,4 @@ export 'output_format_ad_item.dart';
 export 'output_format_grid_item.dart';
 export 'preview_page_ad_item.dart';
 export 'trim_editor.dart';
+export 'trim_timeline_panel.dart';

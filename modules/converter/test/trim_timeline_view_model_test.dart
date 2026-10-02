@@ -40,6 +40,44 @@ void main() {
     },
   );
 
+  test(
+    'moving a handle leaves the opposing boundary intact and nudges its target',
+    () async {
+      await model.initialize();
+      model.setRange(2000, 6000);
+      model.adjustBoundary(.start, 9000);
+      expect((model.start, model.end), (5999, 6000));
+      model.adjustBoundary(.end, 0);
+      expect((model.start, model.end), (5999, 6000));
+      model.setRange(2000, 6000);
+      model.selectTarget(.end);
+      model.nudge(100);
+      expect((model.start, model.end), (2000, 6100));
+      model.moveRange(9000);
+      expect((model.start, model.end), (5900, 10000));
+      model.moveRange(-20000);
+      expect((model.start, model.end), (0, 4100));
+    },
+  );
+
+  test(
+    'long media can select its far end without a range-length limit',
+    () async {
+      preview.information = const PreviewMediaInfo(
+        Duration(hours: 2),
+        videoIndex: 0,
+      );
+      await model.initialize();
+      model.selectTarget(.end);
+      expect(model.windowEnd, model.duration);
+      expect(model.start, 0);
+      expect(model.end, 7200000);
+      model.panWindow(false);
+      expect(model.windowEnd, model.duration - 15000);
+      expect((model.start, model.end), (0, 7200000));
+    },
+  );
+
   test('zoomed waveform and cursor use the same bounded time window', () async {
     preview.information = const PreviewMediaInfo(
       Duration(minutes: 2),
@@ -75,6 +113,33 @@ void main() {
     expect(model.frame, 'frame-1600.png');
     expect(preview.maximumActiveFrames, 1);
   });
+
+  test(
+    'thumbnail requests keep only the latest viewport and reuse its image',
+    () async {
+      preview.information = const PreviewMediaInfo(
+        Duration(minutes: 2),
+        videoIndex: 0,
+      );
+      preview.stripGate = Completer<void>();
+      await model.initialize();
+      model.seek(60000);
+      model.zoom(true);
+      expect(preview.strips, [(0, 30000)]);
+      expect(model.thumbnails, isNull);
+      preview.stripGate!.complete();
+      await Future<void>.delayed(Duration.zero);
+      expect(preview.strips, [(0, 30000), (52500, 15000)]);
+      expect(model.thumbnails, 'strip-52500-15000.png');
+      model.nudge(100);
+      await Future<void>.delayed(Duration.zero);
+      expect(preview.strips.length, 2);
+      model.panWindow(true);
+      expect(model.thumbnails, isNull);
+      await Future<void>.delayed(Duration.zero);
+      expect(model.thumbnails, 'strip-60000-15000.png');
+    },
+  );
 
   test(
     'preview pauses on seek and ignores completion from the previous playback',
@@ -151,6 +216,8 @@ class _Preview implements MediaPreviewSession {
   Completer<void>? inspectGate;
   Completer<void>? frameGate;
   Completer<void>? playGate;
+  Completer<void>? stripGate;
+  final strips = <(int, int)>[];
   final frames = <int>[];
   final windows = <(int, int)>[];
   int activeFrames = 0;
@@ -177,6 +244,17 @@ class _Preview implements MediaPreviewSession {
     await frameGate?.future;
     activeFrames--;
     return 'frame-${position.inMilliseconds}.png';
+  }
+
+  @override
+  Future<String?> thumbnails(
+    String path,
+    Duration start,
+    Duration length,
+  ) async {
+    strips.add((start.inMilliseconds, length.inMilliseconds));
+    await stripGate?.future;
+    return 'strip-${start.inMilliseconds}-${length.inMilliseconds}.png';
   }
 
   @override

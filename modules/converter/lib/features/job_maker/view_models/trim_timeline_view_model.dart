@@ -4,6 +4,8 @@ import 'package:converter/converter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:platform_utils/platform_utils.dart';
 
+enum TrimTarget { start, cursor, end }
+
 class TrimTimelineViewModel({
   required final String path,
   required final MediaPreviewSession session,
@@ -11,6 +13,17 @@ class TrimTimelineViewModel({
   final ConversionTrim? initial,
 }) extends ChangeNotifier {
   PreviewMediaInfo? _info;
+  TrimTarget _target = .cursor;
+  TrimTarget get target => _target;
+  String? _thumbnails;
+  String? get thumbnails =>
+      _stripStart == windowStart && _stripLength == windowLength
+      ? _thumbnails
+      : null;
+  bool _stripBusy = false;
+  bool _stripRequested = false;
+  int? _stripStart;
+  int? _stripLength;
   PreviewMediaInfo? get info => _info;
   int _start = 0;
   int _end = 1;
@@ -41,7 +54,10 @@ class TrimTimelineViewModel({
   bool get failed => _failed;
   bool get imageFailed => _imageFailed;
   String? get frame => _frame;
-  String? get waveform => _waveform;
+  String? get waveform =>
+      _waveStart == windowStart && _waveLength == windowLength
+      ? _waveform
+      : null;
   int get duration => _info?.duration.inMilliseconds ?? 1;
   int get start => _start;
   int get end => _end;
@@ -58,9 +74,12 @@ class TrimTimelineViewModel({
     if (!_disposed) notifyListeners();
   }
 
-  Future<void> initialize() async {
+  Future<void> initialize({PreviewMediaInfo? information}) async {
     try {
-      _info = await session.inspect(path);
+      _info = information ?? await session.inspect(path);
+      if (_info!.duration <= Duration.zero) {
+        throw StateError('Invalid duration');
+      }
       if (_disposed) return;
       _start = (initial?.start.inMilliseconds ?? 0).clamp(0, duration - 1);
       _end = (initial?.end?.inMilliseconds ?? duration).clamp(
@@ -75,6 +94,7 @@ class TrimTimelineViewModel({
         if (_position < windowStart || _position > windowEnd) {
           _centerWindow();
           requestWaveform();
+          requestThumbnails();
         }
         if (_position >= _end) unawaited(pause());
         final now = DateTime.now();
@@ -91,10 +111,12 @@ class TrimTimelineViewModel({
         _centerWindow();
         requestFrame();
         requestWaveform();
+        requestThumbnails();
         _notify();
       });
       requestFrame();
       requestWaveform();
+      requestThumbnails();
     } catch (error, trace) {
       printError(error, trace);
       _failed = true;
@@ -122,11 +144,62 @@ class TrimTimelineViewModel({
     if (preview) {
       requestFrame();
       requestWaveform();
+      requestThumbnails();
     }
     _notify();
   }
 
-  void nudge(int milliseconds) => seek(_position + milliseconds);
+  void selectTarget(TrimTarget target) {
+    _target = target;
+    seek(switch (target) {
+      .start => _start,
+      .cursor => _position,
+      .end => _end,
+    });
+  }
+
+  void adjustBoundary(
+    TrimTarget target,
+    int milliseconds, {
+    bool preview = true,
+  }) {
+    _target = target;
+    if (target == .start) {
+      setRange(milliseconds.clamp(0, _end - 1), _end);
+      seek(_start, preview: preview);
+    } else if (target == .end) {
+      setRange(_start, milliseconds.clamp(_start + 1, duration));
+      seek(_end, preview: preview);
+    } else {
+      seek(milliseconds, preview: preview);
+    }
+  }
+
+  void moveRange(int milliseconds, {bool preview = true}) {
+    final length = _end - _start;
+    final start = (_start + milliseconds).clamp(0, duration - length);
+    final delta = start - _start;
+    final position = (_position + delta).clamp(start, start + length);
+    _target = .cursor;
+    setRange(start, start + length);
+    seek(position, preview: preview);
+  }
+
+  void nudge(int milliseconds) =>
+      adjustBoundary(_target, _position + milliseconds);
+
+  void panWindow(bool forward) {
+    unawaited(pause());
+    _windowStart =
+        (_windowStart + (forward ? windowLength ~/ 2 : -windowLength ~/ 2))
+            .clamp(0, duration - windowLength);
+    _position = _position.clamp(windowStart, windowEnd);
+    _target = .cursor;
+    requestFrame();
+    requestWaveform();
+    requestThumbnails();
+    _notify();
+  }
 
   void zoom(bool inward) {
     _window = (inward ? windowLength ~/ 2 : windowLength * 2).clamp(
@@ -135,6 +208,7 @@ class TrimTimelineViewModel({
     );
     _centerWindow();
     requestWaveform();
+    requestThumbnails();
     _notify();
   }
 
@@ -245,6 +319,48 @@ class TrimTimelineViewModel({
       _notify();
     } finally {
       _waveBusy = false;
+    }
+  }
+
+  void requestThumbnails() {
+    if (_disposed || _info?.videoIndex == null) return;
+    if (!_stripBusy &&
+        _thumbnails != null &&
+        _stripStart == windowStart &&
+        _stripLength == windowLength) {
+      return;
+    }
+    _stripRequested = true;
+    if (!_stripBusy) unawaited(_renderThumbnails());
+  }
+
+  Future<void> _renderThumbnails() async {
+    _stripBusy = true;
+    try {
+      while (_stripRequested && !_disposed) {
+        _stripRequested = false;
+        final start = windowStart;
+        final length = windowLength;
+        final image = await session.thumbnails(
+          path,
+          Duration(milliseconds: start),
+          Duration(milliseconds: length),
+        );
+        if (!_disposed && !_stripRequested) {
+          _thumbnails = image;
+          _stripStart = start;
+          _stripLength = length;
+        }
+        _notify();
+      }
+    } catch (error, trace) {
+      if (!_disposed) {
+        printError(error, trace);
+        _imageFailed = true;
+        _notify();
+      }
+    } finally {
+      _stripBusy = false;
     }
   }
 

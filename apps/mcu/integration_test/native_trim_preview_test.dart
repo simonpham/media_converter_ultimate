@@ -103,6 +103,16 @@ void main() {
       expect(blue.$3, greaterThan(blue.$1));
       final last = await preview.frame(source, info.duration);
       expect(last, isNotNull);
+      final strip = await preview.thumbnails(
+        source,
+        Duration.zero,
+        info.duration,
+      );
+      expect(strip, isNotNull);
+      final stripStart = await _pixel(strip!, horizontal: 0.05);
+      final stripEnd = await _pixel(strip, horizontal: 0.95);
+      expect(stripStart.$1, greaterThan(stripStart.$3));
+      expect(stripEnd.$3, greaterThan(stripEnd.$1));
       final wave = await preview.waveform(
         source,
         Duration.zero,
@@ -382,29 +392,44 @@ void main() {
         }
 
         await open(source);
-        await tester.tap(find.text('Preview & trim'));
-        await tester.pumpAndSettle();
         await _until(
           tester,
           () => find
-              .byKey(const ValueKey('trim-range-slider'))
+              .byKey(const ValueKey('trim-visual-track'))
               .evaluate()
               .isNotEmpty,
         );
+        final visual = find.byKey(const ValueKey('trim-visual-track'));
+        await tester.ensureVisible(visual);
+        final track = tester.getRect(visual);
+        final usable = track.width - Spacing.d48;
+        await tester.dragFrom(
+          Offset(track.left + Spacing.d24 + usable * 0.1875, track.center.dy),
+          Offset(usable * 0.2, 0),
+        );
+        await tester.pumpAndSettle();
+        expect(model.trimFor(source)!.start, const Duration(milliseconds: 750));
+        final timeline = tester.element(visual).read<TrimTimelineViewModel>();
+        expect(timeline.start, greaterThan(1000));
+        await tester.enterText(
+          find.descendant(
+            of: find.byKey(const ValueKey('trim-start')),
+            matching: find.byType(EditableText),
+          ),
+          '0:00.850',
+        );
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(
+          find.byKey(const ValueKey('trim-target-end')),
+        );
+        await tester.tap(find.byKey(const ValueKey('trim-target-end')));
+        await tester.pumpAndSettle();
         await tester.ensureVisible(find.text('+0.1 s'));
         await tester.tap(find.text('+0.1 s'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Set start here'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('+1.0 s'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Set end here'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Apply range'));
-        await tester.pumpAndSettle();
+        expect(timeline.start, 850);
+        expect(timeline.end, 1850);
         expect(model.trimFor(source)!.start, const Duration(milliseconds: 750));
-        expect(find.text('00:00.850'), findsOneWidget);
-        expect(find.text('00:01.850'), findsOneWidget);
         await tester.tap(find.byKey(const ValueKey('file-trim-apply')));
         await tester.pumpAndSettle();
         expect(model.trimFor(source)!.arguments, [
@@ -504,14 +529,15 @@ Future<void> _execute(List<String> arguments) async {
   );
 }
 
-Future<(int, int, int)> _pixel(String path) async {
+Future<(int, int, int)> _pixel(String path, {double horizontal = 0.5}) async {
   final codec = await ui.instantiateImageCodec(await File(path).readAsBytes());
   final frame = await codec.getNextFrame();
   final data = (await frame.image.toByteData(
     format: ui.ImageByteFormat.rawRgba,
   ))!;
   final index =
-      ((frame.image.height ~/ 2) * frame.image.width + frame.image.width ~/ 2) *
+      ((frame.image.height ~/ 2) * frame.image.width +
+          ((frame.image.width - 1) * horizontal).round()) *
       4;
   final result = (
     data.getUint8(index),

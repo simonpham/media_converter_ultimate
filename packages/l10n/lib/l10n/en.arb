@@ -269,5 +269,8 @@
   "changePreset": "Change",
   "showQuickPresets": "Show quick presets",
   "hideQuickPresets": "Hide quick presets",
-  "presetDeselectionHint": "Tap the selected preset again to restore this format’s defaults."
+  "presetDeselectionHint": "Tap the selected preset again to restore this format’s defaults.",
+  "trimCursor": "Playhead",
+  "trimPreviousWindow": "Previous timeline window",
+  "trimNextWindow": "Next timeline window"
 }

@@ -209,7 +209,12 @@ void main() {
       await tester.pumpAndSettle();
       expect(model.selectedValues['configs.mp4.crf.x264'], '18');
       expect(find.widgetWithText(Button, 'Custom settings'), findsNothing);
-      await tester.tap(find.text('High-quality video'));
+      await tester.tap(
+        find.descendant(
+          of: find.byType(ConversionPresetPicker),
+          matching: find.text('High-quality video'),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(model.selectedPreset, isNull);
       expect(model.selectedValues['configs.mp4.crf.x264'], '23');
@@ -250,7 +255,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(ConversionPresetPicker), findsOneWidget);
     expect(find.byKey(const ValueKey('preset-layout-toggle')), findsNothing);
-    expect(find.text('High-quality video'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(ConversionPresetPicker),
+        matching: find.text('High-quality video'),
+      ),
+      findsOneWidget,
+    );
     expect(buttonWithTooltip('Cancel'), findsNothing);
     await tester.tapAt(Offset(Spacing.d8, Spacing.d8));
     await tester.pumpAndSettle();
@@ -269,7 +280,12 @@ void main() {
     expect(model.selectedValues, settings);
     await tester.tap(find.byKey(const ValueKey('choose-conversion-preset')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('High-quality video'));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(ConversionPresetPicker),
+        matching: find.text('High-quality video'),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.byType(ConversionPresetPicker), findsNothing);
     expect(model.selectedPreset, isNull);
@@ -348,11 +364,22 @@ void main() {
       expect(find.byType(JobMakerConfigCustomizer), findsOneWidget);
       expect(find.byType(JobMakerOutputFormatPicker), findsNothing);
       expect(find.byType(ConversionPresetPicker), findsNothing);
-      expect(find.text('MP3 music · Change'), findsOneWidget);
+      expect(find.text('MP3 music'), findsOneWidget);
+      expect(find.text('Change'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('choose-conversion-preset')));
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('Compact audio'));
-      await tester.tap(find.text('Compact audio'));
+      await tester.ensureVisible(
+        find.descendant(
+          of: find.byType(ConversionPresetPicker),
+          matching: find.text('Compact audio'),
+        ),
+      );
+      await tester.tap(
+        find.descendant(
+          of: find.byType(ConversionPresetPicker),
+          matching: find.text('Compact audio'),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(wizard.selectedPreset, ConversionPreset.compactAudio);
       expect(wizard.selectedFormatEntry!.name, 'm4a');
@@ -361,8 +388,18 @@ void main() {
       expect(wizard.outputFileNames[source.path], 'song.m4a');
       await tester.tap(find.byKey(const ValueKey('choose-conversion-preset')));
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('Compact audio'));
-      await tester.tap(find.text('Compact audio'));
+      await tester.ensureVisible(
+        find.descendant(
+          of: find.byType(ConversionPresetPicker),
+          matching: find.text('Compact audio'),
+        ),
+      );
+      await tester.tap(
+        find.descendant(
+          of: find.byType(ConversionPresetPicker),
+          matching: find.text('Compact audio'),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(wizard.selectedPreset, isNull);
       expect(wizard.trimFor(source.path), trim);
@@ -473,6 +510,64 @@ void main() {
   );
 
   testWidgets(
+    'trim handles, range dragging and precise fields share one draft',
+    (tester) async {
+      injector.registerFactory<MediaPreviewSession>(TestPreviewSession.new);
+      await showPicker(
+        tester,
+        content: const TrimEditor(
+          path: '/song.wav',
+          initial: ConversionTrim(
+            start: Duration(seconds: 2),
+            end: Duration(seconds: 6),
+          ),
+        ),
+      );
+      final visual = find.byKey(const ValueKey('trim-visual-track'));
+      await tester.ensureVisible(visual);
+      final timeline = tester.element(visual).read<TrimTimelineViewModel>();
+      var track = tester.getRect(visual);
+      final usable = track.width - Spacing.d48;
+      await tester.dragFrom(
+        Offset(track.left + Spacing.d24 + usable * 0.2, track.center.dy),
+        Offset(usable * 0.1, 0),
+      );
+      await tester.pumpAndSettle();
+      expect(timeline.start, closeTo(3000, 50));
+      expect(timeline.end, 6000);
+      final length = timeline.end - timeline.start;
+      track = tester.getRect(visual);
+      await tester.dragFrom(
+        Offset(track.left + Spacing.d24 + usable * 0.45, track.center.dy),
+        Offset(usable * 0.1, 0),
+      );
+      await tester.pumpAndSettle();
+      expect(timeline.start, closeTo(4000, 50));
+      expect(timeline.end - timeline.start, length);
+      await tester.enterText(
+        find.descendant(
+          of: find.byKey(const ValueKey('trim-start')),
+          matching: find.byType(EditableText),
+        ),
+        '0:02.125',
+      );
+      await tester.pumpAndSettle();
+      expect(timeline.start, 2125);
+      await tester.ensureVisible(find.byKey(const ValueKey('trim-target-end')));
+      await tester.tap(find.byKey(const ValueKey('trim-target-end')));
+      await tester.pumpAndSettle();
+      final before = timeline.end;
+      await tester.ensureVisible(find.text('+0.1 s'));
+      await tester.tap(find.text('+0.1 s'));
+      await tester.pumpAndSettle();
+      expect(timeline.end, before + 100);
+      expect(model.trimFor('/song.wav'), isNull);
+      expect(find.byType(RangeSlider), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
     'file editor validates precise times without changing the batch draft',
     (tester) async {
       injector.registerFactory<MediaPreviewSession>(TestPreviewSession.new);
@@ -515,6 +610,8 @@ void main() {
       );
       expect(model.selectedPreset, ConversionPreset.musicMp3);
       expect(model.trimFor('/song.wav'), isNull);
+      await tester.ensureVisible(find.text('Full file'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Full file'));
       await tester.pumpAndSettle();
       expect(tester.widget<EditableText>(start).controller.text, isEmpty);
@@ -577,11 +674,13 @@ void main() {
       await tester.pumpAndSettle();
       expect(model.trimFor('/second.wav'), isNull);
       await open('/first.wav');
+      await tester.ensureVisible(find.text('Full file'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Full file'));
       await tester.tap(find.byKey(const ValueKey('file-trim-apply')));
       await tester.pumpAndSettle();
       expect(model.trimFor('/first.wav'), isNull);
-      expect(find.text('Full file'), findsNWidgets(2));
+      expect(find.text('Full file'), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );
