@@ -248,8 +248,9 @@
   "changePreset": "Ändern",
   "showQuickPresets": "Schnellvorlagen anzeigen",
   "hideQuickPresets": "Schnellvorlagen ausblenden",
-  "presetDeselectionHint": "Tippe erneut auf die gewählte Vorlage, um die Standardwerte dieses Formats wiederherzustellen.",
+  "presetDeselectionHint": "Stellt die Standardeinstellungen dieses Formats wieder her.",
   "trimCursor": "Abspielposition",
   "trimPreviousWindow": "Vorheriger Zeitausschnitt",
-  "trimNextWindow": "Nächster Zeitausschnitt"
+  "trimNextWindow": "Nächster Zeitausschnitt",
+  "deselectPreset": "Vorlage abwählen"
 }

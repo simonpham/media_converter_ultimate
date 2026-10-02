@@ -248,8 +248,9 @@
   "changePreset": "Ubah",
   "showQuickPresets": "Tampilkan preset cepat",
   "hideQuickPresets": "Sembunyikan preset cepat",
-  "presetDeselectionHint": "Ketuk lagi preset yang dipilih untuk memulihkan pengaturan bawaan format ini.",
+  "presetDeselectionHint": "Mengembalikan pengaturan bawaan format ini.",
   "trimCursor": "Posisi putar",
   "trimPreviousWindow": "Jendela waktu sebelumnya",
-  "trimNextWindow": "Jendela waktu berikutnya"
+  "trimNextWindow": "Jendela waktu berikutnya",
+  "deselectPreset": "Batalkan pilihan preset"
 }

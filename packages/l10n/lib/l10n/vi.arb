@@ -248,8 +248,9 @@
   "changePreset": "Đổi",
   "showQuickPresets": "Hiện cấu hình nhanh",
   "hideQuickPresets": "Ẩn cấu hình nhanh",
-  "presetDeselectionHint": "Chạm lại vào cấu hình đang chọn để khôi phục mặc định của định dạng này.",
+  "presetDeselectionHint": "Khôi phục cài đặt mặc định của định dạng này.",
   "trimCursor": "Vị trí phát",
   "trimPreviousWindow": "Khoảng thời gian trước",
-  "trimNextWindow": "Khoảng thời gian tiếp theo"
+  "trimNextWindow": "Khoảng thời gian tiếp theo",
+  "deselectPreset": "Bỏ chọn cấu hình"
 }

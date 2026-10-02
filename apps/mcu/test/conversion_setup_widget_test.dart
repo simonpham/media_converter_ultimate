@@ -117,9 +117,7 @@ void main() {
         presets: model.availablePresets,
         selectedPreset: model.selectedPreset,
         onSelected: (preset) {
-          if (preset == model.selectedPreset) {
-            model.clearPreset();
-          } else {
+          if (preset != model.selectedPreset) {
             unawaited(model.applyPreset(preset));
           }
         },
@@ -216,8 +214,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(model.selectedPreset, isNull);
-      expect(model.selectedValues['configs.mp4.crf.x264'], '23');
+      expect(model.selectedPreset, ConversionPreset.highQualityVideo);
+      expect(model.selectedValues['configs.mp4.crf.x264'], '18');
       expect(find.text('Load Previous Configs'), findsNothing);
       expect(find.text('Reset To Default'), findsNothing);
       expect(tester.takeException(), isNull);
@@ -288,6 +286,12 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.byType(ConversionPresetPicker), findsNothing);
+    expect(model.selectedPreset, ConversionPreset.highQualityVideo);
+    expect(model.selectedValues, settings);
+    await tester.tap(find.byKey(const ValueKey('choose-conversion-preset')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('deselect-conversion-preset')));
+    await tester.pumpAndSettle();
     expect(model.selectedPreset, isNull);
     expect(model.selectedValues['configs.mp4.crf.x264'], '23');
     expect(find.text('Choose preset'), findsOneWidget);
@@ -388,17 +392,8 @@ void main() {
       expect(wizard.outputFileNames[source.path], 'song.m4a');
       await tester.tap(find.byKey(const ValueKey('choose-conversion-preset')));
       await tester.pumpAndSettle();
-      await tester.ensureVisible(
-        find.descendant(
-          of: find.byType(ConversionPresetPicker),
-          matching: find.text('Compact audio'),
-        ),
-      );
       await tester.tap(
-        find.descendant(
-          of: find.byType(ConversionPresetPicker),
-          matching: find.text('Compact audio'),
-        ),
+        find.byKey(const ValueKey('deselect-conversion-preset')),
       );
       await tester.pumpAndSettle();
       expect(wizard.selectedPreset, isNull);
@@ -508,6 +503,27 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('preset footer stays reachable with large German text', (
+    tester,
+  ) async {
+    await model.applyPreset(.highQualityVideo);
+    await showPicker(
+      tester,
+      scale: 2,
+      locale: const Locale('de'),
+      size: const Size(320, 640),
+    );
+    await tester.tap(find.byKey(const ValueKey('choose-conversion-preset')));
+    await tester.pumpAndSettle();
+    final footer = find.byKey(const ValueKey('deselect-conversion-preset'));
+    expect(footer.hitTestable(), findsOneWidget);
+    await tester.tap(footer);
+    await tester.pumpAndSettle();
+    expect(model.selectedPreset, isNull);
+    expect(model.selectedValues['configs.mp4.crf.x264'], '23');
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets(
     'trim handles, range dragging and precise fields share one draft',

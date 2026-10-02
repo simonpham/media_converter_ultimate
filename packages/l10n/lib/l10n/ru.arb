@@ -248,8 +248,9 @@
   "changePreset": "Изменить",
   "showQuickPresets": "Показать быстрые шаблоны",
   "hideQuickPresets": "Скрыть быстрые шаблоны",
-  "presetDeselectionHint": "Нажмите выбранный шаблон ещё раз, чтобы восстановить настройки по умолчанию для этого формата.",
+  "presetDeselectionHint": "Восстанавливает настройки формата по умолчанию.",
   "trimCursor": "Позиция воспроизведения",
   "trimPreviousWindow": "Предыдущий участок шкалы",
-  "trimNextWindow": "Следующий участок шкалы"
+  "trimNextWindow": "Следующий участок шкалы",
+  "deselectPreset": "Снять выбор пресета"
 }

@@ -248,8 +248,9 @@
   "changePreset": "Cambia",
   "showQuickPresets": "Mostra preimpostazioni rapide",
   "hideQuickPresets": "Nascondi preimpostazioni rapide",
-  "presetDeselectionHint": "Tocca di nuovo la preimpostazione selezionata per ripristinare i valori predefiniti di questo formato.",
+  "presetDeselectionHint": "Ripristina le impostazioni predefinite di questo formato.",
   "trimCursor": "Posizione di riproduzione",
   "trimPreviousWindow": "Intervallo precedente",
-  "trimNextWindow": "Intervallo successivo"
+  "trimNextWindow": "Intervallo successivo",
+  "deselectPreset": "Deseleziona preset"
 }

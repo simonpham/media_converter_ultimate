@@ -4,8 +4,7 @@ import 'package:icons/icons.dart';
 import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 /// Reusable preset cards, independent of a conversion draft or navigation.
-/// Tapping a selected card reports that preset again; the caller decides whether
-/// to restore defaults, navigate, or keep the selection.
+/// Tapping a card reports its preset; deselection is an explicit sheet action.
 class const ConversionPresetPicker({
   super.key,
   required final List<ConversionPreset> presets,
@@ -17,13 +16,13 @@ class const ConversionPresetPicker({
   /// Hiding the layout toggle keeps the cards in a grid.
   final bool showLayoutToggle = true,
 }) extends StatefulWidget {
-  static Future<ConversionPreset?> show(
+  static Future<ConversionPresetChoice?> show(
     BuildContext context, {
     required List<ConversionPreset> presets,
     ConversionPreset? selectedPreset,
   }) {
     FocusManager.instance.primaryFocus?.unfocus();
-    return showModalBottomSheet<ConversionPreset>(
+    return showModalBottomSheet<ConversionPresetChoice>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -94,13 +93,6 @@ class _ConversionPresetPickerState extends State<ConversionPresetPicker> {
             context.l10n.quickPresetsDescription,
             style: context.theme.textTheme.bodyMedium,
           ),
-          if (widget.selectedPreset != null) ...[
-            Spacing.v8,
-            Text(
-              context.l10n.presetDeselectionHint,
-              style: context.theme.textTheme.bodySmall,
-            ),
-          ],
           Spacing.v12,
         ],
         if (widget.compact || !widget.showLayoutToggle || _showGrid)
@@ -202,19 +194,52 @@ class _PresetSheetContentsState extends State<_PresetSheetContents> {
   }
 
   @override
-  Widget build(BuildContext context) => Scrollbar(
-    controller: _controller,
-    thumbVisibility: true,
-    child: SingleChildScrollView(
-      controller: _controller,
-      padding: .all(Spacing.d16),
-      child: ConversionPresetPicker(
-        presets: widget.presets,
-        selectedPreset: widget.selectedPreset,
-        showLayoutToggle: false,
-        onSelected: (preset) => Navigator.of(context).pop(preset),
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: .stretch,
+    children: [
+      Expanded(
+        child: Scrollbar(
+          controller: _controller,
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            controller: _controller,
+            padding: .all(Spacing.d16),
+            child: ConversionPresetPicker(
+              presets: widget.presets,
+              selectedPreset: widget.selectedPreset,
+              showLayoutToggle: false,
+              onSelected: (preset) => Navigator.of(context).pop(
+                ConversionPresetChoice(preset: preset),
+              ),
+            ),
+          ),
+        ),
       ),
-    ),
+      if (widget.selectedPreset != null)
+        Padding(
+          padding: .all(Spacing.d16),
+          child: Column(
+            crossAxisAlignment: .stretch,
+            children: [
+              Button(
+                key: const ValueKey('deselect-conversion-preset'),
+                variant: .ghost,
+                child: Text(context.l10n.deselectPreset, textAlign: .center),
+                titleExpand: .shrink,
+                onPressed: () => Navigator.of(context).pop(
+                  const ConversionPresetChoice(),
+                ),
+              ),
+              Spacing.v8,
+              Text(
+                context.l10n.presetDeselectionHint,
+                style: context.theme.textTheme.bodySmall,
+                textAlign: .center,
+              ),
+            ],
+          ),
+        ),
+    ],
   );
 }
 
@@ -324,3 +349,6 @@ class const _PresetCard({
     );
   }
 }
+
+/// A null sheet result means dismissal; a choice with no preset means deselect.
+class const ConversionPresetChoice({final ConversionPreset? preset});

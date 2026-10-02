@@ -248,8 +248,9 @@
   "changePreset": "変更",
   "showQuickPresets": "クイックプリセットを表示",
   "hideQuickPresets": "クイックプリセットを非表示",
-  "presetDeselectionHint": "選択中のプリセットをもう一度タップすると、この形式の既定値に戻ります。",
+  "presetDeselectionHint": "この形式の初期設定に戻します。",
   "trimCursor": "再生位置",
   "trimPreviousWindow": "前の時間範囲",
-  "trimNextWindow": "次の時間範囲"
+  "trimNextWindow": "次の時間範囲",
+  "deselectPreset": "プリセットを解除"
 }

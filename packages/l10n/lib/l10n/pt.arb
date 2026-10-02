@@ -248,8 +248,9 @@
   "changePreset": "Alterar",
   "showQuickPresets": "Mostrar predefinições rápidas",
   "hideQuickPresets": "Ocultar predefinições rápidas",
-  "presetDeselectionHint": "Toque novamente na predefinição selecionada para restaurar os valores padrão deste formato.",
+  "presetDeselectionHint": "Restaura as configurações padrão deste formato.",
   "trimCursor": "Posição de reprodução",
   "trimPreviousWindow": "Janela anterior",
-  "trimNextWindow": "Próxima janela"
+  "trimNextWindow": "Próxima janela",
+  "deselectPreset": "Desmarcar predefinição"
 }

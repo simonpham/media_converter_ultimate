@@ -248,8 +248,9 @@
   "changePreset": "Değiştir",
   "showQuickPresets": "Hızlı ön ayarları göster",
   "hideQuickPresets": "Hızlı ön ayarları gizle",
-  "presetDeselectionHint": "Bu biçimin varsayılan ayarlarına dönmek için seçili ön ayara tekrar dokunun.",
+  "presetDeselectionHint": "Bu biçimin varsayılan ayarlarını geri yükler.",
   "trimCursor": "Oynatma konumu",
   "trimPreviousWindow": "Önceki zaman aralığı",
-  "trimNextWindow": "Sonraki zaman aralığı"
+  "trimNextWindow": "Sonraki zaman aralığı",
+  "deselectPreset": "Ön ayar seçimini kaldır"
 }

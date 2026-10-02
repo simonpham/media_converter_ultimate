@@ -27,10 +27,12 @@ class const JobMakerPresetSelection({super.key}) extends StatelessWidget {
             selectedPreset: preset,
           );
           if (!context.mounted || selection == null) return;
-          if (selection == model.selectedPreset) {
+          if (selection.preset == null) {
             model.clearPreset();
           } else {
-            await model.applyPreset(selection);
+            if (selection.preset != model.selectedPreset) {
+              await model.applyPreset(selection.preset!);
+            }
           }
         },
       );
