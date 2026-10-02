@@ -28,7 +28,7 @@ class TrimTimelineViewModel({
   int _start = 0;
   int _end = 1;
   int _position = 0;
-  int _window = 30000;
+  int _window = 1;
   int _windowStart = 0;
   bool _disposed = false;
   bool _loading = true;
@@ -63,6 +63,12 @@ class TrimTimelineViewModel({
   int get end => _end;
   int get position => _position;
   int get windowLength => _window.clamp(1, duration);
+  bool get isOverview => windowLength == duration;
+  bool get canZoomIn => windowLength > duration.clamp(1, 100);
+  bool get needsWaveformZoom =>
+      _info?.videoIndex == null &&
+      _info?.audioIndex != null &&
+      windowLength > 30000;
   int get windowStart => _windowStart;
   int get windowEnd => windowStart + windowLength;
   ConversionTrim get result => ConversionTrim(
@@ -87,6 +93,7 @@ class TrimTimelineViewModel({
         duration,
       );
       _position = _start;
+      _window = duration;
       _centerWindow();
       _positions = session.positions.listen((position) {
         if (!_playing || _disposed) return;
@@ -203,10 +210,19 @@ class TrimTimelineViewModel({
 
   void zoom(bool inward) {
     _window = (inward ? windowLength ~/ 2 : windowLength * 2).clamp(
-      1,
-      duration.clamp(1, 30000),
+      duration.clamp(1, 100),
+      duration,
     );
     _centerWindow();
+    requestWaveform();
+    requestThumbnails();
+    _notify();
+  }
+
+  void fitTimeline() {
+    unawaited(pause());
+    _window = duration;
+    _windowStart = 0;
     requestWaveform();
     requestThumbnails();
     _notify();
@@ -281,7 +297,12 @@ class TrimTimelineViewModel({
   }
 
   void requestWaveform() {
-    if (_disposed || _info?.audioIndex == null) return;
+    if (_disposed ||
+        _info?.audioIndex == null ||
+        _info?.videoIndex != null ||
+        needsWaveformZoom) {
+      return;
+    }
     if (!_waveBusy &&
         _waveform != null &&
         _waveStart == windowStart &&
@@ -295,7 +316,7 @@ class TrimTimelineViewModel({
   Future<void> _renderWaveform() async {
     _waveBusy = true;
     try {
-      while (_waveRequested && !_disposed) {
+      while (_waveRequested && !_disposed && !needsWaveformZoom) {
         _waveRequested = false;
         // Waveform windows are bounded even when the full media is many hours.
         final length = windowLength.clamp(1, 30000);

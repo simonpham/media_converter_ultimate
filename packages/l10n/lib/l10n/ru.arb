@@ -252,5 +252,9 @@
   "trimCursor": "Позиция воспроизведения",
   "trimPreviousWindow": "Предыдущий участок шкалы",
   "trimNextWindow": "Следующий участок шкалы",
-  "deselectPreset": "Снять выбор пресета"
+  "deselectPreset": "Снять выбор пресета",
+  "trimFineAdjustment": "Точная настройка",
+  "trimOverview": "Обзор",
+  "trimHandlesHint": "Перетащите маркеры для обрезки. Нажмите на шкалу для предпросмотра.",
+  "trimWaveformZoom": "Увеличьте масштаб, чтобы увидеть звуковую волну."
 }

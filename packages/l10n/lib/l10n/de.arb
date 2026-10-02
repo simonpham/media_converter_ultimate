@@ -252,5 +252,9 @@
   "trimCursor": "Abspielposition",
   "trimPreviousWindow": "Vorheriger Zeitausschnitt",
   "trimNextWindow": "Nächster Zeitausschnitt",
-  "deselectPreset": "Vorlage abwählen"
+  "deselectPreset": "Vorlage abwählen",
+  "trimFineAdjustment": "Feinabstimmung",
+  "trimOverview": "Übersicht",
+  "trimHandlesHint": "Griffe zum Zuschneiden ziehen. Zur Vorschau auf die Zeitleiste tippen.",
+  "trimWaveformZoom": "Vergrößern, um die Wellenform zu sehen."
 }

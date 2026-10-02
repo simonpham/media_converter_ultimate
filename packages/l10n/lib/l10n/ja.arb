@@ -252,5 +252,9 @@
   "trimCursor": "再生位置",
   "trimPreviousWindow": "前の時間範囲",
   "trimNextWindow": "次の時間範囲",
-  "deselectPreset": "プリセットを解除"
+  "deselectPreset": "プリセットを解除",
+  "trimFineAdjustment": "微調整",
+  "trimOverview": "全体表示",
+  "trimHandlesHint": "ハンドルをドラッグしてトリミング。タイムラインをタップしてプレビュー。",
+  "trimWaveformZoom": "拡大すると波形を表示できます。"
 }

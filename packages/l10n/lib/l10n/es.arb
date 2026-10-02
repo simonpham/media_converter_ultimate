@@ -252,5 +252,9 @@
   "trimCursor": "Cabezal de reproducción",
   "trimPreviousWindow": "Ventana anterior",
   "trimNextWindow": "Ventana siguiente",
-  "deselectPreset": "Deseleccionar preajuste"
+  "deselectPreset": "Deseleccionar preajuste",
+  "trimFineAdjustment": "Ajuste fino",
+  "trimOverview": "Vista completa",
+  "trimHandlesHint": "Arrastra los tiradores para recortar. Toca la línea de tiempo para previsualizar.",
+  "trimWaveformZoom": "Amplía para ver la forma de onda."
 }

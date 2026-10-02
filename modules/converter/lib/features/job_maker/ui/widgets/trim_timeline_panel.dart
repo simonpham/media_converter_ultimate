@@ -6,8 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
 import 'package:sofluffy_ui/sofluffy_ui.dart';
 
-/// One visual track connects range boundaries, the playhead and frame preview.
-class const TrimTimelinePanel({super.key}) extends StatelessWidget {
+/// The main trim controls stay visible; precision helpers expand on demand.
+class const TrimTimelinePanel({super.key, final Widget? rangeControls})
+    extends StatefulWidget {
+  @override
+  State<TrimTimelinePanel> createState() => _TrimTimelinePanelState();
+}
+
+class _TrimTimelinePanelState extends State<TrimTimelinePanel> {
+  bool _fineAdjustment = false;
+
   String _time(int value) =>
       MediaTimestamp.display(Duration(milliseconds: value));
 
@@ -29,87 +37,31 @@ class const TrimTimelinePanel({super.key}) extends StatelessWidget {
           if (model.info?.videoIndex != null) ...[
             ClipRRect(
               borderRadius: Spacing.r12,
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: ColoredBox(
-                  color: context.theme.colorScheme.surfaceContainerHighest,
-                  child: model.frame == null
-                      ? Center(child: Text(context.l10n.trimFramePreview))
-                      : ImageView(model.frame!, fit: .contain),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: Spacing.d96 * 2),
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: ColoredBox(
+                    color: context.theme.colorScheme.surfaceContainerHighest,
+                    child: model.frame == null
+                        ? Center(child: Text(context.l10n.trimFramePreview))
+                        : ImageView(model.frame!, fit: .contain),
+                  ),
                 ),
               ),
             ),
-            Spacing.v8,
+            Spacing.v4,
             Text(
               context.l10n.trimFramePreview,
               style: context.theme.textTheme.bodySmall,
             ),
             Spacing.v12,
           ],
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final scale =
-                  MediaQuery.textScalerOf(context).scale(Spacing.d12) /
-                  Spacing.d12;
-              final columns =
-                  ((constraints.maxWidth + Spacing.d8) /
-                          (Spacing.d96 * scale + Spacing.d8))
-                      .floor()
-                      .clamp(1, 3);
-              final width =
-                  (constraints.maxWidth - Spacing.d8 * (columns - 1)) / columns;
-              return Wrap(
-                spacing: Spacing.d8,
-                runSpacing: Spacing.d8,
-                children: [
-                  for (final target in TrimTarget.values)
-                    SizedBox(
-                      width: width,
-                      child: Semantics(
-                        button: true,
-                        selected: model.target == target,
-                        child: Tappable(
-                          key: ValueKey('trim-target-${target.name}'),
-                          onTap: () =>
-                              _interact(() => model.selectTarget(target)),
-                          child: RoundCard(
-                            padding: .all(Spacing.d8),
-                            color: model.target == target
-                                ? context.theme.colorScheme.primary.withValues(
-                                    alpha: 0.12,
-                                  )
-                                : context.theme.cardColor,
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: Column(
-                                crossAxisAlignment: .start,
-                                children: [
-                                  Text(switch (target) {
-                                    .start => context.l10n.trimStart,
-                                    .cursor => context.l10n.trimCursor,
-                                    .end => context.l10n.trimEnd,
-                                  }, style: context.theme.textTheme.labelSmall),
-                                  Spacing.v4,
-                                  Text(
-                                    _time(switch (target) {
-                                      .start => model.start,
-                                      .cursor => model.position,
-                                      .end => model.end,
-                                    }),
-                                    style: context.theme.textTheme.bodyMedium,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
+          Text(
+            context.l10n.trimHandlesHint,
+            style: context.theme.textTheme.bodySmall,
           ),
-          Spacing.v8,
+          Spacing.v4,
           _TrimTrack(model: model),
           Row(
             mainAxisAlignment: .spaceBetween,
@@ -124,53 +76,80 @@ class const TrimTimelinePanel({super.key}) extends StatelessWidget {
               ),
             ],
           ),
+          if (model.needsWaveformZoom) ...[
+            Spacing.v4,
+            Text(
+              context.l10n.trimWaveformZoom,
+              style: context.theme.textTheme.bodySmall,
+            ),
+          ],
+          Spacing.v12,
+          widget.rangeControls ??
+              Wrap(
+                spacing: Spacing.d8,
+                runSpacing: Spacing.d8,
+                children: [
+                  for (final target in [TrimTarget.start, TrimTarget.end])
+                    _target(context, model, target, showTime: true),
+                ],
+              ),
           Spacing.v12,
           Wrap(
             spacing: Spacing.d8,
             runSpacing: Spacing.d8,
+            alignment: .spaceBetween,
+            crossAxisAlignment: .center,
             children: [
-              for (final milliseconds in [-1000, -100, 100, 1000])
+              if (model.info?.audioIndex != null)
                 Button(
-                  variant: .ghost,
-                  titleExpand: .shrink,
+                  variant: .secondary,
                   mainAxisSize: .min,
+                  titleExpand: .shrink,
                   padding: .symmetric(
                     horizontal: Spacing.d12,
                     vertical: Spacing.d8,
                   ),
-                  label: context.l10n.trimSeekStep(
-                    '${milliseconds > 0 ? '+' : '−'}${milliseconds.abs() / 1000}',
+                  enable: !model.preparingAudio,
+                  label: model.preparingAudio
+                      ? context.l10n.trimPreparingAudio
+                      : model.playing
+                      ? context.l10n.trimPauseAudio
+                      : context.l10n.trimPlayAudio,
+                  onPressed: () => _interact(
+                    () =>
+                        unawaited(model.playing ? model.pause() : model.play()),
                   ),
-                  onPressed: () => _interact(() => model.nudge(milliseconds)),
                 ),
+              Button(
+                key: const ValueKey('trim-target-cursor'),
+                titleExpand: .shrink,
+                variant: .ghost,
+                mainAxisSize: .min,
+                padding: .symmetric(
+                  horizontal: Spacing.d8,
+                  vertical: Spacing.d8,
+                ),
+                tooltip: context.l10n.trimCursor,
+                child: Text(
+                  _time(model.position),
+                  style: context.theme.textTheme.bodyMedium,
+                ),
+                onPressed: () => _interact(() => model.selectTarget(.cursor)),
+              ),
             ],
           ),
           Spacing.v8,
-          Row(
+          Wrap(
+            spacing: Spacing.d8,
+            runSpacing: Spacing.d8,
+            crossAxisAlignment: .center,
             children: [
-              _icon(
-                context,
-                context.l10n.trimPreviousWindow,
-                Assets.arrowRight01Round,
-                () => model.panWindow(false),
-                rotate: 2,
-                enabled: model.windowStart > 0,
-              ),
-              Spacing.h8,
-              _icon(
-                context,
-                context.l10n.trimNextWindow,
-                Assets.arrowRight01Round,
-                () => model.panWindow(true),
-                enabled: model.windowEnd < model.duration,
-              ),
-              const Spacer(),
               Button(
                 variant: .ghost,
                 mainAxisSize: .min,
-                padding: .all(Spacing.d8),
+                padding: .all(Spacing.d12),
                 tooltip: context.l10n.trimZoomOut,
-                enable: model.windowLength < model.duration.clamp(1, 30000),
+                enable: !model.isOverview,
                 child: SizedBox(
                   width: Spacing.d24,
                   child: Center(
@@ -179,57 +158,132 @@ class const TrimTimelinePanel({super.key}) extends StatelessWidget {
                 ),
                 onPressed: () => _interact(() => model.zoom(false)),
               ),
-              Spacing.h8,
               _icon(
                 context,
                 context.l10n.trimZoomIn,
                 Assets.add01,
                 () => model.zoom(true),
-                enabled: model.windowLength > 1,
+                enabled: model.canZoomIn,
+              ),
+              Button(
+                key: const ValueKey('trim-overview'),
+                variant: .ghost,
+                mainAxisSize: .min,
+                titleExpand: .shrink,
+                padding: .symmetric(
+                  horizontal: Spacing.d12,
+                  vertical: Spacing.d8,
+                ),
+                label: context.l10n.trimOverview,
+                enable: !model.isOverview,
+                onPressed: () => _interact(model.fitTimeline),
+              ),
+              Semantics(
+                expanded: _fineAdjustment,
+                child: Button(
+                  key: const ValueKey('trim-fine-toggle'),
+                  variant: .ghost,
+                  mainAxisSize: .min,
+                  titleExpand: .shrink,
+                  padding: .symmetric(
+                    horizontal: Spacing.d12,
+                    vertical: Spacing.d8,
+                  ),
+                  child: Text(context.l10n.trimFineAdjustment),
+                  trailingIcon: RotatedBox(
+                    quarterTurns: _fineAdjustment ? 3 : 1,
+                    child: ImageView(
+                      Assets.arrowRight01Round,
+                      size: Spacing.d16,
+                      color: context.theme.colorScheme.primary,
+                    ),
+                  ),
+                  onPressed: () => _interact(
+                    () => setState(() => _fineAdjustment = !_fineAdjustment),
+                  ),
+                ),
               ),
             ],
           ),
-          if (model.target == .cursor) ...[
+          if (_fineAdjustment) ...[
             Spacing.v12,
-            Wrap(
-              spacing: Spacing.d8,
-              runSpacing: Spacing.d8,
-              children: [
-                Button(
-                  variant: .secondary,
-                  titleExpand: .shrink,
-                  mainAxisSize: .min,
-                  label: context.l10n.trimSetStart,
-                  onPressed: () => _interact(model.setStartAtCursor),
-                ),
-                Button(
-                  variant: .secondary,
-                  titleExpand: .shrink,
-                  mainAxisSize: .min,
-                  label: context.l10n.trimSetEnd,
-                  onPressed: () => _interact(model.setEndAtCursor),
-                ),
-              ],
-            ),
-          ],
-          if (model.info?.audioIndex != null) ...[
-            Spacing.v12,
-            Button(
-              variant: .secondary,
-              titleExpand: .shrink,
-              enable: !model.preparingAudio,
-              label: model.preparingAudio
-                  ? context.l10n.trimPreparingAudio
-                  : model.playing
-                  ? context.l10n.trimPauseAudio
-                  : context.l10n.trimPlayAudio,
-              onPressed: () =>
-                  unawaited(model.playing ? model.pause() : model.play()),
-            ),
-            Spacing.v8,
-            Text(
-              context.l10n.trimAudioPreviewLimit,
-              style: context.theme.textTheme.bodySmall,
+            RoundCard(
+              padding: .all(Spacing.d12),
+              child: Column(
+                crossAxisAlignment: .stretch,
+                children: [
+                  Wrap(
+                    spacing: Spacing.d8,
+                    runSpacing: Spacing.d8,
+                    children: [
+                      for (final target in TrimTarget.values)
+                        _target(context, model, target),
+                    ],
+                  ),
+                  Spacing.v8,
+                  Wrap(
+                    spacing: Spacing.d8,
+                    runSpacing: Spacing.d8,
+                    children: [
+                      for (final milliseconds in [-1000, -100, 100, 1000])
+                        Button(
+                          variant: .ghost,
+                          titleExpand: .shrink,
+                          mainAxisSize: .min,
+                          padding: .symmetric(
+                            horizontal: Spacing.d12,
+                            vertical: Spacing.d12,
+                          ),
+                          label: context.l10n.trimSeekStep(
+                            '${milliseconds > 0 ? '+' : '−'}${milliseconds.abs() / 1000}',
+                          ),
+                          onPressed: () =>
+                              _interact(() => model.nudge(milliseconds)),
+                        ),
+                    ],
+                  ),
+                  if (!model.isOverview) ...[
+                    Spacing.v8,
+                    Row(
+                      children: [
+                        _icon(
+                          context,
+                          context.l10n.trimPreviousWindow,
+                          Assets.arrowRight01Round,
+                          () => model.panWindow(false),
+                          rotate: 2,
+                          enabled: model.windowStart > 0,
+                        ),
+                        Spacing.h8,
+                        _icon(
+                          context,
+                          context.l10n.trimNextWindow,
+                          Assets.arrowRight01Round,
+                          () => model.panWindow(true),
+                          enabled: model.windowEnd < model.duration,
+                        ),
+                      ],
+                    ),
+                  ],
+                  Spacing.v8,
+                  Text(
+                    context.l10n.trimMediaDescription,
+                    style: context.theme.textTheme.bodySmall,
+                  ),
+                  Spacing.v8,
+                  Text(
+                    context.l10n.trimAccuracyHint,
+                    style: context.theme.textTheme.bodySmall,
+                  ),
+                  if (model.info?.audioIndex != null) ...[
+                    Spacing.v8,
+                    Text(
+                      context.l10n.trimAudioPreviewLimit,
+                      style: context.theme.textTheme.bodySmall,
+                    ),
+                  ],
+                ],
+              ),
             ),
           ],
           if (model.imageFailed) Text(context.l10n.trimPreviewUnavailable),
@@ -237,6 +291,33 @@ class const TrimTimelinePanel({super.key}) extends StatelessWidget {
       );
     },
   );
+
+  Widget _target(
+    BuildContext context,
+    TrimTimelineViewModel model,
+    TrimTarget target, {
+    bool showTime = false,
+  }) {
+    final label = switch (target) {
+      .start => context.l10n.trimStart,
+      .cursor => context.l10n.trimCursor,
+      .end => context.l10n.trimEnd,
+    };
+    return Semantics(
+      selected: model.target == target,
+      child: Button(
+        key: ValueKey('trim-fine-target-${target.name}'),
+        variant: model.target == target ? .secondary : .ghost,
+        titleExpand: .shrink,
+        mainAxisSize: .min,
+        padding: .symmetric(horizontal: Spacing.d12, vertical: Spacing.d8),
+        label: showTime
+            ? '$label ${_time(target == .start ? model.start : model.end)}'
+            : label,
+        onPressed: () => _interact(() => model.selectTarget(target)),
+      ),
+    );
+  }
 
   Widget _icon(
     BuildContext context,
@@ -248,7 +329,7 @@ class const TrimTimelinePanel({super.key}) extends StatelessWidget {
   }) => Button(
     variant: .ghost,
     mainAxisSize: .min,
-    padding: .all(Spacing.d8),
+    padding: .all(Spacing.d12),
     tooltip: tooltip,
     enable: enabled,
     onPressed: () => _interact(onTap),
@@ -360,7 +441,7 @@ class _TrimTrackState extends State<_TrimTrack> {
           onHorizontalDragEnd: (_) => model.seek(model.position),
           onHorizontalDragCancel: () => model.seek(model.position),
           child: SizedBox(
-            height: Spacing.d96,
+            height: Spacing.d64,
             child: Stack(
               children: [
                 Positioned(
@@ -474,6 +555,16 @@ class _TrackPainter({
       size.width - Spacing.d24,
       size.height - Spacing.d8,
     );
+    for (var index = 1; index < 4; index++) {
+      final x = lane.left + lane.width * index / 4;
+      canvas.drawLine(
+        Offset(x, lane.top),
+        Offset(x, lane.bottom),
+        Paint()
+          ..color = colors.outlineVariant.withValues(alpha: 0.5)
+          ..strokeWidth = Spacing.d1,
+      );
+    }
     final left = start.clamp(lane.left, lane.right);
     final right = end.clamp(lane.left, lane.right);
     final shade = Paint()..color = colors.surface.withValues(alpha: 0.72);
@@ -496,14 +587,17 @@ class _TrackPainter({
           Rect.fromLTRB(x - Spacing.d8, lane.top, x + Spacing.d8, lane.bottom),
           Radius.circular(Spacing.d4),
         ),
-        Paint()..color = colors.primary,
+        Paint()
+          ..color = colors.primary
+          ..style = .stroke
+          ..strokeWidth = Spacing.d2,
       );
       canvas.drawLine(
         Offset(x, lane.center.dy - Spacing.d12),
         Offset(x, lane.center.dy + Spacing.d12),
         Paint()
-          ..color = colors.onPrimary
-          ..strokeWidth = Spacing.d2,
+          ..color = colors.primary
+          ..strokeWidth = Spacing.d1,
       );
     }
     if (showCursor) {

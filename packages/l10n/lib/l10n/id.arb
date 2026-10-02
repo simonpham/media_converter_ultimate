@@ -252,5 +252,9 @@
   "trimCursor": "Posisi putar",
   "trimPreviousWindow": "Jendela waktu sebelumnya",
   "trimNextWindow": "Jendela waktu berikutnya",
-  "deselectPreset": "Batalkan pilihan preset"
+  "deselectPreset": "Batalkan pilihan preset",
+  "trimFineAdjustment": "Penyesuaian",
+  "trimOverview": "Ikhtisar",
+  "trimHandlesHint": "Seret pegangan untuk memangkas. Ketuk linimasa untuk pratinjau.",
+  "trimWaveformZoom": "Perbesar untuk melihat bentuk gelombang."
 }

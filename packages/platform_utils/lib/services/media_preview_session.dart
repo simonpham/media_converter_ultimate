@@ -182,9 +182,11 @@ class FfmpegMediaPreviewSession implements MediaPreviewSession {
           0,
           _info!.duration.inMilliseconds - 1,
         );
-        final span = length.inMilliseconds
-            .clamp(1, 30000)
-            .clamp(1, _info!.duration.inMilliseconds - at);
+        final span = length.inMilliseconds.clamp(
+          1,
+          _info!.duration.inMilliseconds - at,
+        );
+        if (span > 30000) return _overviewThumbnails(path, at, span);
         final seconds = (span / 1000).toStringAsFixed(3);
         return _image([
           '-ss',
@@ -202,6 +204,61 @@ class FfmpegMediaPreviewSession implements MediaPreviewSession {
               'scale=96:96:force_original_aspect_ratio=increase,crop=96:96,tile=6x1',
         ], wave: true);
       });
+
+  /// Seek to six points instead of decoding the entire long-video window.
+  /// Samples are rendered sequentially to keep only one source decoder active.
+  Future<String?> _overviewThumbnails(String path, int start, int span) async {
+    final samples = <String>[];
+    try {
+      for (var index = 0; index < 6; index++) {
+        if (_closed) throw StateError('Preview is closed');
+        final sample = _newPath('png');
+        samples.add(sample);
+        final at = (start + span * (index + 0.5) / 6).round().clamp(
+          0,
+          _info!.duration.inMilliseconds - 1,
+        );
+        Future<void> render(int position) => _encode([
+          '-ss',
+          (position / 1000).toStringAsFixed(3),
+          '-i',
+          path,
+          '-map',
+          '0:${_info!.videoIndex}',
+          '-an',
+          '-sn',
+          '-vf',
+          'scale=96:96:force_original_aspect_ratio=increase,crop=96:96',
+          '-frames:v',
+          '1',
+          '-update',
+          '1',
+          sample,
+        ]);
+        await render(at);
+        if (!await File(sample).exists()) {
+          await render((at - 1000).clamp(0, at));
+        }
+        if (!await File(sample).exists()) return null;
+      }
+      return await _image([
+        for (final sample in samples) ...['-i', sample],
+        '-filter_complex_threads',
+        '1',
+        '-filter_complex',
+        'hstack=inputs=6[out]',
+        '-map',
+        '[out]',
+        '-an',
+        '-sn',
+      ], wave: true);
+    } finally {
+      for (final sample in samples) {
+        final file = File(sample);
+        if (await file.exists()) await file.delete();
+      }
+    }
+  }
 
   @override
   Future<String?> waveform(

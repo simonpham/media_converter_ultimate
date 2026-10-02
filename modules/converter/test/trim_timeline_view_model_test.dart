@@ -68,12 +68,15 @@ void main() {
         videoIndex: 0,
       );
       await model.initialize();
+      expect(model.isOverview, isTrue);
+      expect((model.windowStart, model.windowEnd), (0, model.duration));
       model.selectTarget(.end);
+      model.zoom(true);
       expect(model.windowEnd, model.duration);
       expect(model.start, 0);
       expect(model.end, 7200000);
       model.panWindow(false);
-      expect(model.windowEnd, model.duration - 15000);
+      expect(model.windowEnd, model.duration - 1800000);
       expect((model.start, model.end), (0, 7200000));
     },
   );
@@ -84,6 +87,11 @@ void main() {
       audioIndex: 1,
     );
     await model.initialize();
+    expect(model.isOverview, isTrue);
+    expect(model.needsWaveformZoom, isTrue);
+    expect(preview.windows, isEmpty);
+    model.zoom(true);
+    model.zoom(true);
     model.seek(60000);
     await Future<void>.delayed(Duration.zero);
     expect(model.windowStart, 45000);
@@ -98,8 +106,33 @@ void main() {
     expect(preview.windows.length, 3);
     model.zoom(false);
     model.zoom(false);
-    expect(model.windowLength, 30000);
+    expect(model.windowLength, 60000);
+    expect(model.waveform, isNull);
+    model.fitTimeline();
+    expect(model.windowLength, 120000);
+    expect(model.windowStart, 0);
   });
+
+  test(
+    'zoom spans the full file and preserves exact selected bounds',
+    () async {
+      preview.information = const PreviewMediaInfo(
+        Duration(hours: 2),
+        videoIndex: 0,
+      );
+      await model.initialize();
+      model.setRange(850, 7185850);
+      for (var i = 0; i < 25; i++) {
+        model.zoom(true);
+      }
+      expect(model.windowLength, 100);
+      expect(model.canZoomIn, isFalse);
+      model.fitTimeline();
+      expect(model.isOverview, isTrue);
+      expect((model.windowStart, model.windowEnd), (0, 7200000));
+      expect((model.start, model.end), (850, 7185850));
+    },
+  );
 
   test('obsolete frame requests are coalesced and cannot replace the latest cursor', () async {
     preview.frameGate = Completer<void>();
@@ -125,19 +158,19 @@ void main() {
       await model.initialize();
       model.seek(60000);
       model.zoom(true);
-      expect(preview.strips, [(0, 30000)]);
+      expect(preview.strips, [(0, 120000)]);
       expect(model.thumbnails, isNull);
       preview.stripGate!.complete();
       await Future<void>.delayed(Duration.zero);
-      expect(preview.strips, [(0, 30000), (52500, 15000)]);
-      expect(model.thumbnails, 'strip-52500-15000.png');
+      expect(preview.strips, [(0, 120000), (30000, 60000)]);
+      expect(model.thumbnails, 'strip-30000-60000.png');
       model.nudge(100);
       await Future<void>.delayed(Duration.zero);
       expect(preview.strips.length, 2);
       model.panWindow(true);
       expect(model.thumbnails, isNull);
       await Future<void>.delayed(Duration.zero);
-      expect(model.thumbnails, 'strip-60000-15000.png');
+      expect(model.thumbnails, 'strip-60000-60000.png');
     },
   );
 

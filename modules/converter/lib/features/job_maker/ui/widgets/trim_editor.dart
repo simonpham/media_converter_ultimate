@@ -18,6 +18,8 @@ class _TrimEditorState extends State<TrimEditor> with WidgetsBindingObserver {
   final TextEditingController _startController = .new();
   final TextEditingController _endController = .new();
   final ScrollController _scrollController = .new();
+  final FocusNode _startFocus = .new();
+  final FocusNode _endFocus = .new();
   late final FileTrimViewModel _model;
   TrimTimelineViewModel? _timeline;
   late final Future<void> _fileReady;
@@ -36,6 +38,8 @@ class _TrimEditorState extends State<TrimEditor> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _fileReady = _model.initialize();
     _model.addListener(_fieldsChanged);
+    _startFocus.addListener(_focusChanged);
+    _endFocus.addListener(_focusChanged);
   }
 
   @override
@@ -57,6 +61,13 @@ class _TrimEditorState extends State<TrimEditor> with WidgetsBindingObserver {
     if (!mounted || _model.failed) return;
     await _timeline!.initialize(information: _model.info);
     if (mounted) _fieldsChanged();
+  }
+
+  void _focusChanged() {
+    final timeline = _timeline;
+    if (timeline == null || timeline.loading || timeline.failed) return;
+    if (_startFocus.hasFocus) timeline.selectTarget(.start);
+    if (_endFocus.hasFocus) timeline.selectTarget(.end);
   }
 
   void _fieldsChanged() {
@@ -107,6 +118,8 @@ class _TrimEditorState extends State<TrimEditor> with WidgetsBindingObserver {
     _startController.dispose();
     _endController.dispose();
     _scrollController.dispose();
+    _startFocus.dispose();
+    _endFocus.dispose();
     super.dispose();
   }
 
@@ -117,6 +130,57 @@ class _TrimEditorState extends State<TrimEditor> with WidgetsBindingObserver {
       selection: .collapsed(offset: value.length),
     );
   }
+
+  Widget _rangeControls(BuildContext context, FileTrimViewModel model) =>
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final start = InputText(
+            key: const ValueKey('trim-start'),
+            focusNode: _startFocus,
+            controller: _startController,
+            label: context.l10n.trimStart,
+            hintText: MediaTimestamp.display(Duration.zero),
+            inputPadding: .all(Spacing.d12),
+            textStyle: context.theme.textTheme.bodyMedium,
+            errorText: model.startFailure?.localized(context),
+            onChanged: model.setStartText,
+            textInputAction: .next,
+            onSubmitted: (_) => _endFocus.requestFocus(),
+          );
+          final end = InputText(
+            key: const ValueKey('trim-end'),
+            focusNode: _endFocus,
+            controller: _endController,
+            label: context.l10n.trimEnd,
+            hintText: model.duration == null
+                ? context.l10n.trimEndOfFile
+                : MediaTimestamp.display(model.duration!),
+            inputPadding: .all(Spacing.d12),
+            textStyle: context.theme.textTheme.bodyMedium,
+            errorText: (model.endFailure ?? model.rangeFailure)?.localized(
+              context,
+            ),
+            onChanged: model.setEndText,
+            textInputAction: .done,
+            onSubmitted: (_) => FocusScope.of(context).unfocus(),
+          );
+          final scale =
+              MediaQuery.textScalerOf(context).scale(Spacing.d12) / Spacing.d12;
+          return constraints.maxWidth < Spacing.d96 * 3 * scale
+              ? Column(
+                  crossAxisAlignment: .stretch,
+                  children: [start, Spacing.v12, end],
+                )
+              : Row(
+                  crossAxisAlignment: .start,
+                  children: [
+                    Expanded(child: start),
+                    Spacing.h12,
+                    Expanded(child: end),
+                  ],
+                );
+        },
+      );
 
   @override
   Widget build(
@@ -150,14 +214,20 @@ class _TrimEditorState extends State<TrimEditor> with WidgetsBindingObserver {
                             builder: (context, constraints) {
                               final name = Text(
                                 File(widget.path).fileName,
-                                style: context.theme.textTheme.titleMedium,
+                                style: context.theme.textTheme.titleSmall,
+                                maxLines: 2,
+                                overflow: .ellipsis,
                               );
                               final reset = Button(
                                 variant: .ghost,
                                 label: context.l10n.trimFullFile,
                                 titleExpand: .shrink,
                                 mainAxisSize: .min,
-                                onPressed: model.reset,
+                                onPressed: () {
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  model.reset();
+                                  _timeline?.fitTimeline();
+                                },
                               );
                               final scale =
                                   MediaQuery.textScalerOf(context)
@@ -190,40 +260,13 @@ class _TrimEditorState extends State<TrimEditor> with WidgetsBindingObserver {
                             ),
                           if (!model.loading && !model.failed) ...[
                             Spacing.v16,
-                            const TrimTimelinePanel(),
+                            TrimTimelinePanel(
+                              rangeControls: _rangeControls(context, model),
+                            ),
+                          ] else ...[
+                            Spacing.v16,
+                            _rangeControls(context, model),
                           ],
-                          Spacing.v16,
-                          Text(context.l10n.trimMediaDescription),
-                          Spacing.v12,
-                          InputText(
-                            key: const ValueKey('trim-start'),
-                            controller: _startController,
-                            label: context.l10n.trimStart,
-                            hintText: context.l10n.trimTimeHint,
-                            errorText: model.startFailure?.localized(context),
-                            onChanged: model.setStartText,
-                            textInputAction: .next,
-                            onSubmitted: (_) =>
-                                FocusScope.of(context).nextFocus(),
-                          ),
-                          Spacing.v12,
-                          InputText(
-                            key: const ValueKey('trim-end'),
-                            controller: _endController,
-                            label: context.l10n.trimEnd,
-                            hintText: context.l10n.trimEndOfFile,
-                            errorText: (model.endFailure ?? model.rangeFailure)
-                                ?.localized(context),
-                            onChanged: model.setEndText,
-                            textInputAction: .done,
-                            onSubmitted: (_) =>
-                                FocusScope.of(context).unfocus(),
-                          ),
-                          Spacing.v12,
-                          Text(
-                            context.l10n.trimAccuracyHint,
-                            style: context.theme.textTheme.bodySmall,
-                          ),
                         ],
                       ),
                     ),

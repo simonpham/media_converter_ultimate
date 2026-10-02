@@ -252,5 +252,9 @@
   "trimCursor": "Oynatma konumu",
   "trimPreviousWindow": "Önceki zaman aralığı",
   "trimNextWindow": "Sonraki zaman aralığı",
-  "deselectPreset": "Ön ayar seçimini kaldır"
+  "deselectPreset": "Ön ayar seçimini kaldır",
+  "trimFineAdjustment": "İnce ayar",
+  "trimOverview": "Genel bakış",
+  "trimHandlesHint": "Kırpmak için tutamaçları sürükleyin. Önizleme için zaman çizelgesine dokunun.",
+  "trimWaveformZoom": "Dalga biçimini görmek için yakınlaştırın."
 }

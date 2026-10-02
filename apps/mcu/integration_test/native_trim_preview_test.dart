@@ -130,6 +130,53 @@ void main() {
     },
   );
 
+  testWidgets('overview thumbnails sample both ends of a long video', (
+    _,
+  ) async {
+    final longSource = '${directory.path}/long overview.mkv';
+    await _execute([
+      '-f',
+      'lavfi',
+      '-i',
+      'color=c=red:s=128x96:r=1:d=30',
+      '-f',
+      'lavfi',
+      '-i',
+      'color=c=blue:s=128x96:r=1:d=30',
+      '-filter_complex',
+      '[0:v][1:v]concat=n=2:v=1:a=0[v]',
+      '-map',
+      '[v]',
+      '-c:v',
+      'libx264',
+      '-preset',
+      'ultrafast',
+      longSource,
+    ]);
+    final preview = injector<MediaPreviewSession>();
+    final information = await preview.inspect(longSource);
+    expect(information.duration.inSeconds, 60);
+    final strip = await preview.thumbnails(
+      longSource,
+      Duration.zero,
+      information.duration,
+    );
+    expect(strip, isNotNull);
+    final first = await _pixel(strip!, horizontal: 0.05);
+    final last = await _pixel(strip, horizontal: 0.95);
+    expect(first.$1, greaterThan(first.$3));
+    expect(last.$3, greaterThan(last.$1));
+    final middle = await preview.thumbnails(
+      longSource,
+      const Duration(seconds: 20),
+      const Duration(seconds: 40),
+    );
+    final middleStart = await _pixel(middle!, horizontal: 0.05);
+    final middleEnd = await _pixel(middle, horizontal: 0.95);
+    expect(middleStart.$1, greaterThan(middleStart.$3));
+    expect(middleEnd.$3, greaterThan(middleEnd.$1));
+  });
+
   testWidgets(
     'audio playback reports absolute positions and uses the selected default track',
     (tester) async {
@@ -420,9 +467,14 @@ void main() {
         );
         await tester.pumpAndSettle();
         await tester.ensureVisible(
-          find.byKey(const ValueKey('trim-target-end')),
+          find.byKey(const ValueKey('trim-fine-toggle')),
         );
-        await tester.tap(find.byKey(const ValueKey('trim-target-end')));
+        await tester.tap(find.byKey(const ValueKey('trim-fine-toggle')));
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(
+          find.byKey(const ValueKey('trim-fine-target-end')),
+        );
+        await tester.tap(find.byKey(const ValueKey('trim-fine-target-end')));
         await tester.pumpAndSettle();
         await tester.ensureVisible(find.text('+0.1 s'));
         await tester.tap(find.text('+0.1 s'));

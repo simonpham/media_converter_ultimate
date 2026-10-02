@@ -252,5 +252,9 @@
   "trimCursor": "Posizione di riproduzione",
   "trimPreviousWindow": "Intervallo precedente",
   "trimNextWindow": "Intervallo successivo",
-  "deselectPreset": "Deseleziona preset"
+  "deselectPreset": "Deseleziona preset",
+  "trimFineAdjustment": "Regola",
+  "trimOverview": "Panoramica",
+  "trimHandlesHint": "Trascina le maniglie per tagliare. Tocca la timeline per l’anteprima.",
+  "trimWaveformZoom": "Ingrandisci per vedere la forma d’onda."
 }

@@ -252,5 +252,9 @@
   "trimCursor": "Vị trí phát",
   "trimPreviousWindow": "Khoảng thời gian trước",
   "trimNextWindow": "Khoảng thời gian tiếp theo",
-  "deselectPreset": "Bỏ chọn cấu hình"
+  "deselectPreset": "Bỏ chọn cấu hình",
+  "trimFineAdjustment": "Tinh chỉnh",
+  "trimOverview": "Toàn cảnh",
+  "trimHandlesHint": "Kéo tay nắm để cắt. Chạm dòng thời gian để xem trước.",
+  "trimWaveformZoom": "Phóng to để xem dạng sóng."
 }

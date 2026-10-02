@@ -252,5 +252,9 @@
   "trimCursor": "播放位置",
   "trimPreviousWindow": "上一時間段",
   "trimNextWindow": "下一時間段",
-  "deselectPreset": "取消選取預設"
+  "deselectPreset": "取消選取預設",
+  "trimFineAdjustment": "微調",
+  "trimOverview": "全覽",
+  "trimHandlesHint": "拖曳把手裁剪，點選時間軸預覽。",
+  "trimWaveformZoom": "放大以查看波形。"
 }

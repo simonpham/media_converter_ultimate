@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mcu/theme_adapter.dart';
 import 'package:platform_utils/platform_utils.dart'
-    show FileService, MediaPreviewSession;
+    show FileService, MediaPreviewSession, PreviewMediaInfo;
 import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 import 'support/conversion_test_support.dart';
@@ -504,6 +504,59 @@ void main() {
     },
   );
 
+  testWidgets('compact trim keeps precise inputs visible and folds helpers', (
+    tester,
+  ) async {
+    injector.registerFactory<MediaPreviewSession>(_VideoPreview.new);
+    await showPicker(
+      tester,
+      content: const TrimEditor(
+        path: '/movie.mkv',
+        initial: ConversionTrim(
+          start: Duration(seconds: 1),
+          end: Duration(seconds: 3),
+        ),
+      ),
+    );
+    expect(
+      find.byKey(const ValueKey('trim-start')).hitTestable(),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('trim-end')).hitTestable(),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('file-trim-apply')).hitTestable(),
+      findsOneWidget,
+    );
+    expect(find.text('+0.1 s'), findsNothing);
+    expect(find.text('Set start here'), findsNothing);
+    expect(find.text('Set end here'), findsNothing);
+    await tester.ensureVisible(find.byKey(const ValueKey('trim-fine-toggle')));
+    await tester.tap(find.byKey(const ValueKey('trim-fine-toggle')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('trim-fine-target-end')),
+    );
+    await tester.tap(find.byKey(const ValueKey('trim-fine-target-end')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('+0.1 s'));
+    await tester.tap(find.text('+0.1 s'));
+    await tester.pumpAndSettle();
+    final field = find.descendant(
+      of: find.byKey(const ValueKey('trim-end')),
+      matching: find.byType(EditableText),
+    );
+    expect(tester.widget<EditableText>(field).controller.text, '00:03.100');
+    expect(model.trimFor('/movie.mkv'), isNull);
+    await tester.ensureVisible(find.byKey(const ValueKey('trim-fine-toggle')));
+    await tester.tap(find.byKey(const ValueKey('trim-fine-toggle')));
+    await tester.pumpAndSettle();
+    expect(find.text('+0.1 s'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('preset footer stays reachable with large German text', (
     tester,
   ) async {
@@ -569,8 +622,15 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(timeline.start, 2125);
-      await tester.ensureVisible(find.byKey(const ValueKey('trim-target-end')));
-      await tester.tap(find.byKey(const ValueKey('trim-target-end')));
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('trim-fine-toggle')),
+      );
+      await tester.tap(find.byKey(const ValueKey('trim-fine-toggle')));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('trim-fine-target-end')),
+      );
+      await tester.tap(find.byKey(const ValueKey('trim-fine-target-end')));
       await tester.pumpAndSettle();
       final before = timeline.end;
       await tester.ensureVisible(find.text('+0.1 s'));
@@ -1094,4 +1154,13 @@ class _ProcessingJobManager(final JobStatus status) extends _EmptyJobManager {
     stoppedJob = job;
     stoppedExecutionId = executionId;
   }
+}
+
+class _VideoPreview extends TestPreviewSession {
+  @override
+  Future<PreviewMediaInfo> inspect(String path) async => const PreviewMediaInfo(
+    Duration(seconds: 10),
+    videoIndex: 0,
+    audioIndex: 1,
+  );
 }

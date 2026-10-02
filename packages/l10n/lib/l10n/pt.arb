@@ -252,5 +252,9 @@
   "trimCursor": "Posição de reprodução",
   "trimPreviousWindow": "Janela anterior",
   "trimNextWindow": "Próxima janela",
-  "deselectPreset": "Desmarcar predefinição"
+  "deselectPreset": "Desmarcar predefinição",
+  "trimFineAdjustment": "Ajuste fino",
+  "trimOverview": "Visão geral",
+  "trimHandlesHint": "Arraste as alças para cortar. Toque na linha do tempo para visualizar.",
+  "trimWaveformZoom": "Amplie para ver a forma de onda."
 }
