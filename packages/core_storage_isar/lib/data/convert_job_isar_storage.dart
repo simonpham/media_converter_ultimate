@@ -6,9 +6,15 @@ import 'package:core_storage_isar/core_storage_isar.dart';
 import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
 
-class const ConvertJobIsarStorage({
-  required final Isar isar,
-}) extends ConvertJobStorage {
+class ConvertJobIsarStorage extends ConvertJobStorage {
+  final Isar isar;
+
+  // Don't use private constructor here as `analyzer` package
+  // requires the 'primary-constructors' language feature to be enabled.
+  const ConvertJobIsarStorage({
+    required this.isar,
+  });
+
   static Future<Isar> createIsarInstance() async {
     final dataFolder = await injector<FileService>().getAppDataDirectory();
     return await Isar.open(
