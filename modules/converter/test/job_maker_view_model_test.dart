@@ -141,6 +141,16 @@ void main() {
       await model.setSelectedFormatEntry(mp3);
       model.setOutputDirectoryPath('/output');
       model.setOutputFileName(first.path, 'custom.mp3');
+      model.setFileTrim(
+        first.path,
+        const FileTrimResult(
+          duration: Duration(seconds: 5),
+          trim: ConversionTrim(
+            start: Duration(seconds: 1),
+            end: Duration(seconds: 2),
+          ),
+        ),
+      );
       files.failedPreparationPath = second.path;
       files.failRestoration = true;
       await expectLater(model.cook(), throwsA(isA<InputFileNotExistFailure>()));
@@ -149,6 +159,13 @@ void main() {
       expect(staged.path, isNot(first.path));
       expect(model.outputFileNames[staged.path], 'custom.mp3');
       expect(model.fileContentType(staged), FileContentType.audio);
+      expect(model.trimFor(first.path), isNull);
+      expect(model.trimFor(staged.path)!.arguments, [
+        '-ss',
+        '1.000',
+        '-t',
+        '1.000',
+      ]);
       await expectLater(model.cook(), throwsA(isA<InputFileNotExistFailure>()));
       expect(await files.isFileExist(staged.path), isTrue);
       expect(files.cleanedInputs, isNot(contains(owner)));
@@ -157,6 +174,10 @@ void main() {
       expect(jobs.first.id, owner);
       expect(jobs.first.inputFilePath, staged.path);
       expect(jobs.first.outputFileName, 'custom.mp3');
+      expect(
+        CommandBuilder.parseCommand(jobs.first.command),
+        containsAllInOrder(['-ss', '1.000', '-t', '1.000']),
+      );
     },
   );
 
@@ -318,34 +339,76 @@ void main() {
   );
 
   test(
-    'trimming validates ranges and snapshots precise command options',
+    'file trims validate independently and generate separate job ranges',
     () async {
-      await model.addFiles([File('/input/song.wav')]);
+      const duration = Duration(seconds: 10);
+      await model.addFiles([
+        File('/input/song.wav'),
+        File('/input/short.wav'),
+        File('/input/full.wav'),
+      ]);
       await model.setSelectedFormatEntry(mp3);
       model.setOutputDirectoryPath('/output');
-      model.setTrimEnabled(true);
-      model.setTrimStartText('0:02.125');
-      model.setTrimEndText('0:01');
-      expect(model.trimRangeFailure, isA<InvalidTrimRangeFailure>());
-      await expectLater(model.cook(), throwsA(isA<InvalidTrimRangeFailure>()));
-      model.setTrimEndText('0:03.5');
+      expect(
+        () => model.setFileTrim(
+          '/input/song.wav',
+          const FileTrimResult(
+            duration: duration,
+            trim: ConversionTrim(
+              start: Duration(seconds: 2),
+              end: Duration(seconds: 1),
+            ),
+          ),
+        ),
+        throwsA(isA<InvalidTrimRangeFailure>()),
+      );
+      expect(
+        () => model.setFileTrim(
+          '/input/short.wav',
+          const FileTrimResult(
+            duration: Duration(seconds: 2),
+            trim: ConversionTrim(end: Duration(seconds: 3)),
+          ),
+        ),
+        throwsA(isA<InvalidTrimBoundsFailure>()),
+      );
+      model.setFileTrim(
+        '/input/song.wav',
+        const FileTrimResult(
+          duration: duration,
+          trim: ConversionTrim(
+            start: Duration(milliseconds: 2125),
+            end: Duration(milliseconds: 3500),
+          ),
+        ),
+      );
+      model.setFileTrim(
+        '/input/short.wav',
+        const FileTrimResult(
+          duration: Duration(seconds: 2),
+          trim: ConversionTrim(start: Duration(milliseconds: 500)),
+        ),
+      );
+      model.resetConfigurations();
+      await model.setSelectedFormatEntry(mp4);
       final jobs = await model.cook();
-      expect(
-        CommandBuilder.parseCommand(jobs.single.command),
-        containsAllInOrder(['-ss', '2.125', '-t', '1.375']),
+      final args = jobs
+          .map((job) => CommandBuilder.parseCommand(job.command))
+          .toList();
+      expect(args[0], containsAllInOrder(['-ss', '2.125', '-t', '1.375']));
+      expect(args[1], containsAllInOrder(['-ss', '0.500']));
+      expect(args[1], isNot(contains('-t')));
+      expect(args[2], isNot(contains('-ss')));
+      expect(args[2], isNot(contains('-t')));
+      model.setFileTrim(
+        '/input/song.wav',
+        const FileTrimResult(duration: duration),
       );
-      model.setTrimEndText('invalid');
-      expect(model.trimEndFailure, isA<InvalidTrimTimestampFailure>());
-      model.setTrimEnabled(false);
-      final fullTrack = await model.cook();
-      expect(
-        CommandBuilder.parseCommand(fullTrack.single.command),
-        isNot(contains('-ss')),
-      );
-      expect(
-        CommandBuilder.parseCommand(fullTrack.single.command),
-        isNot(contains('-t')),
-      );
+      expect(model.trimFor('/input/song.wav'), isNull);
+      expect(model.trimFor('/input/short.wav'), isNotNull);
+      model.removeFile(File('/input/short.wav'));
+      await model.addFiles([File('/input/short.wav')]);
+      expect(model.trimFor('/input/short.wav'), isNull);
     },
   );
 

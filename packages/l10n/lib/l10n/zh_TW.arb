@@ -184,7 +184,7 @@
   "noMatchingFormats": "沒有相符的格式。",
   "preparingJobs": "正在準備轉換…",
   "trimMediaTitle": "裁剪媒體",
-  "trimMediaDescription": "對每個檔案套用相同範圍。起點留空表示 0:00；終點留空保留剩餘部分。",
+  "trimMediaDescription": "僅編輯此檔案。開始時間留空表示0:00；結束時間留空將保留剩餘內容。",
   "trimAccuracyHint": "重新編碼音訊和影片時，裁剪最準確。",
   "trimStart": "開始時間",
   "trimEnd": "結束時間",
@@ -227,7 +227,7 @@
   "logCopied": "已複製日誌。",
   "logExported": "日誌已儲存到{path}。",
   "trimPreviewTitle": "預覽與裁剪",
-  "trimPreviewDescription": "在時間軸上選擇範圍。此範圍會套用至所有選取的檔案。",
+  "trimPreviewDescription": "在時間軸上選擇範圍，僅套用至此檔案。",
   "trimPreviewUnavailable": "無法預覽。你仍可輸入精確的裁剪時間。",
   "trimFramePreview": "影片影格預覽",
   "trimSeekStep": "{seconds} 秒",
@@ -239,5 +239,8 @@
   "trimPauseAudio": "暫停音訊",
   "trimPlayAudio": "播放音訊",
   "trimAudioPreviewLimit": "從游標位置播放最多30秒。再次點選播放即可繼續。",
-  "trimApplyRange": "套用範圍"
+  "trimApplyRange": "套用範圍",
+  "trimFullFile": "完整檔案",
+  "trimFileDuration": "檔案時長：{duration}",
+  "trimInvalidBounds": "範圍必須在此檔案的時長以內。"
 }

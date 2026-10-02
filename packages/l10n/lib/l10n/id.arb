@@ -184,7 +184,7 @@
   "noMatchingFormats": "Tidak ada format yang cocok.",
   "preparingJobs": "Menyiapkan konversi…",
   "trimMediaTitle": "Potong media",
-  "trimMediaDescription": "Terapkan rentang yang sama ke setiap berkas. Awal kosong berarti 0:00; akhir kosong menyimpan sisanya.",
+  "trimMediaDescription": "Edit hanya file ini. Awal kosong berarti 0:00; akhir kosong mempertahankan sisanya.",
   "trimAccuracyHint": "Potongan paling akurat saat audio dan video dienkode ulang.",
   "trimStart": "Waktu mulai",
   "trimEnd": "Waktu akhir",
@@ -227,7 +227,7 @@
   "logCopied": "Log disalin.",
   "logExported": "Log disimpan ke {path}.",
   "trimPreviewTitle": "Pratinjau dan potong",
-  "trimPreviewDescription": "Pilih rentang pada linimasa. Rentang diterapkan ke semua berkas yang dipilih.",
+  "trimPreviewDescription": "Pilih rentang pada linimasa hanya untuk file ini.",
   "trimPreviewUnavailable": "Pratinjau tidak tersedia. Anda tetap dapat memasukkan waktu potong yang tepat.",
   "trimFramePreview": "Pratinjau bingkai video",
   "trimSeekStep": "{seconds} dtk",
@@ -239,5 +239,8 @@
   "trimPauseAudio": "Jeda audio",
   "trimPlayAudio": "Putar audio",
   "trimAudioPreviewLimit": "Memutar hingga 30 detik dari kursor. Tekan Putar lagi untuk melanjutkan.",
-  "trimApplyRange": "Terapkan rentang"
+  "trimApplyRange": "Terapkan rentang",
+  "trimFullFile": "Seluruh file",
+  "trimFileDuration": "Durasi file: {duration}",
+  "trimInvalidBounds": "Rentang harus berada dalam durasi file ini."
 }

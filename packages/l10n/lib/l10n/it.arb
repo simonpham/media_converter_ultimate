@@ -184,7 +184,7 @@
   "noMatchingFormats": "Nessun formato corrispondente.",
   "preparingJobs": "Preparazione delle conversioni…",
   "trimMediaTitle": "Ritaglia file multimediali",
-  "trimMediaDescription": "Applica lo stesso intervallo a ogni file. L'inizio vuoto indica 0:00; la fine vuota conserva il resto.",
+  "trimMediaDescription": "Modifica solo questo file. L’inizio vuoto indica 0:00; la fine vuota mantiene il resto.",
   "trimAccuracyHint": "I tagli sono più precisi quando audio e video vengono ricodificati.",
   "trimStart": "Ora di inizio",
   "trimEnd": "Ora di fine",
@@ -227,7 +227,7 @@
   "logCopied": "Log copiato.",
   "logExported": "Log salvato in {path}.",
   "trimPreviewTitle": "Anteprima e taglio",
-  "trimPreviewDescription": "Scegli un intervallo sulla timeline. Si applica a tutti i file selezionati.",
+  "trimPreviewDescription": "Scegli sulla timeline un intervallo solo per questo file.",
   "trimPreviewUnavailable": "Anteprima non disponibile. Puoi ancora inserire tempi precisi.",
   "trimFramePreview": "Anteprima fotogramma video",
   "trimSeekStep": "{seconds} s",
@@ -239,5 +239,8 @@
   "trimPauseAudio": "Pausa audio",
   "trimPlayAudio": "Riproduci audio",
   "trimAudioPreviewLimit": "Riproduce fino a 30 secondi dal cursore. Premi di nuovo Riproduci per continuare.",
-  "trimApplyRange": "Applica intervallo"
+  "trimApplyRange": "Applica intervallo",
+  "trimFullFile": "File intero",
+  "trimFileDuration": "Durata del file: {duration}",
+  "trimInvalidBounds": "L’intervallo deve rientrare nella durata di questo file."
 }

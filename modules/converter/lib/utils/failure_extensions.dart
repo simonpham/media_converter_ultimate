@@ -24,6 +24,7 @@ extension FailureExtension on Failure {
       NoOutputFolderFailure _ => context.l10n.failureNoOutputFolder,
       InvalidTrimTimestampFailure _ => context.l10n.trimInvalidTime,
       InvalidTrimRangeFailure _ => context.l10n.trimInvalidRange,
+      InvalidTrimBoundsFailure _ => context.l10n.trimInvalidBounds,
       EmptyTrimRangeFailure f => context.l10n.trimRangeOutsideMedia(
         basename(f.path),
       ),

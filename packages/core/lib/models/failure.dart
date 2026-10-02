@@ -47,6 +47,11 @@ class const InvalidTrimRangeFailure() extends Failure {
 }
 
 @immutable
+class const InvalidTrimBoundsFailure() extends Failure {
+  this : super('Trim range must be within this file duration.');
+}
+
+@immutable
 class const EmptyTrimRangeFailure(final String path) extends Failure {
   this : super('The trim range contains no media: $path');
 }

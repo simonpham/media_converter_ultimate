@@ -1,5 +1,12 @@
 import 'package:flutter/foundation.dart';
 
+/// A non-null navigation result distinguishes Apply full file from Cancel.
+@immutable
+class const FileTrimResult({
+  required final Duration duration,
+  final ConversionTrim? trim,
+});
+
 /// Exact millisecond timestamps for the optional output trim range.
 abstract final class MediaTimestamp {
   static Duration? parse(String text) {

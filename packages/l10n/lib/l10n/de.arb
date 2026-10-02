@@ -184,7 +184,7 @@
   "noMatchingFormats": "Keine passenden Formate.",
   "preparingJobs": "Konvertierungen werden vorbereitet …",
   "trimMediaTitle": "Medien zuschneiden",
-  "trimMediaDescription": "Der Bereich gilt für jede Datei. Ein leerer Start bedeutet 0:00; ein leeres Ende behält den Rest.",
+  "trimMediaDescription": "Nur diese Datei bearbeiten. Ein leerer Start bedeutet 0:00; ein leeres Ende behält den Rest.",
   "trimAccuracyHint": "Schnitte sind am genauesten, wenn Audio und Video neu codiert werden.",
   "trimStart": "Startzeit",
   "trimEnd": "Endzeit",
@@ -227,7 +227,7 @@
   "logCopied": "Protokoll kopiert.",
   "logExported": "Protokoll unter {path} gespeichert.",
   "trimPreviewTitle": "Vorschau und Zuschnitt",
-  "trimPreviewDescription": "Wähle einen Bereich auf der Zeitleiste. Er gilt für alle ausgewählten Dateien.",
+  "trimPreviewDescription": "Wähle auf der Zeitleiste einen Bereich nur für diese Datei.",
   "trimPreviewUnavailable": "Vorschau nicht verfügbar. Genaue Schnittzeiten können weiterhin eingegeben werden.",
   "trimFramePreview": "Videobild-Vorschau",
   "trimSeekStep": "{seconds} s",
@@ -239,5 +239,8 @@
   "trimPauseAudio": "Audio pausieren",
   "trimPlayAudio": "Audio abspielen",
   "trimAudioPreviewLimit": "Spielt bis zu 30 Sekunden ab der Position. Zum Fortfahren erneut Abspielen drücken.",
-  "trimApplyRange": "Bereich anwenden"
+  "trimApplyRange": "Bereich anwenden",
+  "trimFullFile": "Ganze Datei",
+  "trimFileDuration": "Dateidauer: {duration}",
+  "trimInvalidBounds": "Der Bereich muss innerhalb der Dauer dieser Datei liegen."
 }

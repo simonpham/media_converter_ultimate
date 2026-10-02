@@ -184,7 +184,7 @@
   "noMatchingFormats": "Không có định dạng phù hợp.",
   "preparingJobs": "Đang chuẩn bị chuyển đổi…",
   "trimMediaTitle": "Cắt đoạn media",
-  "trimMediaDescription": "Áp dụng cùng khoảng thời gian cho mọi tệp. Để trống bắt đầu là 0:00; để trống kết thúc sẽ giữ phần còn lại.",
+  "trimMediaDescription": "Chỉ chỉnh sửa tệp này. Để trống bắt đầu là 0:00; để trống kết thúc sẽ giữ phần còn lại.",
   "trimAccuracyHint": "Cắt chính xác hơn khi mã hóa lại âm thanh và video.",
   "trimStart": "Thời gian bắt đầu",
   "trimEnd": "Thời gian kết thúc",
@@ -227,7 +227,7 @@
   "logCopied": "Đã sao chép nhật ký.",
   "logExported": "Đã lưu nhật ký vào {path}.",
   "trimPreviewTitle": "Xem trước và cắt",
-  "trimPreviewDescription": "Chọn khoảng trên dòng thời gian. Khoảng này áp dụng cho mọi tệp đã chọn.",
+  "trimPreviewDescription": "Chọn khoảng thời gian trên dòng thời gian chỉ cho tệp này.",
   "trimPreviewUnavailable": "Không thể xem trước. Bạn vẫn có thể nhập thời gian cắt chính xác.",
   "trimFramePreview": "Xem trước khung hình video",
   "trimSeekStep": "{seconds} giây",
@@ -239,5 +239,8 @@
   "trimPauseAudio": "Tạm dừng âm thanh",
   "trimPlayAudio": "Phát âm thanh",
   "trimAudioPreviewLimit": "Phát tối đa 30 giây từ con trỏ. Nhấn Phát lần nữa để tiếp tục.",
-  "trimApplyRange": "Áp dụng khoảng cắt"
+  "trimApplyRange": "Áp dụng khoảng cắt",
+  "trimFullFile": "Toàn bộ tệp",
+  "trimFileDuration": "Thời lượng tệp: {duration}",
+  "trimInvalidBounds": "Khoảng thời gian phải nằm trong thời lượng của tệp này."
 }

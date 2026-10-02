@@ -184,7 +184,7 @@
   "noMatchingFormats": "No hay formatos coincidentes.",
   "preparingJobs": "Preparando conversiones…",
   "trimMediaTitle": "Recortar archivos",
-  "trimMediaDescription": "Aplica el mismo intervalo a cada archivo. El inicio vacío equivale a 0:00; el final vacío conserva el resto.",
+  "trimMediaDescription": "Edita solo este archivo. Un inicio vacío significa 0:00; un final vacío conserva el resto.",
   "trimAccuracyHint": "Los cortes son más precisos al recodificar el audio y el vídeo.",
   "trimStart": "Hora de inicio",
   "trimEnd": "Hora de fin",
@@ -227,7 +227,7 @@
   "logCopied": "Registro copiado.",
   "logExported": "Registro guardado en {path}.",
   "trimPreviewTitle": "Vista previa y recorte",
-  "trimPreviewDescription": "Elige un intervalo en la línea de tiempo. Se aplica a todos los archivos seleccionados.",
+  "trimPreviewDescription": "Elige en la línea de tiempo un intervalo solo para este archivo.",
   "trimPreviewUnavailable": "Vista previa no disponible. Puedes introducir tiempos precisos.",
   "trimFramePreview": "Vista previa de fotograma",
   "trimSeekStep": "{seconds} s",
@@ -239,5 +239,8 @@
   "trimPauseAudio": "Pausar audio",
   "trimPlayAudio": "Reproducir audio",
   "trimAudioPreviewLimit": "Reproduce hasta 30 segundos desde el cursor. Pulsa Reproducir otra vez para continuar.",
-  "trimApplyRange": "Aplicar intervalo"
+  "trimApplyRange": "Aplicar intervalo",
+  "trimFullFile": "Archivo completo",
+  "trimFileDuration": "Duración del archivo: {duration}",
+  "trimInvalidBounds": "El intervalo debe estar dentro de la duración de este archivo."
 }

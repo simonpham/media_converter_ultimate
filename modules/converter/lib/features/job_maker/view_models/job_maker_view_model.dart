@@ -45,74 +45,40 @@ class JobMakerViewModel({
   bool get isLoadingFormat => _isLoadingFormat;
   String _formatQuery = '';
   String get formatQuery => _formatQuery;
-  bool _trimEnabled = false;
-  bool get trimEnabled => _trimEnabled;
-  String _trimStartText = '';
-  String get trimStartText => _trimStartText;
-  String _trimEndText = '';
-  String get trimEndText => _trimEndText;
+  final _fileTrims = <String, ConversionTrim>{};
 
-  void setTrimEnabled(bool value) {
-    if (_trimEnabled == value) return;
-    _trimEnabled = value;
-    _selectedPreset = null;
-    notifyListeners();
-  }
+  ConversionTrim? trimFor(String path) => _fileTrims[path];
 
-  void setTrimStartText(String value) {
-    if (_trimStartText == value) return;
-    _trimStartText = value;
-    _selectedPreset = null;
-    notifyListeners();
-  }
-
-  void setTrimEndText(String value) {
-    if (_trimEndText == value) return;
-    _trimEndText = value;
-    _selectedPreset = null;
-    notifyListeners();
-  }
-
-  void setTrimRange(ConversionTrim trim) {
-    _trimEnabled = true;
-    _trimStartText = MediaTimestamp.display(trim.start);
-    _trimEndText = trim.end == null ? '' : MediaTimestamp.display(trim.end!);
-    _selectedPreset = null;
-    notifyListeners();
-  }
-
-  Failure? get trimStartFailure =>
-      _trimEnabled &&
-          _trimStartText.trim().isNotEmpty &&
-          MediaTimestamp.parse(_trimStartText) == null
-      ? const InvalidTrimTimestampFailure()
-      : null;
-
-  Failure? get trimEndFailure =>
-      _trimEnabled &&
-          _trimEndText.trim().isNotEmpty &&
-          MediaTimestamp.parse(_trimEndText) == null
-      ? const InvalidTrimTimestampFailure()
-      : null;
-
-  Failure? get trimRangeFailure {
-    if (!_trimEnabled || trimStartFailure != null || trimEndFailure != null) {
-      return null;
+  /// Commits one source's validated edit; codec preferences stay independent.
+  void setFileTrim(String path, FileTrimResult result) {
+    if (_isDisposed ||
+        isPreparingJobs ||
+        !_selectedFiles.any((file) => file.path == path)) {
+      return;
     }
-    final start = MediaTimestamp.parse(_trimStartText) ?? Duration.zero;
-    final end = MediaTimestamp.parse(_trimEndText);
-    return end != null && end <= start ? const InvalidTrimRangeFailure() : null;
+    final trim = result.trim;
+    if (trim != null) {
+      if (trim.start < Duration.zero ||
+          (trim.end != null && trim.end! <= trim.start)) {
+        throw const InvalidTrimRangeFailure();
+      }
+      if (result.duration <= Duration.zero ||
+          trim.start >= result.duration ||
+          (trim.end != null && trim.end! > result.duration)) {
+        throw const InvalidTrimBoundsFailure();
+      }
+    }
+    if (trim == null ||
+        (trim.start == Duration.zero &&
+            (trim.end == null || trim.end == result.duration))) {
+      _fileTrims.remove(path);
+    } else {
+      _fileTrims[path] = trim.end == result.duration
+          ? ConversionTrim(start: trim.start)
+          : trim;
+    }
+    notifyListeners();
   }
-
-  Failure? get trimFailure =>
-      trimStartFailure ?? trimEndFailure ?? trimRangeFailure;
-
-  ConversionTrim? get selectedTrim => !_trimEnabled || trimFailure != null
-      ? null
-      : .new(
-          start: MediaTimestamp.parse(_trimStartText) ?? Duration.zero,
-          end: MediaTimestamp.parse(_trimEndText),
-        );
 
   List<ConversionPreset> get availablePresets => ConversionPreset.values
       .where(
@@ -286,6 +252,7 @@ class JobMakerViewModel({
     ];
     clone.removeWhere((e) => e.path == file.path);
     _fileContentTypes.remove(file.path);
+    _fileTrims.remove(file.path);
     final preparedJob = _preparedInputJobs.remove(file.path);
     if (preparedJob != null) {
       unawaited(_cleanUnsubmittedInput(preparedJob));
@@ -385,7 +352,6 @@ class JobMakerViewModel({
             (entry) => _selectedValues[entry.key] == entry.value,
           )) {
         _selectedPreset = preset;
-        _trimEnabled = false;
       }
       _isLoadingFormat = false;
       refreshOutputFileNames();
@@ -422,9 +388,6 @@ class JobMakerViewModel({
   void resetConfigurations() {
     if (_isLoadingFormat) return;
     _selectedPreset = null;
-    _trimEnabled = false;
-    _trimStartText = '';
-    _trimEndText = '';
     final formatEntry = _selectedFormatEntry;
     if (formatEntry == null) {
       return;
@@ -458,8 +421,7 @@ class JobMakerViewModel({
 
   Future<List<ConvertJob>> _buildJobs() async {
     if (_isLoadingFormat) throw const NoOutputConfigFailure();
-    if (trimFailure case final failure?) throw failure;
-    final trim = selectedTrim;
+    final trims = {..._fileTrims};
     final formatEntry = _selectedFormatEntry;
     final selectedValues = {..._selectedValues};
     final outputDirectoryPath = _outputDirectoryPath;
@@ -539,7 +501,7 @@ class JobMakerViewModel({
           outputFilePath: outputFilePath,
           threadCount: threadCount,
           configurationKeys: configurationKeys,
-          trim: trim,
+          trim: trims[inputFilePath],
         );
 
         final now = DateTime.now();
@@ -619,6 +581,8 @@ class JobMakerViewModel({
     _outputFileNames = names;
     final type = _fileContentTypes.remove(original);
     if (type != null) _fileContentTypes[restored] = type;
+    final trim = _fileTrims.remove(original);
+    if (trim != null) _fileTrims[restored] = trim;
     refreshOutputFileNames();
   }
 
@@ -714,7 +678,6 @@ class JobMakerViewModel({
   }
 
   Failure? _checkOutputConfigError() {
-    if (trimFailure case final failure?) return failure;
     if (_isLoadingFormat || _selectedValues.isEmpty) {
       return const NoOutputConfigFailure();
     }

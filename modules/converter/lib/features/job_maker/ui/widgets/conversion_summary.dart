@@ -8,7 +8,6 @@ class const ConversionSummary({super.key}) extends StatelessWidget {
     builder: (context, model, _) {
       final format = model.selectedFormatEntry;
       if (format == null) return const SizedBox.shrink();
-      final trim = model.selectedTrim;
       return RoundCard(
         margin: .all(Spacing.d16),
         padding: .all(Spacing.d16),
@@ -34,13 +33,6 @@ class const ConversionSummary({super.key}) extends StatelessWidget {
               Spacing.v8,
               Text(
                 '${context.configL10n(setting.label)}: ${setting.values.map(context.configL10n).join(', ')}',
-                style: context.theme.textTheme.bodyMedium,
-              ),
-            ],
-            if (trim != null) ...[
-              Spacing.v8,
-              Text(
-                '${context.l10n.trimMediaTitle}: ${context.l10n.trimRangeSummary(MediaTimestamp.display(trim.start), trim.end == null ? context.l10n.trimEndOfFile : MediaTimestamp.display(trim.end!))}',
                 style: context.theme.textTheme.bodyMedium,
               ),
             ],

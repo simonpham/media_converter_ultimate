@@ -184,7 +184,7 @@
   "noMatchingFormats": "Eşleşen format yok.",
   "preparingJobs": "Dönüştürmeler hazırlanıyor…",
   "trimMediaTitle": "Medyayı kırp",
-  "trimMediaDescription": "Aynı aralığı her dosyaya uygular. Boş başlangıç 0:00 demektir; boş bitiş kalan kısmı korur.",
+  "trimMediaDescription": "Yalnızca bu dosyayı düzenleyin. Boş başlangıç 0:00 anlamına gelir; boş bitiş kalanı korur.",
   "trimAccuracyHint": "Ses ve video yeniden kodlandığında kesimler daha hassas olur.",
   "trimStart": "Başlangıç zamanı",
   "trimEnd": "Bitiş zamanı",
@@ -227,7 +227,7 @@
   "logCopied": "Günlük kopyalandı.",
   "logExported": "Günlük {path} konumuna kaydedildi.",
   "trimPreviewTitle": "Önizle ve kırp",
-  "trimPreviewDescription": "Zaman çizelgesinde bir aralık seçin. Seçilen tüm dosyalara uygulanır.",
+  "trimPreviewDescription": "Zaman çizelgesinde yalnızca bu dosya için bir aralık seçin.",
   "trimPreviewUnavailable": "Önizleme kullanılamıyor. Hassas kırpma sürelerini yine de girebilirsiniz.",
   "trimFramePreview": "Video karesi önizlemesi",
   "trimSeekStep": "{seconds} sn",
@@ -239,5 +239,8 @@
   "trimPauseAudio": "Sesi duraklat",
   "trimPlayAudio": "Sesi oynat",
   "trimAudioPreviewLimit": "İmleçten itibaren en fazla 30 saniye oynatır. Devam etmek için tekrar Oynat düğmesine basın.",
-  "trimApplyRange": "Aralığı uygula"
+  "trimApplyRange": "Aralığı uygula",
+  "trimFullFile": "Dosyanın tamamı",
+  "trimFileDuration": "Dosya süresi: {duration}",
+  "trimInvalidBounds": "Aralık bu dosyanın süresi içinde olmalıdır."
 }

@@ -182,6 +182,12 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                       onRenamePressed: () {
                         _handleRenameOutputFilePressed(context, file);
                       },
+                      trim: model.trimFor(filePath),
+                      onTrimPressed: model.isPreparingJobs
+                          ? null
+                          : () {
+                              _handleTrimPressed(context, file);
+                            },
                     );
                   },
                 ),
@@ -211,6 +217,20 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
     }
 
     viewModel.setOutputDirectoryPath(path);
+  }
+
+  Future<void> _handleTrimPressed(BuildContext context, File file) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    final model = context.read<JobMakerViewModel>();
+    final result = await context.navigator.push<FileTrimResult>(
+      MaterialPageRoute(
+        builder: (context) => TrimEditor(
+          path: file.path,
+          initial: model.trimFor(file.path),
+        ),
+      ),
+    );
+    if (context.mounted && result != null) model.setFileTrim(file.path, result);
   }
 
   Future<void> _handleRenameOutputFilePressed(

@@ -184,7 +184,7 @@
   "noMatchingFormats": "No matching formats.",
   "preparingJobs": "Preparing conversions…",
   "trimMediaTitle": "Trim media",
-  "trimMediaDescription": "Apply the same range to every file. An empty start means 0:00; an empty end keeps the rest.",
+  "trimMediaDescription": "Edit only this file. An empty start means 0:00; an empty end keeps the rest.",
   "trimAccuracyHint": "Cuts are most accurate when audio and video are re-encoded.",
   "trimStart": "Start time",
   "trimEnd": "End time",
@@ -234,7 +234,7 @@
     }
   },
   "trimPreviewTitle": "Preview & trim",
-  "trimPreviewDescription": "Choose a range on the timeline. It applies to all selected files.",
+  "trimPreviewDescription": "Choose a range on the timeline for this file only.",
   "trimPreviewUnavailable": "Preview unavailable. You can still enter precise trim times.",
   "trimFramePreview": "Video frame preview",
   "trimSeekStep": "{seconds} s",
@@ -250,6 +250,16 @@
   "@trimSeekStep": {
     "placeholders": {
       "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "trimFullFile": "Full file",
+  "trimFileDuration": "File duration: {duration}",
+  "trimInvalidBounds": "The range must be within this file’s duration.",
+  "@trimFileDuration": {
+    "placeholders": {
+      "duration": {
         "type": "String"
       }
     }

@@ -184,7 +184,7 @@
   "noMatchingFormats": "一致する形式がありません。",
   "preparingJobs": "変換を準備中…",
   "trimMediaTitle": "メディアをトリミング",
-  "trimMediaDescription": "同じ範囲を各ファイルに適用します。開始が空欄なら0:00、終了が空欄なら最後まで保持します。",
+  "trimMediaDescription": "このファイルだけを編集します。開始が空欄なら0:00、終了が空欄なら最後まで保持します。",
   "trimAccuracyHint": "音声と動画を再エンコードすると、より正確にカットできます。",
   "trimStart": "開始時間",
   "trimEnd": "終了時間",
@@ -227,7 +227,7 @@
   "logCopied": "ログをコピーしました。",
   "logExported": "ログを{path}に保存しました。",
   "trimPreviewTitle": "プレビューとトリミング",
-  "trimPreviewDescription": "タイムラインで範囲を選択します。選択したすべてのファイルに適用されます。",
+  "trimPreviewDescription": "このファイルだけの範囲をタイムラインで選択します。",
   "trimPreviewUnavailable": "プレビューを利用できません。正確な開始・終了時刻は入力できます。",
   "trimFramePreview": "動画フレームのプレビュー",
   "trimSeekStep": "{seconds} 秒",
@@ -239,5 +239,8 @@
   "trimPauseAudio": "音声を一時停止",
   "trimPlayAudio": "音声を再生",
   "trimAudioPreviewLimit": "カーソル位置から最大30秒再生します。続けるには再生をもう一度押してください。",
-  "trimApplyRange": "範囲を適用"
+  "trimApplyRange": "範囲を適用",
+  "trimFullFile": "ファイル全体",
+  "trimFileDuration": "ファイルの長さ：{duration}",
+  "trimInvalidBounds": "範囲はこのファイルの長さ以内にしてください。"
 }

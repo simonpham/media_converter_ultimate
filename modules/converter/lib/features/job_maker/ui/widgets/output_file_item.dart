@@ -12,6 +12,8 @@ class const OutputFileItem(
   required final String outputFileName,
   final Failure? failure,
   final VoidCallback? onRenamePressed,
+  final ConversionTrim? trim,
+  final VoidCallback? onTrimPressed,
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -33,52 +35,94 @@ class const OutputFileItem(
             borderRadius: Spacing.r12,
           ),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: .stretch,
           children: [
-            Spacing.h16,
-            Text(
-              '$index',
-              style: context.theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: .bold,
-                color: hasError ? context.theme.colorScheme.error : null,
-              ),
-              maxLines: 1,
-            ),
-            Spacing.h8,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: .start,
-                children: [
-                  Text(
-                    outputFileName,
-                    style: context.theme.textTheme.bodyMedium?.copyWith(
-                      color: hasError ? context.theme.colorScheme.error : null,
-                    ),
-                    maxLines: 1,
-                    overflow: .ellipsis,
+            Row(
+              children: [
+                Spacing.h16,
+                Text(
+                  '$index',
+                  style: context.theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: .bold,
+                    color: hasError ? context.theme.colorScheme.error : null,
                   ),
-                ],
-              ),
-            ),
-            Spacing.h8,
-            Tappable(
-              behavior: .translucent,
-              tooltip: context.l10n.rename,
-              onTap: onRenamePressed,
-              child: Container(
-                padding: .all(
-                  Spacing.d12,
+                  maxLines: 1,
                 ),
-                child: ImageView(
-                  Assets.edit02,
-                  color: hasError
-                      ? context.theme.colorScheme.error
-                      : context.theme.colorScheme.primary,
-                  size: Spacing.d20,
+                Spacing.h8,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: .start,
+                    children: [
+                      Text(
+                        outputFileName,
+                        style: context.theme.textTheme.bodyMedium?.copyWith(
+                          color: hasError
+                              ? context.theme.colorScheme.error
+                              : null,
+                        ),
+                        maxLines: 1,
+                        overflow: .ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                Spacing.h8,
+                Tappable(
+                  behavior: .translucent,
+                  tooltip: context.l10n.rename,
+                  onTap: onRenamePressed,
+                  child: Container(
+                    padding: .all(
+                      Spacing.d12,
+                    ),
+                    child: ImageView(
+                      Assets.edit02,
+                      color: hasError
+                          ? context.theme.colorScheme.error
+                          : context.theme.colorScheme.primary,
+                      size: Spacing.d20,
+                    ),
+                  ),
+                ),
+                Spacing.h4,
+              ],
+            ),
+            if (onTrimPressed != null)
+              Padding(
+                padding: .only(
+                  left: Spacing.d16,
+                  right: Spacing.d12,
+                  bottom: Spacing.d12,
+                ),
+                child: Wrap(
+                  alignment: .spaceBetween,
+                  crossAxisAlignment: .center,
+                  spacing: Spacing.d8,
+                  runSpacing: Spacing.d8,
+                  children: [
+                    Text(
+                      trim == null
+                          ? context.l10n.trimFullFile
+                          : context.l10n.trimRangeSummary(
+                              MediaTimestamp.display(trim!.start),
+                              trim!.end == null
+                                  ? context.l10n.trimEndOfFile
+                                  : MediaTimestamp.display(trim!.end!),
+                            ),
+                      style: context.theme.textTheme.bodySmall,
+                    ),
+                    Button(
+                      key: ValueKey('trim-file-${file.path}'),
+                      variant: .ghost,
+                      label: context.l10n.trimMediaTitle,
+                      titleExpand: .shrink,
+                      mainAxisSize: .min,
+                      onPressed: onTrimPressed,
+                    ),
+                  ],
                 ),
               ),
-            ),
-            Spacing.h4,
           ],
         ),
       ),

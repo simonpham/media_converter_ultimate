@@ -563,9 +563,18 @@ void main() {
         source,
       ]);
       await model.applyPreset(.losslessAudio);
-      model.setTrimEnabled(true);
-      model.setTrimStartText('0:00.750');
-      model.setTrimEndText('0:01.750');
+      injector.registerSingleton<FileService>(TestMediaFiles());
+      await model.addFiles([File(source)]);
+      model.setFileTrim(
+        source,
+        const FileTrimResult(
+          duration: Duration(seconds: 3),
+          trim: ConversionTrim(
+            start: Duration(milliseconds: 750),
+            end: Duration(milliseconds: 1750),
+          ),
+        ),
+      );
       final args = CommandBuilder.buildArgs(
         inputFilePath: source,
         formatEntry: model.selectedFormatEntry!,
@@ -574,7 +583,7 @@ void main() {
         outputFilePath: output,
         threadCount: 0,
         configurationKeys: model.configControls.keys.toSet(),
-        trim: model.selectedTrim,
+        trim: model.trimFor(source),
       );
       await runFfmpeg(args);
       final originalPcm = await decodedPcm(source);

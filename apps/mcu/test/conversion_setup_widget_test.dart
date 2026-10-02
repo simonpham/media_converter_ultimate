@@ -8,10 +8,12 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mcu/theme_adapter.dart';
-import 'package:platform_utils/platform_utils.dart' show FileService;
+import 'package:platform_utils/platform_utils.dart'
+    show FileService, MediaPreviewSession;
 import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 import 'support/conversion_test_support.dart';
+import 'support/preview_test_support.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -279,55 +281,132 @@ void main() {
     },
   );
 
-  testWidgets('trim editor validates inline and can return to the full track', (
-    tester,
-  ) async {
-    await model.applyPreset(.musicMp3);
-    await showPicker(tester, content: const TrimEditor());
-    await tester.tap(find.text('Trim media'));
-    await tester.pumpAndSettle();
-    expect(model.trimEnabled, isTrue);
-    expect(model.selectedPreset, isNull);
-    final start = find.descendant(
-      of: find.byKey(const ValueKey('trim-start')),
-      matching: find.byType(EditableText),
-    );
-    final end = find.descendant(
-      of: find.byKey(const ValueKey('trim-end')),
-      matching: find.byType(EditableText),
-    );
-    await tester.enterText(start, '0:05');
-    await tester.enterText(end, '0:03');
-    await tester.pumpAndSettle();
-    expect(
-      find.text('The end time must be after the start time.'),
-      findsOneWidget,
-    );
-    await tester.enterText(end, '0:06.5');
-    await tester.pumpAndSettle();
-    expect(model.trimFailure, isNull);
-    expect(model.selectedTrim?.arguments, ['-ss', '5.000', '-t', '1.500']);
-    await tester.tap(find.text('Trim media'));
-    await tester.pumpAndSettle();
-    expect(model.selectedTrim, isNull);
-    expect(find.byType(EditableText), findsNothing);
-    expect(tester.takeException(), isNull);
-  });
+  testWidgets(
+    'file editor validates precise times without changing the batch draft',
+    (tester) async {
+      injector.registerFactory<MediaPreviewSession>(TestPreviewSession.new);
+      await model.applyPreset(.musicMp3);
+      await showPicker(tester, content: const TrimEditor(path: '/song.wav'));
+      final start = find.descendant(
+        of: find.byKey(const ValueKey('trim-start')),
+        matching: find.byType(EditableText),
+      );
+      final end = find.descendant(
+        of: find.byKey(const ValueKey('trim-end')),
+        matching: find.byType(EditableText),
+      );
+      await tester.enterText(start, '0:05');
+      await tester.enterText(end, '0:03');
+      await tester.pumpAndSettle();
+      expect(
+        find.text('The end time must be after the start time.'),
+        findsOneWidget,
+      );
+      await tester.enterText(end, '0:11');
+      await tester.pumpAndSettle();
+      expect(
+        find.text('The range must be within this file’s duration.'),
+        findsOneWidget,
+      );
+      expect(
+        tester
+            .widget<Button>(find.byKey(const ValueKey('file-trim-apply')))
+            .enable,
+        isFalse,
+      );
+      await tester.enterText(end, '0:06.5');
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<Button>(find.byKey(const ValueKey('file-trim-apply')))
+            .enable,
+        isTrue,
+      );
+      expect(model.selectedPreset, ConversionPreset.musicMp3);
+      expect(model.trimFor('/song.wav'), isNull);
+      await tester.tap(find.text('Full file'));
+      await tester.pumpAndSettle();
+      expect(tester.widget<EditableText>(start).controller.text, isEmpty);
+      expect(tester.widget<EditableText>(end).controller.text, isEmpty);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
-  testWidgets('preview summary shows codec, quality, and the selected trim', (
-    tester,
-  ) async {
-    await model.applyPreset(.musicMp3);
-    model.setTrimEnabled(true);
-    model.setTrimStartText('0:02');
-    model.setTrimEndText('0:04.25');
-    await showPicker(tester, content: const ConversionSummary());
-    expect(find.text('Conversion summary'), findsOneWidget);
-    expect(find.text('Custom settings'), findsOneWidget);
-    expect(find.textContaining('320'), findsOneWidget);
-    expect(find.text('Trim media: 00:02 – 00:04.250'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
+  testWidgets(
+    'review applies or cancels one file and leaves other ranges unchanged',
+    (tester) async {
+      injector.registerSingleton<FileService>(TestMediaFiles());
+      injector.registerFactory<MediaPreviewSession>(TestPreviewSession.new);
+      await model.addFiles([File('/first.wav'), File('/second.wav')]);
+      await model.applyPreset(.musicMp3);
+      await showPicker(tester, content: const JobMakerPreview());
+      Future<void> open(String path) async {
+        final button = find.byKey(ValueKey('trim-file-$path'));
+        await tester.ensureVisible(button);
+        await tester.tap(button);
+        await tester.pumpAndSettle();
+      }
+
+      Future<void> enterRange(String start, String end) async {
+        await tester.enterText(
+          find.descendant(
+            of: find.byKey(const ValueKey('trim-start')),
+            matching: find.byType(EditableText),
+          ),
+          start,
+        );
+        await tester.enterText(
+          find.descendant(
+            of: find.byKey(const ValueKey('trim-end')),
+            matching: find.byType(EditableText),
+          ),
+          end,
+        );
+        await tester.pumpAndSettle();
+      }
+
+      await open('/first.wav');
+      expect(find.text('first.wav'), findsOneWidget);
+      await enterRange('0:02', '0:04.25');
+      expect(model.trimFor('/first.wav'), isNull);
+      await tester.tap(find.byKey(const ValueKey('file-trim-apply')));
+      await tester.pumpAndSettle();
+      expect(model.trimFor('/first.wav')!.arguments, [
+        '-ss',
+        '2.000',
+        '-t',
+        '2.250',
+      ]);
+      expect(model.trimFor('/second.wav'), isNull);
+      expect(model.selectedPreset, ConversionPreset.musicMp3);
+      expect(find.text('00:02 – 00:04.250'), findsOneWidget);
+      await open('/second.wav');
+      await enterRange('0:01', '0:03');
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+      expect(model.trimFor('/second.wav'), isNull);
+      await open('/first.wav');
+      await tester.tap(find.text('Full file'));
+      await tester.tap(find.byKey(const ValueKey('file-trim-apply')));
+      await tester.pumpAndSettle();
+      expect(model.trimFor('/first.wav'), isNull);
+      expect(find.text('Full file'), findsNWidgets(2));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'preview summary contains shared codecs without a shared trim range',
+    (tester) async {
+      await model.applyPreset(.musicMp3);
+      await showPicker(tester, content: const ConversionSummary());
+      expect(find.text('Conversion summary'), findsOneWidget);
+      expect(find.text('MP3 music'), findsOneWidget);
+      expect(find.textContaining('320'), findsOneWidget);
+      expect(find.textContaining('Trim media:'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('output actions expose labels and invoke the matching action', (
     tester,
@@ -576,19 +655,33 @@ void main() {
   }
 
   testWidgets(
-    'trim controls wrap on a narrow screen with large translated text',
+    'file trim controls wrap on a narrow screen with large translated text',
     (tester) async {
       await model.applyPreset(.musicMp3);
-      model.setTrimEnabled(true);
-      model.setTrimStartText('0:05');
-      model.setTrimEndText('0:03');
+      injector.registerFactory<MediaPreviewSession>(TestPreviewSession.new);
       await showPicker(
         tester,
         scale: 2,
         locale: const Locale('de'),
         size: const Size(320, 640),
-        content: Builder(
-          builder: (context) => JobMakerSteps.customizeConfigs.build(context),
+        content: const TrimEditor(path: '/song.wav'),
+      );
+      expect(tester.takeException(), isNull);
+      await showPicker(
+        tester,
+        scale: 2,
+        locale: const Locale('de'),
+        size: const Size(320, 640),
+        content: OutputFileItem(
+          File('/song.wav'),
+          index: 1,
+          outputFormat: model.selectedFormatEntry!,
+          outputFileName: 'song.mp3',
+          trim: const ConversionTrim(
+            start: Duration(milliseconds: 1250),
+            end: Duration(milliseconds: 5500),
+          ),
+          onTrimPressed: () {},
         ),
       );
       expect(tester.takeException(), isNull);

@@ -299,75 +299,200 @@ void main() {
     },
   );
 
-  testWidgets('timeline controls apply exact times back to the trim fields', (
-    tester,
-  ) async {
-    final formats = FormatConfigModel.fromJson(
-      jsonDecode(await rootBundle.loadString('assets/configs/format.json')),
-    );
-    final theme = FluffyThemeData.fromJson(
-      jsonDecode(await rootBundle.loadString('assets/themes/default.json')),
-    );
-    final model = JobMakerViewModel(
-      formatConfigModel: formats,
-      translations: const {},
-    );
-    await model.addFiles([File(source)]);
-    model.setTrimRange(
-      const ConversionTrim(
-        start: Duration(milliseconds: 750),
-        end: Duration(milliseconds: 1750),
-      ),
-    );
-    try {
-      await tester.pumpWidget(
-        ChangeNotifierProvider<JobMakerViewModel>.value(
-          value: model,
-          child: MaterialApp(
-            theme: theme.getTheme(isDark: false),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            builder: (context, child) => FluffyTheme(
-              data: theme.getFluffyTheme(isDark: false),
-              child: child!,
-            ),
-            home: const Scaffold(
-              body: SingleChildScrollView(child: TrimEditor()),
-            ),
+  testWidgets(
+    'review trims one file through the timeline and converts independent ranges',
+    (tester) async {
+      final second = '${directory.path}/short second.wav';
+      final full = '${directory.path}/full third.wav';
+      await _execute([
+        '-f',
+        'lavfi',
+        '-i',
+        'anullsrc=r=48000:cl=mono',
+        '-t',
+        '2',
+        second,
+      ]);
+      await _execute([
+        '-f',
+        'lavfi',
+        '-i',
+        'anullsrc=r=48000:cl=mono',
+        '-t',
+        '3',
+        full,
+      ]);
+      final formats = FormatConfigModel.fromJson(
+        jsonDecode(await rootBundle.loadString('assets/configs/format.json')),
+      );
+      final theme = FluffyThemeData.fromJson(
+        jsonDecode(await rootBundle.loadString('assets/themes/default.json')),
+      );
+      injector.registerSingleton<JobConfigurationData>(_Configurations());
+      final model = JobMakerViewModel(
+        formatConfigModel: formats,
+        translations: const {},
+      );
+      await model.addFiles([File(source), File(second), File(full)]);
+      await model.setSelectedFormatEntry(
+        formats.formats.firstWhere((f) => f.name == 'wav'),
+      );
+      final output = await Directory('${directory.path}/review-output')
+          .create();
+      model.setOutputDirectoryPath(output.path);
+      model.setOutputFileName(source, 'timeline.wav');
+      model.setFileTrim(
+        source,
+        const FileTrimResult(
+          duration: Duration(seconds: 4),
+          trim: ConversionTrim(
+            start: Duration(milliseconds: 750),
+            end: Duration(milliseconds: 1750),
           ),
         ),
       );
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Preview & trim'));
-      await tester.pumpAndSettle();
-      await _until(
-        tester,
-        () => find
-            .byKey(const ValueKey('trim-range-slider'))
-            .evaluate()
-            .isNotEmpty,
-      );
-      await tester.ensureVisible(find.text('+0.1 s'));
-      await tester.tap(find.text('+0.1 s'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Set start here'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('+1.0 s'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Set end here'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Apply range'));
-      await tester.pumpAndSettle();
-      expect(model.trimStartText, '00:00.850');
-      expect(model.trimEndText, '00:01.850');
-      expect(model.selectedTrim!.arguments, ['-ss', '0.850', '-t', '1.000']);
-      expect(find.text('00:00.850'), findsOneWidget);
-      expect(find.text('00:01.850'), findsOneWidget);
-    } finally {
-      await tester.pumpWidget(const SizedBox.shrink());
-      model.dispose();
-    }
-  });
+      try {
+        await tester.pumpWidget(
+          ChangeNotifierProvider<JobMakerViewModel>.value(
+            value: model,
+            child: MaterialApp(
+              theme: theme.getTheme(isDark: false),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              builder: (context, child) => FluffyTheme(
+                data: theme.getFluffyTheme(isDark: false),
+                child: child!,
+              ),
+              home: const Scaffold(body: JobMakerPreview()),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        Future<void> open(String path) async {
+          final button = find.byKey(ValueKey('trim-file-$path'));
+          await tester.ensureVisible(button);
+          await tester.tap(button);
+          await tester.pumpAndSettle();
+          await _until(
+            tester,
+            () => tester
+                .widget<Button>(find.byKey(const ValueKey('file-trim-apply')))
+                .enable,
+          );
+        }
+
+        await open(source);
+        await tester.tap(find.text('Preview & trim'));
+        await tester.pumpAndSettle();
+        await _until(
+          tester,
+          () => find
+              .byKey(const ValueKey('trim-range-slider'))
+              .evaluate()
+              .isNotEmpty,
+        );
+        await tester.ensureVisible(find.text('+0.1 s'));
+        await tester.tap(find.text('+0.1 s'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Set start here'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('+1.0 s'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Set end here'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Apply range'));
+        await tester.pumpAndSettle();
+        expect(model.trimFor(source)!.start, const Duration(milliseconds: 750));
+        expect(find.text('00:00.850'), findsOneWidget);
+        expect(find.text('00:01.850'), findsOneWidget);
+        await tester.tap(find.byKey(const ValueKey('file-trim-apply')));
+        await tester.pumpAndSettle();
+        expect(model.trimFor(source)!.arguments, [
+          '-ss',
+          '0.850',
+          '-t',
+          '1.000',
+        ]);
+        expect(model.trimFor(second), isNull);
+        expect(model.trimFor(full), isNull);
+        await open(second);
+        await tester.enterText(
+          find.descendant(
+            of: find.byKey(const ValueKey('trim-start')),
+            matching: find.byType(EditableText),
+          ),
+          '0:00.500',
+        );
+        await tester.enterText(
+          find.descendant(
+            of: find.byKey(const ValueKey('trim-end')),
+            matching: find.byType(EditableText),
+          ),
+          '0:02.001',
+        );
+        await tester.pumpAndSettle();
+        expect(
+          tester
+              .widget<Button>(find.byKey(const ValueKey('file-trim-apply')))
+              .enable,
+          isFalse,
+        );
+        await tester.enterText(
+          find.descendant(
+            of: find.byKey(const ValueKey('trim-end')),
+            matching: find.byType(EditableText),
+          ),
+          '0:01.500',
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('file-trim-apply')));
+        await tester.pumpAndSettle();
+        final jobs = await model.cook();
+        for (var i = 0; i < jobs.length; i++) {
+          final args = CommandBuilder.parseCommand(jobs[i].command);
+          if (i == 2) {
+            expect(args, isNot(contains('-ss')));
+            expect(args, isNot(contains('-t')));
+          }
+          final runner = FfmpegJobRunnerService();
+          final done = Completer<ConvertJob>();
+          final updates = runner.onJobUpdate.listen((job) {
+            if (job.id == jobs[i].id &&
+                (job.status == .cleaning ||
+                    job.status == .failed ||
+                    job.status == .cancelled) &&
+                !done.isCompleted) {
+              done.complete(job);
+            }
+          });
+          try {
+            await runner.run(jobs[i]);
+            expect(
+              (await done.future.timeout(const Duration(seconds: 30))).status,
+              JobStatus.cleaning,
+            );
+          } finally {
+            await updates.cancel();
+          }
+          final info = await FFprobeKit.getMediaInformation(
+            jobs[i].convertedFilePath,
+          );
+          expect(
+            double.parse(info.getMediaInformation()!.getDuration()!),
+            closeTo(i == 2 ? 3.0 : 1.0, 0.02),
+          );
+        }
+      } finally {
+        await tester.pumpWidget(const SizedBox.shrink());
+        model.dispose();
+        await injector.unregister<JobConfigurationData>();
+        // This test owns every job directory beneath this fixture cache.
+        final convert = await injector<FileService>()
+            .getConvertTemporaryDirectory(null);
+        if (await convert.exists()) await convert.delete(recursive: true);
+      }
+    },
+  );
 }
 
 Future<void> _execute(List<String> arguments) async {
@@ -409,6 +534,13 @@ Future<void> _until(WidgetTester tester, bool Function() condition) async {
 class _Files(final Directory cache) extends DirectFileService {
   @override
   Future<Directory> getAppCacheDirectory() async => cache;
+  @override
+  Future<Directory> getConvertTemporaryDirectory(String? jobId) async {
+    final base = Directory('${cache.path}/convert');
+    return (jobId == null ? base : Directory('${base.path}/$jobId')).create(
+      recursive: true,
+    );
+  }
 }
 
 class _Settings implements SettingsBox {
@@ -416,6 +548,17 @@ class _Settings implements SettingsBox {
   dynamic get(dynamic key, {required dynamic defaultValue}) => defaultValue;
   @override
   Future<void> put(dynamic key, dynamic value) async {}
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _Configurations implements JobConfigurationData {
+  @override
+  dynamic get(dynamic key, {required dynamic defaultValue}) => defaultValue;
+  @override
+  Future<void> put(dynamic key, dynamic value) async {}
+  @override
+  Future<void> onDispose() async {}
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

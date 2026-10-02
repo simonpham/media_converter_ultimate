@@ -38,7 +38,6 @@ class _JobMakerConfigCustomizerState extends State<JobMakerConfigCustomizer> {
             child: CustomScrollView(
               controller: _scrollController,
               slivers: [
-                const SliverToBoxAdapter(child: TrimEditor()),
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: .all(Spacing.d16),
