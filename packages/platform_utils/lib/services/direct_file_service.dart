@@ -119,7 +119,7 @@ class DirectFileService implements FileService {
 
   @override
   Future<void> openOutput(String location) async {
-    if (location.startsWith('content://')) {
+    if (_isAndroid || location.startsWith('content://')) {
       await _androidStorage.open(location);
     } else if (!await launchUrl(Uri.file(location))) {
       throw StateError('No application can open this file');
@@ -127,9 +127,13 @@ class DirectFileService implements FileService {
   }
 
   @override
-  Future<void> shareOutput(String location) => location.startsWith('content://')
-      ? _androidStorage.share(location)
-      : File(location).share();
+  Future<void> shareOutput(String location) async {
+    if (_isAndroid || location.startsWith('content://')) {
+      await _androidStorage.share(location);
+    } else {
+      await File(location).share();
+    }
+  }
 
   @override
   Future<void> deleteOutput(String location) =>

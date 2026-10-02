@@ -178,4 +178,18 @@ void main() {
       expect(await source.readAsString(), 'new bytes');
     },
   );
+
+  test(
+    'Android file actions grant native URI access for local output paths',
+    () async {
+      await files.openOutput(source.path);
+      await files.shareOutput(source.path);
+      expect(calls.map((call) => call.method), ['open', 'share']);
+      expect(calls.map((call) => (call.arguments as Map)['uri']), [
+        source.path,
+        source.path,
+      ]);
+      expect(await source.readAsString(), 'converted bytes');
+    },
+  );
 }

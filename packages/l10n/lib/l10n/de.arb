@@ -269,5 +269,8 @@
   "outputPickerUnavailable": "Die Systemordnerauswahl ist nicht verfügbar. Download › MediaConverterPro wählen oder Dateien in der App behalten.",
   "outputAccessExpired": "Ordnerzugriff ist nicht verfügbar. Den Ordner erneut auswählen, um Zugriff zu gewähren.",
   "outputExportFailed": "Die Datei konnte nicht gespeichert werden. Die konvertierte Datei bleibt für einen erneuten Versuch erhalten.",
-  "outputRetryExport": "Export erneut versuchen"
+  "outputRetryExport": "Export erneut versuchen",
+  "outputFileUnavailable": "Diese Ausgabedatei ist nicht verfügbar. Sie wurde möglicherweise verschoben, gelöscht oder der Zugriff hat sich geändert.",
+  "outputOpenFailed": "Die Datei konnte nicht geöffnet werden. Teile sie mit einer kompatiblen App.",
+  "outputShareFailed": "Die Datei konnte nicht geteilt werden. Bitte versuche es erneut."
 }

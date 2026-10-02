@@ -72,8 +72,12 @@ class const AndroidOutputStorage() {
       channel.invokeMethod('validateTree', {'uri': uri});
   Future<void> delete(String uri) =>
       channel.invokeMethod('delete', {'uri': uri});
-  Future<void> open(String uri) => channel.invokeMethod('open', {'uri': uri});
-  Future<void> share(String uri) => channel.invokeMethod('share', {'uri': uri});
+
+  /// Returns the content URI sent with a temporary read grant on Android.
+  Future<String?> open(String location) =>
+      channel.invokeMethod<String>('open', {'uri': location});
+  Future<String?> share(String location) =>
+      channel.invokeMethod<String>('share', {'uri': location});
 
   static Failure failure(PlatformException error, String location) =>
       switch (error.code) {

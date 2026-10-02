@@ -269,5 +269,8 @@
   "outputPickerUnavailable": "O seletor de pastas do sistema não está disponível. Escolha Download › MediaConverterPro ou mantenha os arquivos no aplicativo.",
   "outputAccessExpired": "O acesso à pasta não está disponível. Selecione a pasta novamente para conceder acesso.",
   "outputExportFailed": "Não foi possível salvar o arquivo. O arquivo convertido foi mantido para tentar novamente.",
-  "outputRetryExport": "Tentar exportar novamente"
+  "outputRetryExport": "Tentar exportar novamente",
+  "outputFileUnavailable": "Este arquivo não está disponível. Ele pode ter sido movido, excluído ou o acesso pode ter mudado.",
+  "outputOpenFailed": "Não foi possível abrir o arquivo. Tente compartilhá-lo com um aplicativo compatível.",
+  "outputShareFailed": "Não foi possível compartilhar o arquivo. Tente novamente."
 }

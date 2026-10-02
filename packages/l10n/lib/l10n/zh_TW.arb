@@ -269,5 +269,8 @@
   "outputPickerUnavailable": "系統資料夾選擇器無法使用。請選擇Download › MediaConverterPro或將檔案保留在應用程式中。",
   "outputAccessExpired": "無法存取資料夾。請重新選擇資料夾以授予存取權限。",
   "outputExportFailed": "無法儲存檔案。已轉換的檔案會保留以便重試。",
-  "outputRetryExport": "重試匯出"
+  "outputRetryExport": "重試匯出",
+  "outputFileUnavailable": "此輸出檔案無法使用。檔案可能已移動、刪除或存取權限已變更。",
+  "outputOpenFailed": "無法開啟此檔案。請嘗試分享到支援此格式的應用程式。",
+  "outputShareFailed": "無法分享此檔案。請再試一次。"
 }

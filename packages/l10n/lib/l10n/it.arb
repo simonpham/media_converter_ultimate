@@ -269,5 +269,8 @@
   "outputPickerUnavailable": "Il selettore di cartelle di sistema non è disponibile. Scegli Download › MediaConverterPro o conserva i file nell’app.",
   "outputAccessExpired": "L’accesso alla cartella non è disponibile. Selezionala di nuovo per concedere l’accesso.",
   "outputExportFailed": "Impossibile salvare il file. Il file convertito viene conservato per riprovare.",
-  "outputRetryExport": "Riprova esportazione"
+  "outputRetryExport": "Riprova esportazione",
+  "outputFileUnavailable": "Questo file non è disponibile. Potrebbe essere stato spostato, eliminato o il suo accesso potrebbe essere cambiato.",
+  "outputOpenFailed": "Impossibile aprire il file. Prova a condividerlo con un’app compatibile.",
+  "outputShareFailed": "Impossibile condividere il file. Riprova."
 }

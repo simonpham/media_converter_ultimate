@@ -35,6 +35,12 @@
             </intent-filter>
         </activity>
 
+        <provider
+            android:name=".OutputFileProvider"
+            android:authorities="${applicationId}.output_files"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+
         <service
             android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
             android:exported="false"

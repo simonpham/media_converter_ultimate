@@ -269,5 +269,8 @@
   "outputPickerUnavailable": "Sistem klasör seçicisi kullanılamıyor. Download › MediaConverterPro seçin veya dosyaları uygulamada tutun.",
   "outputAccessExpired": "Klasöre erişilemiyor. Erişim vermek için klasörü tekrar seçin.",
   "outputExportFailed": "Dosya kaydedilemedi. Dönüştürülen dosya yeniden denemek için saklanıyor.",
-  "outputRetryExport": "Dışa aktarmayı yeniden dene"
+  "outputRetryExport": "Dışa aktarmayı yeniden dene",
+  "outputFileUnavailable": "Bu çıktı dosyası kullanılamıyor. Taşınmış, silinmiş veya erişimi değişmiş olabilir.",
+  "outputOpenFailed": "Bu dosya açılamadı. Uyumlu bir uygulamayla paylaşmayı deneyin.",
+  "outputShareFailed": "Bu dosya paylaşılamadı. Lütfen tekrar deneyin."
 }

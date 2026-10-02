@@ -269,5 +269,8 @@
   "outputPickerUnavailable": "Pemilih folder sistem tidak tersedia. Pilih Download › MediaConverterPro atau simpan file di aplikasi.",
   "outputAccessExpired": "Akses folder tidak tersedia. Pilih kembali folder untuk memberikan akses.",
   "outputExportFailed": "Tidak dapat menyimpan file. File hasil konversi disimpan untuk dicoba lagi.",
-  "outputRetryExport": "Coba ekspor lagi"
+  "outputRetryExport": "Coba ekspor lagi",
+  "outputFileUnavailable": "File hasil ini tidak tersedia. File mungkin dipindahkan, dihapus, atau aksesnya berubah.",
+  "outputOpenFailed": "Tidak dapat membuka file ini. Coba bagikan ke aplikasi yang kompatibel.",
+  "outputShareFailed": "Tidak dapat membagikan file ini. Silakan coba lagi."
 }

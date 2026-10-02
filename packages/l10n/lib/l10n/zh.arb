@@ -269,5 +269,8 @@
   "outputPickerUnavailable": "系统文件夹选择器不可用。请选择Download › MediaConverterPro或将文件保留在应用中。",
   "outputAccessExpired": "无法访问文件夹。请重新选择文件夹以授予访问权限。",
   "outputExportFailed": "无法保存文件。已转换的文件会保留以便重试。",
-  "outputRetryExport": "重试导出"
+  "outputRetryExport": "重试导出",
+  "outputFileUnavailable": "此输出文件不可用。文件可能已被移动、删除或访问权限已更改。",
+  "outputOpenFailed": "无法打开此文件。请尝试分享到支持此格式的应用。",
+  "outputShareFailed": "无法分享此文件。请重试。"
 }

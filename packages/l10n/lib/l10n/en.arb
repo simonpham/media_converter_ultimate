@@ -293,5 +293,8 @@
   "outputPickerUnavailable": "The system folder picker is unavailable. Choose Download › MediaConverterPro or keep files in the app.",
   "outputAccessExpired": "Folder access is unavailable. Select the folder again to grant access.",
   "outputExportFailed": "Could not save the file. Your converted file is kept for retry.",
-  "outputRetryExport": "Retry export"
+  "outputRetryExport": "Retry export",
+  "outputFileUnavailable": "This output is unavailable. It may have been moved, deleted, or access has changed.",
+  "outputOpenFailed": "Could not open this file. Try sharing it to a compatible app.",
+  "outputShareFailed": "Could not share this file. Please try again."
 }

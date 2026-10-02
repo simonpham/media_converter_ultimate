@@ -45,7 +45,10 @@ internal class OutputStorage(private val activity: Activity) : MethodChannel.Met
         }
         if (call.method == "share" || call.method == "open") {
             try {
-                val uri = Uri.parse(call.argument<String>("uri")!!)
+                val location = call.argument<String>("uri")!!
+                val parsed = Uri.parse(location)
+                val uri = if (parsed.scheme == "content") parsed
+                    else OutputFileProvider.uriForFile(context, location)
                 val intent = Intent(if (call.method == "share") Intent.ACTION_SEND else Intent.ACTION_VIEW).apply {
                     val mime = resolver.getType(uri) ?: "application/octet-stream"
                     if (call.method == "share") {
@@ -58,7 +61,7 @@ internal class OutputStorage(private val activity: Activity) : MethodChannel.Met
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
                 activity.startActivity(if (call.method == "share") Intent.createChooser(intent, null) else intent)
-                result.success(null)
+                result.success(uri.toString())
             } catch (error: Exception) {
                 result.error("action_failed", error.message, null)
             }

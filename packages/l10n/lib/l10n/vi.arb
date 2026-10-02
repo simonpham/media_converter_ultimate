@@ -269,5 +269,8 @@
   "outputPickerUnavailable": "Trình chọn thư mục hệ thống không khả dụng. Chọn Download › MediaConverterPro hoặc giữ tệp trong ứng dụng.",
   "outputAccessExpired": "Không thể truy cập thư mục. Chọn lại thư mục để cấp quyền.",
   "outputExportFailed": "Không thể lưu tệp. Tệp đã chuyển đổi được giữ lại để thử lại.",
-  "outputRetryExport": "Thử lưu lại"
+  "outputRetryExport": "Thử lưu lại",
+  "outputFileUnavailable": "Không thể truy cập tệp đầu ra này. Tệp có thể đã bị di chuyển, xóa hoặc thay đổi quyền truy cập.",
+  "outputOpenFailed": "Không thể mở tệp này. Hãy thử chia sẻ đến ứng dụng tương thích.",
+  "outputShareFailed": "Không thể chia sẻ tệp này. Vui lòng thử lại."
 }

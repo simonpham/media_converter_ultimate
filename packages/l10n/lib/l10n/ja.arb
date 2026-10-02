@@ -269,5 +269,8 @@
   "outputPickerUnavailable": "システムのフォルダ選択画面を利用できません。Download › MediaConverterProを選ぶか、アプリ内に保存してください。",
   "outputAccessExpired": "フォルダにアクセスできません。もう一度フォルダを選んでアクセスを許可してください。",
   "outputExportFailed": "ファイルを保存できませんでした。変換済みのファイルは再試行のために保持されています。",
-  "outputRetryExport": "書き出しを再試行"
+  "outputRetryExport": "書き出しを再試行",
+  "outputFileUnavailable": "この出力ファイルは利用できません。移動、削除、またはアクセス権の変更があった可能性があります。",
+  "outputOpenFailed": "このファイルを開けませんでした。対応するアプリに共有してみてください。",
+  "outputShareFailed": "このファイルを共有できませんでした。もう一度お試しください。"
 }

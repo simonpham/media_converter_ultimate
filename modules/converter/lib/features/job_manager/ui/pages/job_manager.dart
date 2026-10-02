@@ -268,22 +268,8 @@ class _JobManagerState extends State<JobManager> {
                           onShare: !isSuccess
                               ? null
                               : () => _handleShare(context, job),
-                          onOpenFile:
-                              isSuccess &&
-                                  job.outputUri?.startsWith('content://') ==
-                                      true
-                              ? () async {
-                                  try {
-                                    await injector<FileService>().openOutput(
-                                      job.outputLocation,
-                                    );
-                                  } catch (error, trace) {
-                                    printError(error, trace);
-                                    if (context.mounted) {
-                                      context.toastError(context.l10n.failureUnknown);
-                                    }
-                                  }
-                                }
+                          onOpenFile: isSuccess
+                              ? () => _handleOpenFile(context, job)
                               : null,
                           onDelete: !isSuccess
                               ? null
@@ -383,10 +369,33 @@ class _JobManagerState extends State<JobManager> {
 
   Future<void> _handleShare(BuildContext context, ConvertJob job) async {
     try {
-      await injector<FileService>().shareOutput(job.outputLocation);
+      final files = injector<FileService>();
+      if (!await files.isFileExist(job.outputLocation)) {
+        if (context.mounted) {
+          context.toastError(context.l10n.outputFileUnavailable);
+        }
+        return;
+      }
+      await files.shareOutput(job.outputLocation);
     } catch (error, trace) {
       printError(error, trace);
-      if (context.mounted) context.toastFailure(const OutputExportFailure());
+      if (context.mounted) context.toastError(context.l10n.outputShareFailed);
+    }
+  }
+
+  Future<void> _handleOpenFile(BuildContext context, ConvertJob job) async {
+    try {
+      final files = injector<FileService>();
+      if (!await files.isFileExist(job.outputLocation)) {
+        if (context.mounted) {
+          context.toastError(context.l10n.outputFileUnavailable);
+        }
+        return;
+      }
+      await files.openOutput(job.outputLocation);
+    } catch (error, trace) {
+      printError(error, trace);
+      if (context.mounted) context.toastError(context.l10n.outputOpenFailed);
     }
   }
 
