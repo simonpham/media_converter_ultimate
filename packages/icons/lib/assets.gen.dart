@@ -34,7 +34,9 @@ class Assets {
   static const String folder01 = 'assets/folder-01.svg';
   static const String folderOpen = 'assets/folder-open.svg';
   static const String globe = 'assets/globe.svg';
+  static const String gridView = 'assets/grid-view.svg';
   static const String helpCircle = 'assets/help-circle.svg';
+  static const String horizontalList = 'assets/horizontal-list.svg';
   static const String image01 = 'assets/image-01.svg';
   static const String layers01StrokeRounded =
       'assets/layers-01-stroke-rounded.svg';
@@ -80,7 +82,9 @@ class Assets {
     folder01,
     folderOpen,
     globe,
+    gridView,
     helpCircle,
+    horizontalList,
     image01,
     layers01StrokeRounded,
     layersLogoStrokeRounded,

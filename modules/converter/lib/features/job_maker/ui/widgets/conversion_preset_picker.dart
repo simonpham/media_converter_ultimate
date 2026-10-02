@@ -39,24 +39,28 @@ class _ConversionPresetPickerState extends State<ConversionPresetPicker> {
           Row(
             children: [
               Expanded(
-                flex: 2,
                 child: SectionTitle(
                   context.l10n.quickPresetsTitle,
                   padding: .zero,
                 ),
               ),
               Spacing.h8,
-              Flexible(
-                child: Button(
-                  key: const ValueKey('preset-layout-toggle'),
-                  variant: .ghost,
-                  padding: .all(Spacing.d8),
-                  label: model.showPresetGrid
-                      ? context.l10n.showPresetList
-                      : context.l10n.showPresetGrid,
-                  titleExpand: .shrink,
-                  onPressed: model.togglePresetLayout,
+              Button(
+                key: const ValueKey('preset-layout-toggle'),
+                variant: .ghost,
+                padding: .all(Spacing.d8),
+                tooltip: model.showPresetGrid
+                    ? context.l10n.showPresetList
+                    : context.l10n.showPresetGrid,
+                mainAxisSize: .min,
+                child: ImageView(
+                  model.showPresetGrid
+                      ? Assets.horizontalList
+                      : Assets.gridView,
+                  size: Spacing.d24,
+                  color: context.theme.colorScheme.primary,
                 ),
+                onPressed: model.togglePresetLayout,
               ),
             ],
           ),
