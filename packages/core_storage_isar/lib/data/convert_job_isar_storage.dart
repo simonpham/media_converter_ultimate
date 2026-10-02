@@ -90,8 +90,8 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   }
 
   @override
-  void onDispose() {
-    isar.close();
+  Future<void> onDispose() async {
+    if (isar.isOpen) await isar.close();
   }
 
   @override

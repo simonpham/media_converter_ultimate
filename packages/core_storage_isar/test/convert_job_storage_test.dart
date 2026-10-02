@@ -4,6 +4,7 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:core/core.dart';
+import 'package:core_storage_base/core_storage_base.dart';
 import 'package:core_storage_isar/core_storage_isar.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:utils/utils.dart';
@@ -65,6 +66,64 @@ void main() {
     await isar.close(deleteFromDisk: true);
     await temporaryDirectory.delete(recursive: true);
   });
+
+  test(
+    'dependency disposal waits for an active database transaction',
+    () async {
+      final owner = GetIt.asNewInstance();
+      owner.registerSingleton<ConvertJobStorage>(storage);
+      final entered = Completer<void>();
+      final release = Completer<void>();
+      final stored = job('during-disposal', order: 0);
+      final writing = isar.writeTxn(() async {
+        await isar.isarConvertJobs.put(stored.toIsarModel());
+        entered.complete();
+        await release.future;
+      });
+      await entered.future;
+      var disposed = false;
+      var closedAfterDisposal = false;
+      final disposing = owner.reset().then((_) => disposed = true);
+      try {
+        await Future<void>.delayed(Duration.zero);
+        expect(disposed, isFalse);
+      } finally {
+        release.complete();
+        await writing;
+        await disposing;
+        await Future<void>.delayed(Duration.zero);
+        closedAfterDisposal = !isar.isOpen;
+        if (closedAfterDisposal) {
+          isar = await Isar.open(
+            [IsarConvertJobSchema],
+            directory: temporaryDirectory.path,
+            name: 'queue-test',
+          );
+        }
+      }
+      expect(closedAfterDisposal, isTrue);
+      storage = ConvertJobIsarStorage(isar: isar);
+      expect((await storage.get(stored.id))!.toJson(), stored.toJson());
+    },
+  );
+
+  test(
+    'dependency disposal tolerates a database that already closed',
+    () async {
+      final owner = GetIt.asNewInstance();
+      owner.registerSingleton<ConvertJobStorage>(storage);
+      await isar.close();
+      try {
+        await expectLater(owner.reset(), completes);
+      } finally {
+        isar = await Isar.open(
+          [IsarConvertJobSchema],
+          directory: temporaryDirectory.path,
+          name: 'queue-test',
+        );
+      }
+    },
+  );
 
   test(
     'failed batch save keeps history and accepted retry survives reopening',
