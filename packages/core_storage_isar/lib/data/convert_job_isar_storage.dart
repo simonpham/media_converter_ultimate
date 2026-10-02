@@ -217,32 +217,20 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   }
 
   @override
-  Future<bool> removeAllFinishedJobs() async {
-    try {
-      await isar.writeTxn(() {
-        return isar.isarConvertJobs
-            .where()
-            .statusEqualTo(.completed)
-            .or()
-            .statusEqualTo(.failed)
-            .or()
-            .statusEqualTo(.cancelled)
-            .deleteAll();
-      });
-      return true;
-    } catch (err, trace) {
-      printError(err, trace);
-      return false;
-    }
-  }
+  Future<List<String>?> removeAllFinishedJobs() => _removeFinishedJobs();
 
   @override
-  Future<bool> removeOlderFinishedJobs(int dayCount) async {
-    final now = DateTime.now();
-    final cutoff = now.subtract(Duration(days: dayCount));
+  Future<List<String>?> removeOlderFinishedJobs(int dayCount) {
+    RangeError.checkNotNegative(dayCount, 'dayCount');
+    return _removeFinishedJobs(
+      cutoff: DateTime.now().subtract(Duration(days: dayCount)),
+    );
+  }
+
+  Future<List<String>?> _removeFinishedJobs({DateTime? cutoff}) async {
     try {
-      await isar.writeTxn(() {
-        return isar.isarConvertJobs
+      return await isar.writeTxn(() async {
+        final query = isar.isarConvertJobs
             .where()
             .statusEqualTo(.completed)
             .or()
@@ -250,13 +238,19 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
             .or()
             .statusEqualTo(.cancelled)
             .filter()
-            .updatedAtLessThan(cutoff)
-            .deleteAll();
+            .optional(
+              cutoff != null,
+              (query) => query.updatedAtLessThan(cutoff!),
+            );
+        // Capture only string IDs in the same transaction as deletion so log
+        // cleanup cannot target a job that was kept or concurrently changed.
+        final removedIds = await query.idProperty().findAll();
+        await query.deleteAll();
+        return removedIds;
       });
-      return true;
     } catch (err, trace) {
       printError(err, trace);
-      return false;
+      return null;
     }
   }
 

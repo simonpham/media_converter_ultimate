@@ -11,6 +11,7 @@ void main() {
   late FakeRunner runner;
   late FakeFiles files;
   late MemorySettings settings;
+  late MemoryLogs logs;
   late JobManagerViewModel model;
 
   setUp(() {
@@ -22,7 +23,8 @@ void main() {
     injector.registerSingleton<JobRunnerService>(runner);
     injector.registerSingleton<FileService>(files);
     injector.registerSingleton<SettingsBox>(settings);
-    injector.registerSingleton<LogData>(MemoryLogs());
+    logs = MemoryLogs();
+    injector.registerSingleton<LogData>(logs);
     model = JobManagerViewModel();
   });
 
@@ -31,6 +33,75 @@ void main() {
     await runner.close();
     await injector.reset();
   });
+
+  test('clear history removes finished logs and preserves outputs', () async {
+    for (final status in JobStatus.values) {
+      storage.jobs[status.name] = job(status.name, status: status);
+      logs.values[status.name] = '${status.name} log';
+    }
+    expect(await model.clearFinishedJobs(.everything), isNull);
+    for (final status in JobStatus.values) {
+      expect(storage.jobs.containsKey(status.name), !status.isDone);
+      expect(logs.values.containsKey(status.name), !status.isDone);
+    }
+    expect(logs.cleared, unorderedEquals(['completed', 'failed', 'cancelled']));
+    expect(files.deletedOutputs, isEmpty);
+    expect(files.deletedStages, isEmpty);
+    expect(files.cleanedInputs, isEmpty);
+  });
+
+  test('age-based history clear removes only expired finished logs', () async {
+    final now = DateTime.now();
+    for (final status in JobStatus.values) {
+      for (final age in [1, 20]) {
+        final id = '$age-${status.name}';
+        storage.jobs[id] = job(id, status: status).copyWith(
+          updatedAt: Some(now.subtract(Duration(days: age))),
+        );
+        logs.values[id] = '$id log';
+      }
+    }
+    expect(await model.clearFinishedJobs(.olderThan7Days), isNull);
+    expect(
+      logs.cleared,
+      unorderedEquals([
+        '20-completed',
+        '20-failed',
+        '20-cancelled',
+      ]),
+    );
+    expect(logs.values.keys, unorderedEquals(storage.jobs.keys));
+    expect(files.deletedOutputs, isEmpty);
+    expect(files.deletedStages, isEmpty);
+    expect(files.cleanedInputs, isEmpty);
+  });
+
+  test('failed history transaction leaves logs intact', () async {
+    storage.failHistoryClear = true;
+    storage.jobs['completed'] = job('completed', status: .completed);
+    logs.values['completed'] = 'saved log';
+    expect(
+      await model.clearFinishedJobs(.everything),
+      isA<FailedToClearJobsFailure>(),
+    );
+    expect(storage.jobs.keys, ['completed']);
+    expect(logs.values['completed'], 'saved log');
+    expect(logs.cleared, isEmpty);
+  });
+
+  test(
+    'log cleanup failure does not reverse successful history deletion',
+    () async {
+      storage.jobs['completed'] = job('completed', status: .completed);
+      logs.values['completed'] = 'saved log';
+      logs.failCleanup = true;
+      expect(await model.clearFinishedJobs(.everything), isNull);
+      expect(storage.jobs, isEmpty);
+      expect(logs.values['completed'], 'saved log');
+      expect(files.deletedOutputs, isEmpty);
+      expect(files.deletedStages, isEmpty);
+    },
+  );
 
   test(
     'overlapping additions start a job once and respect the concurrency limit',
@@ -681,6 +752,17 @@ class MemorySettings implements SettingsBox {
 
 class MemoryLogs implements LogData {
   final values = <dynamic, dynamic>{};
+  final cleared = <String>[];
+  bool failCleanup = false;
+
+  @override
+  Future<void> clearLogs(Iterable<String> jobIds) async {
+    if (failCleanup) throw StateError('Unable to clear logs');
+    for (final id in jobIds) {
+      values.remove(id);
+      cleared.add(id);
+    }
+  }
 
   @override
   dynamic get(dynamic key, {required dynamic defaultValue}) =>
@@ -704,6 +786,30 @@ class MemoryJobStorage implements ConvertJobStorage {
   Failure? updateFailure;
   int updateAttempts = 0;
   bool failCompletedCommit = false;
+  bool failHistoryClear = false;
+
+  @override
+  Future<List<String>?> removeAllFinishedJobs() async => _clearHistory();
+
+  @override
+  Future<List<String>?> removeOlderFinishedJobs(int dayCount) async =>
+      _clearHistory(cutoff: DateTime.now().subtract(Duration(days: dayCount)));
+
+  List<String>? _clearHistory({DateTime? cutoff}) {
+    if (failHistoryClear) return null;
+    final removedIds = jobs.values
+        .where(
+          (job) =>
+              job.status.isDone &&
+              (cutoff == null || job.updatedAt.isBefore(cutoff)),
+        )
+        .map((job) => job.id)
+        .toList();
+    for (final id in removedIds) {
+      jobs.remove(id);
+    }
+    return removedIds;
+  }
 
   @override
   Future<Failure?> addAll(List<ConvertJob> items) async {

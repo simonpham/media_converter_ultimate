@@ -24,9 +24,11 @@ abstract class ConvertJobStorage
 
   Future<List<ConvertJob>> getAllRunningJobs();
 
-  Future<bool> removeAllFinishedJobs();
+  /// Returns the IDs removed by the transaction, or null on failure.
+  Future<List<String>?> removeAllFinishedJobs();
 
-  Future<bool> removeOlderFinishedJobs(int dayCount);
+  /// Returns the IDs removed by the transaction, or null on failure.
+  Future<List<String>?> removeOlderFinishedJobs(int dayCount);
 
   Future<List<ConvertJob>> fixInvalidJobs();
 

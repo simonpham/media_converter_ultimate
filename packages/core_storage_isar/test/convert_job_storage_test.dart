@@ -348,6 +348,59 @@ void main() {
     },
   );
 
+  test('clear history returns exactly the finished IDs removed', () async {
+    await storage.addAll([
+      for (final (index, status) in JobStatus.values.indexed)
+        job(status.name, order: index, status: status),
+    ]);
+    expect(
+      await storage.removeAllFinishedJobs(),
+      unorderedEquals([
+        'completed',
+        'failed',
+        'cancelled',
+      ]),
+    );
+    for (final status in JobStatus.values) {
+      expect(
+        await storage.get(status.name),
+        status.isDone ? isNull : isNotNull,
+      );
+    }
+    expect(await storage.removeAllFinishedJobs(), isEmpty);
+  });
+
+  test(
+    'age-based history clear preserves recent and unfinished jobs',
+    () async {
+      final now = DateTime.now();
+      await storage.addAll([
+        for (final (index, status) in JobStatus.values.indexed)
+          for (final age in [1, 20])
+            job('$age-${status.name}', order: index, status: status).copyWith(
+              updatedAt: Some(now.subtract(Duration(days: age))),
+            ),
+      ]);
+      expect(
+        await storage.removeOlderFinishedJobs(7),
+        unorderedEquals([
+          '20-completed',
+          '20-failed',
+          '20-cancelled',
+        ]),
+      );
+      for (final status in JobStatus.values) {
+        expect(await storage.get('1-${status.name}'), isNotNull);
+        expect(
+          await storage.get('20-${status.name}'),
+          status.isDone ? isNull : isNotNull,
+        );
+      }
+      expect(await storage.removeOlderFinishedJobs(30), isEmpty);
+      expect(() => storage.removeOlderFinishedJobs(-1), throwsRangeError);
+    },
+  );
+
   test('count watcher follows inserts, updates and deletions', () async {
     final counts = StreamIterator(storage.watchJobCount());
     try {

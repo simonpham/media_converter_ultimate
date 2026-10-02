@@ -465,14 +465,28 @@ class JobManagerViewModel extends ChangeNotifier {
   }
 
   Future<Failure?> clearFinishedJobs(ClearFinishedJobsOption result) async {
-    final success = switch (result) {
+    final removedIds = switch (result) {
       ClearFinishedJobsOption.everything =>
         await _jobStorage.removeAllFinishedJobs(),
       _ => await _jobStorage.removeOlderFinishedJobs(result.dayCount),
     };
 
-    if (!success) {
+    if (removedIds == null) {
       return const FailedToClearJobsFailure();
+    }
+
+    for (final id in removedIds) {
+      _retiredSessions.remove(id);
+      _exportFailures.remove(id);
+    }
+    if (removedIds.isNotEmpty) {
+      try {
+        await LogData().clearLogs(removedIds);
+      } catch (err, trace) {
+        // History was already removed. A log cleanup failure must not report
+        // that the database transaction failed or delete output files.
+        printError(err, trace);
+      }
     }
 
     return null;

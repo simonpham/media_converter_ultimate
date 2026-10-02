@@ -13,6 +13,8 @@ class LogData extends EasyBox implements Disposable {
 
   LogData._();
 
+  Future<void> clearLogs(Iterable<String> jobIds) => box.deleteAll(jobIds);
+
   @override
   Future<void> onDispose() async {
     await box.close();
