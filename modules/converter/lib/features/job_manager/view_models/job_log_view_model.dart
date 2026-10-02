@@ -9,6 +9,8 @@ class JobLogViewModel(final ConvertJob job) extends ChangeNotifier {
   late final ValueListenable<void> _changes = _data.getLogListenable(job.id);
   String _logs = '';
   String _query = '';
+  String _normalizedQuery = '';
+  String? _filteredLogs;
   bool _initialized = false;
   bool _disposed = false;
   bool _isExporting = false;
@@ -17,11 +19,10 @@ class JobLogViewModel(final ConvertJob job) extends ChangeNotifier {
   String get query => _query;
   bool get isExporting => _isExporting;
   String get visibleLogs {
-    final query = _query.trim().toLowerCase();
-    if (query.isEmpty) return _logs;
-    return _logs
+    if (_normalizedQuery.isEmpty) return _logs;
+    return _filteredLogs ??= _logs
         .split('\n')
-        .where((line) => line.toLowerCase().contains(query))
+        .where((line) => line.toLowerCase().contains(_normalizedQuery))
         .join('\n');
   }
 
@@ -33,13 +34,21 @@ class JobLogViewModel(final ConvertJob job) extends ChangeNotifier {
   }
 
   void _refresh() {
-    _logs = _data.getLog(job.id);
+    final nextLogs = _data.getLog(job.id);
+    if (_logs == nextLogs) return;
+    _logs = nextLogs;
+    _filteredLogs = null;
     notifyListeners();
   }
 
   void setQuery(String value) {
     if (_query == value) return;
     _query = value;
+    final normalizedQuery = value.trim().toLowerCase();
+    if (_normalizedQuery != normalizedQuery) {
+      _normalizedQuery = normalizedQuery;
+      _filteredLogs = null;
+    }
     notifyListeners();
   }
 

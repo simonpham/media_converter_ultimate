@@ -73,6 +73,43 @@ void main() {
   });
 
   test(
+    'long searches stay current after query changes, append and log replacement',
+    () async {
+      final lines = List.generate(
+        10000,
+        (index) => index % 1000 == 0
+            ? 'ERROR [$index]: Codec Việt 音楽'
+            : 'frame=$index fps=60 time=00:02:03.45 speed=1.5x',
+      );
+      logs.setLog(job.id, lines.join('\n'));
+      model.setQuery('  error [  ');
+      final matches = lines
+          .where((line) => line.startsWith('ERROR'))
+          .join('\n');
+      expect(model.visibleLogs, matches);
+      model.setQuery('ERROR [');
+      expect(model.query, 'ERROR [');
+      expect(model.visibleLogs, matches);
+      logs.appendLog(job.id, 'ERROR [later]: interrupted export');
+      expect(model.visibleLogs, '$matches\nERROR [later]: interrupted export');
+      model.setQuery('Việt');
+      expect(model.visibleLogs, matches);
+      logs.setLog(job.id, 'Replacement log\nCodec Việt');
+      expect(model.visibleLogs, 'Codec Việt');
+      model.setQuery('replacement');
+      expect(model.visibleLogs, 'Replacement log');
+      await model.copyLogs();
+      expect(clipboard, 'Replacement log\nCodec Việt');
+      logs.clearLog(job.id);
+      expect(model.visibleLogs, isEmpty);
+      model.setQuery('   ');
+      expect(model.visibleLogs, isEmpty);
+      logs.appendLog(job.id, 'New attempt');
+      expect(model.visibleLogs, 'New attempt');
+    },
+  );
+
+  test(
     'copy retains complete diagnostic context when search filters lines',
     () async {
       model.setQuery('error');
