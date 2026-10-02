@@ -272,5 +272,7 @@
   "outputRetryExport": "Dışa aktarmayı yeniden dene",
   "outputFileUnavailable": "Bu çıktı dosyası kullanılamıyor. Taşınmış, silinmiş veya erişimi değişmiş olabilir.",
   "outputOpenFailed": "Bu dosya açılamadı. Uyumlu bir uygulamayla paylaşmayı deneyin.",
-  "outputShareFailed": "Bu dosya paylaşılamadı. Lütfen tekrar deneyin."
+  "outputShareFailed": "Bu dosya paylaşılamadı. Lütfen tekrar deneyin.",
+  "dragToReorder": "Sıralamak için sürükleyin",
+  "removeSelectedFile": "Seçimden kaldır"
 }

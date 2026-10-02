@@ -171,6 +171,131 @@ void main() {
     }
   });
 
+  testWidgets('swiping a file row scrolls without reordering the batch', (
+    tester,
+  ) async {
+    injector.registerSingleton<FileService>(_PickerFiles());
+    await model.addFiles([
+      for (var index = 0; index < 40; index++) File('/input/file-$index.wav'),
+    ]);
+    final original = model.selectedFiles.map((file) => file.path).toList();
+    await showPicker(tester, content: const JobMakerFilePicker());
+    final scroll = tester.state<ScrollableState>(find.byType(Scrollable).first);
+    await tester.drag(find.text('file-5.wav'), const Offset(0, -250));
+    await tester.pumpAndSettle();
+    expect(scroll.position.pixels, greaterThan(100));
+    expect(model.selectedFiles.map((file) => file.path), original);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('drag handle reorders files and remove still works', (
+    tester,
+  ) async {
+    injector.registerSingleton<FileService>(_PickerFiles());
+    await model.addFiles([
+      for (var index = 0; index < 4; index++) File('/input/file-$index.wav'),
+    ]);
+    await showPicker(tester, content: const JobMakerFilePicker());
+    final handle = find.byWidgetPredicate(
+      (widget) => widget is ReorderableDragStartListener && widget.index == 0,
+    );
+    final target = Offset(
+      tester.getCenter(handle).dx,
+      tester.getBottomLeft(find.byKey(const ValueKey('/input/file-3.wav'))).dy +
+          30,
+    );
+    final origin = tester.getCenter(handle);
+    await tester.timedDragFrom(
+      origin,
+      target - origin,
+      const Duration(seconds: 1),
+    );
+    await tester.pumpAndSettle();
+    expect(model.selectedFiles.map((file) => file.uri.pathSegments.last), [
+      'file-1.wav',
+      'file-2.wav',
+      'file-3.wav',
+      'file-0.wav',
+    ]);
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const ValueKey('/input/file-0.wav')),
+        matching: find.byType(Button),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(model.selectedFiles.map((file) => file.uri.pathSegments.last), [
+      'file-1.wav',
+      'file-2.wav',
+      'file-3.wav',
+    ]);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('batch controls fit long names and large German text', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      injector.registerSingleton<FileService>(_PickerFiles());
+      await model.addFiles([
+        for (var index = 0; index < 20; index++)
+          File('/input/A long recording with a descriptive title $index.wav'),
+      ]);
+      await showPicker(
+        tester,
+        content: const JobMakerFilePicker(),
+        locale: const Locale('de'),
+        scale: 2,
+        size: const Size(320, 640),
+      );
+      final handle = find.byWidgetPredicate(
+        (widget) => widget is ReorderableDragStartListener && widget.index == 0,
+      );
+      expect(tester.getSize(handle), const Size(48, 48));
+      final remove = find.bySemanticsLabel('Aus Auswahl entfernen').first;
+      expect(tester.getSize(remove).width, greaterThanOrEqualTo(48));
+      await tester.tap(remove);
+      await tester.pumpAndSettle();
+      expect(model.selectedFiles, hasLength(19));
+      final scroll = tester.state<ScrollableState>(
+        find.byType(Scrollable).first,
+      );
+      await tester.drag(
+        find.text('A long recording with a descriptive title 1.wav'),
+        const Offset(0, -200),
+      );
+      await tester.pumpAndSettle();
+      expect(scroll.position.pixels, greaterThan(0));
+      expect(tester.takeException(), isNull);
+    } finally {
+      semantics.dispose();
+    }
+  });
+
+  testWidgets('excluded-file notice remains usable with large German text', (
+    tester,
+  ) async {
+    injector.registerSingleton<FileService>(_MixedPickerFiles());
+    await model.addFiles([File('/input/notes.txt'), File('/input/song.wav')]);
+    await showPicker(
+      tester,
+      content: const JobMakerFilePicker(),
+      locale: const Locale('de'),
+      scale: 2,
+      size: const Size(320, 640),
+    );
+    expect(model.excludedFiles, hasLength(1));
+    expect(tester.takeException(), isNull);
+    await tester.ensureVisible(find.widgetWithText(Button, 'Ignorieren'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(Button, 'Ignorieren'));
+    await tester.pumpAndSettle();
+    expect(model.excludedFiles, isEmpty);
+    expect(model.selectedFiles.single.path, '/input/song.wav');
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'presets toggle grid/list with aligned headers and format badges',
     (tester) async {
@@ -1190,6 +1315,12 @@ class _PickerFiles extends TestMediaFiles {
     pickCount++;
     return [];
   }
+}
+
+class _MixedPickerFiles extends _PickerFiles {
+  @override
+  Future<String?> getFileMimeType(File file) async =>
+      file.path.endsWith('.txt') ? 'text/plain' : 'audio/wav';
 }
 
 class _EmptyJobManager extends ChangeNotifier implements JobManagerViewModel {

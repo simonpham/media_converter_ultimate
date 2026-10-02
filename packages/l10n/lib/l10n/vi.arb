@@ -272,5 +272,7 @@
   "outputRetryExport": "Thử lưu lại",
   "outputFileUnavailable": "Không thể truy cập tệp đầu ra này. Tệp có thể đã bị di chuyển, xóa hoặc thay đổi quyền truy cập.",
   "outputOpenFailed": "Không thể mở tệp này. Hãy thử chia sẻ đến ứng dụng tương thích.",
-  "outputShareFailed": "Không thể chia sẻ tệp này. Vui lòng thử lại."
+  "outputShareFailed": "Không thể chia sẻ tệp này. Vui lòng thử lại.",
+  "dragToReorder": "Kéo để đổi thứ tự",
+  "removeSelectedFile": "Bỏ khỏi danh sách đã chọn"
 }

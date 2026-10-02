@@ -272,5 +272,7 @@
   "outputRetryExport": "Riprova esportazione",
   "outputFileUnavailable": "Questo file non è disponibile. Potrebbe essere stato spostato, eliminato o il suo accesso potrebbe essere cambiato.",
   "outputOpenFailed": "Impossibile aprire il file. Prova a condividerlo con un’app compatibile.",
-  "outputShareFailed": "Impossibile condividere il file. Riprova."
+  "outputShareFailed": "Impossibile condividere il file. Riprova.",
+  "dragToReorder": "Trascina per riordinare",
+  "removeSelectedFile": "Rimuovi dalla selezione"
 }

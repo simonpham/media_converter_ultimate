@@ -44,7 +44,8 @@ class const FileItem(
             Button(
               mainAxisSize: .min,
               variant: .ghost,
-              padding: .all(Spacing.d8),
+              tooltip: context.l10n.removeSelectedFile,
+              padding: .all(Spacing.d16),
               child: ImageView(
                 Assets.cancel01,
                 size: Spacing.d16,

@@ -272,5 +272,7 @@
   "outputRetryExport": "Export erneut versuchen",
   "outputFileUnavailable": "Diese Ausgabedatei ist nicht verfügbar. Sie wurde möglicherweise verschoben, gelöscht oder der Zugriff hat sich geändert.",
   "outputOpenFailed": "Die Datei konnte nicht geöffnet werden. Teile sie mit einer kompatiblen App.",
-  "outputShareFailed": "Die Datei konnte nicht geteilt werden. Bitte versuche es erneut."
+  "outputShareFailed": "Die Datei konnte nicht geteilt werden. Bitte versuche es erneut.",
+  "dragToReorder": "Zum Umordnen ziehen",
+  "removeSelectedFile": "Aus Auswahl entfernen"
 }

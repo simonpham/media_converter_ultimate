@@ -272,5 +272,7 @@
   "outputRetryExport": "Coba ekspor lagi",
   "outputFileUnavailable": "File hasil ini tidak tersedia. File mungkin dipindahkan, dihapus, atau aksesnya berubah.",
   "outputOpenFailed": "Tidak dapat membuka file ini. Coba bagikan ke aplikasi yang kompatibel.",
-  "outputShareFailed": "Tidak dapat membagikan file ini. Silakan coba lagi."
+  "outputShareFailed": "Tidak dapat membagikan file ini. Silakan coba lagi.",
+  "dragToReorder": "Seret untuk mengurutkan ulang",
+  "removeSelectedFile": "Hapus dari pilihan"
 }

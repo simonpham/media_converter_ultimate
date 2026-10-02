@@ -272,5 +272,7 @@
   "outputRetryExport": "重試匯出",
   "outputFileUnavailable": "此輸出檔案無法使用。檔案可能已移動、刪除或存取權限已變更。",
   "outputOpenFailed": "無法開啟此檔案。請嘗試分享到支援此格式的應用程式。",
-  "outputShareFailed": "無法分享此檔案。請再試一次。"
+  "outputShareFailed": "無法分享此檔案。請再試一次。",
+  "dragToReorder": "拖曳以重新排序",
+  "removeSelectedFile": "從選取項目中移除"
 }

@@ -37,91 +37,6 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
         );
         return Column(
           children: [
-            if (excludedFiles.isNotEmpty) ...[
-              RoundCard(
-                margin: EdgeInsets.symmetric(
-                  horizontal: Spacing.d16,
-                  vertical: Spacing.d8,
-                ),
-                padding: EdgeInsets.symmetric(
-                  horizontal: Spacing.d16,
-                  vertical: Spacing.d8,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        ImageView(
-                          Assets.file01,
-                          size: Spacing.d16,
-                          color: context.theme.colorScheme.onSurface,
-                        ),
-                        Spacing.h8,
-                        Text(
-                          context.l10n.excludedFiles(
-                            excludedFiles.length,
-                          ),
-                          style: context.theme.textTheme.titleSmall,
-                        ),
-                      ],
-                    ),
-                    Spacing.v8,
-                    Text(
-                      context.l10n.excludedFilesDescription,
-                      style: context.theme.textTheme.labelSmall,
-                    ),
-                    Spacing.v8,
-                    Row(
-                      children: [
-                        Button(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: Spacing.d16,
-                            vertical: Spacing.d4,
-                          ),
-                          variant: ButtonVariant.ghost,
-                          label: context.l10n.view,
-                          onPressed: () {
-                            ContentDialog.show(
-                              context,
-                              title: context.l10n.excludedFiles(''),
-                              content: excludedFiles
-                                  .map(
-                                    (file) => '•  ${file.fileName}',
-                                  )
-                                  .join('\n'),
-                              neutralText: context.l10n.ok,
-                            );
-                          },
-                        ),
-                        const Spacer(),
-                        Button(
-                          padding: .only(
-                            left: Spacing.d12,
-                            top: Spacing.d4,
-                            bottom: Spacing.d4,
-                            right: Spacing.d16,
-                          ),
-                          variant: .primary,
-                          icon: ImageView(
-                            Assets.cancel01,
-                            size: Spacing.d16,
-                            color: context.theme.colorScheme.onSurface,
-                          ),
-                          label: context.l10n.ignore,
-                          onPressed: () {
-                            context
-                                .read<JobMakerViewModel>()
-                                .clearExcludedFiles();
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
             Expanded(
               child: Scrollbar(
                 controller: _scrollController,
@@ -129,6 +44,10 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                 child: CustomScrollView(
                   controller: _scrollController,
                   slivers: [
+                    if (excludedFiles.isNotEmpty)
+                      SliverToBoxAdapter(
+                        child: _ExcludedFilesNotice(excludedFiles),
+                      ),
                     const SliverToBoxAdapter(
                       child: FileAdItem(),
                     ),
@@ -159,29 +78,37 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                         itemCount: files.length,
                         itemBuilder: (BuildContext context, int index) {
                           final file = files.elementAt(index);
-                          return ReorderableDragStartListener(
+                          return Padding(
                             key: ValueKey(file.path),
-                            index: index,
-                            child: Padding(
-                              padding: .symmetric(
-                                vertical: Spacing.d4,
-                              ),
-                              child: FileItem(
-                                file,
-                                contentType: context
-                                    .read<JobMakerViewModel>()
-                                    .fileContentType(file),
-                                leading: ImageView(
-                                  Assets.verticalDragDrop,
-                                  size: Spacing.d20,
-                                  color: context.theme.colorScheme.onSurface,
+                            padding: .symmetric(vertical: Spacing.d4),
+                            child: FileItem(
+                              file,
+                              contentType: context
+                                  .read<JobMakerViewModel>()
+                                  .fileContentType(file),
+                              leading: Semantics(
+                                tooltip: context.l10n.dragToReorder,
+                                child: FluffyTooltip(
+                                  message: context.l10n.dragToReorder,
+                                  child: ReorderableDragStartListener(
+                                    index: index,
+                                    child: Padding(
+                                      padding: .all(Spacing.d12),
+                                      child: ImageView(
+                                        Assets.verticalDragDrop,
+                                        size: Spacing.d24,
+                                        color:
+                                            context.theme.colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                                onRemove: () {
-                                  context.read<JobMakerViewModel>().removeFile(
-                                    file,
-                                  );
-                                },
                               ),
+                              onRemove: () {
+                                context.read<JobMakerViewModel>().removeFile(
+                                  file,
+                                );
+                              },
                             ),
                           );
                         },
@@ -218,6 +145,7 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                 container: true,
                 child: Button(
                   variant: .secondary,
+                  titleExpand: .shrink,
                   label: context.l10n.addFiles,
                   onPressed: () {
                     _handleChooseFilesPressed(context);
@@ -239,5 +167,102 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
 
     final viewModel = context.read<JobMakerViewModel>();
     await viewModel.addFiles(files);
+  }
+}
+
+class const _ExcludedFilesNotice(
+  final List<File> excludedFiles,
+) extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return RoundCard(
+      margin: EdgeInsets.symmetric(
+        horizontal: Spacing.d16,
+        vertical: Spacing.d8,
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: Spacing.d16,
+        vertical: Spacing.d8,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              ImageView(
+                Assets.file01,
+                size: Spacing.d16,
+                color: context.theme.colorScheme.onSurface,
+              ),
+              Spacing.h8,
+              Expanded(
+                child: Text(
+                  context.l10n.excludedFiles(
+                    excludedFiles.length,
+                  ),
+                  style: context.theme.textTheme.titleSmall,
+                ),
+              ),
+            ],
+          ),
+          Spacing.v8,
+          Text(
+            context.l10n.excludedFilesDescription,
+            style: context.theme.textTheme.labelSmall,
+          ),
+          Spacing.v8,
+          Wrap(
+            alignment: .spaceBetween,
+            spacing: Spacing.d8,
+            runSpacing: Spacing.d8,
+            children: [
+              Button(
+                mainAxisSize: .min,
+                titleExpand: .shrink,
+                padding: EdgeInsets.symmetric(
+                  horizontal: Spacing.d16,
+                  vertical: Spacing.d4,
+                ),
+                variant: ButtonVariant.ghost,
+                label: context.l10n.view,
+                onPressed: () {
+                  ContentDialog.show(
+                    context,
+                    title: context.l10n.excludedFiles(''),
+                    content: excludedFiles
+                        .map(
+                          (file) => '•  ${file.fileName}',
+                        )
+                        .join('\n'),
+                    neutralText: context.l10n.ok,
+                  );
+                },
+              ),
+              Button(
+                mainAxisSize: .min,
+                titleExpand: .shrink,
+                padding: .only(
+                  left: Spacing.d12,
+                  top: Spacing.d4,
+                  bottom: Spacing.d4,
+                  right: Spacing.d16,
+                ),
+                variant: .primary,
+                icon: ImageView(
+                  Assets.cancel01,
+                  size: Spacing.d16,
+                  color: context.theme.colorScheme.onSurface,
+                ),
+                label: context.l10n.ignore,
+                onPressed: () {
+                  context.read<JobMakerViewModel>().clearExcludedFiles();
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

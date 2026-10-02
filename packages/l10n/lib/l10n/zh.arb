@@ -272,5 +272,7 @@
   "outputRetryExport": "重试导出",
   "outputFileUnavailable": "此输出文件不可用。文件可能已被移动、删除或访问权限已更改。",
   "outputOpenFailed": "无法打开此文件。请尝试分享到支持此格式的应用。",
-  "outputShareFailed": "无法分享此文件。请重试。"
+  "outputShareFailed": "无法分享此文件。请重试。",
+  "dragToReorder": "拖动以重新排序",
+  "removeSelectedFile": "从选择中移除"
 }
