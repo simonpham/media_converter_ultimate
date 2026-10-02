@@ -510,6 +510,7 @@ void main() {
     injector.registerFactory<MediaPreviewSession>(_VideoPreview.new);
     await showPicker(
       tester,
+      size: const Size(440, 844),
       content: const TrimEditor(
         path: '/movie.mkv',
         initial: ConversionTrim(
@@ -529,6 +530,43 @@ void main() {
     expect(
       find.byKey(const ValueKey('file-trim-apply')).hitTestable(),
       findsOneWidget,
+    );
+    final transport = tester.getRect(
+      find.byKey(const ValueKey('trim-transport')),
+    );
+    final viewControls = tester.getRect(
+      find.byKey(const ValueKey('trim-view-controls')),
+    );
+    final startInput = tester.getRect(find.byKey(const ValueKey('trim-start')));
+    final timeline = tester.getRect(
+      find.byKey(const ValueKey('trim-visual-track')),
+    );
+    expect(transport.top, greaterThan(timeline.bottom));
+    expect(transport.center.dy, closeTo(viewControls.center.dy, 1));
+    expect(viewControls.left, greaterThan(transport.right));
+    expect(startInput.top, greaterThan(transport.bottom));
+    expect(
+      tester.getRect(find.byKey(const ValueKey('trim-fine-toggle'))).width,
+      closeTo(timeline.width, 1),
+    );
+    expect(
+      find.ancestor(
+        of: find.byKey(const ValueKey('trim-reset')),
+        matching: find.byType(AppBar),
+      ),
+      findsOneWidget,
+    );
+    final beforeSeek = tester.getRect(
+      find.byKey(const ValueKey('trim-target-cursor')),
+    );
+    tester
+        .element(find.byKey(const ValueKey('trim-visual-track')))
+        .read<TrimTimelineViewModel>()
+        .seek(5125);
+    await tester.pumpAndSettle();
+    expect(
+      tester.getRect(find.byKey(const ValueKey('trim-target-cursor'))),
+      beforeSeek,
     );
     expect(find.text('+0.1 s'), findsNothing);
     expect(find.text('Set start here'), findsNothing);
@@ -556,6 +594,50 @@ void main() {
     expect(find.text('+0.1 s'), findsNothing);
     expect(tester.takeException(), isNull);
   });
+
+  for (final scale in [1.0, 2.0]) {
+    testWidgets(
+      'trim controls keep groups intact on narrow screens at ${scale}x',
+      (tester) async {
+        injector.registerFactory<MediaPreviewSession>(_VideoPreview.new);
+        await showPicker(
+          tester,
+          scale: scale,
+          locale: const Locale('de'),
+          size: const Size(320, 844),
+          content: const TrimEditor(path: '/movie.mkv'),
+        );
+        final transport = tester.getRect(
+          find.byKey(const ValueKey('trim-transport')),
+        );
+        final viewControls = tester.getRect(
+          find.byKey(const ValueKey('trim-view-controls')),
+        );
+        expect(viewControls.top, greaterThanOrEqualTo(transport.bottom));
+        expect(viewControls.left, closeTo(transport.left, 1));
+        for (final key in [
+          'trim-playback',
+          'trim-target-cursor',
+          'trim-overview',
+          'trim-reset',
+        ]) {
+          final bounds = tester.getSize(find.byKey(ValueKey(key)));
+          expect(bounds.width, greaterThanOrEqualTo(48));
+          expect(bounds.height, greaterThanOrEqualTo(48));
+        }
+        await tester.ensureVisible(
+          find.byKey(const ValueKey('trim-fine-toggle')),
+        );
+        await tester.tap(find.byKey(const ValueKey('trim-fine-toggle')));
+        await tester.pumpAndSettle();
+        final back = tester.getRect(find.text('−0.1 s'));
+        final forward = tester.getRect(find.text('+0.1 s'));
+        expect(back.center.dy, closeTo(forward.center.dy, 1));
+        expect(back.right, lessThan(forward.left));
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   testWidgets('preset footer stays reachable with large German text', (
     tester,

@@ -197,7 +197,34 @@ class _TrimEditorState extends State<TrimEditor> with WidgetsBindingObserver {
         _sync(_startController, model.startText);
         _sync(_endController, model.endText);
         return Scaffold(
-          appBar: AppBar(title: Text(context.l10n.trimMediaTitle)),
+          appBar: AppBar(
+            title: Text(context.l10n.trimMediaTitle),
+            actions: [
+              Button(
+                key: const ValueKey('trim-reset'),
+                variant: .ghost,
+                borderWidth: 0,
+                width: Spacing.d48,
+                height: Spacing.d48,
+                tooltip: context.l10n.trimReset,
+                enable: !model.loading && !model.failed && !_applying,
+                padding: .all(Spacing.d12),
+                child: ImageView(
+                  Assets.reload,
+                  size: Spacing.d24,
+                  color: model.loading || model.failed || _applying
+                      ? context.theme.disabledColor
+                      : context.theme.colorScheme.primary,
+                ),
+                onPressed: () {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  model.reset();
+                  _timeline?.fitTimeline();
+                },
+              ),
+              Spacing.h8,
+            ],
+          ),
           body: Column(
             children: [
               Expanded(
@@ -212,50 +239,11 @@ class _TrimEditorState extends State<TrimEditor> with WidgetsBindingObserver {
                       child: Column(
                         crossAxisAlignment: .start,
                         children: [
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              final name = Text(
-                                File(widget.path).fileName,
-                                style: context.theme.textTheme.titleSmall,
-                                maxLines: 2,
-                                overflow: .ellipsis,
-                              );
-                              final reset = Button(
-                                variant: .ghost,
-                                key: const ValueKey('trim-reset'),
-                                tooltip: context.l10n.trimReset,
-                                padding: .all(Spacing.d12),
-                                child: ImageView(
-                                  Assets.reload,
-                                  size: Spacing.d24,
-                                  color: context.theme.colorScheme.primary,
-                                ),
-                                titleExpand: .shrink,
-                                mainAxisSize: .min,
-                                onPressed: () {
-                                  FocusManager.instance.primaryFocus?.unfocus();
-                                  model.reset();
-                                  _timeline?.fitTimeline();
-                                },
-                              );
-                              final scale =
-                                  MediaQuery.textScalerOf(context)
-                                      .scale(Spacing.d12) /
-                                  Spacing.d12;
-                              return constraints.maxWidth <
-                                      Spacing.d96 * 3 * scale
-                                  ? Column(
-                                      crossAxisAlignment: .start,
-                                      children: [name, Spacing.v8, reset],
-                                    )
-                                  : Row(
-                                      children: [
-                                        Expanded(child: name),
-                                        Spacing.h8,
-                                        reset,
-                                      ],
-                                    );
-                            },
+                          Text(
+                            File(widget.path).fileName,
+                            style: context.theme.textTheme.titleSmall,
+                            maxLines: 2,
+                            overflow: .ellipsis,
                           ),
                           Spacing.v8,
                           if (model.loading)

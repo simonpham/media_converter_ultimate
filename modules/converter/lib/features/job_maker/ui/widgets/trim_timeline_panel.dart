@@ -80,6 +80,8 @@ class _TrimTimelinePanelState extends State<TrimTimelinePanel> {
               ),
             ],
           ),
+          Spacing.v4,
+          _timelineControls(context, model),
           Spacing.v12,
           widget.rangeControls ??
               Wrap(
@@ -90,122 +92,39 @@ class _TrimTimelinePanelState extends State<TrimTimelinePanel> {
                     _target(context, model, target, showTime: true),
                 ],
               ),
-          Spacing.v12,
-          Wrap(
-            spacing: Spacing.d8,
-            runSpacing: Spacing.d8,
-            alignment: .spaceBetween,
-            crossAxisAlignment: .center,
-            children: [
-              if (model.info?.audioIndex != null)
-                Button(
-                  key: const ValueKey('trim-playback'),
-                  variant: .ghost,
-                  mainAxisSize: .min,
-                  titleExpand: .shrink,
-                  padding: .all(Spacing.d12),
-                  enable: !model.preparingAudio,
-                  tooltip: model.preparingAudio
-                      ? context.l10n.trimPreparingAudio
-                      : model.playing
-                      ? context.l10n.trimPauseAudio
-                      : context.l10n.trimPlayAudio,
-                  child: ImageView(
-                    model.playing ? Assets.pause : Assets.play,
-                    size: Spacing.d24,
-                    color: model.preparingAudio
-                        ? context.theme.disabledColor
-                        : context.theme.colorScheme.primary,
-                  ),
-                  onPressed: () => _interact(
-                    () =>
-                        unawaited(model.playing ? model.pause() : model.play()),
-                  ),
-                ),
-              Button(
-                key: const ValueKey('trim-target-cursor'),
-                titleExpand: .shrink,
+          Spacing.v8,
+          Semantics(
+            expanded: _fineAdjustment,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: Spacing.d48),
+              child: Button(
+                key: const ValueKey('trim-fine-toggle'),
                 variant: .ghost,
-                mainAxisSize: .min,
+                borderWidth: 0,
+                titleExpand: .expand,
+                mainAxisAlignment: .spaceBetween,
+                labelTextAlign: .start,
                 padding: .symmetric(
-                  horizontal: Spacing.d8,
+                  horizontal: Spacing.d12,
                   vertical: Spacing.d8,
                 ),
-                tooltip: context.l10n.trimCursor,
-                child: Text(
-                  _time(model.position),
-                  style: context.theme.textTheme.bodyMedium,
-                ),
-                onPressed: () => _interact(() => model.selectTarget(.cursor)),
-              ),
-            ],
-          ),
-          Spacing.v8,
-          Wrap(
-            spacing: Spacing.d8,
-            runSpacing: Spacing.d8,
-            crossAxisAlignment: .center,
-            children: [
-              _icon(
-                context,
-                context.l10n.trimZoomOut,
-                Assets.zoomOutArea,
-                () => model.zoom(false),
-                enabled: !model.isOverview,
-              ),
-              _icon(
-                context,
-                context.l10n.trimZoomIn,
-                Assets.zoomInArea,
-                () => model.zoom(true),
-                enabled: model.canZoomIn,
-              ),
-              Button(
-                key: const ValueKey('trim-overview'),
-                variant: .ghost,
-                mainAxisSize: .min,
-                titleExpand: .shrink,
-                padding: .all(Spacing.d12),
-                tooltip: context.l10n.trimOverview,
-                child: ImageView(
-                  Assets.squareArrowHorizontalRound,
-                  size: Spacing.d24,
-                  color: model.isOverview
-                      ? context.theme.disabledColor
-                      : context.theme.colorScheme.primary,
-                ),
-                enable: !model.isOverview,
-                onPressed: () => _interact(model.fitTimeline),
-              ),
-              Semantics(
-                expanded: _fineAdjustment,
-                child: Button(
-                  key: const ValueKey('trim-fine-toggle'),
-                  variant: .ghost,
-                  mainAxisSize: .min,
-                  titleExpand: .shrink,
-                  padding: .symmetric(
-                    horizontal: Spacing.d12,
-                    vertical: Spacing.d8,
-                  ),
-                  child: Text(context.l10n.trimFineAdjustment),
-                  trailingIcon: RotatedBox(
-                    quarterTurns: _fineAdjustment ? 3 : 1,
-                    child: ImageView(
-                      Assets.arrowRight01Round,
-                      size: Spacing.d16,
-                      color: context.theme.colorScheme.primary,
-                    ),
-                  ),
-                  onPressed: () => _interact(
-                    () => setState(() => _fineAdjustment = !_fineAdjustment),
+                child: Text(context.l10n.trimFineAdjustment),
+                trailingIcon: RotatedBox(
+                  quarterTurns: _fineAdjustment ? 3 : 1,
+                  child: ImageView(
+                    Assets.arrowRight01Round,
+                    size: Spacing.d16,
+                    color: context.theme.colorScheme.primary,
                   ),
                 ),
+                onPressed: () => _interact(
+                  () => setState(() => _fineAdjustment = !_fineAdjustment),
+                ),
               ),
-            ],
+            ),
           ),
           if (_fineAdjustment) ...[
-            Spacing.v12,
+            Spacing.v4,
             RoundCard(
               padding: .all(Spacing.d12),
               child: Column(
@@ -220,30 +139,20 @@ class _TrimTimelinePanelState extends State<TrimTimelinePanel> {
                     ],
                   ),
                   Spacing.v8,
-                  Wrap(
-                    spacing: Spacing.d8,
-                    runSpacing: Spacing.d8,
-                    children: [
-                      for (final milliseconds in [-1000, -100, 100, 1000])
-                        Button(
-                          variant: .ghost,
-                          titleExpand: .shrink,
-                          mainAxisSize: .min,
-                          padding: .symmetric(
-                            horizontal: Spacing.d12,
-                            vertical: Spacing.d12,
-                          ),
-                          label: context.l10n.trimSeekStep(
-                            '${milliseconds > 0 ? '+' : '−'}${milliseconds.abs() / 1000}',
-                          ),
-                          onPressed: () =>
-                              _interact(() => model.nudge(milliseconds)),
-                        ),
-                    ],
-                  ),
+                  for (final amount in [1000, 100]) ...[
+                    Row(
+                      children: [
+                        Expanded(child: _step(context, model, -amount)),
+                        Spacing.h12,
+                        Expanded(child: _step(context, model, amount)),
+                      ],
+                    ),
+                    Spacing.v8,
+                  ],
                   if (!model.isOverview) ...[
                     Spacing.v8,
                     Row(
+                      mainAxisAlignment: .spaceBetween,
                       children: [
                         _icon(
                           context,
@@ -253,7 +162,6 @@ class _TrimTimelinePanelState extends State<TrimTimelinePanel> {
                           rotate: 2,
                           enabled: model.windowStart > 0,
                         ),
-                        Spacing.h8,
                         _icon(
                           context,
                           context.l10n.trimNextWindow,
@@ -291,6 +199,143 @@ class _TrimTimelinePanelState extends State<TrimTimelinePanel> {
     },
   );
 
+  Widget _timelineControls(
+    BuildContext context,
+    TrimTimelineViewModel model,
+  ) => LayoutBuilder(
+    builder: (context, constraints) {
+      final style = context.theme.textTheme.bodyMedium!.copyWith(
+        fontFeatures: const [FontFeature.tabularFigures()],
+      );
+      final timestamp = TextPainter(
+        text: TextSpan(
+          text: _time(model.duration - model.duration % 1000 + 999),
+          style: style,
+        ),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+      )..layout();
+      final timeWidth = timestamp.width.ceilToDouble() + Spacing.d16;
+      timestamp.dispose();
+      final audioWidth = model.info?.audioIndex == null
+          ? 0.0
+          : Spacing.d48 + Spacing.d4;
+      final transport = Row(
+        key: const ValueKey('trim-transport'),
+        mainAxisSize: .min,
+        children: [
+          if (model.info?.audioIndex != null) ...[
+            Button(
+              key: const ValueKey('trim-playback'),
+              variant: .ghost,
+              borderWidth: 0,
+              width: Spacing.d48,
+              height: Spacing.d48,
+              padding: .all(Spacing.d12),
+              enable: !model.preparingAudio,
+              tooltip: model.preparingAudio
+                  ? context.l10n.trimPreparingAudio
+                  : model.playing
+                  ? context.l10n.trimPauseAudio
+                  : context.l10n.trimPlayAudio,
+              child: ImageView(
+                model.playing ? Assets.pause : Assets.play,
+                size: Spacing.d24,
+                color: model.preparingAudio
+                    ? context.theme.disabledColor
+                    : context.theme.colorScheme.primary,
+              ),
+              onPressed: () => _interact(
+                () => unawaited(model.playing ? model.pause() : model.play()),
+              ),
+            ),
+            Spacing.h4,
+          ],
+          ConstrainedBox(
+            constraints: BoxConstraints(minHeight: Spacing.d48),
+            child: Button(
+              key: const ValueKey('trim-target-cursor'),
+              variant: .ghost,
+              borderWidth: 0,
+              width: timeWidth.clamp(
+                Spacing.d48,
+                (constraints.maxWidth - audioWidth).clamp(
+                  Spacing.d48,
+                  double.infinity,
+                ),
+              ),
+              padding: .symmetric(
+                horizontal: Spacing.d8,
+                vertical: Spacing.d12,
+              ),
+              tooltip: context.l10n.trimCursor,
+              child: Text(_time(model.position), style: style),
+              onPressed: () => _interact(() => model.selectTarget(.cursor)),
+            ),
+          ),
+        ],
+      );
+      final viewControls = Row(
+        key: const ValueKey('trim-view-controls'),
+        mainAxisSize: .min,
+        children: [
+          _icon(
+            context,
+            context.l10n.trimZoomOut,
+            Assets.zoomOutArea,
+            () => model.zoom(false),
+            enabled: !model.isOverview,
+          ),
+          Spacing.h4,
+          _icon(
+            context,
+            context.l10n.trimZoomIn,
+            Assets.zoomInArea,
+            () => model.zoom(true),
+            enabled: model.canZoomIn,
+          ),
+          Spacing.h4,
+          _icon(
+            context,
+            context.l10n.trimOverview,
+            Assets.squareArrowHorizontalRound,
+            model.fitTimeline,
+            enabled: !model.isOverview,
+            key: const ValueKey('trim-overview'),
+          ),
+        ],
+      );
+      final requiredWidth =
+          audioWidth + timeWidth + Spacing.d48 * 3 + Spacing.d8 + Spacing.d16;
+      return constraints.maxWidth >= requiredWidth
+          ? Row(
+              mainAxisAlignment: .spaceBetween,
+              children: [transport, viewControls],
+            )
+          : Column(
+              crossAxisAlignment: .start,
+              children: [transport, Spacing.v4, viewControls],
+            );
+    },
+  );
+
+  Widget _step(
+    BuildContext context,
+    TrimTimelineViewModel model,
+    int milliseconds,
+  ) => ConstrainedBox(
+    constraints: BoxConstraints(minHeight: Spacing.d48),
+    child: Button(
+      variant: .ghost,
+      titleExpand: .shrink,
+      padding: .all(Spacing.d12),
+      label: context.l10n.trimSeekStep(
+        '${milliseconds > 0 ? '+' : '−'}${milliseconds.abs() / 1000}',
+      ),
+      onPressed: () => _interact(() => model.nudge(milliseconds)),
+    ),
+  );
+
   Widget _target(
     BuildContext context,
     TrimTimelineViewModel model,
@@ -304,16 +349,19 @@ class _TrimTimelinePanelState extends State<TrimTimelinePanel> {
     };
     return Semantics(
       selected: model.target == target,
-      child: Button(
-        key: ValueKey('trim-fine-target-${target.name}'),
-        variant: model.target == target ? .secondary : .ghost,
-        titleExpand: .shrink,
-        mainAxisSize: .min,
-        padding: .symmetric(horizontal: Spacing.d12, vertical: Spacing.d8),
-        label: showTime
-            ? '$label ${_time(target == .start ? model.start : model.end)}'
-            : label,
-        onPressed: () => _interact(() => model.selectTarget(target)),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: Spacing.d48),
+        child: Button(
+          key: ValueKey('trim-fine-target-${target.name}'),
+          variant: model.target == target ? .secondary : .ghost,
+          titleExpand: .shrink,
+          mainAxisSize: .min,
+          padding: .symmetric(horizontal: Spacing.d12, vertical: Spacing.d8),
+          label: showTime
+              ? '$label ${_time(target == .start ? model.start : model.end)}'
+              : label,
+          onPressed: () => _interact(() => model.selectTarget(target)),
+        ),
       ),
     );
   }
@@ -325,8 +373,13 @@ class _TrimTimelinePanelState extends State<TrimTimelinePanel> {
     VoidCallback onTap, {
     int rotate = 0,
     bool enabled = true,
+    Key? key,
   }) => Button(
+    key: key,
     variant: .ghost,
+    borderWidth: 0,
+    width: Spacing.d48,
+    height: Spacing.d48,
     mainAxisSize: .min,
     padding: .all(Spacing.d12),
     tooltip: tooltip,
