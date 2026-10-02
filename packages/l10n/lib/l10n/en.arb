@@ -281,13 +281,16 @@
   "outputSaveTo": "Save to",
   "outputChangeFolder": "Change",
   "outputRememberFolder": "Use this folder for future conversions",
-  "outputDownloads": "Downloads",
+  "outputDownloads": "Download",
+  "@outputDownloads": {
+    "description": "Actual Android folder name. Keep Download unchanged in every language; the UI appends MediaConverterPro to show the full destination."
+  },
   "outputInternalStorage": "Internal storage",
   "outputAppStorage": "Keep in app",
   "outputChooseFolderHint": "Choose a folder using the system picker.",
-  "outputDownloadsHint": "Save in Downloads without choosing a folder.",
+  "outputDownloadsHint": "Save in Download/MediaConverterPro without choosing a folder.",
   "outputAppStorageHint": "Share files from the app. Uninstalling the app deletes these files.",
-  "outputPickerUnavailable": "The system folder picker is unavailable. Choose Downloads or keep files in the app.",
+  "outputPickerUnavailable": "The system folder picker is unavailable. Choose Download › MediaConverterPro or keep files in the app.",
   "outputAccessExpired": "Folder access is unavailable. Select the folder again to grant access.",
   "outputExportFailed": "Could not save the file. Your converted file is kept for retry.",
   "outputRetryExport": "Retry export"
