@@ -58,6 +58,29 @@ void main() {
   }
 
   test(
+    'large queue fetches only available slots and refills oldest work',
+    () async {
+      settings.concurrencyLimit = 2;
+      await model.addJobs([
+        for (var index = 0; index < 1000; index++) job('batch-$index'),
+      ]);
+      expect(runner.started, ['batch-0', 'batch-1']);
+      expect(storage.pendingQueryLimits, [2]);
+      expect(storage.pendingResultCounts, [2]);
+      runner.emit(
+        storage.jobs['batch-0']!.copyWith(status: const Some(.cancelled)),
+      );
+      await waitFor(() => runner.started.length == 3);
+      await flushEvents();
+      expect(runner.started, ['batch-0', 'batch-1', 'batch-2']);
+      expect(storage.pendingQueryLimits, [2, 1]);
+      expect(storage.pendingResultCounts, [2, 1]);
+      expect(await storage.getAllPendingJobs(), hasLength(997));
+      expect(await storage.getAllRunningJobs(), hasLength(2));
+    },
+  );
+
+  test(
     'runner session is stored even before its first progress callback',
     () async {
       await model.addJobs([job('first')]);
@@ -675,6 +698,8 @@ class MemoryLogs implements LogData {
 
 class MemoryJobStorage implements ConvertJobStorage {
   final jobs = <String, ConvertJob>{};
+  final pendingQueryLimits = <int>[];
+  final pendingResultCounts = <int>[];
   Completer<void>? preparingCommitGate;
   Failure? updateFailure;
   int updateAttempts = 0;
@@ -712,6 +737,14 @@ class MemoryJobStorage implements ConvertJobStorage {
   @override
   Future<List<ConvertJob>> getAllPendingJobs() async =>
       jobs.values.where((job) => job.status.isQueued).toList();
+
+  @override
+  Future<List<ConvertJob>> getNextPendingJobs(int limit) async {
+    pendingQueryLimits.add(limit);
+    final pending = (await getAllPendingJobs()).take(limit).toList();
+    pendingResultCounts.add(pending.length);
+    return pending;
+  }
 
   @override
   Future<List<ConvertJob>> getAllRunningJobs() async =>

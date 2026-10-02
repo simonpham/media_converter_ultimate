@@ -19,6 +19,9 @@ abstract class ConvertJobStorage
 
   Future<List<ConvertJob>> getAllPendingJobs();
 
+  /// Returns at most [limit] queued jobs, oldest first.
+  Future<List<ConvertJob>> getNextPendingJobs(int limit);
+
   Future<List<ConvertJob>> getAllRunningJobs();
 
   Future<bool> removeAllFinishedJobs();

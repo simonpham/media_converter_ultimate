@@ -174,18 +174,23 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   }
 
   @override
-  Future<List<ConvertJob>> getAllPendingJobs() async {
-    return await isar.isarConvertJobs
+  Future<List<ConvertJob>> getAllPendingJobs() => _findPendingJobs();
+
+  @override
+  Future<List<ConvertJob>> getNextPendingJobs(int limit) {
+    RangeError.checkNotNegative(limit, 'limit');
+    return _findPendingJobs(limit: limit);
+  }
+
+  Future<List<ConvertJob>> _findPendingJobs({int? limit}) async {
+    final query = isar.isarConvertJobs
         .where()
         .statusEqualTo(.pending)
-        .sortByCreatedAt()
-        .findAll()
-        .then(
-          (list) => list
-              .whereType<IsarConvertJob>()
-              .map((e) => e.toOriginalModel())
-              .toList(),
-        );
+        .sortByCreatedAt();
+    final jobs = limit == null
+        ? await query.findAll()
+        : await query.limit(limit).findAll();
+    return jobs.map((job) => job.toOriginalModel()).toList();
   }
 
   @override

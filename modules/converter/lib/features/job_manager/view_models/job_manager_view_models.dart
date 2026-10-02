@@ -411,7 +411,7 @@ class JobManagerViewModel extends ChangeNotifier {
       if (availableSlots <= 0) {
         continue;
       }
-      final pendingJobs = await _jobStorage.getAllPendingJobs();
+      final pendingJobs = await _jobStorage.getNextPendingJobs(availableSlots);
       for (final job in pendingJobs.take(availableSlots)) {
         if (_isDisposed) {
           return;

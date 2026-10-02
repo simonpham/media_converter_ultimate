@@ -319,6 +319,35 @@ void main() {
     },
   );
 
+  test(
+    'bounded pending query retains oldest-first order after updates',
+    () async {
+      final batch = [
+        for (var index = 0; index < 1000; index++)
+          job('batch-$index', order: index),
+      ];
+      await storage.addAll(batch.reversed.toList());
+      await storage.update(batch.first.copyWith(progress: const Some(10)));
+      expect((await storage.getNextPendingJobs(3)).map((job) => job.id), [
+        'batch-0',
+        'batch-1',
+        'batch-2',
+      ]);
+      await storage.update(batch.first.copyWith(status: const Some(.running)));
+      await storage.update(
+        batch[1].copyWith(status: const Some(.actionRequired)),
+      );
+      expect((await storage.getNextPendingJobs(2)).map((job) => job.id), [
+        'batch-2',
+        'batch-3',
+      ]);
+      expect(await storage.getNextPendingJobs(0), isEmpty);
+      expect(() => storage.getNextPendingJobs(-1), throwsRangeError);
+      expect(await storage.getAllPendingJobs(), hasLength(998));
+      expect(await storage.count(), 1000);
+    },
+  );
+
   test('count watcher follows inserts, updates and deletions', () async {
     final counts = StreamIterator(storage.watchJobCount());
     try {
