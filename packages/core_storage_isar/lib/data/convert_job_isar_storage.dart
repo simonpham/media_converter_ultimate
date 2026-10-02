@@ -97,9 +97,8 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   @override
   Stream<int> watchJobCount() {
     return isar.isarConvertJobs
-        .where()
-        .watch(fireImmediately: true)
-        .map((list) => list.length);
+        .watchLazy(fireImmediately: true)
+        .asyncMap((_) => isar.isarConvertJobs.count());
   }
 
   @override
@@ -305,7 +304,7 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
 
   @override
   Stream<bool> watchIsJobPendingOrProcessing() {
-    return isar.isarConvertJobs
+    final query = isar.isarConvertJobs
         .where()
         .statusEqualTo(.pending)
         .or()
@@ -318,7 +317,11 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
         .statusEqualTo(.cleaning)
         .or()
         .statusEqualTo(.stopping)
-        .watch(fireImmediately: true)
-        .map((list) => list.isNotEmpty);
+        .build();
+    // Keep repeated true events: they allow the notification coordinator to
+    // retry a transient native-service failure on the next progress update.
+    return query
+        .watchLazy(fireImmediately: true)
+        .asyncMap((_) => query.isNotEmpty());
   }
 }

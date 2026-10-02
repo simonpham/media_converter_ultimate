@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
@@ -241,6 +242,104 @@ void main() {
       }
     },
   );
+
+  test(
+    'activity watcher follows every processing and terminal state',
+    () async {
+      final activity = StreamIterator(storage.watchIsJobPendingOrProcessing());
+      try {
+        expect(await next(activity), isFalse);
+        var current = job('conversion', order: 0);
+        await storage.add(current);
+        expect(await next(activity), isTrue);
+        for (final status in <JobStatus>[
+          .preparing,
+          .ready,
+          .running,
+          .cleaning,
+          .stopping,
+        ]) {
+          current = current.copyWith(status: Some(status));
+          await storage.update(current);
+          expect(await next(activity), isTrue, reason: status.name);
+        }
+        current = current.copyWith(status: const Some(.cancelled));
+        await storage.update(current);
+        expect(await next(activity), isFalse);
+        expect(await storage.watchIsJobPendingOrProcessing().first, isFalse);
+        for (final status in <JobStatus>[
+          .actionRequired,
+          .completed,
+          .failed,
+        ]) {
+          await storage.update(current.copyWith(status: Some(status)));
+          expect(await storage.watchIsJobPendingOrProcessing().first, isFalse);
+        }
+        expect(await storage.count(), 1);
+      } finally {
+        await activity.cancel();
+      }
+    },
+  );
+
+  test(
+    'large batches retain activity updates for native service retry',
+    () async {
+      final batch = [
+        for (var index = 0; index < 1000; index++)
+          job('batch-$index', order: index).copyWith(
+            command: Some(
+              List.filled(128, '-metadata title=large-batch').join(' '),
+            ),
+          ),
+      ];
+      final activity = StreamIterator(storage.watchIsJobPendingOrProcessing());
+      try {
+        expect(await next(activity), isFalse);
+        await storage.addAll(batch);
+        expect(await next(activity), isTrue);
+        final running = batch.first.copyWith(status: const Some(.running));
+        await storage.update(running);
+        expect(await next(activity), isTrue);
+        await storage.update(running.copyWith(progress: const Some(100)));
+        expect(await next(activity), isTrue);
+        // Completion of one job must not stop the service with others queued.
+        await storage.update(running.copyWith(status: const Some(.completed)));
+        expect(await next(activity), isTrue);
+        await storage.addAll([
+          for (final queued in batch.skip(1))
+            queued.copyWith(status: const Some(.completed)),
+        ]);
+        expect(await next(activity), isFalse);
+        expect(await storage.count(), batch.length);
+        expect((await storage.get(batch.last.id))!.command, batch.last.command);
+      } finally {
+        await activity.cancel();
+      }
+    },
+  );
+
+  test('count watcher follows inserts, updates and deletions', () async {
+    final counts = StreamIterator(storage.watchJobCount());
+    try {
+      expect(await next(counts), 0);
+      await storage.addAll([job('first', order: 0), job('second', order: 1)]);
+      expect(await next(counts), 2);
+      await storage.update(job('first', order: 0, status: .completed));
+      expect(await next(counts), 2);
+      await storage.delete('second');
+      expect(await next(counts), 1);
+      await storage.removeAllFinishedJobs();
+      expect(await next(counts), 0);
+    } finally {
+      await counts.cancel();
+    }
+  });
+}
+
+Future<T> next<T>(StreamIterator<T> iterator) async {
+  expect(await iterator.moveNext().timeout(const Duration(seconds: 5)), isTrue);
+  return iterator.current;
 }
 
 ConvertJob job(String id, {required int order, JobStatus status = .pending}) {
