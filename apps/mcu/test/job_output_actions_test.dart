@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -160,6 +161,86 @@ void main() {
       },
     );
   }
+
+  testWidgets(
+    'restart commit failure is shown without an unhandled exception',
+    (tester) async {
+      model.restartError = const Failure('Cannot save retry');
+      await showJobs(tester, _job(status: .failed));
+      await tester.ensureVisible(find.text('Restart'));
+      await tester.tap(find.text('Restart'));
+      await tester.pump();
+      expect(find.text('Unknown error. Please try again.'), findsOneWidget);
+      expect(model.restartCount, 1);
+      expect(find.text('output.wav'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('failed overwrite deletion stops restart and preserves history', (
+    tester,
+  ) async {
+    model.previousOutputExists = true;
+    model.deleteFailure = const FileDeleteFailure('/stored/exports/output.wav');
+    await showJobs(tester, _job(status: .failed));
+    await tester.ensureVisible(find.text('Restart'));
+    await tester.tap(find.text('Restart'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Overwrite'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Failed to delete file at /stored/exports/output.wav.'),
+      findsOneWidget,
+    );
+    expect(model.deleteCount, 1);
+    expect(model.restartCount, 0);
+    expect(find.text('output.wav'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'removal storage exception is shown and retains the history row',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      try {
+        model.removeError = StateError('Cannot delete record');
+        await showJobs(tester, _job());
+        final remove = find.bySemanticsLabel('Remove from history');
+        await tester.ensureVisible(remove);
+        await tester.tap(remove);
+        await tester.pump();
+        expect(find.text('Unknown error. Please try again.'), findsOneWidget);
+        expect(find.text('output.wav'), findsOneWidget);
+        await tester.pump(const Duration(seconds: 5));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+      } finally {
+        semantics.dispose();
+      }
+    },
+  );
+
+  testWidgets(
+    'closing Home during restart preflight prevents a late dialog or retry',
+    (tester) async {
+      model.previousOutputExists = true;
+      model.outputCheckGate = Completer<void>();
+      await showJobs(tester, _job(status: .failed));
+      await tester.ensureVisible(find.text('Restart'));
+      await tester.tap(find.text('Restart'));
+      await tester.pump();
+      await tester.pumpWidget(const SizedBox.shrink());
+      model.outputCheckGate!.complete();
+      await tester.pumpAndSettle();
+      expect(model.restartCount, 0);
+      expect(model.deleteCount, 0);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }
 
 ConvertJob _job({String? uri, JobStatus status = .completed}) => ConvertJob(
@@ -198,6 +279,37 @@ class _Files extends DirectFileService {
 
 class _Manager extends JobManagerViewModel {
   late ConvertJob job;
+  bool previousOutputExists = false;
+  Object? restartError;
+  Object? removeError;
+  Failure? deleteFailure;
+  Completer<void>? outputCheckGate;
+  int restartCount = 0;
+  int deleteCount = 0;
+  @override
+  Future<bool> isOutputFileExists(ConvertJob job) async {
+    await outputCheckGate?.future;
+    return previousOutputExists;
+  }
+
+  @override
+  Future<void> restartJob(ConvertJob job) async {
+    restartCount++;
+    if (restartError case final error?) throw error;
+  }
+
+  @override
+  Future<Failure?> deleteOutputFile(ConvertJob job) async {
+    deleteCount++;
+    return deleteFailure;
+  }
+
+  @override
+  Future<Failure?> removeJob(ConvertJob job) async {
+    if (removeError case final error?) throw error;
+    return null;
+  }
+
   @override
   Stream<List<ConvertJob>> get completedJobsStream => Stream.value([job]);
   @override

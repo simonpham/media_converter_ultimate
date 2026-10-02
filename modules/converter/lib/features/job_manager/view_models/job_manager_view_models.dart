@@ -133,28 +133,38 @@ class JobManagerViewModel extends ChangeNotifier {
     Completer<void>? registered;
     String? executionId;
     try {
-      final currentJob = await _jobStorage.get(job.id);
-      if (currentJob == null || !currentJob.status.isQueued) {
-        return;
-      }
-      executionId = kUuid.v4();
-      registered = Completer<void>();
-      _runnerStarts[executionId] = registered;
-      _activeExecutions[job.id] = executionId;
-      final preparingJob = currentJob.copyWith(
-        status: const Some(.preparing),
-        executionId: Some(executionId),
+      final preparingJob = await _serializeJobOperation<ConvertJob?>(
+        job.id,
+        () async {
+          final currentJob = await _jobStorage.get(job.id);
+          if (_isDisposed ||
+              currentJob == null ||
+              !currentJob.status.isQueued) {
+            return null;
+          }
+          final id = kUuid.v4();
+          final registration = Completer<void>();
+          executionId = id;
+          registered = registration;
+          _runnerStarts[id] = registration;
+          _activeExecutions[job.id] = id;
+          final preparingJob = currentJob.copyWith(
+            status: const Some(.preparing),
+            executionId: Some(id),
+          );
+          final failure = await _jobStorage.update(preparingJob);
+          if (failure != null) throw failure;
+          return preparingJob;
+        },
       );
-      final failure = await _jobStorage.update(preparingJob);
-      if (failure != null) {
-        throw failure;
-      }
+      if (preparingJob == null || _isDisposed) return;
+      final registration = registered!;
       try {
         late final Future<ConvertJob> running;
         try {
           running = _jobRunnerService.run(preparingJob);
         } finally {
-          registered.complete();
+          registration.complete();
         }
         final startedJob = await running;
         await _queueJobUpdate(startedJob);
@@ -170,7 +180,9 @@ class JobManagerViewModel extends ChangeNotifier {
       if (!didRegister && _activeExecutions[job.id] == executionId) {
         _activeExecutions.remove(job.id);
       }
-      if (registered != null && !registered.isCompleted) registered.complete();
+      if (registered case final registration? when !registration.isCompleted) {
+        registration.complete();
+      }
       _runnerStarts.remove(executionId);
       _startingJobs.remove(job.id);
       if (didRegister) _requestPendingJobs();
@@ -178,26 +190,54 @@ class JobManagerViewModel extends ChangeNotifier {
   }
 
   Future<void> restartJob(ConvertJob job) async {
-    await _jobOperations[job.id];
-    final currentJob = await _jobStorage.get(job.id);
-    if (currentJob == null || !currentJob.status.isDone) {
-      return;
-    }
-    final sessionId = currentJob.sessionId;
-    if (sessionId != null) {
-      (_retiredSessions[job.id] ??= {}).add(sessionId);
-    }
-    await _fileService.acknowledgeExport(currentJob.id);
-    final newJob = currentJob.copyWith(
-      status: const Some(.pending),
-      outputUri: const Some(null),
-      outputStaged: const Some(false),
-      sessionId: const Some(null),
-      progress: const Some(null),
-      duration: const Some(null),
+    final restarted = await _serializeJobOperation(job.id, () async {
+      final currentJob = await _jobStorage.get(job.id);
+      if (_isDisposed || currentJob == null || !currentJob.status.isDone) {
+        return false;
+      }
+      final sessionId = currentJob.sessionId;
+      if (sessionId != null) {
+        (_retiredSessions[job.id] ??= {}).add(sessionId);
+      }
+      await _fileService.acknowledgeExport(currentJob.id);
+      final newJob = currentJob.copyWith(
+        status: const Some(.pending),
+        outputUri: const Some(null),
+        outputStaged: const Some(false),
+        sessionId: const Some(null),
+        progress: const Some(null),
+        duration: const Some(null),
+      );
+      final failure = await _jobStorage.update(newJob);
+      if (failure != null) throw failure;
+      return true;
+    });
+    if (restarted) await _runPendingJobs();
+  }
+
+  /// Keep each job's read/change steps together without blocking other jobs or
+  /// holding a lock while native conversion is running.
+  Future<T> _serializeJobOperation<T>(
+    String jobId,
+    Future<T> Function() action,
+  ) {
+    final previous = _jobOperations[jobId] ?? Future<void>.value();
+    final result = previous.then((_) => action());
+    // Callers receive failures. The queue tail still settles so a later retry
+    // or removal can run after an unsuccessful storage operation.
+    final settled = result.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
     );
-    await _jobStorage.update(newJob);
-    await _runPendingJobs();
+    _jobOperations[jobId] = settled;
+    unawaited(
+      settled.then((_) {
+        if (identical(_jobOperations[jobId], settled)) {
+          _jobOperations.remove(jobId);
+        }
+      }),
+    );
+    return result;
   }
 
   Future<void> _queueJobUpdate(
@@ -205,8 +245,7 @@ class JobManagerViewModel extends ChangeNotifier {
     bool recoverOutput = false,
     bool restoreAfterStop = false,
   }) {
-    final previous = _jobOperations[job.id] ?? Future<void>.value();
-    final operation = previous.then((_) async {
+    return _serializeJobOperation(job.id, () async {
       if (_isDisposed) {
         return;
       }
@@ -221,15 +260,6 @@ class JobManagerViewModel extends ChangeNotifier {
         LogData().appendLog(job.id, err.toString());
       }
     });
-    _jobOperations[job.id] = operation;
-    unawaited(
-      operation.then((_) {
-        if (identical(_jobOperations[job.id], operation)) {
-          _jobOperations.remove(job.id);
-        }
-      }),
-    );
-    return operation;
   }
 
   Future<void> _handleJobUpdate(
@@ -442,27 +472,29 @@ class JobManagerViewModel extends ChangeNotifier {
     return null;
   }
 
-  Future<Failure?> removeJob(ConvertJob job) async {
-    final currentJob = await _jobStorage.get(job.id);
-    if (currentJob == null) {
-      return null;
-    }
-    if (currentJob.status.isProcessing) {
-      // Not allowed to remove running job.
-      return const InvalidStatusFailure();
-    }
+  Future<Failure?> removeJob(ConvertJob job) =>
+      _serializeJobOperation(job.id, () async {
+        final currentJob = await _jobStorage.get(job.id);
+        if (currentJob == null) {
+          return null;
+        }
+        if (currentJob.status.isProcessing) {
+          // Not allowed to remove running job.
+          return const InvalidStatusFailure();
+        }
 
-    final jobId = job.id;
-    final convertedFilePath = currentJob.convertedFilePath;
+        final jobId = job.id;
+        final convertedFilePath = currentJob.convertedFilePath;
 
-    job.clearLog();
-    await _jobStorage.delete(jobId);
-    _retiredSessions.remove(jobId);
+        final failure = await _jobStorage.delete(jobId);
+        if (failure != null) return failure;
+        _requestPendingJobs();
+        await _clearRemovedJobData([jobId]);
 
-    await _fileService.cleanUpInputFile(jobId: jobId);
-    await _fileService.deleteFileAtPath(convertedFilePath);
-    return null;
-  }
+        await _fileService.cleanUpInputFile(jobId: jobId);
+        await _fileService.deleteFileAtPath(convertedFilePath);
+        return null;
+      });
 
   Future<Failure?> clearFinishedJobs(ClearFinishedJobsOption result) async {
     final removedIds = switch (result) {
@@ -475,6 +507,11 @@ class JobManagerViewModel extends ChangeNotifier {
       return const FailedToClearJobsFailure();
     }
 
+    await _clearRemovedJobData(removedIds);
+    return null;
+  }
+
+  Future<void> _clearRemovedJobData(List<String> removedIds) async {
     for (final id in removedIds) {
       _retiredSessions.remove(id);
       _exportFailures.remove(id);
@@ -488,8 +525,6 @@ class JobManagerViewModel extends ChangeNotifier {
         printError(err, trace);
       }
     }
-
-    return null;
   }
 
   Future<Failure?> retryExport(ConvertJob job) async {

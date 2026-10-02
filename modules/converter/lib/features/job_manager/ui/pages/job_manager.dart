@@ -395,10 +395,16 @@ class _JobManagerState extends State<JobManager> {
       return;
     }
 
-    final failure = await context.read<JobManagerViewModel>().removeJob(job);
-    if (failure != null) {
-      context.toastFailure(failure);
-      return;
+    try {
+      final failure = await context.read<JobManagerViewModel>().removeJob(job);
+      if (failure != null && context.mounted) context.toastFailure(failure);
+    } catch (error, trace) {
+      printError(error, trace);
+      if (context.mounted) {
+        context.toastFailure(
+          error is Failure ? error : Failure(error.toString()),
+        );
+      }
     }
   }
 
@@ -447,23 +453,35 @@ class _JobManagerState extends State<JobManager> {
   }
 
   Future<void> _handleRestart(BuildContext context, ConvertJob job) async {
-    final model = context.read<JobManagerViewModel>();
-    final isOutputFileExists = await model.isOutputFileExists(job);
-    if (isOutputFileExists) {
-      final confirmOverwrite = await ConfirmDialog.show(
-        context,
-        title: context.l10n.outputFileExists,
-        message: context.l10n.outputFileExistsConfirmationMessage,
-        negativeText: context.l10n.cancel,
-        positiveText: context.l10n.overwrite,
-      );
-      if (confirmOverwrite != .positive) {
-        return;
+    try {
+      final model = context.read<JobManagerViewModel>();
+      final isOutputFileExists = await model.isOutputFileExists(job);
+      if (!context.mounted) return;
+      if (isOutputFileExists) {
+        final confirmOverwrite = await ConfirmDialog.show(
+          context,
+          title: context.l10n.outputFileExists,
+          message: context.l10n.outputFileExistsConfirmationMessage,
+          negativeText: context.l10n.cancel,
+          positiveText: context.l10n.overwrite,
+        );
+        if (!context.mounted || confirmOverwrite != .positive) return;
+        final failure = await model.deleteOutputFile(job);
+        if (!context.mounted) return;
+        if (failure != null) {
+          context.toastFailure(failure);
+          return;
+        }
       }
-      await model.deleteOutputFile(job);
+      await model.restartJob(job);
+    } catch (error, trace) {
+      printError(error, trace);
+      if (context.mounted) {
+        context.toastFailure(
+          error is Failure ? error : Failure(error.toString()),
+        );
+      }
     }
-
-    await model.restartJob(job);
   }
 
   Future<void> _handleClearFinishedJobs(BuildContext context) async {

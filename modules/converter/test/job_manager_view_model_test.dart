@@ -212,14 +212,20 @@ void main() {
 
   test('Stop before runner registration waits for that execution', () async {
     storage.preparingCommitGate = Completer<void>();
+    runner.startGate = Completer<void>();
+    runner.stopGate = Completer<void>();
     final adding = model.addJobs([job('first')]);
     await waitFor(() => storage.jobs['first']?.status == .preparing);
     final preparing = storage.jobs['first']!;
     final stopping = model.removeRunningJob(preparing);
-    await waitFor(() => storage.jobs['first']?.status == .stopping);
+    await flushEvents();
     expect(runner.started, isEmpty);
     expect(runner.stopped, isEmpty);
     storage.preparingCommitGate!.complete();
+    await waitFor(() => runner.stopped.isNotEmpty);
+    expect(storage.jobs['first']!.status, JobStatus.stopping);
+    runner.startGate!.complete();
+    runner.stopGate!.complete();
     await Future.wait([adding, stopping]);
     expect(runner.started, ['first']);
     expect(runner.stopped, [null]);
@@ -569,6 +575,126 @@ void main() {
   });
 
   test(
+    'pending removal wins over a later startup without running deleted work',
+    () async {
+      final pending = job('removing');
+      storage.jobs[pending.id] = pending;
+      final gate = storage.nextReadGate = Completer<void>();
+      final removing = model.removeJob(pending);
+      final starting = model.runJob(pending);
+      await flushEvents();
+      gate.complete();
+      expect(await removing, isNull);
+      await starting;
+      expect(runner.started, isEmpty);
+      expect(storage.jobs, isEmpty);
+      expect(files.cleanedInputs, ['removing']);
+    },
+  );
+
+  test(
+    'removing a pending startup candidate advances to the next job',
+    () async {
+      final first = job('removed');
+      final second = job('next');
+      storage.jobs[first.id] = first;
+      final gate = storage.nextReadGate = Completer<void>();
+      final removing = model.removeJob(first);
+      final adding = model.addJobs([first, second]);
+      await flushEvents();
+      gate.complete();
+      expect(await removing, isNull);
+      await adding;
+      await flushEvents();
+      expect(storage.jobs.containsKey(first.id), isFalse);
+      expect(runner.started, ['next']);
+      expect(storage.jobs[second.id]!.status, JobStatus.running);
+    },
+  );
+
+  test(
+    'startup wins over a later removal without deleting its cached input',
+    () async {
+      final pending = job('starting');
+      storage.jobs[pending.id] = pending;
+      final gate = storage.nextReadGate = Completer<void>();
+      final starting = model.runJob(pending);
+      final removing = model.removeJob(pending);
+      await flushEvents();
+      gate.complete();
+      await starting;
+      expect(await removing, isA<InvalidStatusFailure>());
+      expect(runner.started, ['starting']);
+      expect(storage.jobs['starting']!.status, JobStatus.running);
+      expect(files.cleanedInputs, isEmpty);
+      expect(files.deletedStages, isEmpty);
+    },
+  );
+
+  test('failed job deletion preserves its log and cached files', () async {
+    final completed = job('kept', status: .completed);
+    storage.jobs[completed.id] = completed;
+    logs.values[completed.id] = 'Details for retry';
+    storage.deleteFailure = const Failure('Cannot delete record');
+    expect(await model.removeJob(completed), same(storage.deleteFailure));
+    expect(storage.jobs[completed.id], same(completed));
+    expect(logs.getLog(completed.id), 'Details for retry');
+    expect(files.cleanedInputs, isEmpty);
+    expect(files.deletedStages, isEmpty);
+  });
+
+  test(
+    'simultaneous retries cannot restart the same native work twice',
+    () async {
+      final failed = job('retry', status: .failed);
+      storage.jobs[failed.id] = failed;
+      final gate = storage.nextReadGate = Completer<void>();
+      final first = model.restartJob(failed);
+      final second = model.restartJob(failed);
+      await flushEvents();
+      gate.complete();
+      await Future.wait([first, second]);
+      expect(runner.started, ['retry']);
+      expect(storage.jobs['retry']!.status, JobStatus.running);
+      expect(storage.jobs['retry']!.sessionId, 1);
+    },
+  );
+
+  test(
+    'failed retry commit is reported and does not block a later retry',
+    () async {
+      final failed = job('retry', status: .failed);
+      storage.jobs[failed.id] = failed;
+      const failure = Failure('Cannot save retry');
+      storage.updateFailure = failure;
+      await expectLater(model.restartJob(failed), throwsA(same(failure)));
+      expect(storage.jobs[failed.id], same(failed));
+      expect(runner.started, isEmpty);
+      storage.updateFailure = null;
+      await model.restartJob(failed);
+      expect(runner.started, ['retry']);
+      expect(storage.jobs[failed.id]!.status, JobStatus.running);
+    },
+  );
+
+  test(
+    'removal before retry cannot recreate a deleted history entry',
+    () async {
+      final completed = job('removed', status: .completed);
+      storage.jobs[completed.id] = completed;
+      final gate = storage.nextReadGate = Completer<void>();
+      final removing = model.removeJob(completed);
+      final restarting = model.restartJob(completed);
+      await flushEvents();
+      gate.complete();
+      expect(await removing, isNull);
+      await restarting;
+      expect(storage.jobs, isEmpty);
+      expect(runner.started, isEmpty);
+    },
+  );
+
+  test(
     'a stale retry action cannot overwrite an already restarted job',
     () async {
       final failed = job('retry', status: .failed);
@@ -783,6 +909,8 @@ class MemoryJobStorage implements ConvertJobStorage {
   final pendingQueryLimits = <int>[];
   final pendingResultCounts = <int>[];
   Completer<void>? preparingCommitGate;
+  Completer<void>? nextReadGate;
+  Failure? deleteFailure;
   Failure? updateFailure;
   int updateAttempts = 0;
   bool failCompletedCommit = false;
@@ -820,7 +948,13 @@ class MemoryJobStorage implements ConvertJobStorage {
   }
 
   @override
-  Future<ConvertJob?> get(String id) async => jobs[id];
+  Future<ConvertJob?> get(String id) async {
+    final snapshot = jobs[id];
+    final gate = nextReadGate;
+    nextReadGate = null;
+    await gate?.future;
+    return snapshot;
+  }
 
   @override
   Future<Failure?> update(ConvertJob item) async {
@@ -836,6 +970,7 @@ class MemoryJobStorage implements ConvertJobStorage {
 
   @override
   Future<Failure?> delete(String id) async {
+    if (deleteFailure != null) return deleteFailure;
     jobs.remove(id);
     return null;
   }
