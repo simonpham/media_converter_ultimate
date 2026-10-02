@@ -153,7 +153,7 @@ extension SettingsHandlers on SettingsPageItem {
 
   Future<void> _handleConcurrencyLimit(BuildContext context) async {
     const minValue = 1.0;
-    const maxValue = 4.0;
+    final maxValue = kMaxConcurrencyLimit.toDouble();
     final divisions = (maxValue - minValue).toInt();
     final currentValue = min(
       max(SettingsBox().concurrencyLimit, minValue),

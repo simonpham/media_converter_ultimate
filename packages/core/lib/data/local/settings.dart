@@ -22,8 +22,14 @@ class SettingsBox extends EasyBox {
 }
 
 extension LocalSettingsExt on SettingsBox {
+  /// Invalid persisted values use a default without rewriting other preferences.
+  T readSetting<T>(Object key, {required T defaultValue}) {
+    final value = get(key, defaultValue: defaultValue);
+    return value is T ? value : defaultValue;
+  }
+
   String get lastKnownVersion {
-    final String savedVersion = get(
+    final savedVersion = readSetting(
       CoreSettings.lastKnownVersion,
       defaultValue: '',
     );
@@ -34,7 +40,7 @@ extension LocalSettingsExt on SettingsBox {
       put(CoreSettings.lastKnownVersion, value);
 
   String get language {
-    final String savedLanguage = get(
+    final savedLanguage = readSetting(
       CoreSettings.language,
       defaultValue: kDeviceLanguage,
     );
@@ -47,12 +53,12 @@ extension LocalSettingsExt on SettingsBox {
   set language(String value) => put(CoreSettings.language, value);
 
   ThemeMode get appTheme {
-    final rawData = get(
+    final rawData = readSetting(
       CoreSettings.appTheme,
       defaultValue: ThemeMode.system.name,
     );
     return ThemeMode.values.firstWhere(
-      (e) => e.name == '$rawData',
+      (e) => e.name == rawData,
       orElse: () => ThemeMode.system,
     );
   }

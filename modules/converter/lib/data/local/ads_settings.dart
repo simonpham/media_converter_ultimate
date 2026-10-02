@@ -8,40 +8,36 @@ enum AdsSettings {
 }
 
 extension AdsSettingsExt on SettingsBox {
-  int get appLaunchCount => get(
-    AdsSettings.appLaunchCount,
-    defaultValue: 0,
-  );
+  int _readCounter(AdsSettings key) {
+    final value = readSetting(key, defaultValue: 0);
+    return value < 0 ? 0 : value;
+  }
+
+  int get appLaunchCount => _readCounter(AdsSettings.appLaunchCount);
 
   set appLaunchCount(int value) => put(
     AdsSettings.appLaunchCount,
     value,
   );
 
-  int get filePickerAccessCount => get(
-    AdsSettings.filePickerAccessCount,
-    defaultValue: 0,
-  );
+  int get filePickerAccessCount =>
+      _readCounter(AdsSettings.filePickerAccessCount);
 
   set filePickerAccessCount(int value) => put(
     AdsSettings.filePickerAccessCount,
     value,
   );
 
-  int get outputFormatPickerAccessCount => get(
-    AdsSettings.outputFormatPickerAccessCount,
-    defaultValue: 0,
-  );
+  int get outputFormatPickerAccessCount =>
+      _readCounter(AdsSettings.outputFormatPickerAccessCount);
 
   set outputFormatPickerAccessCount(int value) => put(
     AdsSettings.outputFormatPickerAccessCount,
     value,
   );
 
-  int get successConversionCount => get(
-    AdsSettings.successConversionCount,
-    defaultValue: 0,
-  );
+  int get successConversionCount =>
+      _readCounter(AdsSettings.successConversionCount);
 
   set successConversionCount(int value) => put(
     AdsSettings.successConversionCount,

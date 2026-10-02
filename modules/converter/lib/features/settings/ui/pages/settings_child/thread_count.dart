@@ -13,8 +13,6 @@ class const ThreadCountSettingsChild({
     return '$value';
   }
 
-  static const int _kMaxThreadCount = 16;
-
   @override
   Widget builder(BuildContext context) {
     final scrollController = ScrollController();
@@ -74,8 +72,8 @@ class const ThreadCountSettingsChild({
                           Slider(
                             value: threadCount.toDouble(),
                             min: 0,
-                            max: _kMaxThreadCount.toDouble(),
-                            divisions: _kMaxThreadCount,
+                            max: kMaxThreadCount.toDouble(),
+                            divisions: kMaxThreadCount,
                             onChanged: (value) {
                               threadCountNotifier.value = value.toInt();
                             },
@@ -103,7 +101,7 @@ class const ThreadCountSettingsChild({
                                 ),
                                 Flexible(
                                   child: Text(
-                                    '$_kMaxThreadCount',
+                                    '$kMaxThreadCount',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: textTheme.labelSmall,

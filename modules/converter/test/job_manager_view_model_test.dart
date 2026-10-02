@@ -48,6 +48,15 @@ void main() {
     },
   );
 
+  for (final savedLimit in [0, -1, 'three']) {
+    test('queue starts safely with invalid saved limit $savedLimit', () async {
+      settings.values[JobRunnerSettings.concurrencyLimit] = savedLimit;
+      await model.addJobs([job('first'), job('second')]);
+      expect(runner.started, ['first']);
+      expect(storage.jobs['second']!.status, JobStatus.pending);
+    });
+  }
+
   test(
     'runner session is stored even before its first progress callback',
     () async {

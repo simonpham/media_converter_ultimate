@@ -8,7 +8,7 @@ enum JobMakerSettings {
 }
 
 extension JobMakerSettingsExt on SettingsBox {
-  String? get defaultOutputFormat => get(
+  String? get defaultOutputFormat => readSetting<String?>(
     JobMakerSettings.defaultOutputFormat,
     defaultValue: null,
   );
@@ -18,7 +18,7 @@ extension JobMakerSettingsExt on SettingsBox {
     value,
   );
 
-  String? get lastOutputDirectoryPath => get(
+  String? get lastOutputDirectoryPath => readSetting<String?>(
     JobMakerSettings.lastOutputDirectoryPath,
     defaultValue: null,
   );
@@ -35,11 +35,10 @@ extension JobMakerSettingsExt on SettingsBox {
     );
 
     if (rawValue is! List) {
-      excludedFileExtensions = [];
-      return [];
+      return List.of(kDefaultExcludedFileExtensions);
     }
 
-    return List<String>.from(rawValue);
+    return rawValue.whereType<String>().toList();
   }
 
   set excludedFileExtensions(List<String> value) => put(
@@ -47,7 +46,7 @@ extension JobMakerSettingsExt on SettingsBox {
     value.toSet().toList(),
   );
 
-  bool get shouldExcludeNonMediaFiles => get(
+  bool get shouldExcludeNonMediaFiles => readSetting(
     JobMakerSettings.shouldExcludeNonMediaFiles,
     defaultValue: true,
   );
