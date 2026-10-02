@@ -28,6 +28,7 @@ class const JobLogViewer({
 
 class _JobLogViewerState extends State<JobLogViewer> {
   final _scrollController = ScrollController();
+  final MenuController _menuController = .new();
   final TextEditingController _searchController = .new();
   late final JobLogViewModel _model = JobLogViewModel(widget.job)..initialize();
 
@@ -47,48 +48,70 @@ class _JobLogViewerState extends State<JobLogViewer> {
         builder: (context, model, _) => Scaffold(
           appBar: AppBar(
             title: Text(widget.job.outputFileName),
+            actions: [
+              Directionality(
+                textDirection: Directionality.of(context) == .ltr ? .rtl : .ltr,
+                child: MenuAnchor(
+                  controller: _menuController,
+                  alignmentOffset: .new(0, Spacing.d4),
+                  menuChildren: [
+                    _logAction(
+                      context,
+                      context.l10n.copyFullLog,
+                      enabled: model.logs.isNotEmpty,
+                      onTap: () => unawaited(_copy(context)),
+                    ),
+                    _logAction(
+                      context,
+                      context.l10n.exportFullLog,
+                      enabled: model.logs.isNotEmpty && !model.isExporting,
+                      onTap: () => unawaited(_export(context)),
+                    ),
+                  ],
+                  builder: (context, controller, _) => Button(
+                    key: const ValueKey('log-actions'),
+                    variant: .ghost,
+                    borderWidth: 0,
+                    width: Spacing.d48,
+                    height: Spacing.d48,
+                    padding: .all(Spacing.d12),
+                    tooltip: MaterialLocalizations.of(context)
+                        .moreButtonTooltip,
+                    child: ImageView(
+                      Assets.moreVertical,
+                      size: Spacing.d24,
+                      color: context.theme.colorScheme.onSurface,
+                    ),
+                    onPressed: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      if (controller.isOpen) {
+                        controller.close();
+                      } else {
+                        controller.open();
+                      }
+                    },
+                  ),
+                ),
+              ),
+              Spacing.h8,
+            ],
           ),
           body: Column(
             children: [
               Padding(
                 padding: .all(Spacing.d16),
-                child: Column(
-                  children: [
-                    InputText(
-                      controller: _searchController,
-                      hintText: context.l10n.searchLogs,
-                      suffixIcon: Assets.cancel01,
-                      onSuffixTap: () {
-                        _searchController.clear();
-                        model.setQuery('');
-                      },
-                      onChanged: model.setQuery,
-                      textInputAction: .search,
-                      onSubmitted: (_) =>
-                          FocusManager.instance.primaryFocus?.unfocus(),
-                    ),
-                    Spacing.v12,
-                    Wrap(
-                      spacing: Spacing.d8,
-                      runSpacing: Spacing.d8,
-                      children: [
-                        Button(
-                          variant: .ghost,
-                          label: context.l10n.copyFullLog,
-                          titleExpand: .shrink,
-                          enable: model.logs.isNotEmpty,
-                          onPressed: () => unawaited(_copy(context)),
-                        ),
-                        Button(
-                          variant: .ghost,
-                          label: context.l10n.exportFullLog,
-                          titleExpand: .shrink,
-                          enable: model.logs.isNotEmpty && !model.isExporting,
-                          onPressed: () => unawaited(_export(context)),
-                        ),
-                      ],
-                    ),
-                  ],
+                child: InputText(
+                  controller: _searchController,
+                  hintText: context.l10n.searchLogs,
+                  suffixIcon: Assets.cancel01,
+                  onSuffixTap: () {
+                    _searchController.clear();
+                    model.setQuery('');
+                  },
+                  onChanged: model.setQuery,
+                  textInputAction: .search,
+                  onSubmitted: (_) =>
+                      FocusManager.instance.primaryFocus?.unfocus(),
                 ),
               ),
               Expanded(
@@ -113,6 +136,38 @@ class _JobLogViewerState extends State<JobLogViewer> {
       ),
     );
   }
+
+  Widget _logAction(
+    BuildContext context,
+    String label, {
+    required bool enabled,
+    required VoidCallback onTap,
+  }) => Directionality(
+    textDirection: Directionality.of(context),
+    child: Semantics(
+      button: true,
+      enabled: enabled,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: Spacing.d48),
+        child: ListItem(
+          child: Text(
+            label,
+            style: context.theme.textTheme.bodyLarge?.copyWith(
+              color: enabled
+                  ? context.theme.colorScheme.onSurface
+                  : context.theme.disabledColor,
+            ),
+          ),
+          onTap: enabled
+              ? () {
+                  _menuController.close();
+                  onTap();
+                }
+              : null,
+        ),
+      ),
+    ),
+  );
 
   Future<void> _copy(BuildContext context) async {
     try {

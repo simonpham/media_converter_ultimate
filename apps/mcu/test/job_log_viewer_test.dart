@@ -128,7 +128,7 @@ void main() {
     },
   );
 
-  testWidgets('viewer searches live text and copies the full log', (
+  testWidgets('viewer searches live text and uses full-log menu actions', (
     tester,
   ) async {
     final theme = FluffyThemeData.fromJson(
@@ -150,6 +150,9 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    expect(find.text('Copy full log'), findsNothing);
+    expect(find.text('Export full log'), findsNothing);
+    final actions = find.byKey(const ValueKey('log-actions'));
     final search = find.descendant(
       of: find.byType(InputText),
       matching: find.byType(EditableText),
@@ -163,9 +166,37 @@ void main() {
       find.text('ERROR: unsupported codec\nNew error line'),
       findsOneWidget,
     );
+    await tester.tap(actions);
+    await tester.pumpAndSettle();
+    expect(find.text('Copy full log'), findsOneWidget);
+    expect(find.text('Export full log'), findsOneWidget);
+    expect(tester.testTextInput.isVisible, isFalse);
     await tester.tap(find.text('Copy full log'));
     await tester.pump(const Duration(seconds: 4));
     expect(clipboard, logs.getLog(job.id));
+    expect(find.text('Copy full log'), findsNothing);
+    await tester.tap(actions);
+    await tester.pumpAndSettle();
+    final exported = File('${files.destination}/音楽 Việt.m4a.log.txt');
+    final viewerModel = tester
+        .element(find.byType(SelectableText))
+        .read<JobLogViewModel>();
+    final exportedText = await tester.runAsync(() async {
+      await tester.tap(find.text('Export full log'));
+      for (
+        var attempt = 0;
+        viewerModel.isExporting && attempt < 100;
+        attempt++
+      ) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
+      expect(viewerModel.isExporting, isFalse);
+      return exported.readAsString();
+    });
+    await tester.pump(const Duration(seconds: 4));
+    expect(files.pickCount, 1);
+    expect(find.text('Export full log'), findsNothing);
+    expect(exportedText, logs.getLog(job.id));
     await tester.enterText(search, 'no match');
     await tester.pumpAndSettle();
     expect(find.text('No matching log lines.'), findsOneWidget);
