@@ -332,28 +332,19 @@ class _JobManagerState extends State<JobManager> {
     setState(() => _isCreatingJob = true);
     try {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
+      if (!context.mounted) return;
       final sdkInt = androidInfo.version.sdkInt;
-      if (sdkInt < 33) {
+      // Android 11+ uses picker URI grants and app-owned MediaStore outputs.
+      // Keep the gate for Android 10's existing legacy-storage mode and older.
+      if (sdkInt < 30) {
         final status = await Permission.storage.request();
+        if (!context.mounted) return;
         if (!status.isGranted) {
           await _handlePermissionDenied(context);
           return;
         }
       }
 
-      try {
-        final defaultOutputPath =
-            await JobMakerPathUtils.getDefaultOutputDirectoryPath();
-        if (defaultOutputPath == null) {
-          throw Exception('Failed to get default output directory path.');
-        }
-      } catch (_) {
-        context.toastError(
-          context.l10n.failureDirectoryNotWritable,
-        );
-      }
-
-      if (!context.mounted) return;
       final jobs = await JobMaker.cook(context, initialPreset: initialPreset);
       if (!context.mounted) return;
       final viewModel = context.read<JobManagerViewModel>();
