@@ -35,6 +35,90 @@ void main() {
   });
 
   test(
+    'startup recovery is shared and preserves an active execution',
+    () async {
+      storage.jobs['first'] = job('first');
+      storage.repairGate = Completer<void>();
+      final first = model.initialize();
+      final second = model.initialize();
+      expect(second, same(first));
+      expect(storage.repairAttempts, 1);
+      expect(runner.started, isEmpty);
+      storage.repairGate!.complete();
+      await first;
+      final execution = model.activeExecutionId('first');
+      expect(storage.jobs['first']!.status, JobStatus.running);
+      await model.initialize();
+      expect(storage.repairAttempts, 1);
+      expect(runner.started, ['first']);
+      expect(model.activeExecutionId('first'), execution);
+    },
+  );
+
+  test('failed startup recovery remains retryable', () async {
+    storage.repairFailure = StateError('Database unavailable');
+    await expectLater(model.initialize(), throwsStateError);
+    expect(storage.repairAttempts, 1);
+    expect(runner.started, isEmpty);
+    storage.repairFailure = null;
+    storage.jobs['first'] = job('first');
+    await model.initialize();
+    expect(storage.repairAttempts, 2);
+    expect(storage.jobs['first']!.status, JobStatus.running);
+    expect(runner.started, ['first']);
+  });
+
+  test(
+    'enqueue accepts a batch while startup waits and starts after recovery',
+    () async {
+      storage.repairGate = Completer<void>();
+      final initializing = model.initialize();
+      await model.enqueueJobs([job('first')]);
+      await flushEvents();
+      expect(storage.jobs['first']!.status, JobStatus.pending);
+      expect(runner.started, isEmpty);
+      storage.repairGate!.complete();
+      await initializing;
+      await flushEvents();
+      expect(runner.started, ['first']);
+      expect(storage.jobs['first']!.status, JobStatus.running);
+    },
+  );
+
+  test(
+    'startup failure after enqueue retains the accepted batch for retry',
+    () async {
+      storage.repairGate = Completer<void>();
+      storage.repairFailure = StateError('Database unavailable');
+      final initializing = model.initialize();
+      final failure = expectLater(initializing, throwsStateError);
+      await model.enqueueJobs([job('first')]);
+      expect(storage.jobs.containsKey('first'), isTrue);
+      storage.repairGate!.complete();
+      await failure;
+      await flushEvents();
+      expect(runner.started, isEmpty);
+      expect(files.cleanedInputs, isEmpty);
+      storage.repairFailure = null;
+      await model.initialize();
+      expect(runner.started, ['first']);
+    },
+  );
+
+  test('disposing during startup stops recovery and native startup', () async {
+    final temporary = JobManagerViewModel();
+    storage.repairGate = Completer<void>();
+    storage.jobs['first'] = job('first');
+    final initializing = temporary.initialize();
+    temporary.dispose();
+    storage.repairGate!.complete();
+    await initializing;
+    expect(storage.recoveryReads, 0);
+    expect(runner.started, isEmpty);
+    expect(files.cleanedInputs, isEmpty);
+  });
+
+  test(
     'enqueue reports a failed batch save before starting or cleaning files',
     () async {
       storage.addFailure = const Failure('Cannot save batch');
@@ -952,6 +1036,10 @@ class MemoryJobStorage implements ConvertJobStorage {
   final jobs = <String, ConvertJob>{};
   final pendingQueryLimits = <int>[];
   final pendingResultCounts = <int>[];
+  Completer<void>? repairGate;
+  Object? repairFailure;
+  int repairAttempts = 0;
+  int recoveryReads = 0;
   Completer<void>? preparingCommitGate;
   Completer<void>? nextReadGate;
   Failure? deleteFailure;
@@ -1038,12 +1126,18 @@ class MemoryJobStorage implements ConvertJobStorage {
       jobs.values.where((job) => job.status.isProcessing).toList();
 
   @override
-  Stream<List<ConvertJob>> watchActionRequiredJobs() => Stream.value(
-    jobs.values.where((job) => job.status == .actionRequired).toList(),
-  );
+  Stream<List<ConvertJob>> watchActionRequiredJobs() {
+    recoveryReads++;
+    return Stream.value(
+      jobs.values.where((job) => job.status == .actionRequired).toList(),
+    );
+  }
 
   @override
   Future<List<ConvertJob>> fixInvalidJobs() async {
+    repairAttempts++;
+    await repairGate?.future;
+    if (repairFailure case final failure?) throw failure;
     final fixed = jobs.values
         .where((job) => job.status == .cleaning && job.outputStaged)
         .map((job) => job.copyWith(status: const Some(.actionRequired)))

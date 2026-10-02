@@ -35,6 +35,8 @@ class JobManagerViewModel extends ChangeNotifier {
   String? activeExecutionId(String jobId) => _activeExecutions[jobId];
   final _retiredSessions = <String, Set<int>>{};
   Future<void>? _pendingRun;
+  Future<void>? _initialization;
+  bool _isInitializing = false;
   bool _shouldRescanQueue = false;
   bool _isDisposed = false;
 
@@ -59,6 +61,22 @@ class JobManagerViewModel extends ChangeNotifier {
       unawaited(logSubscription.cancel());
     }
     super.dispose();
+  }
+
+  /// Recover persisted work once for this app lifetime, including when Home
+  /// is recreated. A failed attempt remains retryable.
+  Future<void> initialize() => _initialization ??= _initialize();
+
+  Future<void> _initialize() async {
+    _isInitializing = true;
+    try {
+      await restartPendingJobs();
+    } catch (_) {
+      _initialization = null;
+      rethrow;
+    } finally {
+      _isInitializing = false;
+    }
   }
 
   Future<void> addJobs(List<ConvertJob> jobs) async {
@@ -441,11 +459,20 @@ class JobManagerViewModel extends ChangeNotifier {
   }
 
   void _requestPendingJobs() {
+    _shouldRescanQueue = true;
+    final running = _isInitializing
+        ? _runAfterInitialization()
+        : _runPendingJobs();
     unawaited(
-      _runPendingJobs().catchError((Object err, StackTrace trace) {
+      running.catchError((Object err, StackTrace trace) {
         printError(err, trace);
       }),
     );
+  }
+
+  Future<void> _runAfterInitialization() async {
+    await _initialization;
+    if (!_isDisposed) await _runPendingJobs();
   }
 
   Future<void> _drainPendingJobs() async {
@@ -610,11 +637,15 @@ class JobManagerViewModel extends ChangeNotifier {
   }
 
   Future<void> restartPendingJobs() async {
+    if (_isDisposed) return;
     await _jobStorage.fixInvalidJobs();
+    if (_isDisposed) return;
     final recoveryJobs = await _jobStorage.watchActionRequiredJobs().first;
     for (final job in recoveryJobs.where((job) => job.outputStaged)) {
+      if (_isDisposed) return;
       try {
         final exported = await _fileService.recoverExport(job.id);
+        if (_isDisposed) return;
         if (exported != null) await _commitExport(job, exported);
       } catch (error, trace) {
         printError(error, trace);

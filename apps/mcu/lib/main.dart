@@ -31,6 +31,16 @@ Future<void> main() async {
   printLog('[main] Init FlutterForegroundTask...');
   FlutterForegroundTask.initCommunicationPort();
 
+  try {
+    final settings = SettingsBox();
+    await settings.put(AdsSettings.appLaunchCount, settings.appLaunchCount + 1);
+    printLog(
+      '[AdsSettings] appLaunchCount increased: ${settings.appLaunchCount}',
+    );
+  } catch (error, trace) {
+    printError(error, trace);
+  }
+
   printLog('[main] Run app...');
   runApp(
     MediaConverterUltimate(appTheme: appTheme),
