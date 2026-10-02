@@ -115,9 +115,14 @@ class const OutputFileItem(
                     Button(
                       key: ValueKey('trim-file-${file.path}'),
                       variant: .ghost,
-                      label: context.l10n.trimMediaTitle,
-                      titleExpand: .shrink,
+                      tooltip: context.l10n.trimMediaTitle,
+                      padding: .all(Spacing.d8),
                       mainAxisSize: .min,
+                      child: ImageView(
+                        Assets.scissor,
+                        size: Spacing.d24,
+                        color: context.theme.colorScheme.primary,
+                      ),
                       onPressed: onTrimPressed,
                     ),
                   ],

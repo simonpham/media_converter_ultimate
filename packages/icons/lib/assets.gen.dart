@@ -48,6 +48,7 @@ class Assets {
   static const String note01 = 'assets/note-01.svg';
   static const String notification02 = 'assets/notification-02.svg';
   static const String reload = 'assets/reload.svg';
+  static const String scissor = 'assets/scissor.svg';
   static const String securityLock = 'assets/security-lock.svg';
   static const String setting01 = 'assets/setting-01.svg';
   static const String setup02 = 'assets/setup-02.svg';
@@ -94,6 +95,7 @@ class Assets {
     note01,
     notification02,
     reload,
+    scissor,
     securityLock,
     setting01,
     setup02,
