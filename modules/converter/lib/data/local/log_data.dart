@@ -27,19 +27,25 @@ extension LogDataBoxExt on LogData {
   }
 
   void setLog(String jobId, String? value) {
-    put(jobId, value);
+    _observeWrite(() => put(jobId, value));
   }
 
   void appendLog(String jobId, String value) {
     if (value.isEmpty) {
       return;
     }
-    final currentLog = getLog(jobId);
-    if (currentLog.isEmpty) {
-      put(jobId, value);
-      return;
-    }
-    put(jobId, '$currentLog\n$value');
+    _observeWrite(() {
+      final currentLog = getLog(jobId);
+      return put(jobId, currentLog.isEmpty ? value : '$currentLog\n$value');
+    });
+  }
+
+  void _observeWrite(Future<void> Function() write) {
+    unawaited(
+      Future<void>.sync(write).catchError((Object error, StackTrace trace) {
+        printError(error, trace);
+      }),
+    );
   }
 
   ValueListenable<void> getLogListenable(String key) {
@@ -47,7 +53,7 @@ extension LogDataBoxExt on LogData {
   }
 
   void clearLog(String jobId) {
-    put(jobId, null);
+    setLog(jobId, null);
   }
 }
 

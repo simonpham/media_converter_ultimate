@@ -34,6 +34,35 @@ void main() {
     await injector.reset();
   });
 
+  for (final failure in ['sync write', 'async write', 'read']) {
+    test('log $failure failure leaves conversion and queue usable', () async {
+      logs.failWriteSync = switch (failure) {
+        'sync write' => true,
+        'async write' => false,
+        _ => null,
+      };
+      logs.failRead = failure == 'read';
+      runner.failStarts.add('first');
+      await model.addJobs([job('first'), job('second'), job('third')]);
+      await waitFor(() => storage.jobs['second']?.status == .running);
+      expect(storage.jobs['first']!.status, JobStatus.failed);
+      runner.logs.add(
+        const JobLog(jobId: 'second', message: 'Native progress'),
+      );
+      runner.emit(
+        storage.jobs['second']!.copyWith(status: const Some(.cleaning)),
+      );
+      await waitFor(() => storage.jobs['third']?.status == .running);
+      await flushEvents();
+      expect(storage.jobs['second']!.status, JobStatus.completed);
+      expect(files.acknowledged, ['second']);
+      expect(files.cleanedInputs, ['second']);
+      expect(model.activeExecutionId('second'), isNull);
+      expect(runner.started, ['first', 'second', 'third']);
+      expect(settings.successConversionCount, 1);
+    });
+  }
+
   test(
     'startup recovery is shared and preserves an active execution',
     () async {
@@ -1214,6 +1243,8 @@ class MemoryLogs implements LogData {
   final values = <dynamic, dynamic>{};
   final cleared = <String>[];
   bool failCleanup = false;
+  bool? failWriteSync;
+  bool failRead = false;
 
   @override
   Future<void> clearLogs(Iterable<String> jobIds) async {
@@ -1225,11 +1256,20 @@ class MemoryLogs implements LogData {
   }
 
   @override
-  dynamic get(dynamic key, {required dynamic defaultValue}) =>
-      values[key] ?? defaultValue;
+  dynamic get(dynamic key, {required dynamic defaultValue}) {
+    if (failRead) throw StateError('Log box closed');
+    return values[key] ?? defaultValue;
+  }
 
   @override
-  Future<void> put(dynamic key, dynamic value) async => values[key] = value;
+  Future<void> put(dynamic key, dynamic value) {
+    if (failWriteSync case final synchronous?) {
+      if (synchronous) throw StateError('Log box closed');
+      return Future<void>.error(StateError('Log write failed'));
+    }
+    values[key] = value;
+    return Future.value();
+  }
 
   @override
   Future<void> onDispose() async {}
