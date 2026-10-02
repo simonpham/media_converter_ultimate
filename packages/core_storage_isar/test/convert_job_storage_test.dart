@@ -67,6 +67,40 @@ void main() {
   });
 
   test(
+    'failed batch save keeps history and accepted retry survives reopening',
+    () async {
+      final previous = job('previous', order: 0, status: .completed);
+      final batch = [job('first', order: 1), job('second', order: 2)];
+      await storage.add(previous);
+      await isar.close();
+      await expectLater(storage.addAll(batch), throwsA(isA<IsarError>()));
+
+      Future<void> reopen() async {
+        isar = await Isar.open(
+          [IsarConvertJobSchema],
+          directory: temporaryDirectory.path,
+          name: 'queue-test',
+        );
+        storage = ConvertJobIsarStorage(isar: isar);
+      }
+
+      await reopen();
+      expect(await storage.count(), 1);
+      expect((await storage.get(previous.id))!.toJson(), previous.toJson());
+      expect(await storage.getAllPendingJobs(), isEmpty);
+      expect(await storage.addAll(batch), isNull);
+      await isar.close();
+      await reopen();
+      expect(await storage.count(), 3);
+      expect(
+        (await storage.getAllPendingJobs()).map((job) => job.toJson()),
+        batch.map((job) => job.toJson()),
+      );
+      expect((await storage.get(previous.id))!.toJson(), previous.toJson());
+    },
+  );
+
+  test(
     'provider output location and staged recovery survive storage round trips',
     () async {
       final completed = job('provider', order: 0, status: .completed).copyWith(

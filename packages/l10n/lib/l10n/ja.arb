@@ -70,6 +70,7 @@
   "excludedFilesDescription": "これらのファイルは変換に含まれません。",
   "failureDirectoryNotWritable": "ディレクトリに書き込めません。",
   "failureDuplicatedFilePath": "ファイルパスが重複しています: {path}。",
+  "failureFailedToQueueJobs": "ファイルをキューに追加できませんでした。選択は保持されています。もう一度お試しください。",
   "failureFailedToClearJobs": "変換履歴をクリアできませんでした。",
   "failureFileDelete": "{path} のファイルを削除できませんでした。",
   "failureFileNameIsNotSet": "{path} のファイル名が設定されていません。",

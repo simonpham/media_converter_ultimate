@@ -34,6 +34,50 @@ void main() {
     await injector.reset();
   });
 
+  test(
+    'enqueue reports a failed batch save before starting or cleaning files',
+    () async {
+      storage.addFailure = const Failure('Cannot save batch');
+      await expectLater(
+        model.enqueueJobs([job('first')]),
+        throwsA(isA<FailedToQueueJobsFailure>()),
+      );
+      expect(storage.jobs, isEmpty);
+      expect(runner.started, isEmpty);
+      expect(files.cleanedInputs, isEmpty);
+      expect(files.deletedStages, isEmpty);
+      storage.addFailure = null;
+      await model.enqueueJobs([job('retry')]);
+      await waitFor(() => runner.started.isNotEmpty);
+      expect(runner.started, ['retry']);
+    },
+  );
+
+  test(
+    'enqueue resolves after saving without waiting for native startup',
+    () async {
+      runner.startGate = Completer<void>();
+      await model.enqueueJobs([job('first'), job('second')]);
+      expect(storage.jobs.keys, ['first', 'second']);
+      await waitFor(() => runner.started.isNotEmpty);
+      expect(storage.jobs['first']!.status, JobStatus.preparing);
+      expect(storage.jobs['second']!.status, JobStatus.pending);
+      expect(files.cleanedInputs, isEmpty);
+      runner.startGate!.complete();
+      await waitFor(() => storage.jobs['first']!.status == .running);
+    },
+  );
+
+  test('native preparation failure after enqueue preserves accepted inputs and advances', () async {
+    runner.failStarts.add('first');
+    await model.enqueueJobs([job('first'), job('second')]);
+    await waitFor(() => storage.jobs['second']?.status == .running);
+    expect(storage.jobs['first']!.status, JobStatus.failed);
+    expect(runner.started, ['first', 'second']);
+    expect(files.cleanedInputs, isEmpty);
+    expect(files.deletedStages, isEmpty);
+  });
+
   test('clear history removes finished logs and preserves outputs', () async {
     for (final status in JobStatus.values) {
       storage.jobs[status.name] = job(status.name, status: status);
@@ -911,6 +955,7 @@ class MemoryJobStorage implements ConvertJobStorage {
   Completer<void>? preparingCommitGate;
   Completer<void>? nextReadGate;
   Failure? deleteFailure;
+  Failure? addFailure;
   Failure? updateFailure;
   int updateAttempts = 0;
   bool failCompletedCommit = false;
@@ -941,6 +986,7 @@ class MemoryJobStorage implements ConvertJobStorage {
 
   @override
   Future<Failure?> addAll(List<ConvertJob> items) async {
+    if (addFailure != null) return addFailure;
     for (final item in items) {
       jobs[item.id] = item;
     }

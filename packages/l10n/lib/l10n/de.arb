@@ -70,6 +70,7 @@
   "excludedFilesDescription": "Diese Dateien werden nicht in die Konvertierung einbezogen.",
   "failureDirectoryNotWritable": "Verzeichnis ist nicht beschreibbar.",
   "failureDuplicatedFilePath": "Duplizierter Dateipfad: {path}.",
+  "failureFailedToQueueJobs": "Diese Dateien konnten nicht zur Warteschlange hinzugefügt werden. Ihre Auswahl bleibt erhalten. Bitte erneut versuchen.",
   "failureFailedToClearJobs": "Konvertierungsverlauf konnte nicht gelöscht werden.",
   "failureFileDelete": "Datei konnte nicht gelöscht werden unter {path}.",
   "failureFileNameIsNotSet": "Dateiname nicht für {path} festgelegt.",

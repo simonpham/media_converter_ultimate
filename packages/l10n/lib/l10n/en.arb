@@ -70,6 +70,7 @@
   "excludedFilesDescription": "These files will not be included in the conversion.",
   "failureDirectoryNotWritable": "Directory is not writable.",
   "failureDuplicatedFilePath": "Duplicated file path: {path}.",
+  "failureFailedToQueueJobs": "Could not add these files to the queue. Your selection is kept. Please try again.",
   "failureFailedToClearJobs": "Failed to clear conversion history.",
   "failureFileDelete": "Failed to delete file at {path}.",
   "failureFileNameIsNotSet": "File name is not set for {path}.",

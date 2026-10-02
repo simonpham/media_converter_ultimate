@@ -87,6 +87,11 @@ class const FailedToClearJobsFailure() extends Failure {
 }
 
 @immutable
+class const FailedToQueueJobsFailure() extends Failure {
+  this : super('Failed to save the conversion batch.');
+}
+
+@immutable
 class const OutputFolderPickerUnavailableFailure() extends Failure {
   this : super('System folder picker is unavailable.');
 }

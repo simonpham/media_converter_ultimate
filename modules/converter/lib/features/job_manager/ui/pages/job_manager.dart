@@ -345,10 +345,19 @@ class _JobManagerState extends State<JobManager> {
         }
       }
 
-      final jobs = await JobMaker.cook(context, initialPreset: initialPreset);
-      if (!context.mounted) return;
       final viewModel = context.read<JobManagerViewModel>();
-      await viewModel.addJobs(jobs);
+      await JobMaker.cook(
+        context,
+        initialPreset: initialPreset,
+        onSubmitJobs: viewModel.enqueueJobs,
+      );
+    } catch (error, trace) {
+      printError(error, trace);
+      if (context.mounted) {
+        context.toastFailure(
+          error is Failure ? error : Failure(error.toString()),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isCreatingJob = false);
     }

@@ -70,6 +70,7 @@
   "excludedFilesDescription": "Bu dosyalar dönüştürmeye dahil edilmeyecektir.",
   "failureDirectoryNotWritable": "Klasör yazılabilir değil.",
   "failureDuplicatedFilePath": "Yinelenen dosya yolu: {path}.",
+  "failureFailedToQueueJobs": "Bu dosyalar kuyruğa eklenemedi. Seçiminiz korundu. Lütfen tekrar deneyin.",
   "failureFailedToClearJobs": "Dönüştürme geçmişi temizlenemedi.",
   "failureFileDelete": "{path} adresindeki dosya silinemedi.",
   "failureFileNameIsNotSet": "{path} için dosya adı ayarlanmadı.",

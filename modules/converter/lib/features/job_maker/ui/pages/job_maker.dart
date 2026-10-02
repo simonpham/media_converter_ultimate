@@ -11,6 +11,7 @@ class const JobMaker({
   required final FormatConfigModel formatConfigModel,
   required final Map<String, String?> translations,
   final ConversionPreset? initialPreset,
+  final JobSubmission? onSubmitJobs,
 }) extends StatefulWidget {
   static const String routeName = 'job-maker';
   static const String routePath = routeName;
@@ -18,6 +19,7 @@ class const JobMaker({
   static Future<List<ConvertJob>> cook(
     BuildContext context, {
     ConversionPreset? initialPreset,
+    JobSubmission? onSubmitJobs,
   }) async {
     final formatConfigModel = await FormatConfigModel.get(context);
     if (formatConfigModel == null) {
@@ -50,7 +52,7 @@ class const JobMaker({
 
     final result = await context.router.pushNamed(
       routeName,
-      extra: (formatConfigModel, translations, initialPreset),
+      extra: (formatConfigModel, translations, initialPreset, onSubmitJobs),
     );
     if (result is! List<ConvertJob> || result.isEmpty) {
       return const [];
@@ -60,16 +62,29 @@ class const JobMaker({
   }
 
   static JobMaker fromRouterState(GoRouterState state) {
-    final (formatConfigModel, translations, preset) = switch (state.extra) {
+    final (
+      formatConfigModel,
+      translations,
+      preset,
+      onSubmitJobs,
+    ) = switch (state.extra) {
+      (
+        FormatConfigModel config,
+        Map<String, String?> translations,
+        ConversionPreset? preset,
+        JobSubmission? onSubmitJobs,
+      ) =>
+        (config, translations, preset, onSubmitJobs),
       (
         FormatConfigModel config,
         Map<String, String?> translations,
         ConversionPreset? preset,
       ) =>
-        (config, translations, preset),
+        (config, translations, preset, null),
       (FormatConfigModel config, Map<String, String?> translations) => (
         config,
         translations,
+        null,
         null,
       ),
       _ => throw ArgumentError('Invalid conversion setup arguments'),
@@ -78,6 +93,7 @@ class const JobMaker({
       formatConfigModel: formatConfigModel,
       translations: translations,
       initialPreset: preset,
+      onSubmitJobs: onSubmitJobs,
     );
   }
 
@@ -357,7 +373,9 @@ class _JobMakerState extends State<JobMaker> {
         );
         return;
       }
-      final convertJobs = await _viewModel.cook();
+      final convertJobs = await _viewModel.cook(
+        onSubmitJobs: widget.onSubmitJobs,
+      );
       if (!mounted || convertJobs.isEmpty) {
         return;
       }

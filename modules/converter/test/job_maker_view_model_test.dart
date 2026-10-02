@@ -240,6 +240,162 @@ void main() {
     expect(await files.isFileExist(first.path), isTrue);
   });
 
+  test('failed submission restores the batch and retains names and per-file trim for retry', () async {
+    final source = File('/service-cache/file_picker/song.wav');
+    await model.addFiles([source]);
+    await model.setSelectedFormatEntry(mp3);
+    model.setOutputDirectoryPath('/output');
+    model.setOutputFileName(source.path, 'chosen.mp3');
+    const trim = ConversionTrim(
+      start: Duration(seconds: 1),
+      end: Duration(seconds: 2),
+    );
+    model.setFileTrim(
+      source.path,
+      const FileTrimResult(duration: Duration(seconds: 4), trim: trim),
+    );
+    await expectLater(
+      model.cook(
+        onSubmitJobs: (_) async {
+          throw const FailedToQueueJobsFailure();
+        },
+      ),
+      throwsA(isA<FailedToQueueJobsFailure>()),
+    );
+    expect(model.isPreparingJobs, isFalse);
+    expect(await files.isFileExist(source.path), isTrue);
+    expect(model.selectedFiles.single.path, source.path);
+    expect(model.outputFileNames[source.path], 'chosen.mp3');
+    expect(model.trimFor(source.path), trim);
+    List<ConvertJob>? submitted;
+    final jobs = await model.cook(
+      onSubmitJobs: (jobs) async => submitted = jobs,
+    );
+    expect(submitted, same(jobs));
+    expect(jobs.single.outputFileName, 'chosen.mp3');
+    expect(
+      CommandBuilder.parseCommand(jobs.single.command),
+      containsAllInOrder(['-ss', '1.000', '-t', '1.000']),
+    );
+  });
+
+  test('submission holds preparation and overlapping starts share one accepted batch', () async {
+    await model.addFiles([File('/input/song.wav')]);
+    await model.setSelectedFormatEntry(mp3);
+    model.setOutputDirectoryPath('/output');
+    final gate = Completer<void>();
+    var calls = 0;
+    final first = model.cook(
+      onSubmitJobs: (_) async {
+        calls++;
+        await gate.future;
+      },
+    );
+    final second = model.cook(onSubmitJobs: (_) async => calls++);
+    await Future<void>.delayed(Duration.zero);
+    expect(calls, 1);
+    expect(model.isPreparingJobs, isTrue);
+    expect(second, same(first));
+    gate.complete();
+    expect(await second, same(await first));
+    expect(model.isPreparingJobs, isFalse);
+    expect(calls, 1);
+  });
+
+  test('closing during a successful submission preserves retained inputs accepted by the queue', () async {
+    final source = File('/service-cache/file_picker/song.wav');
+    await model.addFiles([source]);
+    await model.setSelectedFormatEntry(mp3);
+    model.setOutputDirectoryPath('/output');
+    files.failRestoration = true;
+    await expectLater(
+      model.cook(
+        onSubmitJobs: (_) async {
+          throw const FailedToQueueJobsFailure();
+        },
+      ),
+      throwsA(isA<FailedToQueueJobsFailure>()),
+    );
+    final retained = model.selectedFiles.single.path;
+    final owner = files.stagedOwners[retained]!;
+    final gate = Completer<void>();
+    List<ConvertJob>? submitted;
+    final cooking = model.cook(
+      onSubmitJobs: (jobs) async {
+        submitted = jobs;
+        await gate.future;
+      },
+    );
+    await Future<void>.delayed(Duration.zero);
+    expect(submitted, isNotNull);
+    model.dispose();
+    modelDisposed = true;
+    expect(files.cleanedInputs, isNot(contains(owner)));
+    gate.complete();
+    final jobs = await cooking;
+    expect(jobs.single.id, owner);
+    expect(await files.isFileExist(retained), isTrue);
+    expect(files.cleanedInputs, isNot(contains(owner)));
+  });
+
+  test(
+    'closing during a failed submission cleans only unsubmitted retained input',
+    () async {
+      final source = File('/service-cache/file_picker/song.wav');
+      await model.addFiles([source]);
+      await model.setSelectedFormatEntry(mp3);
+      model.setOutputDirectoryPath('/output');
+      files.failRestoration = true;
+      await expectLater(
+        model.cook(
+          onSubmitJobs: (_) async {
+            throw const FailedToQueueJobsFailure();
+          },
+        ),
+        throwsA(isA<FailedToQueueJobsFailure>()),
+      );
+      final owner = files.stagedOwners[model.selectedFiles.single.path]!;
+      final gate = Completer<void>();
+      final cooking = model.cook(
+        onSubmitJobs: (_) async {
+          await gate.future;
+          throw const FailedToQueueJobsFailure();
+        },
+      );
+      final assertion = expectLater(
+        cooking,
+        throwsA(isA<FailedToQueueJobsFailure>()),
+      );
+      await Future<void>.delayed(Duration.zero);
+      model.dispose();
+      modelDisposed = true;
+      gate.complete();
+      await assertion;
+      expect(files.cleanedInputs, contains(owner));
+      expect(files.stagedOwners, isEmpty);
+    },
+  );
+
+  test(
+    'asynchronous preference failure cannot roll back an accepted batch',
+    () async {
+      final source = File('/service-cache/file_picker/song.wav');
+      await model.addFiles([source]);
+      await model.setSelectedFormatEntry(mp3);
+      model.setOutputDirectoryPath('/output');
+      model.setRememberConfigs(true);
+      final configs =
+          injector<JobConfigurationData>() as FakeJobConfigurationData;
+      configs.failWrites = true;
+      var accepted = false;
+      final jobs = await model.cook(onSubmitJobs: (_) async => accepted = true);
+      expect(accepted, isTrue);
+      expect(await files.isFileExist(jobs.single.inputFilePath), isTrue);
+      expect(files.restoredInputs, isEmpty);
+      expect(files.cleanedInputs, isEmpty);
+    },
+  );
+
   test(
     'selecting a format populates output names without mutating a const map',
     () async {
@@ -481,6 +637,12 @@ class FakeSettingsBox implements SettingsBox {
 }
 
 class FakeJobConfigurationData implements JobConfigurationData {
+  bool failWrites = false;
+  @override
+  Future<void> put(dynamic key, dynamic value) async {
+    if (failWrites) throw StateError('Cannot save preferences');
+  }
+
   @override
   Future<void> onDispose() async {}
 

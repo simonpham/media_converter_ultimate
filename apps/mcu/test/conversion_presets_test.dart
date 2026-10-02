@@ -57,7 +57,7 @@ void main() {
       final format = model.formatConfigModel.formats.firstWhere(
         (format) => format.name == 'mp4',
       );
-      format.setLastKnownConfigurations({
+      await format.setLastKnownConfigurations({
         'configs.mp4.video_encoder': '-c:v libx265',
         'configs.mp4.crf.x264': '35',
       });
@@ -83,7 +83,7 @@ void main() {
       await model.applyPreset(.highQualityVideo);
       model.resetConfigurations();
       final defaults = {...model.selectedValues};
-      model.selectedFormatEntry!.setLastKnownConfigurations({
+      await model.selectedFormatEntry!.setLastKnownConfigurations({
         'configs.mp4.crf.x264': '28',
       });
       await model.applyPreset(.highQualityVideo);
@@ -213,7 +213,7 @@ void main() {
     final format = model.formatConfigModel.formats.firstWhere(
       (format) => format.name == 'mp3',
     );
-    format.setLastKnownConfigurations({
+    await format.setLastKnownConfigurations({
       'configs.mp3.audio_encoder': 'libmp3lame',
       'configs.mp3.bitrate_type': 'configs.mp3.bitrate_type.cbr.value',
       'configs.mp3.bitrate': '320k',

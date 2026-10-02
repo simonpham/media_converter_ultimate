@@ -70,6 +70,7 @@
   "excludedFilesDescription": "File-file ini tidak akan disertakan dalam konversi.",
   "failureDirectoryNotWritable": "Direktori tidak dapat ditulis.",
   "failureDuplicatedFilePath": "Jalur file duplikat: {path}.",
+  "failureFailedToQueueJobs": "File ini tidak dapat ditambahkan ke antrean. Pilihan Anda tetap tersimpan. Coba lagi.",
   "failureFailedToClearJobs": "Gagal menghapus riwayat konversi.",
   "failureFileDelete": "Gagal menghapus file di {path}.",
   "failureFileNameIsNotSet": "Nama file tidak diatur untuk {path}.",

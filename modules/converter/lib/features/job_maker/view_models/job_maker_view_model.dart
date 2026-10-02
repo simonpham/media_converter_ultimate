@@ -5,6 +5,10 @@ import 'package:flutter/foundation.dart';
 import 'package:platform_utils/platform_utils.dart';
 import 'package:utils/utils.dart';
 
+/// Resolves after the entire batch is durably queued. A failure must leave the
+/// batch unsubmitted so its inputs can be restored for review and retry.
+typedef JobSubmission = Future<void> Function(List<ConvertJob> jobs);
+
 class JobMakerViewModel({
   required final FormatConfigModel formatConfigModel,
   required final Map<String, String?> translations,
@@ -114,11 +118,15 @@ class JobMakerViewModel({
   void dispose() {
     _isDisposed = true;
     _pathValidationRevision++;
+    if (_preparation == null) _cleanRetainedInputs();
+    super.dispose();
+  }
+
+  void _cleanRetainedInputs() {
     for (final jobId in _preparedInputJobs.values.toSet()) {
       unawaited(_cleanUnsubmittedInput(jobId));
     }
     _preparedInputJobs.clear();
-    super.dispose();
   }
 
   FormatEntry? get selectedFormatEntry => _selectedFormatEntry;
@@ -388,27 +396,34 @@ class JobMakerViewModel({
     notifyListeners();
   }
 
-  Future<List<ConvertJob>> cook() {
+  Future<List<ConvertJob>> cook({JobSubmission? onSubmitJobs}) {
     if (_preparation case final preparation?) return preparation;
     final result = Completer<List<ConvertJob>>();
     _preparation = result.future;
     notifyListeners();
-    unawaited(_prepareJobs(result));
+    unawaited(_prepareJobs(result, onSubmitJobs: onSubmitJobs));
     return result.future;
   }
 
-  Future<void> _prepareJobs(Completer<List<ConvertJob>> result) async {
+  Future<void> _prepareJobs(
+    Completer<List<ConvertJob>> result, {
+    JobSubmission? onSubmitJobs,
+  }) async {
     try {
-      result.complete(await _buildJobs());
+      result.complete(await _buildJobs(onSubmitJobs: onSubmitJobs));
     } catch (error, trace) {
       result.completeError(error, trace);
     } finally {
       _preparation = null;
-      if (!_isDisposed) notifyListeners();
+      if (_isDisposed) {
+        _cleanRetainedInputs();
+      } else {
+        notifyListeners();
+      }
     }
   }
 
-  Future<List<ConvertJob>> _buildJobs() async {
+  Future<List<ConvertJob>> _buildJobs({JobSubmission? onSubmitJobs}) async {
     if (_isLoadingFormat) throw const NoOutputConfigFailure();
     final trims = {..._fileTrims};
     final formatEntry = _selectedFormatEntry;
@@ -508,18 +523,32 @@ class JobMakerViewModel({
         result.add(job);
       }
 
-      if (rememberConfigurations) {
-        formatEntry.setLastKnownConfigurations(selectedValues);
+      if (_isDisposed) {
+        throw StateError('Conversion setup closed before submission');
       }
-      if (rememberOutputFolder) {
-        SettingsBox().lastOutputDirectoryPath = outputDirectoryPath;
-      }
+      if (onSubmitJobs != null) await onSubmitJobs(result);
       for (final input in outputFileNames.keys) {
         _preparedInputJobs.remove(input);
       }
     } catch (error, trace) {
       await _rollbackPreparedInputs(allocatedInputs, movedInputs);
       Error.throwWithStackTrace(error, trace);
+    }
+
+    // Queue ownership has transferred. A preference error must never restore
+    // or delete inputs now referenced by accepted conversion jobs.
+    try {
+      if (rememberConfigurations) {
+        await formatEntry.setLastKnownConfigurations(selectedValues);
+      }
+      if (rememberOutputFolder) {
+        await SettingsBox().put(
+          JobMakerSettings.lastOutputDirectoryPath,
+          outputDirectoryPath,
+        );
+      }
+    } catch (error, trace) {
+      printError(error, trace);
     }
 
     return result;

@@ -70,6 +70,7 @@
   "excludedFilesDescription": "Estes arquivos não serão incluídos na conversão.",
   "failureDirectoryNotWritable": "Diretório não gravável.",
   "failureDuplicatedFilePath": "Caminho do arquivo duplicado: {path}.",
+  "failureFailedToQueueJobs": "Não foi possível adicionar estes arquivos à fila. Sua seleção foi mantida. Tente novamente.",
   "failureFailedToClearJobs": "Falha ao limpar o histórico de conversão.",
   "failureFileDelete": "Falha ao excluir o arquivo em {path}.",
   "failureFileNameIsNotSet": "O nome do arquivo não está definido para {path}.",

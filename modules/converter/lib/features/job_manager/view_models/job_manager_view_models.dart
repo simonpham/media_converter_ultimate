@@ -62,11 +62,27 @@ class JobManagerViewModel extends ChangeNotifier {
   }
 
   Future<void> addJobs(List<ConvertJob> jobs) async {
+    await _saveJobs(jobs);
+    await _runPendingJobs();
+  }
+
+  /// Return once the batch is saved, independently of native startup. Setup
+  /// must not roll back accepted inputs if startup later encounters an error.
+  Future<void> enqueueJobs(List<ConvertJob> jobs) async {
+    try {
+      await _saveJobs(jobs);
+    } catch (error, trace) {
+      printError(error, trace);
+      Error.throwWithStackTrace(const FailedToQueueJobsFailure(), trace);
+    }
+    _requestPendingJobs();
+  }
+
+  Future<void> _saveJobs(List<ConvertJob> jobs) async {
     final failure = await _jobStorage.addAll(jobs);
     if (failure != null) {
       throw failure;
     }
-    await _runPendingJobs();
   }
 
   Future<void> removeRunningJob(ConvertJob job, {String? executionId}) async {

@@ -70,6 +70,7 @@
   "excludedFilesDescription": "Estos archivos no se incluirán en la conversión.",
   "failureDirectoryNotWritable": "El directorio no se puede escribir.",
   "failureDuplicatedFilePath": "Ruta de archivo duplicada: {path}.",
+  "failureFailedToQueueJobs": "No se pudieron añadir estos archivos a la cola. Tu selección se conserva. Inténtalo de nuevo.",
   "failureFailedToClearJobs": "No se pudo borrar el historial de conversiones.",
   "failureFileDelete": "No se pudo eliminar el archivo en {path}.",
   "failureFileNameIsNotSet": "El nombre del archivo no está establecido para {path}.",

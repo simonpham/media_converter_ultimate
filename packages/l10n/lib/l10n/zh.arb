@@ -70,6 +70,7 @@
   "excludedFilesDescription": "这些文件将不会包含在转换中。",
   "failureDirectoryNotWritable": "目录不可写。",
   "failureDuplicatedFilePath": "重复的文件路径：{path}。",
+  "failureFailedToQueueJobs": "无法将这些文件添加到队列。已保留您的选择，请重试。",
   "failureFailedToClearJobs": "清理转换历史失败。",
   "failureFileDelete": "删除位于 {path} 的文件失败。",
   "failureFileNameIsNotSet": "未设置 {path} 的文件名。",

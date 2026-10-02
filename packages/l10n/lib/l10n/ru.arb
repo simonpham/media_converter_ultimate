@@ -70,6 +70,7 @@
   "excludedFilesDescription": "Эти файлы не будут включены в конвертацию.",
   "failureDirectoryNotWritable": "Каталог недоступен для записи.",
   "failureDuplicatedFilePath": "Дублирующийся путь к файлу: {path}.",
+  "failureFailedToQueueJobs": "Не удалось добавить файлы в очередь. Выбор сохранён. Попробуйте ещё раз.",
   "failureFailedToClearJobs": "Не удалось очистить историю конверсий.",
   "failureFileDelete": "Не удалось удалить файл: {path}.",
   "failureFileNameIsNotSet": "Имя файла не задано для {path}.",

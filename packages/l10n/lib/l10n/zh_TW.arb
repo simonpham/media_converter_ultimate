@@ -70,6 +70,7 @@
   "excludedFilesDescription": "這些檔案將不會包含在轉換中。",
   "failureDirectoryNotWritable": "目錄無法寫入。",
   "failureDuplicatedFilePath": "重複的檔案路徑：{path}。",
+  "failureFailedToQueueJobs": "無法將這些檔案加入佇列。已保留您的選擇，請重試。",
   "failureFailedToClearJobs": "清除轉換歷史失敗。",
   "failureFileDelete": "刪除位於 {path} 的檔案失敗。",
   "failureFileNameIsNotSet": "未設定 {path} 的檔案名稱。",

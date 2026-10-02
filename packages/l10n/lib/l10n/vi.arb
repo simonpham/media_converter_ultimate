@@ -70,6 +70,7 @@
   "excludedFilesDescription": "Những tệp này sẽ không được bao gồm trong quá trình chuyển đổi.",
   "failureDirectoryNotWritable": "Thư mục không thể ghi.",
   "failureDuplicatedFilePath": "Đường dẫn tệp trùng lặp: {path}.",
+  "failureFailedToQueueJobs": "Không thể thêm các tệp vào hàng đợi. Lựa chọn của bạn vẫn được giữ. Vui lòng thử lại.",
   "failureFailedToClearJobs": "Không thể xóa lịch sử chuyển đổi.",
   "failureFileDelete": "Không thể xóa tệp tại {path}.",
   "failureFileNameIsNotSet": "Tên tệp chưa được đặt cho {path}.",
