@@ -31,6 +31,8 @@ dev_dependencies:
     path: ../../packages/core_storage_base
   core_storage_isar:
     path: ../../packages/core_storage_isar
+  mobile_ads_google:
+    path: ../../packages/mobile_ads_google
   integration_test:
     sdk: flutter
   flutter_test:

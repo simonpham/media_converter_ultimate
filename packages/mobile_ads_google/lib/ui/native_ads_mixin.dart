@@ -4,6 +4,7 @@ import 'package:core/utils/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:mobile_ads/mobile_ads.dart';
+import 'package:mobile_ads_google/ui/native_ad_template_style.dart';
 
 mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin<T> {
   NativeAd? _nativeAd;
@@ -53,34 +54,9 @@ mixin NativeAdsMixin<T extends StatefulWidget> on MobileAdsMixin<T> {
         },
       ),
       request: const AdRequest(),
-      nativeTemplateStyle: .new(
+      nativeTemplateStyle: buildNativeAdTemplateStyle(
+        theme,
         templateType: templateType,
-        mainBackgroundColor: Colors.white,
-        cornerRadius: 12.0,
-        callToActionTextStyle: .new(
-          textColor: Colors.white,
-          backgroundColor: theme.colorScheme.primary,
-          style: .normal,
-          size: 16.0,
-        ),
-        primaryTextStyle: .new(
-          textColor: theme.colorScheme.primary,
-          backgroundColor: Colors.white,
-          style: .bold,
-          size: 16.0,
-        ),
-        secondaryTextStyle: .new(
-          textColor: Colors.black54,
-          backgroundColor: Colors.white,
-          style: .normal,
-          size: 14.0,
-        ),
-        tertiaryTextStyle: .new(
-          textColor: Colors.black54,
-          backgroundColor: Colors.white,
-          style: .italic,
-          size: 16.0,
-        ),
       ),
     )..load();
   }

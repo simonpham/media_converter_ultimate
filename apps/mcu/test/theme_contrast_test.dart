@@ -5,6 +5,7 @@ import 'package:converter/converter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mcu/theme_adapter.dart';
+import 'package:mobile_ads_google/mobile_ads_google.dart';
 import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 import 'support/conversion_test_support.dart';
@@ -23,6 +24,48 @@ void main() {
 
   for (final isDark in [false, true]) {
     final mode = isDark ? 'dark' : 'light';
+    for (final compact in [true, false]) {
+      final templateType = compact ? 'small' : 'medium';
+      for (final role in ['button', 'title', 'body', 'advertiser']) {
+        test(
+          '$mode $templateType ad $role text meets normal-text contrast',
+          () {
+            final template = buildNativeAdTemplateStyle(
+              brand.getTheme(isDark: isDark),
+              templateType: compact ? .small : .medium,
+            );
+            final text = switch (role) {
+              'button' => template.callToActionTextStyle!,
+              'title' => template.primaryTextStyle!,
+              'body' => template.secondaryTextStyle!,
+              _ => template.tertiaryTextStyle!,
+            };
+            final background =
+                text.backgroundColor ?? template.mainBackgroundColor!;
+            expect(
+              contrastRatio(
+                Color.alphaBlend(text.textColor!, background),
+                background,
+              ),
+              greaterThanOrEqualTo(4.5),
+              reason: '$mode $templateType $role must remain readable',
+            );
+          },
+        );
+      }
+      if (isDark) {
+        test('dark $templateType ad keeps a dark surface', () {
+          final template = buildNativeAdTemplateStyle(
+            brand.getTheme(isDark: true),
+            templateType: compact ? .small : .medium,
+          );
+          expect(
+            template.mainBackgroundColor!.computeLuminance(),
+            lessThan(.2),
+          );
+        });
+      }
+    }
     test('$mode accents and secondary text remain readable on surfaces', () {
       final theme = brand.getTheme(isDark: isDark);
       final scheme = theme.colorScheme;

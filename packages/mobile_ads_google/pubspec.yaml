@@ -19,4 +19,7 @@ dependencies:
   utils:
     path: ../utils
 
+  sofluffy_ui:
+    path: ../design_system
+
   google_mobile_ads: ^9.1.0
