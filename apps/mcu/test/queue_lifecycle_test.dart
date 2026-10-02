@@ -37,7 +37,9 @@ void main() {
     injector.registerSingleton<ConvertJobStorage>(storage);
     injector.registerSingleton<JobRunnerService>(runner);
     injector.registerSingleton<JobNotificationService>(notifications);
-    injector.registerSingleton<JobNotificationCoordinator>(.new(notifications));
+    injector.registerLazySingleton<JobNotificationCoordinator>(
+      () => .new(notifications),
+    );
     theme = FluffyThemeData.fromJson(
       jsonDecode(
         File('${findRepository().path}/apps/mcu/assets/themes/default.json')
@@ -48,10 +50,53 @@ void main() {
   tearDown(() async {
     await runner.jobs.close();
     await runner.logs.close();
+    await storage.processing.close();
     settings.changes.dispose();
     clearShippedAssetHandler();
     await injector.reset();
   });
+  for (final processing in [false, true]) {
+    testWidgets(
+      'activity query failure preserves processing=$processing until next event',
+      (
+        tester,
+      ) async {
+        await settings.put(JobRunnerSettings.keepAppRunning, true);
+        try {
+          await tester.pumpWidget(MediaConverterUltimate(appTheme: theme));
+          await tester.pumpAndSettle();
+          expect(notifications.initializations, 1);
+          storage.processing.add(processing);
+          await tester.pumpAndSettle();
+          expect(notifications.events, isEmpty);
+          tester.binding.handleAppLifecycleStateChanged(.paused);
+          await tester.pumpAndSettle();
+          expect(notifications.running, processing);
+          expect(notifications.events, processing ? ['start'] : isEmpty);
+          storage.processing.addError(StateError('Activity query unavailable'));
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull);
+          expect(notifications.running, processing);
+          expect(notifications.events, processing ? ['start'] : isEmpty);
+          storage.processing.add(!processing);
+          await tester.pumpAndSettle();
+          expect(notifications.running, !processing);
+          tester.binding.handleAppLifecycleStateChanged(.resumed);
+          await tester.pumpAndSettle();
+          expect(notifications.running, isFalse);
+          expect(notifications.events, ['start', 'stop']);
+          expect(settings.keepAppRunning, isTrue);
+        } finally {
+          tester.binding.handleAppLifecycleStateChanged(.resumed);
+          await tester.pumpWidget(const SizedBox.shrink());
+          await tester.pumpAndSettle();
+        }
+        storage.processing.addError(StateError('Event after app teardown'));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
   for (final stage in ['permission', 'initialization']) {
     for (final closeApp in [false, true]) {
       testWidgets(
@@ -293,6 +338,7 @@ class _Runner implements JobRunnerService {
 }
 
 class _Storage implements ConvertJobStorage {
+  final processing = StreamController<bool>.broadcast();
   @override
   Future<void> onDispose() async {}
   int repairs = 0;
@@ -338,7 +384,7 @@ class _Storage implements ConvertJobStorage {
   @override
   Stream<List<ConvertJob>> watchActionRequiredJobs() => Stream.value([]);
   @override
-  Stream<bool> watchIsJobPendingOrProcessing() => Stream.value(false);
+  Stream<bool> watchIsJobPendingOrProcessing() => processing.stream;
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -361,6 +407,8 @@ class _Settings extends MemorySettings {
 }
 
 class _Notifications implements JobNotificationService {
+  bool running = false;
+  final events = <String>[];
   int permissions = 0;
   int initializations = 0;
   Completer<void>? permissionGate;
@@ -384,7 +432,19 @@ class _Notifications implements JobNotificationService {
   }
 
   @override
-  Future<bool> isServiceRunning() async => false;
+  Future<bool> isServiceRunning() async => running;
+  @override
+  Future<void> start(JobNotificationServiceStartParams params) async {
+    events.add('start');
+    running = true;
+  }
+
+  @override
+  Future<void> stop() async {
+    events.add('stop');
+    running = false;
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

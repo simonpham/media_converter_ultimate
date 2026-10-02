@@ -81,6 +81,8 @@ class _JobNotificationWrapperState extends State<JobNotificationWrapper>
             _isJobProcessing = isProcessing;
             _updateService();
           },
+          // A failed query cannot establish that processing has stopped.
+          onError: printError,
         );
   }
 
