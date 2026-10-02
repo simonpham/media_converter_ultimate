@@ -68,6 +68,134 @@ void main() {
   });
 
   test(
+    'startup repair cannot recreate a job deleted before its transaction',
+    () async {
+      final original = job('removed', order: 0, status: .running);
+      await storage.add(original);
+      final gated = _GatedIsar(isar);
+      final repairing = ConvertJobIsarStorage(isar: gated).fixInvalidJobs();
+      await gated.entered.future.timeout(const Duration(seconds: 5));
+      try {
+        expect(await storage.delete(original.id), isNull);
+      } finally {
+        gated.release.complete();
+      }
+      final repaired = await repairing;
+      expect(await storage.get(original.id), isNull);
+      expect(repaired, isEmpty);
+    },
+  );
+
+  test(
+    'startup repair preserves a completion committed before its transaction',
+    () async {
+      final original = job(
+        'completed-during-repair',
+        order: 0,
+        status: .running,
+      );
+      await storage.add(original);
+      final gated = _GatedIsar(isar);
+      final repairing = ConvertJobIsarStorage(isar: gated).fixInvalidJobs();
+      await gated.entered.future.timeout(const Duration(seconds: 5));
+      Map<String, dynamic>? committed;
+      try {
+        await storage.update(
+          original.copyWith(
+            status: const .new(.completed),
+            outputUri: const .new('content://media/downloads/42'),
+            outputFileName: const .new('published.mp3'),
+            sessionId: const .new(42),
+            progress: const .new(1000),
+          ),
+        );
+        committed = (await storage.get(original.id))!.toJson();
+      } finally {
+        gated.release.complete();
+      }
+      expect(await repairing, isEmpty);
+      expect((await storage.get(original.id))!.toJson(), committed);
+    },
+  );
+
+  test(
+    'startup repair uses newly committed interrupted job settings',
+    () async {
+      final original = job(
+        'changed-during-repair',
+        order: 0,
+        status: .preparing,
+      );
+      await storage.add(original);
+      final gated = _GatedIsar(isar);
+      final repairing = ConvertJobIsarStorage(isar: gated).fixInvalidJobs();
+      await gated.entered.future.timeout(const Duration(seconds: 5));
+      try {
+        await storage.update(
+          original.copyWith(
+            status: const .new(.running),
+            outputFileName: const .new('renamed.mp3'),
+            outputDirectoryPath: const .new('/chosen'),
+            inputFilePath: const .new('/input/owned.wav'),
+            command: const .new('changed trim command'),
+            sessionId: const .new(42),
+            progress: const .new(500),
+          ),
+        );
+      } finally {
+        gated.release.complete();
+      }
+      final repaired = (await repairing).single;
+      expect(repaired.outputFileName, 'renamed.mp3');
+      expect(repaired.outputDirectoryPath, '/chosen');
+      expect(repaired.inputFilePath, '/input/owned.wav');
+      expect(repaired.command, 'changed trim command');
+      expect(repaired.status, JobStatus.pending);
+      expect(repaired.sessionId, isNull);
+      expect(repaired.progress, isNull);
+      expect((await storage.get(original.id))!.toJson(), repaired.toJson());
+    },
+  );
+
+  test('failed repair transaction rolls back and reports the error', () async {
+    final original = job('rollback', order: 0, status: .running).copyWith(
+      sessionId: const .new(42),
+      progress: const .new(500),
+    );
+    await storage.add(original);
+    final gated = _GatedIsar(isar, failAfterWrite: true);
+    final repairing = ConvertJobIsarStorage(isar: gated).fixInvalidJobs();
+    final failed = expectLater(repairing, throwsStateError);
+    await gated.entered.future.timeout(const Duration(seconds: 5));
+    gated.release.complete();
+    await failed;
+    expect((await storage.get(original.id))!.toJson(), original.toJson());
+    final retried = (await storage.fixInvalidJobs()).single;
+    expect(retried.status, JobStatus.pending);
+    expect(retried.sessionId, isNull);
+  });
+
+  test(
+    'repair of a closed database reports failure and preserves pending data',
+    () async {
+      final original = job('closed-repair', order: 0, status: .running);
+      await storage.add(original);
+      await isar.close();
+      try {
+        await expectLater(storage.fixInvalidJobs(), throwsA(isA<IsarError>()));
+      } finally {
+        isar = await Isar.open(
+          [IsarConvertJobSchema],
+          directory: temporaryDirectory.path,
+          name: 'queue-test',
+        );
+        storage = ConvertJobIsarStorage(isar: isar);
+      }
+      expect((await storage.get(original.id))!.toJson(), original.toJson());
+    },
+  );
+
+  test(
     'dependency disposal waits for an active database transaction',
     () async {
       final owner = GetIt.asNewInstance();
@@ -531,4 +659,30 @@ ConvertJob job(String id, {required int order, JobStatus status = .pending}) {
     updatedAt: createdAt,
     status: status,
   );
+}
+
+/// Delays transaction entry while retaining real native Isar queries and writes.
+/// The competing commit finishes before repair acquires its write transaction.
+class _GatedIsar(final Isar delegate, {final bool failAfterWrite = false})
+    implements Isar {
+  final entered = Completer<void>();
+  final release = Completer<void>();
+  @override
+  IsarCollection<T> collection<T>() => delegate.collection<T>();
+  @override
+  Future<T> writeTxn<T>(
+    Future<T> Function() callback, {
+    bool silent = false,
+  }) async {
+    entered.complete();
+    await release.future;
+    return delegate.writeTxn(() async {
+      final result = await callback();
+      if (failAfterWrite) throw StateError('Repair commit rejected');
+      return result;
+    }, silent: silent);
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

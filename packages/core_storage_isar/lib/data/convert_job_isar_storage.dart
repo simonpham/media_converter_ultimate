@@ -257,48 +257,50 @@ class ConvertJobIsarStorage extends ConvertJobStorage {
   @override
   Future<List<ConvertJob>> fixInvalidJobs() async {
     try {
-      final invalidIsarJobs = await isar.isarConvertJobs
-          .where()
-          .statusEqualTo(.pending)
-          .or()
-          .statusEqualTo(.running)
-          .or()
-          .statusEqualTo(.ready)
-          .or()
-          .statusEqualTo(.cleaning)
-          .or()
-          .statusEqualTo(.stopping)
-          .or()
-          .statusEqualTo(.preparing)
-          .findAll();
-      final fixedJobs = invalidIsarJobs
-          .map(
-            (e) => e.toOriginalModel().copyWith(
-              status: Some(
-                e.status == .stopping
-                    ? .cancelled
-                    : e.status == .cleaning && e.outputStaged
-                    ? .actionRequired
-                    : .pending,
+      return await isar.writeTxn(() async {
+        // Read and repair one transaction snapshot. A stale pre-transaction
+        // read could restore removed jobs or overwrite a completed export.
+        final invalidIsarJobs = await isar.isarConvertJobs
+            .where()
+            .statusEqualTo(.pending)
+            .or()
+            .statusEqualTo(.running)
+            .or()
+            .statusEqualTo(.ready)
+            .or()
+            .statusEqualTo(.cleaning)
+            .or()
+            .statusEqualTo(.stopping)
+            .or()
+            .statusEqualTo(.preparing)
+            .findAll();
+        final fixedJobs = invalidIsarJobs
+            .map(
+              (record) => record.toOriginalModel().copyWith(
+                status: .new(
+                  record.status == .stopping
+                      ? .cancelled
+                      : record.status == .cleaning && record.outputStaged
+                      ? .actionRequired
+                      : .pending,
+                ),
+                sessionId: const .new(null),
+                progress: const .new(null),
+                duration: const .new(null),
               ),
-              sessionId: const Some(null),
-              progress: const Some(null),
-              duration: const Some(null),
-            ),
-          )
-          .toList();
-
-      final fixedIsarJobs = fixedJobs.map((e) => e.toIsarModel()).toList();
-      await isar.writeTxn(() async {
-        await isar.isarConvertJobs.putAll(fixedIsarJobs);
+            )
+            .toList();
+        if (fixedJobs.isNotEmpty) {
+          await isar.isarConvertJobs.putAll(
+            fixedJobs.map((job) => job.toIsarModel()).toList(),
+          );
+        }
+        return fixedJobs;
       });
-
-      return fixedJobs;
-    } catch (err, trace) {
-      printError(err, trace);
+    } catch (error, trace) {
+      printError(error, trace);
+      rethrow;
     }
-
-    return [];
   }
 
   @override
