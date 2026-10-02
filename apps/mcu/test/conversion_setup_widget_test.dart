@@ -688,28 +688,31 @@ void main() {
     },
   );
 
-  testWidgets('customizer offers only presets for the selected format', (
-    tester,
-  ) async {
-    await model.applyPreset(.musicMp3);
-    await showPicker(
+  testWidgets(
+    'customizer hides presets and retains selection for the summary',
+    (
       tester,
-      content: Builder(
-        builder: (context) => JobMakerSteps.customizeConfigs.build(context),
-      ),
-    );
-    expect(find.text('MP3 music'), findsOneWidget);
-    expect(find.text('Compatible video'), findsNothing);
-    expect(find.text('Lossless audio'), findsNothing);
-    await tester.tap(find.text('MP3 music'));
-    await tester.pumpAndSettle();
-    expect(model.selectedPreset, isNull);
-    await tester.tap(find.text('MP3 music'));
-    await tester.pumpAndSettle();
-    expect(model.selectedPreset, ConversionPreset.musicMp3);
-    expect(model.selectedFormatEntry?.name, 'mp3');
-    expect(tester.takeException(), isNull);
-  });
+    ) async {
+      await model.applyPreset(.musicMp3);
+      await showPicker(
+        tester,
+        content: Builder(
+          builder: (context) => JobMakerSteps.customizeConfigs.build(context),
+        ),
+      );
+      expect(find.byType(ConversionPresetPicker), findsNothing);
+      expect(find.text('Quick presets'), findsNothing);
+      expect(find.text('Remember my preferences'), findsOneWidget);
+      expect(find.text('MP3 music'), findsNothing);
+      expect(find.text('Compatible video'), findsNothing);
+      expect(find.text('Lossless audio'), findsNothing);
+      expect(model.selectedPreset, ConversionPreset.musicMp3);
+      expect(model.selectedFormatEntry?.name, 'mp3');
+      await showPicker(tester, content: const ConversionSummary());
+      expect(find.text('MP3 music'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }
 
 class _PickerFiles extends TestMediaFiles {

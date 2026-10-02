@@ -5,10 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
 import 'package:sofluffy_ui/sofluffy_ui.dart';
 
-class const ConversionPresetPicker({
-  super.key,
-  final bool currentFormatOnly = false,
-}) extends StatefulWidget {
+class const ConversionPresetPicker({super.key}) extends StatefulWidget {
   @override
   State<ConversionPresetPicker> createState() => _ConversionPresetPickerState();
 }
@@ -25,13 +22,7 @@ class _ConversionPresetPickerState extends State<ConversionPresetPicker> {
   @override
   Widget build(BuildContext context) => Consumer<JobMakerViewModel>(
     builder: (context, model, _) {
-      final presets = model.availablePresets
-          .where(
-            (preset) =>
-                !widget.currentFormatOnly ||
-                preset.formatName == model.selectedFormatEntry?.name,
-          )
-          .toList();
+      final presets = model.availablePresets;
       if (presets.isEmpty) return const SizedBox.shrink();
       return Column(
         crossAxisAlignment: .start,
