@@ -240,7 +240,7 @@
   "trimPlayAudio": "Reproducir audio",
   "trimAudioPreviewLimit": "Reproduce hasta 30 segundos desde el cursor. Pulsa Reproducir otra vez para continuar.",
   "trimApplyRange": "Aplicar intervalo",
-  "trimFullFile": "Archivo completo",
+  "trimReset": "Restablecer recorte",
   "trimFileDuration": "Duración del archivo: {duration}",
   "trimInvalidBounds": "El intervalo debe estar dentro de la duración de este archivo.",
   "quickConvertTitle": "Conversión rápida",

@@ -240,7 +240,7 @@
   "trimPlayAudio": "Phát âm thanh",
   "trimAudioPreviewLimit": "Phát tối đa 30 giây từ con trỏ. Nhấn Phát lần nữa để tiếp tục.",
   "trimApplyRange": "Áp dụng khoảng cắt",
-  "trimFullFile": "Toàn bộ tệp",
+  "trimReset": "Đặt lại phần cắt",
   "trimFileDuration": "Thời lượng tệp: {duration}",
   "trimInvalidBounds": "Khoảng thời gian phải nằm trong thời lượng của tệp này.",
   "quickConvertTitle": "Chuyển đổi nhanh",

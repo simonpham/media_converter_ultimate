@@ -240,7 +240,7 @@
   "trimPlayAudio": "音声を再生",
   "trimAudioPreviewLimit": "カーソル位置から最大30秒再生します。続けるには再生をもう一度押してください。",
   "trimApplyRange": "範囲を適用",
-  "trimFullFile": "ファイル全体",
+  "trimReset": "トリミングをリセット",
   "trimFileDuration": "ファイルの長さ：{duration}",
   "trimInvalidBounds": "範囲はこのファイルの長さ以内にしてください。",
   "quickConvertTitle": "クイック変換",

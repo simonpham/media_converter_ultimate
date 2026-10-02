@@ -240,7 +240,7 @@
   "trimPlayAudio": "Воспроизвести аудио",
   "trimAudioPreviewLimit": "Воспроизводит до 30 секунд от курсора. Нажмите воспроизведение снова для продолжения.",
   "trimApplyRange": "Применить диапазон",
-  "trimFullFile": "Весь файл",
+  "trimReset": "Сбросить обрезку",
   "trimFileDuration": "Длительность файла: {duration}",
   "trimInvalidBounds": "Диапазон должен быть в пределах длительности этого файла.",
   "quickConvertTitle": "Быстрое преобразование",

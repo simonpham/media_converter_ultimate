@@ -240,7 +240,7 @@
   "trimPlayAudio": "播放音訊",
   "trimAudioPreviewLimit": "從游標位置播放最多30秒。再次點選播放即可繼續。",
   "trimApplyRange": "套用範圍",
-  "trimFullFile": "完整檔案",
+  "trimReset": "重設裁剪",
   "trimFileDuration": "檔案時長：{duration}",
   "trimInvalidBounds": "範圍必須在此檔案的時長以內。",
   "quickConvertTitle": "快速轉換",

@@ -254,7 +254,7 @@
       }
     }
   },
-  "trimFullFile": "Full file",
+  "trimReset": "Reset trim",
   "trimFileDuration": "File duration: {duration}",
   "trimInvalidBounds": "The range must be within this file’s duration.",
   "@trimFileDuration": {

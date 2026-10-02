@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:converter/converter.dart';
+import 'package:converter/features/job_maker/ui/widgets/trim_waveform_preview.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
@@ -28,7 +29,10 @@ class _TrimTimelinePanelState extends State<TrimTimelinePanel> {
   Widget build(BuildContext context) => Consumer<TrimTimelineViewModel>(
     builder: (context, model, _) {
       if (model.loading) {
-        return const Center(child: CircularProgressIndicator());
+        return SizedBox(
+          height: Spacing.d64,
+          child: const TrimWaveformPreview(path: null, loading: true),
+        );
       }
       if (model.failed) return Text(context.l10n.trimPreviewUnavailable);
       return Column(
@@ -95,19 +99,24 @@ class _TrimTimelinePanelState extends State<TrimTimelinePanel> {
             children: [
               if (model.info?.audioIndex != null)
                 Button(
-                  variant: .secondary,
+                  key: const ValueKey('trim-playback'),
+                  variant: .ghost,
                   mainAxisSize: .min,
                   titleExpand: .shrink,
-                  padding: .symmetric(
-                    horizontal: Spacing.d12,
-                    vertical: Spacing.d8,
-                  ),
+                  padding: .all(Spacing.d12),
                   enable: !model.preparingAudio,
-                  label: model.preparingAudio
+                  tooltip: model.preparingAudio
                       ? context.l10n.trimPreparingAudio
                       : model.playing
                       ? context.l10n.trimPauseAudio
                       : context.l10n.trimPlayAudio,
+                  child: ImageView(
+                    model.playing ? Assets.pause : Assets.play,
+                    size: Spacing.d24,
+                    color: model.preparingAudio
+                        ? context.theme.disabledColor
+                        : context.theme.colorScheme.primary,
+                  ),
                   onPressed: () => _interact(
                     () =>
                         unawaited(model.playing ? model.pause() : model.play()),
@@ -137,24 +146,17 @@ class _TrimTimelinePanelState extends State<TrimTimelinePanel> {
             runSpacing: Spacing.d8,
             crossAxisAlignment: .center,
             children: [
-              Button(
-                variant: .ghost,
-                mainAxisSize: .min,
-                padding: .all(Spacing.d12),
-                tooltip: context.l10n.trimZoomOut,
-                enable: !model.isOverview,
-                child: SizedBox(
-                  width: Spacing.d24,
-                  child: Center(
-                    child: Text('−', style: context.theme.textTheme.titleLarge),
-                  ),
-                ),
-                onPressed: () => _interact(() => model.zoom(false)),
+              _icon(
+                context,
+                context.l10n.trimZoomOut,
+                Assets.zoomOutArea,
+                () => model.zoom(false),
+                enabled: !model.isOverview,
               ),
               _icon(
                 context,
                 context.l10n.trimZoomIn,
-                Assets.add01,
+                Assets.zoomInArea,
                 () => model.zoom(true),
                 enabled: model.canZoomIn,
               ),
@@ -163,11 +165,15 @@ class _TrimTimelinePanelState extends State<TrimTimelinePanel> {
                 variant: .ghost,
                 mainAxisSize: .min,
                 titleExpand: .shrink,
-                padding: .symmetric(
-                  horizontal: Spacing.d12,
-                  vertical: Spacing.d8,
+                padding: .all(Spacing.d12),
+                tooltip: context.l10n.trimOverview,
+                child: ImageView(
+                  Assets.squareArrowHorizontalRound,
+                  size: Spacing.d24,
+                  color: model.isOverview
+                      ? context.theme.disabledColor
+                      : context.theme.colorScheme.primary,
                 ),
-                label: context.l10n.trimOverview,
                 enable: !model.isOverview,
                 onPressed: () => _interact(model.fitTimeline),
               ),
@@ -331,7 +337,9 @@ class _TrimTimelinePanelState extends State<TrimTimelinePanel> {
       child: ImageView(
         asset,
         size: Spacing.d24,
-        color: context.theme.colorScheme.primary,
+        color: enabled
+            ? context.theme.colorScheme.primary
+            : context.theme.disabledColor,
       ),
     ),
   );
@@ -446,24 +454,14 @@ class _TrimTrackState extends State<_TrimTrack> {
                     borderRadius: Spacing.r8,
                     child: ColoredBox(
                       color: context.theme.colorScheme.surfaceContainerHighest,
-                      child: switch (model.info?.videoIndex != null
-                          ? model.thumbnails
-                          : model.waveform) {
-                        final String path => ImageView(path, fit: .fill),
-                        _ when model.preparingWaveform => Center(
-                          child: Semantics(
-                            label: context.l10n.trimPreparingWaveform,
-                            child: SizedBox(
-                              width: Spacing.d24,
-                              height: Spacing.d24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: Spacing.d2,
-                              ),
+                      child: model.info?.videoIndex != null
+                          ? model.thumbnails == null
+                                ? const SizedBox.expand()
+                                : ImageView(model.thumbnails!, fit: .fill)
+                          : TrimWaveformPreview(
+                              path: model.waveform,
+                              loading: model.preparingWaveform,
                             ),
-                          ),
-                        ),
-                        _ => const SizedBox.expand(),
-                      },
                     ),
                   ),
                 ),

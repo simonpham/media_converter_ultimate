@@ -47,6 +47,8 @@ class Assets {
   static const String moreVertical = 'assets/more-vertical.svg';
   static const String note01 = 'assets/note-01.svg';
   static const String notification02 = 'assets/notification-02.svg';
+  static const String pause = 'assets/pause.svg';
+  static const String play = 'assets/play.svg';
   static const String reload = 'assets/reload.svg';
   static const String scissor = 'assets/scissor.svg';
   static const String securityLock = 'assets/security-lock.svg';
@@ -56,9 +58,13 @@ class Assets {
   static const String share05 = 'assets/share-05.svg';
   static const String smileBulk = 'assets/smile-bulk.svg';
   static const String sorting01 = 'assets/sorting-01.svg';
+  static const String squareArrowHorizontalRound =
+      'assets/square-arrow-horizontal-round.svg';
   static const String stop = 'assets/stop.svg';
   static const String tick02 = 'assets/tick-02.svg';
   static const String verticalDragDrop = 'assets/vertical-drag-&-drop.svg';
+  static const String zoomInArea = 'assets/zoom-in-area.svg';
+  static const String zoomOutArea = 'assets/zoom-out-area.svg';
 
   /// List of all assets
   static List<String> get values => [
@@ -94,6 +100,8 @@ class Assets {
     moreVertical,
     note01,
     notification02,
+    pause,
+    play,
     reload,
     scissor,
     securityLock,
@@ -103,8 +111,11 @@ class Assets {
     share05,
     smileBulk,
     sorting01,
+    squareArrowHorizontalRound,
     stop,
     tick02,
     verticalDragDrop,
+    zoomInArea,
+    zoomOutArea,
   ];
 }

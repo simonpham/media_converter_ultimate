@@ -686,9 +686,9 @@ void main() {
       );
       expect(model.selectedPreset, ConversionPreset.musicMp3);
       expect(model.trimFor('/song.wav'), isNull);
-      await tester.ensureVisible(find.text('Full file'));
+      await tester.ensureVisible(find.byKey(const ValueKey('trim-reset')));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Full file'));
+      await tester.tap(find.byKey(const ValueKey('trim-reset')));
       await tester.pumpAndSettle();
       expect(tester.widget<EditableText>(start).controller.text, isEmpty);
       expect(tester.widget<EditableText>(end).controller.text, isEmpty);
@@ -750,13 +750,13 @@ void main() {
       await tester.pumpAndSettle();
       expect(model.trimFor('/second.wav'), isNull);
       await open('/first.wav');
-      await tester.ensureVisible(find.text('Full file'));
+      await tester.ensureVisible(find.byKey(const ValueKey('trim-reset')));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Full file'));
+      await tester.tap(find.byKey(const ValueKey('trim-reset')));
       await tester.tap(find.byKey(const ValueKey('file-trim-apply')));
       await tester.pumpAndSettle();
       expect(model.trimFor('/first.wav'), isNull);
-      expect(find.text('Full file'), findsNothing);
+      expect(find.byKey(const ValueKey('trim-reset')), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );

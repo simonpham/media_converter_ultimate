@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:converter/converter.dart';
+import 'package:converter/features/job_maker/ui/widgets/trim_waveform_preview.dart';
 import 'package:flutter/material.dart';
+import 'package:icons/icons.dart';
 import 'package:platform_utils/platform_utils.dart';
 import 'package:sofluffy_ui/sofluffy_ui.dart';
 
@@ -220,7 +222,14 @@ class _TrimEditorState extends State<TrimEditor> with WidgetsBindingObserver {
                               );
                               final reset = Button(
                                 variant: .ghost,
-                                label: context.l10n.trimFullFile,
+                                key: const ValueKey('trim-reset'),
+                                tooltip: context.l10n.trimReset,
+                                padding: .all(Spacing.d12),
+                                child: ImageView(
+                                  Assets.reload,
+                                  size: Spacing.d24,
+                                  color: context.theme.colorScheme.primary,
+                                ),
                                 titleExpand: .shrink,
                                 mainAxisSize: .min,
                                 onPressed: () {
@@ -249,7 +258,14 @@ class _TrimEditorState extends State<TrimEditor> with WidgetsBindingObserver {
                             },
                           ),
                           Spacing.v8,
-                          if (model.loading) const CircularProgressIndicator(),
+                          if (model.loading)
+                            SizedBox(
+                              height: Spacing.d64,
+                              child: const TrimWaveformPreview(
+                                path: null,
+                                loading: true,
+                              ),
+                            ),
                           if (model.failed)
                             Text(context.l10n.trimPreviewUnavailable),
                           if (model.duration case final duration?)

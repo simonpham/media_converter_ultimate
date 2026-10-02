@@ -240,7 +240,7 @@
   "trimPlayAudio": "Putar audio",
   "trimAudioPreviewLimit": "Memutar hingga 30 detik dari kursor. Tekan Putar lagi untuk melanjutkan.",
   "trimApplyRange": "Terapkan rentang",
-  "trimFullFile": "Seluruh file",
+  "trimReset": "Reset pemangkasan",
   "trimFileDuration": "Durasi file: {duration}",
   "trimInvalidBounds": "Rentang harus berada dalam durasi file ini.",
   "quickConvertTitle": "Konversi cepat",

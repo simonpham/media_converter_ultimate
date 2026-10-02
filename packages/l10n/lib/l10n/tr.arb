@@ -240,7 +240,7 @@
   "trimPlayAudio": "Sesi oynat",
   "trimAudioPreviewLimit": "İmleçten itibaren en fazla 30 saniye oynatır. Devam etmek için tekrar Oynat düğmesine basın.",
   "trimApplyRange": "Aralığı uygula",
-  "trimFullFile": "Dosyanın tamamı",
+  "trimReset": "Kırpmayı sıfırla",
   "trimFileDuration": "Dosya süresi: {duration}",
   "trimInvalidBounds": "Aralık bu dosyanın süresi içinde olmalıdır.",
   "quickConvertTitle": "Hızlı dönüştür",
