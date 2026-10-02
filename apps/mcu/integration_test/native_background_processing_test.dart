@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:mcu/app.dart';
 import 'package:platform_utils/platform_utils.dart';
 import 'package:sofluffy_ui/sofluffy_ui.dart';
 
@@ -29,6 +30,7 @@ void main() {
   final lifecycle = _Lifecycle();
   ConvertJob? accepted;
   bool databaseOpen = false;
+  bool managerOwnedByApp = false;
 
   Future<void> openDatabase() async {
     isar = await Isar.open(
@@ -109,7 +111,7 @@ void main() {
   tearDownAll(() async {
     WidgetsBinding.instance.removeObserver(lifecycle);
     maker.dispose();
-    manager.dispose();
+    if (!managerOwnedByApp) manager.dispose();
     await coordinator.update(shouldRun: false);
     if (accepted case final job?) {
       await injector<FileService>().cleanUpInputFile(jobId: job.id);
@@ -152,51 +154,73 @@ void main() {
       expect(await ConvertJobStorage.getInstance().count(), 0);
       printLog('[Native background QA] failed save restored real picker input');
 
-      await tester.pumpWidget(
-        FluffyTheme(
-          data: FluffyThemeData.fallback(),
-          child: const MaterialApp(
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: JobNotificationWrapper(
-              child: Scaffold(body: SizedBox.shrink()),
-            ),
-          ),
-        ),
+      // The rejected-save fixture has no native work. Hand the accepted retry
+      // to the production app provider, which owns and disposes its manager.
+      manager.dispose();
+      managerOwnedByApp = true;
+      await settings.put(
+        CoreSettings.lastKnownVersion,
+        (await PackageInfo.fromPlatform()).version,
       );
-      await tester.pumpAndSettle();
-      // Initialization was explicit above. Avoid system permission dialogs in QA;
-      // production permission/cancellation flows are covered by widget tests.
-      await settings.put(JobRunnerSettings.keepAppRunning, true);
-      final jobs = await maker.cook(
-        onSubmitJobs: (jobs) async {
-          // Slow fixture input reads so the real lifecycle transition occurs while
-          // the native runner is active; shipped output settings remain unchanged.
-          final paced = [
-            for (final job in jobs)
-              job.copyWith(
-                command: .new(
-                  jsonEncode([
-                    '-re',
-                    ...CommandBuilder.parseCommand(job.command),
-                  ]),
-                ),
-              ),
-          ];
-          accepted = paced.single;
-          await manager.enqueueJobs(paced);
-        },
+      final theme = FluffyThemeData.fromJson(
+        jsonDecode(await rootBundle.loadString('assets/themes/default.json')),
       );
-      final job = jobs.single;
-      await _waitFor(
-        () async =>
-            (await ConvertJobStorage.getInstance().get(job.id))?.status ==
-            .running,
-      );
-      expect(await File(accepted!.inputFilePath).exists(), isTrue);
-      expect(await notifications.isServiceRunning(), isFalse);
-      printLog('[Native background QA] accepted retry is running');
       try {
+        await tester.pumpWidget(MediaConverterUltimate(appTheme: theme));
+        await tester.pumpAndSettle();
+        manager = tester
+            .element(find.byType(JobManager))
+            .read<JobManagerViewModel>();
+        await manager.initialize();
+        expect(find.byType(MainPage), findsOneWidget);
+        // Initialization was explicit above. Avoid system permission dialogs in QA;
+        // production permission/cancellation flows are covered by widget tests.
+        await settings.put(JobRunnerSettings.keepAppRunning, true);
+        final jobs = await maker.cook(
+          onSubmitJobs: (jobs) async {
+            // Slow fixture input reads so the real lifecycle transition occurs while
+            // the native runner is active; shipped output settings remain unchanged.
+            final paced = [
+              for (final job in jobs)
+                job.copyWith(
+                  command: .new(
+                    jsonEncode([
+                      '-re',
+                      ...CommandBuilder.parseCommand(job.command),
+                    ]),
+                  ),
+                ),
+            ];
+            accepted = paced.single;
+            await manager.enqueueJobs(paced);
+          },
+        );
+        final job = jobs.single;
+        await _waitFor(
+          () async =>
+              (await ConvertJobStorage.getInstance().get(job.id))?.status ==
+              .running,
+        );
+        expect(await File(accepted!.inputFilePath).exists(), isTrue);
+        expect(await notifications.isServiceRunning(), isFalse);
+        final execution = manager.activeExecutionId(job.id);
+        final session = (await ConvertJobStorage.getInstance().get(job.id))!
+            .sessionId;
+        await settings.put(CoreSettings.appTheme, ThemeMode.dark);
+        await settings.put(CoreSettings.language, 'vi');
+        await tester.pumpAndSettle();
+        expect(
+          tester.element(find.byType(JobManager)).read<JobManagerViewModel>(),
+          same(manager),
+        );
+        expect(manager.activeExecutionId(job.id), execution);
+        expect(
+          (await ConvertJobStorage.getInstance().get(job.id))!.sessionId,
+          session,
+        );
+        printLog(
+          '[Native background QA] actual app preserves its running owner across settings rebuilds',
+        );
         FlutterForegroundTask.minimizeApp();
         await _waitFor(() async => lifecycle.backgrounded);
         await _waitFor(notifications.isServiceRunning);
