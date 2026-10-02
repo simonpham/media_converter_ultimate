@@ -6,59 +6,68 @@ import 'package:platform_utils/platform_utils.dart';
 import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 extension SettingsHandlers on SettingsPageItem {
-  void handleOpen(BuildContext context) {
-    switch (this) {
-      case SettingsPageItem.defaultOutputFolder:
-        _handleDefaultOutputFolder(context);
-        break;
-      case SettingsPageItem.defaultOutputFormat:
-        // TODO: Handle this case.
-        throw UnimplementedError();
-      case SettingsPageItem.overwriteBehavior:
-        // TODO: Handle this case.
-        throw UnimplementedError();
-      case SettingsPageItem.concurrencyLimit:
-        _handleConcurrencyLimit(context);
-      case SettingsPageItem.threadCount:
-        break;
-      case SettingsPageItem.keepAppRunning:
-        _handleKeepAppRunningToggle(context);
-        break;
-      case SettingsPageItem.excludeFileExtensions:
-        break;
-      case SettingsPageItem.languages:
-        // TODO: Handle this case.
-        throw UnimplementedError();
-      case SettingsPageItem.appTheme:
-        // TODO: Handle this case.
-        throw UnimplementedError();
-      case SettingsPageItem.showFileThumbnails:
-        // TODO: Handle this case.
-        throw UnimplementedError();
-      case SettingsPageItem.defaultSorting:
-        // TODO: Handle this case.
-        throw UnimplementedError();
-      case SettingsPageItem.clearCache:
-        // TODO: Handle this case.
-        throw UnimplementedError();
-      case SettingsPageItem.managePermissions:
-        _handleManagePermissions(context);
-        break;
-      case SettingsPageItem.changelog:
-        _handleViewChangelog(context);
-        break;
-      case SettingsPageItem.helpAndFaq:
-        // TODO: Handle this case.
-        throw UnimplementedError();
-      case SettingsPageItem.contactUs:
-        _handleContactUs(context);
-        break;
-      case SettingsPageItem.legal:
-        _handleLegal(context);
-        break;
-      case SettingsPageItem.supportTheDeveloper:
-        _handleSupportTheDeveloper(context);
-        break;
+  Future<void> handleOpen(BuildContext context) async {
+    try {
+      switch (this) {
+        case SettingsPageItem.defaultOutputFolder:
+          await _handleDefaultOutputFolder(context);
+          break;
+        case SettingsPageItem.defaultOutputFormat:
+          // TODO: Handle this case.
+          throw UnimplementedError();
+        case SettingsPageItem.overwriteBehavior:
+          // TODO: Handle this case.
+          throw UnimplementedError();
+        case SettingsPageItem.concurrencyLimit:
+          await _handleConcurrencyLimit(context);
+        case SettingsPageItem.threadCount:
+          break;
+        case SettingsPageItem.keepAppRunning:
+          await _handleKeepAppRunningToggle(context);
+          break;
+        case SettingsPageItem.excludeFileExtensions:
+          break;
+        case SettingsPageItem.languages:
+          // TODO: Handle this case.
+          throw UnimplementedError();
+        case SettingsPageItem.appTheme:
+          // TODO: Handle this case.
+          throw UnimplementedError();
+        case SettingsPageItem.showFileThumbnails:
+          // TODO: Handle this case.
+          throw UnimplementedError();
+        case SettingsPageItem.defaultSorting:
+          // TODO: Handle this case.
+          throw UnimplementedError();
+        case SettingsPageItem.clearCache:
+          // TODO: Handle this case.
+          throw UnimplementedError();
+        case SettingsPageItem.managePermissions:
+          await _handleManagePermissions(context);
+          break;
+        case SettingsPageItem.changelog:
+          await _handleViewChangelog(context);
+          break;
+        case SettingsPageItem.helpAndFaq:
+          // TODO: Handle this case.
+          throw UnimplementedError();
+        case SettingsPageItem.contactUs:
+          await _handleContactUs(context);
+          break;
+        case SettingsPageItem.legal:
+          await _handleLegal(context);
+          break;
+        case SettingsPageItem.supportTheDeveloper:
+          await _handleSupportTheDeveloper(context);
+          break;
+      }
+    } catch (error, trace) {
+      printError(error, trace);
+      if (context.mounted) {
+        context.toastFailure(
+          error is Failure ? error : Failure(error.toString()),
+        );
+      }
     }
   }
 
@@ -71,12 +80,12 @@ extension SettingsHandlers on SettingsPageItem {
     );
     if (!context.mounted || path == null) return;
 
-    SettingsBox().lastOutputDirectoryPath = path;
+    await SettingsBox().put(JobMakerSettings.lastOutputDirectoryPath, path);
   }
 
-  void _handleLegal(BuildContext context) {
+  Future<void> _handleLegal(BuildContext context) async {
     final uri = Uri.parse(kPrivacyPolicyUrl);
-    launchUrl(uri);
+    await launchUrl(uri);
   }
 
   Future<void> _handleSupportTheDeveloper(BuildContext context) async {
@@ -102,8 +111,8 @@ extension SettingsHandlers on SettingsPageItem {
     await launchUrl(uri);
   }
 
-  void _handleContactUs(BuildContext context) {
-    ContactUtils().sendEmail(
+  Future<void> _handleContactUs(BuildContext context) async {
+    await ContactUtils().sendEmail(
       context,
       subject: '[$kAppName] Support Request',
     );
@@ -114,15 +123,16 @@ extension SettingsHandlers on SettingsPageItem {
   }
 
   Future<void> _handleKeepAppRunningToggle(BuildContext context) async {
-    final isEnable = SettingsBox().keepAppRunning;
-    if (isEnable) {
-      SettingsBox().keepAppRunning = false;
+    final settings = SettingsBox();
+    if (settings.keepAppRunning) {
+      await settings.put(JobRunnerSettings.keepAppRunning, false);
       return;
     }
 
     final service = injector<JobNotificationService>();
-
-    final action = await service.isNotificationPermissionGranted()
+    final permissionGranted = await service.isNotificationPermissionGranted();
+    if (!context.mounted) return;
+    final action = permissionGranted
         ? ConfirmAction.positive
         : await ConfirmDialog.show(
             context,
@@ -131,25 +141,20 @@ extension SettingsHandlers on SettingsPageItem {
             negativeText: context.l10n.cancel,
             positiveText: context.l10n.enable,
           );
-
-    if (action != ConfirmAction.positive) {
-      SettingsBox().keepAppRunning = false;
-      return;
-    }
+    if (!context.mounted || action != ConfirmAction.positive) return;
 
     await service.requestPermission();
-    if (!await service.isNotificationPermissionGranted()) {
-      SettingsBox().keepAppRunning = false;
-      return;
-    }
-
+    if (!context.mounted) return;
+    final grantedAfterRequest = await service.isNotificationPermissionGranted();
+    if (!context.mounted || !grantedAfterRequest) return;
     await service.init(
       JobNotificationServiceInitParams(
         channelName: kAppName,
         channelDescription: context.l10n.notificationChannelDescription,
       ),
     );
-    SettingsBox().keepAppRunning = true;
+    if (!context.mounted) return;
+    await settings.put(JobRunnerSettings.keepAppRunning, true);
   }
 
   Future<void> _handleConcurrencyLimit(BuildContext context) async {
@@ -177,12 +182,12 @@ extension SettingsHandlers on SettingsPageItem {
       return;
     }
 
-    SettingsBox().concurrencyLimit = result.toInt();
+    await SettingsBox().put(JobRunnerSettings.concurrencyLimit, result.toInt());
   }
 
   Future<void> _handleManagePermissions(BuildContext context) async {
     final success = await openAppSettings();
-    if (!success) {
+    if (context.mounted && !success) {
       context.toastError(context.l10n.appManagementFailedToOpenSettings);
     }
   }

@@ -103,7 +103,7 @@
   "jobStatusRunning": "Đang chạy",
   "keepAppRunning": "Giữ ứng dụng đang chạy",
   "keepAppRunningOffDescription": "Ứng dụng có thể bị hệ thống đóng nếu được chuyển sang nền",
-  "keepAppRunningOnDescription": "Ứng dụng sẽ tiếp tục chạy nền trong khi chuyển đổi tệp.",
+  "keepAppRunningOnDescription": "Giúp quá trình chuyển đổi tiếp tục chạy trong nền.",
   "languages": "Ngôn ngữ",
   "loadPreviousConfigs": "Tải cấu hình trước đó",
   "monetizationSupportTheDeveloper": "Hỗ trợ nhà phát triển",

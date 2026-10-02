@@ -103,7 +103,7 @@
   "jobStatusRunning": "Berjalan",
   "keepAppRunning": "Jalankan Aplikasi Terus",
   "keepAppRunningOffDescription": "Aplikasi mungkin ditutup oleh sistem jika dipindahkan ke latar belakang",
-  "keepAppRunningOnDescription": "Aplikasi akan terus berjalan di latar belakang saat mengonversi file.",
+  "keepAppRunningOnDescription": "Membantu menjaga konversi tetap berjalan di latar belakang.",
   "languages": "Bahasa",
   "loadPreviousConfigs": "Muat Konfigurasi Sebelumnya",
   "monetizationSupportTheDeveloper": "Dukung Pengembang",

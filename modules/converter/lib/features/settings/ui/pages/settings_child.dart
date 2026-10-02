@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:converter/converter.dart';
 import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
@@ -20,7 +22,7 @@ abstract class const SettingsChild({
   static void go(BuildContext context, SettingsPageItem settings) {
     final routeName = settings.routeName;
     if (routeName == null) {
-      settings.handleOpen(context);
+      unawaited(settings.handleOpen(context));
       return;
     }
     context.router.goNamed(routeName);

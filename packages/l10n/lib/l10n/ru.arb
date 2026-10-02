@@ -103,7 +103,7 @@
   "jobStatusRunning": "Выполняется",
   "keepAppRunning": "Работа в фоновом режиме",
   "keepAppRunningOffDescription": "Приложение может быть закрыто системой при переходе в фоновый режим.",
-  "keepAppRunningOnDescription": "Приложение продолжит работать в фоне во время конвертации файлов.",
+  "keepAppRunningOnDescription": "Помогает продолжать преобразования в фоновом режиме.",
   "languages": "Языки",
   "loadPreviousConfigs": "Загрузить предыдущие настройки",
   "monetizationSupportTheDeveloper": "Поддержать разработчика",

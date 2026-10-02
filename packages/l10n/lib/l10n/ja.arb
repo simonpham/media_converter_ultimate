@@ -103,7 +103,7 @@
   "jobStatusRunning": "実行中",
   "keepAppRunning": "アプリの実行を維持",
   "keepAppRunningOffDescription": "バックグラウンドに移動すると、アプリはシステムによって閉じられる可能性があります。",
-  "keepAppRunningOnDescription": "ファイルを変換中にアプリはバックグラウンドで実行し続けます。",
+  "keepAppRunningOnDescription": "バックグラウンドでの変換の継続をサポートします。",
   "languages": "言語",
   "loadPreviousConfigs": "以前の設定を読み込む",
   "monetizationSupportTheDeveloper": "開発者をサポートする",

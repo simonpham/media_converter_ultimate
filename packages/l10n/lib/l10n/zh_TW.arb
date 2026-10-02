@@ -103,7 +103,7 @@
   "jobStatusRunning": "執行中",
   "keepAppRunning": "保持應用程式於背景執行",
   "keepAppRunningOffDescription": "切換至背景時應用程式可能會被系統關閉。",
-  "keepAppRunningOnDescription": "轉換檔案時應用程式將持續在背景執行。",
+  "keepAppRunningOnDescription": "協助轉換工作在背景繼續執行。",
   "languages": "語言",
   "loadPreviousConfigs": "載入上次設定",
   "monetizationSupportTheDeveloper": "支持開發者",

@@ -103,7 +103,7 @@
   "jobStatusRunning": "Çalışıyor",
   "keepAppRunning": "Uygulamayı Çalıştırma Durumunda Tut",
   "keepAppRunningOffDescription": "Arka plana alınırsa uygulama sistem tarafından kapatılabilir",
-  "keepAppRunningOnDescription": "Dosyalar dönüştürülürken uygulama arka planda çalışmaya devam edecektir.",
+  "keepAppRunningOnDescription": "Dönüştürmelerin arka planda sürdürülmesine yardımcı olur.",
   "languages": "Diller",
   "loadPreviousConfigs": "Önceki Yapılandırmaları Yükle",
   "monetizationSupportTheDeveloper": "Geliştiriciyi Destekleyin",

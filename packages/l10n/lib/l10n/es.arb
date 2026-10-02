@@ -103,7 +103,7 @@
   "jobStatusRunning": "En ejecución",
   "keepAppRunning": "Mantener la aplicación en ejecución",
   "keepAppRunningOffDescription": "La aplicación podría cerrarse si se mueve al segundo plano",
-  "keepAppRunningOnDescription": "La aplicación seguirá ejecutándose en segundo plano mientras se convierten los archivos.",
+  "keepAppRunningOnDescription": "Ayuda a mantener las conversiones en segundo plano.",
   "languages": "Idiomas",
   "loadPreviousConfigs": "Cargar configuraciones anteriores",
   "monetizationSupportTheDeveloper": "Ayuda al desarrollador",

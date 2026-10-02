@@ -153,7 +153,9 @@ void main() {
     tester,
   ) async {
     await showPage(tester);
-    SettingsPageItem.supportTheDeveloper.handleOpen(pageContext);
+    final pending = SettingsPageItem.supportTheDeveloper.handleOpen(
+      pageContext,
+    );
     await tester.pump();
     expect(bundle.contentRequests, [
       'assets/content/support_developer/en.html',
@@ -161,6 +163,7 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     bundle.content.complete('<p>Support content</p>');
     await tester.pumpAndSettle();
+    await pending;
     expect(find.byType(DialogCard), findsNothing);
     expect(tester.takeException(), isNull);
   });

@@ -103,7 +103,7 @@
   "jobStatusRunning": "运行中",
   "keepAppRunning": "保持应用在后台运行",
   "keepAppRunningOffDescription": "切换到后台时应用可能会被系统关闭。",
-  "keepAppRunningOnDescription": "转换文件时应用将继续在后台运行。",
+  "keepAppRunningOnDescription": "帮助转换任务在后台继续运行。",
   "languages": "语言",
   "loadPreviousConfigs": "加载上次配置",
   "monetizationSupportTheDeveloper": "支持开发者",

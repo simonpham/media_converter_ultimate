@@ -103,7 +103,7 @@
   "jobStatusRunning": "Läuft",
   "keepAppRunning": "App aktiv halten",
   "keepAppRunningOffDescription": "Die App wird vom System möglicherweise geschlossen, wenn sie in den Hintergrund verschoben wird",
-  "keepAppRunningOnDescription": "Die App läuft während der Konvertierung der Dateien im Hintergrund weiter.",
+  "keepAppRunningOnDescription": "Hilft, Konvertierungen im Hintergrund weiterlaufen zu lassen.",
   "languages": "Sprachen",
   "loadPreviousConfigs": "Vorherige Konfigurationen laden",
   "monetizationSupportTheDeveloper": "Entwickler unterstützen",
