@@ -52,6 +52,8 @@
   - Run `./validate.sh` to ensure JSON schemas, cross-file mappings, and 12-language l10n parity are 100% valid.
   - Run `./test_ffmpeg.sh` to verify that FFmpeg commands build and execute properly.
 
+- **Physical-device integration tests**: Use `./test_android.sh <device-id> [integration_test/test_file.dart ...]` for Android native integration tests. It temporarily switches only `androidAppPackageName` in `.assets/env.props` to a unique QA ID, restores the setting on exit, and passes `--no-uninstall`, then removes only that test package. Do not run another Android build or switch environments while the helper runs. Always pass `--no-uninstall` to any direct `flutter test -d <device-id>` on a user's device. Flutter's default native test cleanup uninstalls the app and resets private data. Never uninstall or clear the user's app for testing. Never run a direct integration harness under the user's application ID.
+
 ## Git & Commits
 - **Commit Style**: Use [Gitmoji](https://gitmoji.dev/) format with short, concise action descriptions (e.g., `🐛 Fix ...`, `✨ Add ...`, `📝 Update ...`, `🔖 Bump ...`, `⬆️ Update ...`, `👷 Add ...`).
 - **Length & Tone**: Keep commit messages short, concise, and imperative (under 50-72 chars). Avoid verbose explanations.
