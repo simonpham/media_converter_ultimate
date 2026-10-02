@@ -35,6 +35,59 @@ void main() {
   });
 
   for (final failure in ['sync write', 'async write', 'read']) {
+    test(
+      'counter $failure failure cannot interrupt a committed export',
+      () async {
+        settings.failSuccessWriteSync = switch (failure) {
+          'sync write' => true,
+          'async write' => false,
+          _ => null,
+        };
+        settings.failSuccessRead = failure == 'read';
+        await model.addJobs([job('first'), job('second')]);
+        runner.emit(
+          storage.jobs['first']!.copyWith(status: const Some(.cleaning)),
+        );
+        await waitFor(() => storage.jobs['second']?.status == .running);
+        await flushEvents();
+        expect(storage.jobs['first']!.status, JobStatus.completed);
+        expect(storage.jobs['first']!.outputUri, '/output/first.mp3');
+        expect(files.acknowledged, ['first']);
+        expect(files.cleanedInputs, ['first']);
+        expect(files.deletedStages, ['/recovery/first.mp3']);
+        expect(model.activeExecutionId('first'), isNull);
+        expect(files.moveAttempts, 1);
+        settings.failSuccessRead = false;
+        settings.failSuccessWriteSync = null;
+        runner.emit(
+          storage.jobs['second']!.copyWith(status: const Some(.cleaning)),
+        );
+        await waitFor(() => files.cleanedInputs.length == 2);
+        await flushEvents();
+        expect(settings.successConversionCount, 1);
+        expect(files.moveAttempts, 2);
+      },
+    );
+  }
+  test('late counter write failure is observed after queue advances', () async {
+    settings.failSuccessWriteSync = false;
+    settings.successWriteGate = Completer<void>();
+    await model.addJobs([job('first'), job('second')]);
+    runner.emit(storage.jobs['first']!.copyWith(status: const Some(.cleaning)));
+    await waitFor(() => storage.jobs['second']?.status == .running);
+    expect(settings.successWrites, 1);
+    expect(storage.jobs['first']!.status, JobStatus.completed);
+    expect(files.acknowledged, ['first']);
+    expect(files.cleanedInputs, ['first']);
+    settings.successWriteGate!.complete();
+    await flushEvents();
+    expect(settings.successConversionCount, 0);
+    expect(storage.jobs['second']!.status, JobStatus.running);
+    expect(model.activeExecutionId('first'), isNull);
+    expect(files.moveAttempts, 1);
+  });
+
+  for (final failure in ['sync write', 'async write', 'read']) {
     test('log $failure failure leaves conversion and queue usable', () async {
       logs.failWriteSync = switch (failure) {
         'sync write' => true,
@@ -1227,13 +1280,34 @@ Future<void> flushEvents() async {
 
 class MemorySettings implements SettingsBox {
   final values = <dynamic, dynamic>{};
+  bool? failSuccessWriteSync;
+  bool failSuccessRead = false;
+  Completer<void>? successWriteGate;
+  int successWrites = 0;
 
   @override
-  dynamic get(dynamic key, {required dynamic defaultValue}) =>
-      values[key] ?? defaultValue;
+  dynamic get(dynamic key, {required dynamic defaultValue}) {
+    if (key == AdsSettings.successConversionCount && failSuccessRead) {
+      throw StateError('Settings box closed');
+    }
+    return values[key] ?? defaultValue;
+  }
 
   @override
-  Future<void> put(dynamic key, dynamic value) async => values[key] = value;
+  Future<void> put(dynamic key, dynamic value) {
+    if (key == AdsSettings.successConversionCount) {
+      successWrites++;
+      if (failSuccessWriteSync == true) throw StateError('Settings box closed');
+      if (failSuccessWriteSync == false) {
+        return Future<void>.sync(() async {
+          await successWriteGate?.future;
+          throw StateError('Settings write failed');
+        });
+      }
+    }
+    values[key] = value;
+    return Future.value();
+  }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
