@@ -933,6 +933,212 @@ void main() {
   );
 
   test(
+    'failed recovery commit is reported and leaves its stage for retry',
+    () async {
+      final recovery = job('recovery', status: .actionRequired).copyWith(
+        outputStaged: const .new(true),
+      );
+      storage.jobs[recovery.id] = recovery;
+      const failure = Failure('Cannot save recovery');
+      storage.updateFailure = failure;
+      await expectLater(model.retryExport(recovery), throwsA(same(failure)));
+      expect(storage.jobs[recovery.id], same(recovery));
+      expect(files.moveAttempts, 0);
+      expect(files.deletedStages, isEmpty);
+      expect(files.cleanedInputs, isEmpty);
+      expect(logs.values[recovery.id], contains('Cannot save recovery'));
+      storage.updateFailure = null;
+      expect(await model.retryExport(recovery), isNull);
+      expect(files.moveAttempts, 1);
+      expect(storage.jobs[recovery.id]!.status, JobStatus.completed);
+    },
+  );
+
+  for (final published in [false, true]) {
+    test(
+      'user recovery waits for startup ${published ? 'receipt commit' : 'repair'}',
+      () async {
+        final recovery = job('recovery', status: .actionRequired).copyWith(
+          outputStaged: const .new(true),
+        );
+        storage.jobs[recovery.id] = recovery;
+        if (published) {
+          files.recoveredOutputs[recovery.id] = const ExportedFile(
+            location: 'content://media/downloads/42',
+            name: 'published.mp3',
+          );
+        }
+        final gate = storage.repairGate = Completer<void>();
+        final startup = model.initialize();
+        final retry = model.retryExport(recovery);
+        await flushEvents();
+        final exportsBeforeRepair = files.moveAttempts;
+        gate.complete();
+        await startup;
+        final result = await retry;
+        expect(exportsBeforeRepair, 0);
+        expect(result, published ? isA<InvalidStatusFailure>() : isNull);
+        expect(files.moveAttempts, published ? 0 : 1);
+        expect(storage.jobs[recovery.id]!.status, JobStatus.completed);
+        expect(settings.successConversionCount, 1);
+        expect(files.acknowledged, [recovery.id]);
+        expect(runner.started, isEmpty);
+      },
+    );
+  }
+
+  for (final renameFirst in [true, false]) {
+    test(
+      'overlapping recovery changes retain ${renameFirst ? 'the name' : 'the folder'} from the failed attempt',
+      () async {
+        final recovery = job('recovery', status: .actionRequired).copyWith(
+          outputStaged: const .new(true),
+        );
+        storage.jobs[recovery.id] = recovery;
+        files.moveFailures.add(const DirectoryNotWritableFailure('/blocked'));
+        final gate = storage.nextUpdateGate = Completer<void>();
+        final first = renameFirst
+            ? model.handleJobRenameAction(recovery, 'renamed.mp3')
+            : model.handleJobChooseAnotherPathAction(recovery, '/chosen');
+        await waitFor(() => storage.updateAttempts == 1);
+        final second = renameFirst
+            ? model.handleJobChooseAnotherPathAction(recovery, '/chosen')
+            : model.handleJobRenameAction(recovery, 'renamed.mp3');
+        await flushEvents();
+        expect(files.moveAttempts, 0);
+        gate.complete();
+        final results = await Future.wait([first, second]);
+        expect(results.first, isA<DirectoryNotWritableFailure>());
+        expect(results.last, isNull);
+        expect(storage.jobs[recovery.id]!.outputFileName, 'renamed.mp3');
+        expect(storage.jobs[recovery.id]!.outputDirectoryPath, '/chosen');
+        expect(files.movedNames.last, 'renamed.mp3');
+        expect(files.movedDestinations.last, '/chosen');
+        expect(files.recoveryCopies, 0);
+        expect(runner.started, isEmpty);
+      },
+    );
+  }
+
+  test(
+    'a duplicate recovery request reports stale state after one export',
+    () async {
+      final recovery = job('recovery', status: .actionRequired).copyWith(
+        outputStaged: const .new(true),
+      );
+      storage.jobs[recovery.id] = recovery;
+      final results = await Future.wait([
+        model.retryExport(recovery),
+        model.retryExport(recovery),
+      ]);
+      expect(results.first, isNull);
+      expect(results.last, isA<InvalidStatusFailure>());
+      expect(files.moveAttempts, 1);
+      expect(settings.successConversionCount, 1);
+    },
+  );
+
+  test(
+    'removal before a queued recovery prevents export and reports stale state',
+    () async {
+      final recovery = job('recovery', status: .actionRequired).copyWith(
+        outputStaged: const .new(true),
+      );
+      storage.jobs[recovery.id] = recovery;
+      final gate = storage.nextReadGate = Completer<void>();
+      final removal = model.removeJob(recovery);
+      await flushEvents();
+      final retry = model.retryExport(recovery);
+      await flushEvents();
+      gate.complete();
+      expect(await removal, isNull);
+      expect(await retry, isA<InvalidStatusFailure>());
+      expect(storage.jobs, isEmpty);
+      expect(files.moveAttempts, 0);
+      expect(files.deletedOutputs, isEmpty);
+    },
+  );
+
+  test(
+    'startup receipt recovery and removal share the job operation queue',
+    () async {
+      final recovery = job('recovery', status: .actionRequired).copyWith(
+        outputStaged: const .new(true),
+      );
+      storage.jobs[recovery.id] = recovery;
+      files.recoveredOutputs[recovery.id] = const ExportedFile(
+        location: 'content://media/downloads/42',
+        name: 'published.mp3',
+      );
+      final gate = files.recoverGate = Completer<void>();
+      final startup = model.initialize();
+      await waitFor(() => files.recoveredIds.isNotEmpty);
+      final removal = model.removeJob(recovery);
+      await flushEvents();
+      final existedWhileRecovering = storage.jobs.containsKey(recovery.id);
+      gate.complete();
+      await startup;
+      expect(await removal, isNull);
+      expect(storage.jobs, isEmpty);
+      expect(existedWhileRecovering, isTrue);
+      expect(files.acknowledged, [recovery.id]);
+      expect(files.deletedOutputs, isEmpty);
+      expect(settings.successConversionCount, 1);
+    },
+  );
+
+  test(
+    'removal wins before startup receipt lookup without recreating the job',
+    () async {
+      final recovery = job('recovery', status: .actionRequired).copyWith(
+        outputStaged: const .new(true),
+      );
+      storage.jobs[recovery.id] = recovery;
+      files.recoveredOutputs[recovery.id] = const ExportedFile(
+        location: 'content://media/downloads/42',
+        name: 'published.mp3',
+      );
+      final gate = storage.nextReadGate = Completer<void>();
+      final removal = model.removeJob(recovery);
+      await flushEvents();
+      final startup = model.initialize();
+      await flushEvents();
+      gate.complete();
+      expect(await removal, isNull);
+      await startup;
+      expect(storage.jobs, isEmpty);
+      expect(files.recoveredIds, isEmpty);
+      expect(files.acknowledged, isEmpty);
+      expect(settings.successConversionCount, 0);
+      expect(files.deletedOutputs, isEmpty);
+    },
+  );
+
+  test(
+    'recovery of another job does not wait for a blocked job update',
+    () async {
+      final firstJob = job('first', status: .actionRequired).copyWith(
+        outputStaged: const .new(true),
+      );
+      final secondJob = job('second', status: .actionRequired).copyWith(
+        outputStaged: const .new(true),
+      );
+      storage.jobs[firstJob.id] = firstJob;
+      storage.jobs[secondJob.id] = secondJob;
+      final gate = storage.nextUpdateGate = Completer<void>();
+      final first = model.retryExport(firstJob);
+      await waitFor(() => storage.updateAttempts == 1);
+      expect(await model.retryExport(secondJob), isNull);
+      expect(storage.jobs[secondJob.id]!.status, JobStatus.completed);
+      expect(storage.jobs[firstJob.id]!.status, JobStatus.actionRequired);
+      gate.complete();
+      expect(await first, isNull);
+      expect(files.moveAttempts, 2);
+      expect(runner.started, isEmpty);
+    },
+  );
+
+  test(
     'explicit recovery exports the saved copy after choosing a new folder',
     () async {
       files.moveFailures.add(const DirectoryNotWritableFailure('/output'));
@@ -1042,6 +1248,7 @@ class MemoryJobStorage implements ConvertJobStorage {
   int recoveryReads = 0;
   Completer<void>? preparingCommitGate;
   Completer<void>? nextReadGate;
+  Completer<void>? nextUpdateGate;
   Failure? deleteFailure;
   Failure? addFailure;
   Failure? updateFailure;
@@ -1093,6 +1300,9 @@ class MemoryJobStorage implements ConvertJobStorage {
   @override
   Future<Failure?> update(ConvertJob item) async {
     updateAttempts++;
+    final gate = nextUpdateGate;
+    nextUpdateGate = null;
+    await gate?.future;
     if (updateFailure != null) return updateFailure;
     if (failCompletedCommit && item.status == .completed) {
       return const Failure('commit failed');
@@ -1208,6 +1418,10 @@ class FakeRunner implements JobRunnerService {
 class FakeFiles implements FileService {
   final moveFailures = <Failure?>[];
   final movedSources = <String>[];
+  final movedNames = <String>[];
+  final movedDestinations = <String>[];
+  final recoveredIds = <String>[];
+  Completer<void>? recoverGate;
   final cleanedInputs = <String>[];
   int moveAttempts = 0;
   int recoveryCopies = 0;
@@ -1232,8 +1446,11 @@ class FakeFiles implements FileService {
   }
 
   @override
-  Future<ExportedFile?> recoverExport(String exportId) async =>
-      recoveredOutputs[exportId];
+  Future<ExportedFile?> recoverExport(String exportId) async {
+    recoveredIds.add(exportId);
+    await recoverGate?.future;
+    return recoveredOutputs[exportId];
+  }
 
   @override
   Future<(ExportedFile?, Failure?)> exportFile({
@@ -1264,6 +1481,8 @@ class FakeFiles implements FileService {
   }) async {
     moveAttempts++;
     movedSources.add(convertedFilePath);
+    movedNames.add(outputFileName);
+    movedDestinations.add(outputFilePath);
     return moveFailures.isEmpty ? null : moveFailures.removeAt(0);
   }
 

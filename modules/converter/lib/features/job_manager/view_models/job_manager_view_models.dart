@@ -570,54 +570,50 @@ class JobManagerViewModel extends ChangeNotifier {
     }
   }
 
-  Future<Failure?> retryExport(ConvertJob job) async {
-    final current = await _jobStorage.get(job.id);
-    if (current == null || current.status != .actionRequired) {
-      return const InvalidStatusFailure();
-    }
-    await _queueJobUpdate(
-      current.copyWith(status: const Some(.cleaning)),
-      recoverOutput: true,
-    );
-    return (await _jobStorage.get(job.id))?.status == .completed
-        ? null
-        : _exportFailures[job.id] ?? const OutputExportFailure();
-  }
+  Future<Failure?> retryExport(ConvertJob job) => _recoverJobAction(job);
 
-  Future<Failure?> handleJobRenameAction(
-    ConvertJob job,
-    String newName,
-  ) async {
-    final current = await _jobStorage.get(job.id);
-    if (current == null || current.status != .actionRequired) {
-      return const InvalidStatusFailure();
-    }
-    final newJob = current.copyWith(
-      outputFileName: Some(newName),
-      status: const Some(.cleaning),
-    );
-    await _queueJobUpdate(newJob, recoverOutput: true);
-    return (await _jobStorage.get(job.id))?.status == .completed
-        ? null
-        : _exportFailures[job.id] ?? const OutputExportFailure();
-  }
+  Future<Failure?> handleJobRenameAction(ConvertJob job, String newName) =>
+      _recoverJobAction(job, outputFileName: newName);
 
   Future<Failure?> handleJobChooseAnotherPathAction(
     ConvertJob job,
     String newPath,
-  ) async {
-    final current = await _jobStorage.get(job.id);
-    if (current == null || current.status != .actionRequired) {
-      return const InvalidStatusFailure();
-    }
-    final newJob = current.copyWith(
-      outputDirectoryPath: Some(newPath),
-      status: const Some(.cleaning),
-    );
-    await _queueJobUpdate(newJob, recoverOutput: true);
-    return (await _jobStorage.get(job.id))?.status == .completed
-        ? null
-        : _exportFailures[job.id] ?? const OutputExportFailure();
+  ) => _recoverJobAction(job, outputDirectoryPath: newPath);
+
+  Future<Failure?> _recoverJobAction(
+    ConvertJob job, {
+    String? outputFileName,
+    String? outputDirectoryPath,
+  }) async {
+    // Startup may be repairing persisted statuses or committing a published
+    // receipt. Let it finish before beginning a new user recovery action.
+    if (_isInitializing) await _initialization;
+    return _serializeJobOperation(job.id, () async {
+      if (_isDisposed) return const InvalidStatusFailure();
+      final current = await _jobStorage.get(job.id);
+      if (_isDisposed || current == null || current.status != .actionRequired) {
+        return const InvalidStatusFailure();
+      }
+      final changed = current.copyWith(
+        outputFileName: outputFileName == null ? null : .new(outputFileName),
+        outputDirectoryPath: outputDirectoryPath == null
+            ? null
+            : .new(outputDirectoryPath),
+        status: const .new(.cleaning),
+      );
+      try {
+        // Already inside this job's operation queue. Queueing another update
+        // here would wait on itself; apply the fresh snapshot directly.
+        await _handleJobUpdate(changed, recoverOutput: true);
+      } catch (error, trace) {
+        printError(error, trace);
+        LogData().appendLog(job.id, error.toString());
+        rethrow;
+      }
+      return (await _jobStorage.get(job.id))?.status == .completed
+          ? null
+          : _exportFailures[job.id] ?? const OutputExportFailure();
+    });
   }
 
   Future<bool> isOutputFileExists(ConvertJob job) async {
@@ -644,9 +640,18 @@ class JobManagerViewModel extends ChangeNotifier {
     for (final job in recoveryJobs.where((job) => job.outputStaged)) {
       if (_isDisposed) return;
       try {
-        final exported = await _fileService.recoverExport(job.id);
-        if (_isDisposed) return;
-        if (exported != null) await _commitExport(job, exported);
+        await _serializeJobOperation(job.id, () async {
+          final current = await _jobStorage.get(job.id);
+          if (_isDisposed ||
+              current == null ||
+              current.status != .actionRequired ||
+              !current.outputStaged) {
+            return;
+          }
+          final exported = await _fileService.recoverExport(current.id);
+          if (_isDisposed) return;
+          if (exported != null) await _commitExport(current, exported);
+        });
       } catch (error, trace) {
         printError(error, trace);
         LogData().appendLog(job.id, error.toString());
