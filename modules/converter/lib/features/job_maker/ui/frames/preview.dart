@@ -51,12 +51,13 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                     horizontal: Spacing.d16,
                     vertical: Spacing.d8,
                   ),
-                  padding: .all(Spacing.d16),
                   child: Column(
                     crossAxisAlignment: .start,
                     children: [
+                      Spacing.v16,
                       Row(
                         children: [
+                          Spacing.h16,
                           ImageView(
                             Assets.folder01,
                             size: Spacing.d24,
@@ -81,22 +82,31 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                               ],
                             ),
                           ),
-                          Spacing.h8,
                           Button(
-                            variant: .ghost,
-                            label: context.l10n.outputChangeFolder,
+                            variant: .secondary,
+                            padding: .symmetric(horizontal: Spacing.d8),
+                            child: ImageView(
+                              Assets.edit02,
+                              size: Spacing.d20,
+                              color: context.theme.colorScheme.onSecondary,
+                            ),
                             onPressed: () =>
                                 _handleChooseOutputDirectoryPressed(context),
                           ),
+                          Spacing.h16,
                         ],
                       ),
-                      Spacing.v8,
-                      CheckBoxListTile(
-                        style: .compact,
-                        alignment: .left,
-                        title: context.l10n.outputRememberFolder,
-                        value: model.shouldRememberOutputFolder,
-                        onChanged: model.setRememberOutputFolder,
+                      Padding(
+                        padding: .symmetric(
+                          horizontal: Spacing.d8,
+                        ),
+                        child: CheckBoxListTile(
+                          style: .compact,
+                          alignment: .left,
+                          title: context.l10n.outputRememberFolder,
+                          value: model.shouldRememberOutputFolder,
+                          onChanged: model.setRememberOutputFolder,
+                        ),
                       ),
                       if (model.outputDirectoryPath ==
                           OutputDestination.appStorage) ...[
@@ -156,6 +166,11 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                             },
                     );
                   },
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: Spacing.d12 * 10,
                 ),
               ),
             ],

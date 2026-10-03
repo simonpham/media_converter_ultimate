@@ -98,8 +98,10 @@ class _JobMakerConfigCustomizerState extends State<JobMakerConfigCustomizer> {
                     );
                   },
                 ),
-                const SliverToBoxAdapter(
-                  child: BottomSpacer(),
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: Spacing.d12 * 10,
+                  ),
                 ),
               ],
             ),

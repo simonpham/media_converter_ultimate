@@ -116,13 +116,15 @@ class _JobMakerOutputFormatPickerState extends State<JobMakerOutputFormatPicker>
                         audioFormats,
                         selectedFormat,
                       ),
+                    SizedBox(
+                      height: Spacing.d12 * 10,
+                    ),
                   ],
                 ),
               );
             },
           ),
         ),
-        const BottomSpacer(),
       ],
     );
   }

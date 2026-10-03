@@ -11,7 +11,7 @@ class const FileIcon(
   Widget build(BuildContext context) {
     return ImageView(
       getFileIcon(type),
-      size: Spacing.d24,
+      size: Spacing.d20,
       color: context.theme.colorScheme.onSurface,
     );
   }

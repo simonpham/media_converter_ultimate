@@ -117,7 +117,7 @@ class const OutputFileItem(
       onTap: onTap,
       child: Padding(
         padding: .all(Spacing.d12),
-        child: ImageView(asset, size: Spacing.d24, color: color),
+        child: ImageView(asset, size: Spacing.d20, color: color),
       ),
     ),
   );

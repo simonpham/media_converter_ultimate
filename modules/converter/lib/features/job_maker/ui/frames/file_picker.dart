@@ -98,14 +98,11 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                                   message: context.l10n.dragToReorder,
                                   child: ReorderableDragStartListener(
                                     index: index,
-                                    child: Padding(
-                                      padding: .all(Spacing.d12),
-                                      child: ImageView(
-                                        Assets.verticalDragDrop,
-                                        size: Spacing.d24,
-                                        color:
-                                            context.theme.colorScheme.onSurface,
-                                      ),
+                                    child: ImageView(
+                                      Assets.verticalDragDrop,
+                                      size: Spacing.d24,
+                                      color:
+                                          context.theme.colorScheme.onSurface,
                                     ),
                                   ),
                                 ),
@@ -134,6 +131,12 @@ class _JobMakerFilePickerState extends State<JobMakerFilePicker> {
                             title: context.l10n.noFilesSelected,
                             subtitle: context.l10n.tapAddFilesToBegin,
                           ),
+                        ),
+                      ),
+                    ] else ...[
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: Spacing.d12 * 10,
                         ),
                       ),
                     ],
