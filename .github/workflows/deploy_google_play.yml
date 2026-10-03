@@ -114,6 +114,13 @@ jobs:
       - name: Generate localization and code
         run: ./gen.sh
 
+      - name: Install host FFmpeg for conversion tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y ffmpeg
+          ffmpeg -version
+          ffprobe -version
+
       - name: Run validation and test suites
         run: ./run_tests.sh
 
