@@ -489,6 +489,13 @@ void main() {
       'attached_pic',
       source,
     ]);
+    expect(
+      (await probeStreams(source)).where(
+        (stream) => stream['disposition']?['attached_pic'] == 1,
+      ),
+      hasLength(1),
+      reason: source,
+    );
     await runFfmpeg([
       '-f',
       'lavfi',
@@ -542,28 +549,23 @@ void main() {
             trim: trim,
           ),
         );
-        final result = await Process.run('ffprobe', [
-          '-v',
-          'error',
-          '-show_streams',
-          '-of',
-          'json',
-          output,
-        ]);
-        expect(result.exitCode, 0, reason: result.stderr.toString());
-        final streams = (jsonDecode(result.stdout as String)['streams'] as List)
-            .cast<Map<String, dynamic>>();
+        final streams = await probeStreams(output);
         expect(
           streams.where((stream) => stream['codec_type'] == 'audio'),
           hasLength(1),
+          reason: output,
         );
         final pictures = streams
             .where((stream) => stream['codec_type'] == 'video')
             .toList();
-        expect(pictures, hasLength(input == source ? 1 : 0));
+        expect(pictures, hasLength(input == source ? 1 : 0), reason: output);
         if (pictures.isNotEmpty) {
-          expect(pictures.single['disposition']['attached_pic'], 1);
-          expect(pictures.single['codec_name'], 'mjpeg');
+          expect(
+            pictures.single['disposition']['attached_pic'],
+            1,
+            reason: output,
+          );
+          expect(pictures.single['codec_name'], 'mjpeg', reason: output);
         }
       }
     }
@@ -845,13 +847,44 @@ void main() {
 }
 
 Future<void> runFfmpeg(List<String> args) async {
+  var arguments = args;
+  if (args.contains('0:v:disp:attached_pic?')) {
+    final streams = await probeStreams(args[args.indexOf('-i') + 1]);
+    // Match JobRunnerService: older FFmpeg versions cannot select by disposition.
+    arguments = AudioArtworkMapping.resolve(
+      args,
+      attachedPictureIndexes: [
+        for (final stream in streams)
+          if (stream['disposition']?['attached_pic'] == 1)
+            stream['index'] as int,
+      ],
+    );
+  }
   final result = await Process.run('ffmpeg', [
     '-hide_banner',
     '-loglevel',
     'error',
-    ...args,
+    ...arguments,
   ]);
-  expect(result.exitCode, 0, reason: result.stderr.toString());
+  expect(
+    result.exitCode,
+    0,
+    reason: '${jsonEncode(arguments)}\n${result.stderr}',
+  );
+}
+
+Future<List<Map<String, dynamic>>> probeStreams(String path) async {
+  final result = await Process.run('ffprobe', [
+    '-v',
+    'error',
+    '-show_streams',
+    '-of',
+    'json',
+    path,
+  ]);
+  expect(result.exitCode, 0, reason: '$path\n${result.stderr}');
+  return (jsonDecode(result.stdout as String)['streams'] as List)
+      .cast<Map<String, dynamic>>();
 }
 
 Future<List<int>> decodedPcm(String path) async {
