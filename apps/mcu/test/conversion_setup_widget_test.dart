@@ -252,12 +252,29 @@ void main() {
       final handle = find.byWidgetPredicate(
         (widget) => widget is ReorderableDragStartListener && widget.index == 0,
       );
-      expect(tester.getSize(handle), const Size(48, 48));
+      expect(handle, findsOneWidget);
+      expect(tester.getSemantics(handle).tooltip, 'Zum Umordnen ziehen');
+      final row = tester.getRect(
+        find.byKey(
+          const ValueKey(
+            '/input/A long recording with a descriptive title 0.wav',
+          ),
+        ),
+      );
+      final handleBounds = tester.getRect(handle);
+      expect(row.contains(handleBounds.topLeft), isTrue);
+      expect(row.contains(handleBounds.bottomRight), isTrue);
       final remove = find.bySemanticsLabel('Aus Auswahl entfernen').first;
-      expect(tester.getSize(remove).width, greaterThanOrEqualTo(48));
+      final removeBounds = tester.getRect(remove);
+      expect(row.contains(removeBounds.topLeft), isTrue);
+      expect(row.contains(removeBounds.bottomRight), isTrue);
+      expect(handleBounds.overlaps(removeBounds), isFalse);
       await tester.tap(remove);
       await tester.pumpAndSettle();
       expect(model.selectedFiles, hasLength(19));
+      final remainingPaths = model.selectedFiles
+          .map((file) => file.path)
+          .toList();
       final scroll = tester.state<ScrollableState>(
         find.byType(Scrollable).first,
       );
@@ -267,6 +284,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(scroll.position.pixels, greaterThan(0));
+      expect(model.selectedFiles.map((file) => file.path), remainingPaths);
       expect(tester.takeException(), isNull);
     } finally {
       semantics.dispose();
