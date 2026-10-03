@@ -69,6 +69,7 @@ void main() {
         ])
           field: 'test',
         'isPhysicalDevice': false,
+        'time': 0,
         'isLowRamDevice': false,
         'freeDiskSize': 0,
         'totalDiskSize': 0,
