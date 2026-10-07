@@ -11,7 +11,7 @@ dependencies:
     sdk: "flutter"
 
   sofluffy_ui:
-    path: ../design_system
+    path: ../sofluffy_ui
   l10n:
     path: ../l10n
   platform_utils:

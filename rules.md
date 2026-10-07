@@ -23,7 +23,7 @@
 
 ## UI & Design System
 - **Components**:
-  - **MUST** use `package:design_system` components over raw Material widgets.
+  - **MUST** use `package:sofluffy_ui` components over raw Material widgets.
   - Use `Button` (with `ButtonVariant`) instead of `ElevatedButton`, `TextButton`, etc.
   - Use `Tappable` for custom interactive areas.
   - Use `ImageView` for icons and images.

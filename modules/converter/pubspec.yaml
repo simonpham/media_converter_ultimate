@@ -17,7 +17,7 @@ dependencies:
   core_storage_isar:
     path: ../../packages/core_storage_isar
   sofluffy_ui:
-    path: ../../packages/design_system
+    path: ../../packages/sofluffy_ui
   icons:
     path: ../../packages/icons
   mobile_ads:

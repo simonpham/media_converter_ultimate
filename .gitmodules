@@ -1,3 +1,3 @@
-[submodule "packages/design_system"]
-	path = packages/design_system
-	url = https://github.com/simonpham/sofluffy_design_system.git
+[submodule "packages/sofluffy_ui"]
+	path = packages/sofluffy_ui
+	url = https://github.com/SoFluffyOS/sofluffy_ui.git

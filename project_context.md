@@ -1,7 +1,7 @@
 # Project Context
 
 ## Overview
-This project is a Flutter-based monorepo workspace using native Dart workspace resolution (`workspace:` in root `pubspec.yaml`). It contains applications (`apps/mcu`, `apps/mcu_configs`), feature modules (`modules/converter`), and shared packages (`packages/core`, `design_system`, `platform_utils`, etc.).
+This project is a Flutter-based monorepo workspace using native Dart workspace resolution (`workspace:` in root `pubspec.yaml`). It contains applications (`apps/mcu`, `apps/mcu_configs`), feature modules (`modules/converter`), and shared packages (`packages/core`, `sofluffy_ui`, `platform_utils`, etc.).
 
 ## Project Structure
 - **`apps/`**: Contains application entry points and CLI tools.
@@ -13,7 +13,7 @@ This project is a Flutter-based monorepo workspace using native Dart workspace r
   - `core`: Core application models, failures, base interfaces, and services.
   - `core_storage_base`: Storage interface abstractions.
   - `core_storage_isar`: Isar database storage implementation.
-  - `design_system`: Reusable UI components, themes, typography, and assets.
+  - `sofluffy_ui`: Reusable UI components, themes, typography, and assets.
   - `mobile_ads`: Abstractions for ad integrations.
   - `mobile_ads_google`: Google Mobile Ads SDK implementation.
   - `utils`: General utility helpers and extensions.
@@ -40,7 +40,7 @@ The project follows a clean modular architecture:
 - **Packages** should be independent or depend on lower-level packages.
 
 ### UI & Design System
-- **Design System**: All UI components come from `package:design_system`.
+- **Design System**: All UI components come from `package:sofluffy_ui`.
   - Use `context.theme` / `context.theme.colorScheme` for colors and typography (`ThemeConfigs` is deprecated).
   - Use `Spacing` class for dimensions (e.g., `Spacing.d16`, `Spacing.v8`).
   - Use `Assets` for images and icons.

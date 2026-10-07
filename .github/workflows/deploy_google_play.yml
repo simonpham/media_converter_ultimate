@@ -34,7 +34,7 @@
 #    - Application ID (defaults to "io.sofluffy.mcu" if not provided).
 #
 # 7. GH_PAT
-#    - Personal Access Token with repo read scope (only needed if submodule packages/design_system is private).
+#    - Personal Access Token with repo read scope (only needed if submodule packages/sofluffy_ui is private).
 #
 # ==============================================================================
 
