@@ -55,52 +55,54 @@ class _TrimTimelineState extends State<TrimTimeline>
     child: Consumer<TrimTimelineViewModel>(
       builder: (context, model, _) => Scaffold(
         appBar: AppBar(title: Text(context.l10n.trimPreviewTitle)),
-        body: Column(
-          children: [
-            Expanded(
-              child: Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: true,
-                child: SingleChildScrollView(
+        body: AdaptiveContent(
+          child: Column(
+            children: [
+              Expanded(
+                child: Scrollbar(
                   controller: _scrollController,
-                  padding: .all(Spacing.d16),
-                  child: Column(
-                    crossAxisAlignment: .start,
-                    children: [
-                      Text(
-                        basename(widget.path),
-                        style: context.theme.textTheme.titleMedium,
-                      ),
-                      Spacing.v12,
-                      Text(context.l10n.trimPreviewDescription),
-                      Spacing.v16,
-                      if (model.loading)
-                        const Center(child: CircularProgressIndicator())
-                      else if (model.failed) ...[
-                        Text(context.l10n.trimPreviewUnavailable),
-                      ] else ...[
-                        const TrimTimelinePanel(),
+                  thumbVisibility: true,
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    padding: .all(Spacing.d16),
+                    child: Column(
+                      crossAxisAlignment: .start,
+                      children: [
+                        Text(
+                          basename(widget.path),
+                          style: context.theme.textTheme.titleMedium,
+                        ),
+                        Spacing.v12,
+                        Text(context.l10n.trimPreviewDescription),
+                        Spacing.v16,
+                        if (model.loading)
+                          const Center(child: CircularProgressIndicator())
+                        else if (model.failed) ...[
+                          Text(context.l10n.trimPreviewUnavailable),
+                        ] else ...[
+                          const TrimTimelinePanel(),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            Padding(
-              padding: .all(Spacing.d16),
-              child: Button(
-                variant: .primary,
-                label: context.l10n.trimApplyRange,
-                enable: !model.loading && !model.failed,
-                onPressed: () async {
-                  final result = model.result;
-                  await model.pause();
-                  if (context.mounted) context.navigator.pop(result);
-                },
+              Padding(
+                padding: .all(Spacing.d16),
+                child: Button(
+                  variant: .primary,
+                  label: context.l10n.trimApplyRange,
+                  enable: !model.loading && !model.failed,
+                  onPressed: () async {
+                    final result = model.result;
+                    await model.pause();
+                    if (context.mounted) context.navigator.pop(result);
+                  },
+                ),
               ),
-            ),
-            const BottomSpacer(),
-          ],
+              const BottomSpacer(),
+            ],
+          ),
         ),
       ),
     ),

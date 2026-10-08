@@ -225,80 +225,82 @@ class _TrimEditorState extends State<TrimEditor> with WidgetsBindingObserver {
               Spacing.h8,
             ],
           ),
-          body: Column(
-            children: [
-              Expanded(
-                child: AbsorbPointer(
-                  absorbing: _applying,
-                  child: Scrollbar(
-                    controller: _scrollController,
-                    thumbVisibility: true,
-                    child: SingleChildScrollView(
+          body: AdaptiveContent(
+            child: Column(
+              children: [
+                Expanded(
+                  child: AbsorbPointer(
+                    absorbing: _applying,
+                    child: Scrollbar(
                       controller: _scrollController,
-                      padding: .all(Spacing.d16),
-                      child: Column(
-                        crossAxisAlignment: .start,
-                        children: [
-                          Text(
-                            File(widget.path).fileName,
-                            style: context.theme.textTheme.titleSmall,
-                            maxLines: 2,
-                            overflow: .ellipsis,
-                          ),
-                          Spacing.v8,
-                          if (model.loading)
-                            SizedBox(
-                              height: Spacing.d64,
-                              child: const TrimWaveformPreview(
-                                path: null,
-                                loading: true,
-                              ),
-                            ),
-                          if (model.failed)
-                            Text(context.l10n.trimPreviewUnavailable),
-                          if (model.duration case final duration?)
+                      thumbVisibility: true,
+                      child: SingleChildScrollView(
+                        controller: _scrollController,
+                        padding: .all(Spacing.d16),
+                        child: Column(
+                          crossAxisAlignment: .start,
+                          children: [
                             Text(
-                              context.l10n.trimFileDuration(
-                                MediaTimestamp.display(duration),
+                              File(widget.path).fileName,
+                              style: context.theme.textTheme.titleSmall,
+                              maxLines: 2,
+                              overflow: .ellipsis,
+                            ),
+                            Spacing.v8,
+                            if (model.loading)
+                              SizedBox(
+                                height: Spacing.d64,
+                                child: const TrimWaveformPreview(
+                                  path: null,
+                                  loading: true,
+                                ),
                               ),
-                            ),
-                          if (!model.loading && !model.failed) ...[
-                            Spacing.v16,
-                            TrimTimelinePanel(
-                              rangeControls: _rangeControls(context, model),
-                            ),
-                          ] else ...[
-                            Spacing.v16,
-                            _rangeControls(context, model),
+                            if (model.failed)
+                              Text(context.l10n.trimPreviewUnavailable),
+                            if (model.duration case final duration?)
+                              Text(
+                                context.l10n.trimFileDuration(
+                                  MediaTimestamp.display(duration),
+                                ),
+                              ),
+                            if (!model.loading && !model.failed) ...[
+                              Spacing.v16,
+                              TrimTimelinePanel(
+                                rangeControls: _rangeControls(context, model),
+                              ),
+                            ] else ...[
+                              Spacing.v16,
+                              _rangeControls(context, model),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              SafeArea(
-                top: false,
-                child: Padding(
-                  padding: .all(Spacing.d16),
-                  child: Button(
-                    key: const ValueKey('file-trim-apply'),
-                    variant: .primary,
-                    label: context.l10n.trimApplyRange,
-                    titleExpand: .shrink,
-                    enable: model.canApply && !_applying,
-                    onPressed: () async {
-                      if (_applying) return;
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      final result = model.result;
-                      setState(() => _applying = true);
-                      await _timeline?.pause();
-                      if (context.mounted) context.navigator.pop(result);
-                    },
+                SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: .all(Spacing.d16),
+                    child: Button(
+                      key: const ValueKey('file-trim-apply'),
+                      variant: .primary,
+                      label: context.l10n.trimApplyRange,
+                      titleExpand: .shrink,
+                      enable: model.canApply && !_applying,
+                      onPressed: () async {
+                        if (_applying) return;
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        final result = model.result;
+                        setState(() => _applying = true);
+                        await _timeline?.pause();
+                        if (context.mounted) context.navigator.pop(result);
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
