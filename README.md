@@ -1,8 +1,43 @@
-# Media Converter Pro: Ultimate
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://mcu.sofluffy.io/assets/logo-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="https://mcu.sofluffy.io/assets/logo-light.png">
+    <img alt="Media Converter Pro" src="https://mcu.sofluffy.io/assets/logo-light.png" width="200">
+  </picture>
+</p>
 
-Convert video and audio right on your device with FFmpeg. No uploads, no servers.
+<h1 align="center">Media Converter Pro: Ultimate</h1>
 
-[Get it on Google Play](https://play.google.com/store/apps/details?id=com.github.khangnt.mcp)
+<p align="center">
+  Convert video and audio right on your device with FFmpeg. No uploads, no servers.
+</p>
+
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.github.khangnt.mcp">
+    <img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" width="200">
+  </a>
+</p>
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://mcu.sofluffy.io/assets/screenshot1-dark.png">
+    <img alt="Home" src="https://mcu.sofluffy.io/assets/screenshot1.png" width="180">
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://mcu.sofluffy.io/assets/screenshot2-dark.png">
+    <img alt="Format picker" src="https://mcu.sofluffy.io/assets/screenshot2.png" width="180">
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://mcu.sofluffy.io/assets/screenshot3-dark.png">
+    <img alt="Options" src="https://mcu.sofluffy.io/assets/screenshot3.png" width="180">
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://mcu.sofluffy.io/assets/screenshot4-dark.png">
+    <img alt="Converting" src="https://mcu.sofluffy.io/assets/screenshot4.png" width="180">
+  </picture>
+</p>
+
+---
 
 - 25 output formats (14 audio, 11 video), with format-specific options
 - Quick presets, trimming with waveform preview, batch queues
