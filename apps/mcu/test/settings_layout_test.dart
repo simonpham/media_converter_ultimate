@@ -101,6 +101,22 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('default output format can be cleared', (tester) async {
+    settings.defaultOutputFormat = 'mp3';
+    await showSettings(tester, 1300);
+    final clear = find.byKey(const ValueKey('clear-default-output-format'));
+    expect(clear, findsOneWidget);
+
+    await tester.tap(clear);
+    await tester.pumpAndSettle();
+    expect(settings.defaultOutputFormat, isNull);
+    expect(clear, findsNothing);
+    expect(find.byType(SettingsPage), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
 }
 
 class _Changes extends ChangeNotifier implements ValueListenable<void> {

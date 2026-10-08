@@ -19,7 +19,7 @@ class const DefaultOutputFormatSettingsChild({
           );
         }
         final formatConfigModel = format;
-        return GridView.builder(
+        final grid = GridView.builder(
           padding: .all(Spacing.d16),
           itemCount: format.formats.length,
           gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
@@ -44,6 +44,43 @@ class const DefaultOutputFormatSettingsChild({
               },
             );
           },
+        );
+        return Column(
+          crossAxisAlignment: .stretch,
+          children: [
+            Expanded(child: grid),
+            if (selectedFormat != null)
+              Padding(
+                padding: .all(Spacing.d16),
+                child: Column(
+                  crossAxisAlignment: .stretch,
+                  children: [
+                    Button(
+                      key: const ValueKey('clear-default-output-format'),
+                      variant: .ghost,
+                      titleExpand: .shrink,
+                      child: Text(
+                        context.l10n.clearDefaultOutputFormat,
+                        textAlign: .center,
+                      ),
+                      onPressed: () {
+                        SettingsBox().defaultOutputFormat = null;
+                        context.toastSuccess(
+                          context.l10n.settingsDefaultOutputFormatCleared,
+                        );
+                      },
+                    ),
+                    Spacing.v8,
+                    Text(
+                      context.l10n.clearDefaultOutputFormatHint,
+                      style: context.theme.textTheme.bodySmall,
+                      textAlign: .center,
+                    ),
+                  ],
+                ),
+              ),
+            const BottomSpacer(),
+          ],
         );
       },
     );
