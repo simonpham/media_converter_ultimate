@@ -536,18 +536,18 @@ class _JobManagerState extends State<JobManager> {
     if (!context.mounted || action != .negative) return;
 
     final model = context.read<JobManagerViewModel>();
-    final failure = await model.deleteOutputFile(job);
-    if (failure != null) {
-      if (context.mounted) context.toastFailure(failure);
-      return;
-    }
+    final deleteFailure = await model.deleteOutputFile(job);
     if (context.mounted) {
-      context.toastSuccess(
-        context.l10n.outputFileHasBeenDeleted(job.outputFileName),
-      );
+      if (deleteFailure != null) {
+        context.toastFailure(deleteFailure);
+      } else {
+        context.toastSuccess(
+          context.l10n.outputFileHasBeenDeleted(job.outputFileName),
+        );
+      }
     }
-    // Confirmation accepted both output deletion and history cleanup. Finish
-    // with the captured app owner even if Home closes during deletion.
+    // Always remove the job record even if the output file could not be
+    // deleted (e.g. file was already removed outside the app).
     final removalFailure = await model.removeJob(job);
     if (context.mounted && removalFailure != null) {
       context.toastFailure(removalFailure);
