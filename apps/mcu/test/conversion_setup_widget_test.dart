@@ -563,6 +563,67 @@ void main() {
     },
   );
 
+  testWidgets('wizard keeps its step and draft when the window resizes', (
+    tester,
+  ) async {
+    injector.registerSingleton<FileService>(TestMediaFiles());
+    await showPicker(
+      tester,
+      content: JobMaker(
+        formatConfigModel: model.formatConfigModel,
+        translations: model.translations,
+        initialPreset: .musicMp3,
+      ),
+    );
+    final wizard = tester
+        .element(find.byType(JobMakerFilePicker))
+        .read<JobMakerViewModel>();
+    final directory = Directory.systemTemp.createTempSync('mcu-resize-');
+    addTearDown(() => directory.deleteSync(recursive: true));
+    final source = File('${directory.path}/song.wav')
+      ..writeAsBytesSync(utf8.encode('RIFF0000WAVE'));
+    await wizard.addFiles([source]);
+    const trim = ConversionTrim(
+      start: Duration(seconds: 1),
+      end: Duration(seconds: 3),
+    );
+    wizard.setFileTrim(
+      source.path,
+      const FileTrimResult(trim: trim, duration: Duration(seconds: 4)),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.byType(JobMakerConfigCustomizer), findsOneWidget);
+    expect(find.byType(JobMakerReviewPanel), findsNothing);
+
+    tester.view.physicalSize = const Size(1300, 900);
+    await tester.pumpAndSettle();
+    expect(find.byType(JobMakerConfigCustomizer), findsOneWidget);
+    expect(find.byType(JobMakerReviewPanel), findsOneWidget);
+    expect(
+      tester.widget<StepperWidget>(find.byType(StepperWidget)).currentStep,
+      1,
+    );
+
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(find.byType(JobMakerPreview), findsOneWidget);
+    expect(find.byType(ConversionSummary), findsOneWidget);
+
+    tester.view.physicalSize = const Size(390, 844);
+    await tester.pumpAndSettle();
+    expect(find.byType(JobMakerPreview), findsOneWidget);
+    expect(find.byType(JobMakerReviewPanel), findsNothing);
+    expect(
+      find.byType(ConversionSummary, skipOffstage: false),
+      findsOneWidget,
+    );
+    expect(wizard.selectedFiles.single.path, source.path);
+    expect(wizard.trimFor(source.path), trim);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('unsupported shortcut falls back to four steps', (tester) async {
     await showPicker(
       tester,

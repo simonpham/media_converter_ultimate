@@ -16,6 +16,12 @@ class const JobMaker({
   static const String routeName = 'job-maker';
   static const String routePath = routeName;
 
+  /// Whether the wizard shows its review panel beside the steps.
+  static bool hasReviewPanel(ScreenSize screenSize) => switch (screenSize) {
+    .small || .normal || .large => false,
+    .larger || .extraLarge => true,
+  };
+
   static Future<List<ConvertJob>> cook(
     BuildContext context, {
     ConversionPreset? initialPreset,
@@ -283,55 +289,80 @@ class _JobMakerState extends State<JobMaker> {
                     },
                   ),
                   Expanded(
-                    child: Consumer<JobMakerViewModel>(
-                      builder: (context, model, _) => AbsorbPointer(
-                        absorbing: model.isPreparingJobs,
-                        child: PageView.builder(
-                          controller: _pageController,
-                          itemCount: _steps.length,
-                          physics: const NeverScrollableScrollPhysics(),
-                          onPageChanged: (page) {
-                            _currentStepNotifier.value = page;
-                          },
-                          itemBuilder: (context, index) {
-                            final step = _steps[index];
-                            return step.build(
-                              context,
-                              showPresetSelection: _isPresetShortcut,
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  Spacing.v16,
-                  Padding(
-                    padding: .symmetric(
-                      horizontal: Spacing.d16,
-                    ),
-                    child: ValueListenableBuilder(
-                      valueListenable: _currentStepNotifier,
-                      builder: (context, currentStep, child) {
-                        final isLastStep = currentStep == _steps.length - 1;
-                        return Consumer<JobMakerViewModel>(
-                          builder: (context, model, _) => Button(
-                            variant: .primary,
-                            enable:
-                                !model.isLoadingFormat &&
-                                !model.isPreparingJobs &&
-                                !model.isPickingFiles &&
-                                !_isChangingStep,
-                            label: model.isPreparingJobs
-                                ? context.l10n.preparingJobs
-                                : isLastStep
-                                ? context.l10n.startConversion
-                                : context.l10n.next,
-                            onPressed: () {
-                              unawaited(_handleNext(context));
-                            },
+                    child: Row(
+                      crossAxisAlignment: .stretch,
+                      children: [
+                        Expanded(
+                          child: AdaptiveContent(
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: Consumer<JobMakerViewModel>(
+                                    builder: (context, model, _) => AbsorbPointer(
+                                      absorbing: model.isPreparingJobs,
+                                      child: PageView.builder(
+                                        controller: _pageController,
+                                        itemCount: _steps.length,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        onPageChanged: (page) {
+                                          _currentStepNotifier.value = page;
+                                        },
+                                        itemBuilder: (context, index) {
+                                          final step = _steps[index];
+                                          return step.build(
+                                            context,
+                                            showPresetSelection:
+                                                _isPresetShortcut,
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Spacing.v16,
+                                Padding(
+                                  padding: .symmetric(
+                                    horizontal: Spacing.d16,
+                                  ),
+                                  child: ValueListenableBuilder(
+                                    valueListenable: _currentStepNotifier,
+                                    builder: (context, currentStep, child) {
+                                      final isLastStep =
+                                          currentStep == _steps.length - 1;
+                                      return Consumer<JobMakerViewModel>(
+                                        builder: (context, model, _) => Button(
+                                          variant: .primary,
+                                          enable:
+                                              !model.isLoadingFormat &&
+                                              !model.isPreparingJobs &&
+                                              !model.isPickingFiles &&
+                                              !_isChangingStep,
+                                          label: model.isPreparingJobs
+                                              ? context.l10n.preparingJobs
+                                              : isLastStep
+                                              ? context.l10n.startConversion
+                                              : context.l10n.next,
+                                          onPressed: () {
+                                            unawaited(_handleNext(context));
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        );
-                      },
+                        ),
+                        if (JobMaker.hasReviewPanel(context.screenSize)) ...[
+                          VerticalDivider(width: Spacing.d1),
+                          SizedBox(
+                            width: Spacing.d360,
+                            child: const JobMakerReviewPanel(),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                   const BottomSpacer(),

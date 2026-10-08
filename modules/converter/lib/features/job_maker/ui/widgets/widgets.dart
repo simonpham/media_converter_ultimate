@@ -4,6 +4,7 @@ export 'file_ad_item.dart';
 export 'file_icon.dart';
 export 'file_item.dart';
 export 'job_maker_preset_selection.dart';
+export 'job_maker_review_panel.dart';
 export 'output_file_item.dart';
 export 'output_format_ad_item.dart';
 export 'output_format_grid_item.dart';

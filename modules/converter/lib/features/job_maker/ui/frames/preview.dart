@@ -120,7 +120,9 @@ class _JobMakerPreviewState extends State<JobMakerPreview> {
                   ),
                 ),
               ),
-              const SliverToBoxAdapter(child: ConversionSummary()),
+              // The review panel already shows the summary beside the wizard.
+              if (!JobMaker.hasReviewPanel(context.screenSize))
+                const SliverToBoxAdapter(child: ConversionSummary()),
               PinnedHeaderSliver(
                 child: ColoredBox(
                   color: context.theme.colorScheme.surface,
