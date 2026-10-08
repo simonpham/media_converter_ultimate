@@ -71,33 +71,36 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
-      ChangeNotifierProvider<JobMakerViewModel>.value(
-        value: model,
-        child: MaterialApp(
-          locale: locale,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          theme: theme.getTheme(isDark: isDark),
-          builder: (context, child) => FluffyTheme(
-            data: theme.getFluffyTheme(isDark: isDark),
-            child: MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaler: .linear(scale)),
-              child: child!,
+      ScreenSizeScope(
+        child: ChangeNotifierProvider<JobMakerViewModel>.value(
+          value: model,
+          child: MaterialApp(
+            locale: locale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            theme: theme.getTheme(isDark: isDark),
+            builder: (context, child) => FluffyTheme(
+              data: theme.getFluffyTheme(isDark: isDark),
+              child: MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: .linear(scale)),
+                child: child!,
+              ),
             ),
-          ),
-          home: RepaintBoundary(
-            key: screenshotKey,
-            child: Scaffold(
-              appBar: AppBar(
-                title: Builder(
-                  builder: (context) => Text(
-                    content == null
-                        ? context.l10n.chooseOutputFormat
-                        : context.l10n.customizeConfigs,
+            home: RepaintBoundary(
+              key: screenshotKey,
+              child: Scaffold(
+                appBar: AppBar(
+                  title: Builder(
+                    builder: (context) => Text(
+                      content == null
+                          ? context.l10n.chooseOutputFormat
+                          : context.l10n.customizeConfigs,
+                    ),
                   ),
                 ),
+                body: content ?? const JobMakerOutputFormatPicker(),
               ),
-              body: content ?? const JobMakerOutputFormatPicker(),
             ),
           ),
         ),
@@ -1065,11 +1068,9 @@ void main() {
     addTearDown(manager.dispose);
     await showPicker(
       tester,
-      content: ScreenSizeScope(
-        child: ChangeNotifierProvider<JobManagerViewModel>.value(
-          value: manager,
-          child: const JobManager(),
-        ),
+      content: ChangeNotifierProvider<JobManagerViewModel>.value(
+        value: manager,
+        child: const JobManager(),
       ),
     );
     expect(find.text('Stop'), findsOneWidget);
@@ -1090,11 +1091,9 @@ void main() {
       await showPicker(
         tester,
         size: Size(width, 900),
-        content: ScreenSizeScope(
-          child: ChangeNotifierProvider<JobManagerViewModel>.value(
-            value: manager,
-            child: const JobManager(),
-          ),
+        content: ChangeNotifierProvider<JobManagerViewModel>.value(
+          value: manager,
+          child: const JobManager(),
         ),
       );
       final screenSize = ScreenSize.fromWidth(width);
@@ -1115,11 +1114,9 @@ void main() {
       addTearDown(manager.dispose);
       await showPicker(
         tester,
-        content: ScreenSizeScope(
-          child: ChangeNotifierProvider<JobManagerViewModel>.value(
-            value: manager,
-            child: const JobManager(),
-          ),
+        content: ChangeNotifierProvider<JobManagerViewModel>.value(
+          value: manager,
+          child: const JobManager(),
         ),
       );
       final context = tester.element(find.byType(JobManager));
@@ -1156,11 +1153,9 @@ void main() {
         locale: locale,
         scale: 2,
         size: const Size(320, 844),
-        content: ScreenSizeScope(
-          child: ChangeNotifierProvider<JobManagerViewModel>(
-            create: (_) => _EmptyJobManager(),
-            child: const JobManager(),
-          ),
+        content: ChangeNotifierProvider<JobManagerViewModel>(
+          create: (_) => _EmptyJobManager(),
+          child: const JobManager(),
         ),
       );
       final context = tester.element(find.byType(JobManager));
