@@ -48,15 +48,7 @@ Future<T?> showAdaptiveSheet<T>(
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierColor: FluffyColors.barrier,
       transitionDuration: FluffyDurations.dialogTransition,
-      transitionBuilder: (context, animation, _, child) => FadeTransition(
-        opacity: animation,
-        child: ScaleTransition(
-          scale: Tween<double>(begin: 0.95, end: 1.0).animate(
-            CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
-          ),
-          child: child,
-        ),
-      ),
+      transitionBuilder: _dialogTransition,
       pageBuilder: (context, _, _) => DialogCard(
         maxWidth: ScreenSize.normal.breakpoint.toDouble(),
         content: Material(
@@ -67,3 +59,56 @@ Future<T?> showAdaptiveSheet<T>(
     ),
   };
 }
+
+/// Pushes [builder] as a full page on handheld screens and shows it as a
+/// large dialog on large screens, keeping the current page in view.
+Future<T?> showAdaptivePage<T>(
+  BuildContext context, {
+  required WidgetBuilder builder,
+}) {
+  final screenSize = context.read<ScreenSizeNotifier>().screenSize;
+  return switch (screenSize) {
+    .small || .normal => context.navigator.push<T>(
+      MaterialPageRoute(builder: builder),
+    ),
+    .large || .larger || .extraLarge => showGeneralDialog<T>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: FluffyColors.barrier,
+      transitionDuration: FluffyDurations.dialogTransition,
+      transitionBuilder: _dialogTransition,
+      pageBuilder: (context, _, _) => SafeArea(
+        child: Padding(
+          padding: .all(Spacing.d32),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: ScreenSize.large.breakpoint.toDouble(),
+              ),
+              child: ClipRSuperellipse(
+                borderRadius: Spacing.r12,
+                child: Builder(builder: builder),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  };
+}
+
+Widget _dialogTransition(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) => FadeTransition(
+  opacity: animation,
+  child: ScaleTransition(
+    scale: Tween<double>(begin: 0.95, end: 1.0).animate(
+      CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+    ),
+    child: child,
+  ),
+);

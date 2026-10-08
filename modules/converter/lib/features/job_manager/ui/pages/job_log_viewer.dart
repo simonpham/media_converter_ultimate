@@ -10,10 +10,9 @@ extension JobLogViewerExt on ConvertJob {
     if (logs.isEmpty) {
       return;
     }
-    await context.navigator.push(
-      MaterialPageRoute(
-        builder: (context) => JobLogViewer(job: this),
-      ),
+    await showAdaptivePage<void>(
+      context,
+      builder: (context) => JobLogViewer(job: this),
     );
   }
 }
