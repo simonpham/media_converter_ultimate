@@ -28,9 +28,9 @@
 #      3. Go to Google Play Console -> Users & Permissions -> Invite new user.
 #      4. Invite the service account email with "Releases" permission on this app.
 #
-# 6. ADMOB_ENV_PROPS
-#    - The admob* lines of .assets/env.props with the real AdMob IDs
-#      (see .assets/env.props.example).
+# 6. ADMOB_APP_ID, ADMOB_JOB_MANAGER_AD_UNIT_ID, ADMOB_FILE_PICKER_AD_UNIT_ID,
+#    ADMOB_OUTPUT_FORMAT_PICKER_AD_UNIT_ID, ADMOB_PREVIEW_PAGE_AD_UNIT_ID
+#    - Real AdMob IDs. Without them, a release build would serve test ads.
 #
 # OPTIONAL GITHUB REPOSITORY SECRETS:
 #
@@ -143,6 +143,11 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           ANDROID_STORE_FILE_PASSWORD: ${{ secrets.ANDROID_STORE_FILE_PASSWORD }}
           ANDROID_APP_PACKAGE_NAME: ${{ secrets.ANDROID_APP_PACKAGE_NAME || 'io.sofluffy.mcu' }}
+          ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID }}
+          ADMOB_JOB_MANAGER_AD_UNIT_ID: ${{ secrets.ADMOB_JOB_MANAGER_AD_UNIT_ID }}
+          ADMOB_FILE_PICKER_AD_UNIT_ID: ${{ secrets.ADMOB_FILE_PICKER_AD_UNIT_ID }}
+          ADMOB_OUTPUT_FORMAT_PICKER_AD_UNIT_ID: ${{ secrets.ADMOB_OUTPUT_FORMAT_PICKER_AD_UNIT_ID }}
+          ADMOB_PREVIEW_PAGE_AD_UNIT_ID: ${{ secrets.ADMOB_PREVIEW_PAGE_AD_UNIT_ID }}
         run: |
           if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
             echo "::error::Secret ANDROID_KEYSTORE_BASE64 is empty or not configured."
@@ -150,6 +155,10 @@ jobs:
           fi
           if [ -z "$ANDROID_KEY_ALIAS" ] || [ -z "$ANDROID_KEY_PASSWORD" ] || [ -z "$ANDROID_STORE_FILE_PASSWORD" ]; then
             echo "::error::One or more Android keystore secrets (ALIAS, KEY_PASSWORD, STORE_FILE_PASSWORD) are missing."
+            exit 1
+          fi
+          if [ -z "$ADMOB_APP_ID" ] || [ -z "$ADMOB_JOB_MANAGER_AD_UNIT_ID" ] || [ -z "$ADMOB_FILE_PICKER_AD_UNIT_ID" ] || [ -z "$ADMOB_OUTPUT_FORMAT_PICKER_AD_UNIT_ID" ] || [ -z "$ADMOB_PREVIEW_PAGE_AD_UNIT_ID" ]; then
+            echo "::error::One or more AdMob secrets (APP_ID, *_AD_UNIT_ID) are missing."
             exit 1
           fi
 
@@ -162,18 +171,12 @@ jobs:
           androidKeyPassword=$ANDROID_KEY_PASSWORD
           androidStoreFile=upload-keystore.jks
           androidStoreFilePassword=$ANDROID_STORE_FILE_PASSWORD
+          admobAppId=$ADMOB_APP_ID
+          admobJobManagerAdUnitId=$ADMOB_JOB_MANAGER_AD_UNIT_ID
+          admobFilePickerAdUnitId=$ADMOB_FILE_PICKER_AD_UNIT_ID
+          admobOutputFormatPickerAdUnitId=$ADMOB_OUTPUT_FORMAT_PICKER_AD_UNIT_ID
+          admobPreviewPageAdUnitId=$ADMOB_PREVIEW_PAGE_AD_UNIT_ID
           EOF
-
-      - name: Add AdMob IDs to env.props
-        env:
-          ADMOB_ENV_PROPS: ${{ secrets.ADMOB_ENV_PROPS }}
-        run: |
-          # Without real IDs, a release build would silently serve test ads.
-          if [ -z "$ADMOB_ENV_PROPS" ]; then
-            echo "::error::Secret ADMOB_ENV_PROPS is empty or not configured."
-            exit 1
-          fi
-          echo "$ADMOB_ENV_PROPS" >> .assets/env.props
 
       - name: Build Android App Bundle (AAB)
         working-directory: apps/mcu
