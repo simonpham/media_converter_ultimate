@@ -85,11 +85,8 @@ class _JobMakerConfigCustomizerState extends State<JobMakerConfigCustomizer> {
                     ),
                   )
                 else
-                  // Rows keep the controls in reading order across columns.
-                  SliverList.separated(
-                    separatorBuilder: (context, index) => Spacing.v16,
-                    itemCount: (visibleControls.length / columns).ceil(),
-                    itemBuilder: (context, row) => Padding(
+                  SliverToBoxAdapter(
+                    child: Padding(
                       padding: .symmetric(
                         horizontal: Spacing.d16,
                       ),
@@ -97,18 +94,22 @@ class _JobMakerConfigCustomizerState extends State<JobMakerConfigCustomizer> {
                         crossAxisAlignment: .start,
                         spacing: Spacing.d16,
                         children: [
-                          for (var column = 0; column < columns; column++)
+                          for (final column in _splitIntoColumns(
+                            visibleControls,
+                            columns,
+                          ))
                             Expanded(
-                              child: switch (row * columns + column) {
-                                final index
-                                    when index < visibleControls.length =>
-                                  _buildControlCard(
-                                    context,
-                                    visibleControls.elementAt(index),
-                                    margin: .zero,
-                                  ),
-                                _ => const SizedBox.shrink(),
-                              },
+                              child: Column(
+                                spacing: Spacing.d16,
+                                children: [
+                                  for (final control in column)
+                                    _buildControlCard(
+                                      context,
+                                      control,
+                                      margin: .zero,
+                                    ),
+                                ],
+                              ),
                             ),
                         ],
                       ),
@@ -154,5 +155,31 @@ class _JobMakerConfigCustomizerState extends State<JobMakerConfigCustomizer> {
         onChanged: widget.onChanged,
       ),
     );
+  }
+
+  /// Stacks controls into [count] columns without gaps between cards. Each
+  /// control goes to the shortest column so far, keeping the original order
+  /// within every column.
+  List<List<ConfigControl>> _splitIntoColumns(
+    Iterable<ConfigControl> controls,
+    int count,
+  ) {
+    final columns = [for (var i = 0; i < count; i++) <ConfigControl>[]];
+    final heights = List.filled(count, 0);
+    for (final control in controls) {
+      var shortest = 0;
+      for (var i = 1; i < count; i++) {
+        if (heights[i] < heights[shortest]) shortest = i;
+      }
+      columns[shortest].add(control);
+      // A label row, plus one row per listed option (dropdowns use one row).
+      heights[shortest] +=
+          1 +
+          switch (control.type) {
+            .dropdown => 1,
+            _ => control.options.length,
+          };
+    }
+    return columns;
   }
 }

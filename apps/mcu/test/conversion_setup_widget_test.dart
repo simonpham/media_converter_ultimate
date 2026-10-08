@@ -680,6 +680,52 @@ void main() {
     });
   }
 
+  testWidgets('wide config controls stack without gaps', (tester) async {
+    injector.registerSingleton<FileService>(TestMediaFiles());
+    await showPicker(
+      tester,
+      size: const Size(1300, 900),
+      content: JobMaker(
+        formatConfigModel: model.formatConfigModel,
+        translations: model.translations,
+        initialPreset: .compatibleVideo,
+      ),
+    );
+    final wizard = tester
+        .element(find.byType(JobMakerFilePicker))
+        .read<JobMakerViewModel>();
+    final directory = Directory.systemTemp.createTempSync('mcu-columns-');
+    addTearDown(() => directory.deleteSync(recursive: true));
+    await wizard.addFiles([
+      File('${directory.path}/clip.mp4')..writeAsBytesSync([0]),
+    ]);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    final rects = tester
+        .widgetList(find.byType(ConfigControlWidget, skipOffstage: false))
+        .map(
+          (widget) => tester.getRect(
+            find.byWidget(widget, skipOffstage: false),
+          ),
+        )
+        .toList();
+    final columns = <double, List<Rect>>{};
+    for (final rect in rects) {
+      columns.putIfAbsent(rect.left, () => []).add(rect);
+    }
+    expect(columns, hasLength(2));
+    // Card padding below and above each control, plus the column spacing.
+    final gap = Spacing.d12 + Spacing.d16 + Spacing.d8;
+    for (final column in columns.values) {
+      column.sort((a, b) => a.top.compareTo(b.top));
+      for (var i = 1; i < column.length; i++) {
+        expect(column[i].top - column[i - 1].bottom, closeTo(gap, 0.01));
+      }
+    }
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('unsupported shortcut falls back to four steps', (tester) async {
     await showPicker(
       tester,
