@@ -241,55 +241,74 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  for (final (width, isDialog) in [(390.0, false), (1300.0, true)]) {
-    testWidgets('logs open adaptively at ${width.toInt()}px wide', (
-      tester,
-    ) async {
-      tester.view.physicalSize = Size(width, 900);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      final theme = FluffyThemeData.fromJson(
-        jsonDecode(
-          File('${findRepository().path}/apps/mcu/assets/themes/default.json')
-              .readAsStringSync(),
-        ),
-      );
-      await tester.pumpWidget(
-        ScreenSizeScope(
-          child: MaterialApp(
-            theme: theme.getTheme(isDark: false),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            builder: (context, child) => FluffyTheme(
-              data: theme.getFluffyTheme(isDark: false),
-              child: child!,
-            ),
-            home: Scaffold(
-              body: Builder(
-                builder: (context) => Button(
-                  variant: .primary,
-                  label: 'Logs',
-                  onPressed: () => unawaited(job.openLogs(context)),
+  for (final (size, isDialog) in [
+    (const Size(390, 900), false),
+    (const Size(1300, 900), true),
+    // A landscape phone is wide but too short for a dialog.
+    (const Size(844, 390), false),
+  ]) {
+    testWidgets(
+      'logs open adaptively at ${size.width.toInt()}x${size.height.toInt()}',
+      (
+        tester,
+      ) async {
+        tester.view.physicalSize = size;
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final theme = FluffyThemeData.fromJson(
+          jsonDecode(
+            File('${findRepository().path}/apps/mcu/assets/themes/default.json')
+                .readAsStringSync(),
+          ),
+        );
+        await tester.pumpWidget(
+          ScreenSizeScope(
+            child: MaterialApp(
+              theme: theme.getTheme(isDark: false),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              builder: (context, child) => FluffyTheme(
+                data: theme.getFluffyTheme(isDark: false),
+                child: child!,
+              ),
+              home: Scaffold(
+                body: Builder(
+                  builder: (context) => Button(
+                    variant: .primary,
+                    label: 'Logs',
+                    onPressed: () => unawaited(job.openLogs(context)),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      );
-      await tester.tap(find.text('Logs'));
-      await tester.pumpAndSettle();
-      expect(find.byType(JobLogViewer), findsOneWidget);
-      // A dialog keeps the launching page visible underneath.
-      expect(
-        find.text('Logs'),
-        isDialog ? findsOneWidget : findsNothing,
-      );
-      await tester.pageBack();
-      await tester.pumpAndSettle();
-      expect(find.byType(JobLogViewer), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
+        );
+        await tester.tap(find.text('Logs'));
+        await tester.pumpAndSettle();
+        expect(find.byType(JobLogViewer), findsOneWidget);
+        // A dialog keeps the launching page visible underneath.
+        expect(
+          find.text('Logs'),
+          isDialog ? findsOneWidget : findsNothing,
+        );
+        if (isDialog) {
+          tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+          addTearDown(tester.view.resetViewInsets);
+          await tester.pumpAndSettle();
+          expect(
+            tester.getRect(find.byType(JobLogViewer)).bottom,
+            lessThanOrEqualTo(size.height - 300),
+          );
+          tester.view.resetViewInsets();
+          await tester.pumpAndSettle();
+        }
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.byType(JobLogViewer), findsNothing);
+        expect(tester.takeException(), isNull);
+      },
+    );
   }
 }
 
