@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:converter/converter.dart' show ConverterInjector, GoogleAdUnits;
 import 'package:converter/data/data.dart';
 import 'package:core/core.dart';
@@ -28,8 +30,10 @@ Future<void> main() async {
   await LogData().init();
   await JobConfigurationData().init();
 
-  printLog('[main] Init FlutterForegroundTask...');
-  FlutterForegroundTask.initCommunicationPort();
+  if (Platform.isAndroid || Platform.isIOS) {
+    printLog('[main] Init FlutterForegroundTask...');
+    FlutterForegroundTask.initCommunicationPort();
+  }
 
   try {
     final settings = SettingsBox();
@@ -41,8 +45,10 @@ Future<void> main() async {
     printError(error, trace);
   }
 
-  printLog('[main] Load ad units...');
-  await GoogleAdUnits.load();
+  if (Platform.isAndroid || Platform.isIOS) {
+    printLog('[main] Load ad units...');
+    await GoogleAdUnits.load();
+  }
 
   printLog('[main] Run app...');
   runApp(

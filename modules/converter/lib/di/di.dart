@@ -41,8 +41,13 @@ class ConverterInjector {
       () => JobNotificationCoordinator(injector<JobNotificationService>()),
     );
 
-    final mobileAdsService = GoogleMobileAdsService();
-    unawaited(mobileAdsService.initialize());
+    final MobileAdsService mobileAdsService;
+    if (Platform.isAndroid || Platform.isIOS) {
+      mobileAdsService = GoogleMobileAdsService();
+      mobileAdsService.initialize();
+    } else {
+      mobileAdsService = NoopMobileAdsService();
+    }
     injector.registerSingleton<MobileAdsService>(mobileAdsService);
   }
 

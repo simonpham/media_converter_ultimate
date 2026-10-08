@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:converter/converter.dart';
 import 'package:flutter/material.dart';
@@ -416,17 +417,19 @@ class _JobManagerState extends State<JobManager> {
     if (_isCreatingJob) return;
     setState(() => _isCreatingJob = true);
     try {
-      final androidInfo = await DeviceInfoPlugin().androidInfo;
-      if (!context.mounted) return;
-      final sdkInt = androidInfo.version.sdkInt;
-      // Android 11+ uses picker URI grants and app-owned MediaStore outputs.
-      // Keep the gate for Android 10's existing legacy-storage mode and older.
-      if (sdkInt < 30) {
-        final status = await Permission.storage.request();
+      if (Platform.isAndroid) {
+        final androidInfo = await DeviceInfoPlugin().androidInfo;
         if (!context.mounted) return;
-        if (!status.isGranted) {
-          await _handlePermissionDenied(context);
-          return;
+        final sdkInt = androidInfo.version.sdkInt;
+        // Android 11+ uses picker URI grants and app-owned MediaStore outputs.
+        // Keep the gate for Android 10's existing legacy-storage mode and older.
+        if (sdkInt < 30) {
+          final status = await Permission.storage.request();
+          if (!context.mounted) return;
+          if (!status.isGranted) {
+            await _handlePermissionDenied(context);
+            return;
+          }
         }
       }
 
