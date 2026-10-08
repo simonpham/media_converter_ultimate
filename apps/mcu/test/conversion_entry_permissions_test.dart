@@ -111,16 +111,18 @@ void main() {
 
   Future<void> create(WidgetTester tester) async {
     await tester.pumpWidget(
-      ChangeNotifierProvider<JobManagerViewModel>.value(
-        value: manager,
-        child: MaterialApp.router(
-          routerConfig: router,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          theme: theme.getTheme(isDark: false),
-          builder: (context, child) => FluffyTheme(
-            data: theme.getFluffyTheme(isDark: false),
-            child: child!,
+      ScreenSizeScope(
+        child: ChangeNotifierProvider<JobManagerViewModel>.value(
+          value: manager,
+          child: MaterialApp.router(
+            routerConfig: router,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            theme: theme.getTheme(isDark: false),
+            builder: (context, child) => FluffyTheme(
+              data: theme.getFluffyTheme(isDark: false),
+              child: child!,
+            ),
           ),
         ),
       ),

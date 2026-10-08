@@ -236,17 +236,19 @@ void main() {
   testWidgets('recreating Home preserves the owner and skips startup repair', (
     tester,
   ) async {
-    Widget page(Key key) => ChangeNotifierProvider<JobManagerViewModel>(
-      create: (_) => .new(),
-      child: MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        theme: theme.getTheme(isDark: false),
-        builder: (_, child) => FluffyTheme(
-          data: theme.getFluffyTheme(isDark: false),
-          child: child!,
+    Widget page(Key key) => ScreenSizeScope(
+      child: ChangeNotifierProvider<JobManagerViewModel>(
+        create: (_) => .new(),
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: theme.getTheme(isDark: false),
+          builder: (_, child) => FluffyTheme(
+            data: theme.getFluffyTheme(isDark: false),
+            child: child!,
+          ),
+          home: MainPage(key: key),
         ),
-        home: MainPage(key: key),
       ),
     );
     await tester.pumpWidget(page(const ValueKey('first')));

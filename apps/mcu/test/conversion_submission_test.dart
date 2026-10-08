@@ -101,16 +101,18 @@ void main() {
 
   Future<JobMakerViewModel> openWizard(WidgetTester tester) async {
     await tester.pumpWidget(
-      ChangeNotifierProvider<JobManagerViewModel>.value(
-        value: manager,
-        child: MaterialApp.router(
-          routerConfig: router,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          theme: theme.getTheme(isDark: false),
-          builder: (_, child) => FluffyTheme(
-            data: theme.getFluffyTheme(isDark: false),
-            child: child!,
+      ScreenSizeScope(
+        child: ChangeNotifierProvider<JobManagerViewModel>.value(
+          value: manager,
+          child: MaterialApp.router(
+            routerConfig: router,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            theme: theme.getTheme(isDark: false),
+            builder: (_, child) => FluffyTheme(
+              data: theme.getFluffyTheme(isDark: false),
+              child: child!,
+            ),
           ),
         ),
       ),
@@ -290,16 +292,19 @@ void main() {
           settings.failedCounter = key;
           settings.synchronousFailure = synchronous;
           await tester.pumpWidget(
-            ChangeNotifierProvider<JobManagerViewModel>.value(
-              value: manager,
-              child: MaterialApp.router(
-                routerConfig: router,
-                localizationsDelegates: AppLocalizations.localizationsDelegates,
-                supportedLocales: AppLocalizations.supportedLocales,
-                theme: theme.getTheme(isDark: false),
-                builder: (_, child) => FluffyTheme(
-                  data: theme.getFluffyTheme(isDark: false),
-                  child: child!,
+            ScreenSizeScope(
+              child: ChangeNotifierProvider<JobManagerViewModel>.value(
+                value: manager,
+                child: MaterialApp.router(
+                  routerConfig: router,
+                  localizationsDelegates:
+                      AppLocalizations.localizationsDelegates,
+                  supportedLocales: AppLocalizations.supportedLocales,
+                  theme: theme.getTheme(isDark: false),
+                  builder: (_, child) => FluffyTheme(
+                    data: theme.getFluffyTheme(isDark: false),
+                    child: child!,
+                  ),
                 ),
               ),
             ),
@@ -341,16 +346,18 @@ void main() {
     'Home keeps Review and its draft after save failure, then queues retry once',
     (tester) async {
       await tester.pumpWidget(
-        ChangeNotifierProvider<JobManagerViewModel>.value(
-          value: manager,
-          child: MaterialApp.router(
-            routerConfig: router,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            theme: theme.getTheme(isDark: false),
-            builder: (context, child) => FluffyTheme(
-              data: theme.getFluffyTheme(isDark: false),
-              child: child!,
+        ScreenSizeScope(
+          child: ChangeNotifierProvider<JobManagerViewModel>.value(
+            value: manager,
+            child: MaterialApp.router(
+              routerConfig: router,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              theme: theme.getTheme(isDark: false),
+              builder: (context, child) => FluffyTheme(
+                data: theme.getFluffyTheme(isDark: false),
+                child: child!,
+              ),
             ),
           ),
         ),

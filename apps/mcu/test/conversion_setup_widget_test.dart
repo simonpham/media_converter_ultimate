@@ -1065,9 +1065,11 @@ void main() {
     addTearDown(manager.dispose);
     await showPicker(
       tester,
-      content: ChangeNotifierProvider<JobManagerViewModel>.value(
-        value: manager,
-        child: const JobManager(),
+      content: ScreenSizeScope(
+        child: ChangeNotifierProvider<JobManagerViewModel>.value(
+          value: manager,
+          child: const JobManager(),
+        ),
       ),
     );
     expect(find.text('Stop'), findsOneWidget);
@@ -1087,9 +1089,11 @@ void main() {
       addTearDown(manager.dispose);
       await showPicker(
         tester,
-        content: ChangeNotifierProvider<JobManagerViewModel>.value(
-          value: manager,
-          child: const JobManager(),
+        content: ScreenSizeScope(
+          child: ChangeNotifierProvider<JobManagerViewModel>.value(
+            value: manager,
+            child: const JobManager(),
+          ),
         ),
       );
       final context = tester.element(find.byType(JobManager));
@@ -1126,9 +1130,11 @@ void main() {
         locale: locale,
         scale: 2,
         size: const Size(320, 844),
-        content: ChangeNotifierProvider<JobManagerViewModel>(
-          create: (_) => _EmptyJobManager(),
-          child: const JobManager(),
+        content: ScreenSizeScope(
+          child: ChangeNotifierProvider<JobManagerViewModel>(
+            create: (_) => _EmptyJobManager(),
+            child: const JobManager(),
+          ),
         ),
       );
       final context = tester.element(find.byType(JobManager));

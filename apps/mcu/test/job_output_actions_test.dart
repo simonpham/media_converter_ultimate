@@ -44,20 +44,22 @@ void main() {
   Future<void> showJobs(WidgetTester tester, ConvertJob job) async {
     model.job = job;
     await tester.pumpWidget(
-      ChangeNotifierProvider<JobManagerViewModel>.value(
-        value: model,
-        child: MaterialApp(
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          theme: theme.getTheme(isDark: false),
-          builder: (context, child) => FluffyTheme(
-            data: theme.getFluffyTheme(isDark: false),
-            child: child!,
-          ),
-          home: ValueListenableBuilder<bool>(
-            valueListenable: homeVisible,
-            builder: (_, visible, _) =>
-                visible ? const JobManager() : const SizedBox.shrink(),
+      ScreenSizeScope(
+        child: ChangeNotifierProvider<JobManagerViewModel>.value(
+          value: model,
+          child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            theme: theme.getTheme(isDark: false),
+            builder: (context, child) => FluffyTheme(
+              data: theme.getFluffyTheme(isDark: false),
+              child: child!,
+            ),
+            home: ValueListenableBuilder<bool>(
+              valueListenable: homeVisible,
+              builder: (_, visible, _) =>
+                  visible ? const JobManager() : const SizedBox.shrink(),
+            ),
           ),
         ),
       ),

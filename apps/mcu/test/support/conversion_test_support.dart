@@ -3,8 +3,10 @@ import 'dart:io';
 
 import 'package:converter/converter.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:platform_utils/platform_utils.dart' show FileService;
+import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 Directory findRepository() {
   var directory = Directory.current;
@@ -97,4 +99,37 @@ class TestMediaFiles implements FileService {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// Provides a [ScreenSizeNotifier] sized from the test view, as the app does.
+class ScreenSizeScope extends StatefulWidget {
+  const ScreenSizeScope({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  State<ScreenSizeScope> createState() => _ScreenSizeScopeState();
+}
+
+class _ScreenSizeScopeState extends State<ScreenSizeScope> {
+  final ScreenSizeNotifier _notifier = ScreenSizeNotifier();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _notifier.updateScreenSize(ScreenSize.of(context));
+  }
+
+  @override
+  void dispose() {
+    _notifier.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      ChangeNotifierProvider<ScreenSizeNotifier>.value(
+        value: _notifier,
+        child: widget.child,
+      );
 }
