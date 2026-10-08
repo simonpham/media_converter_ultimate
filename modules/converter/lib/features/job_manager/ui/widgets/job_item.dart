@@ -20,13 +20,16 @@ class const JobItem(
   final VoidCallback? onRetryExport,
   final VoidCallback? onRenameOutputFile,
   final VoidCallback? onSelectNewOutputPath,
+  final EdgeInsetsGeometry? margin,
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: .symmetric(
-        horizontal: Spacing.d16,
-      ),
+      margin:
+          margin ??
+          .symmetric(
+            horizontal: Spacing.d16,
+          ),
       decoration: ShapeDecoration(
         color: context.theme.cardColor,
         shape: const RoundedSuperellipseBorder(
