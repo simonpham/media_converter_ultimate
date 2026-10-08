@@ -314,17 +314,21 @@ class const _PresetCard({
                       onColor: colors.primary,
                     ),
                   ),
-                  if (isSelected) ...[
-                    Spacing.h4,
-                    ImageView(
-                      Assets.tick02,
-                      size: Spacing.d20,
-                      color: colors.primary,
-                    ),
-                  ],
+                  Spacing.h8,
+                  ImageView(
+                    isSelected
+                        ? Assets.tick02
+                        : preset.formatName == 'mp4'
+                        ? Assets.fileVideo
+                        : Assets.fileAudio,
+                    size: Spacing.d20,
+                    color: isSelected
+                        ? colors.primary
+                        : colors.onSurfaceVariant,
+                  ),
                 ],
               ),
-              Spacing.v8,
+              Spacing.v12,
               Text(
                 title,
                 style: TextStyle(
@@ -332,16 +336,17 @@ class const _PresetCard({
                   fontWeight: .w600,
                 ),
               ),
-              if (!compact) ...[
-                Spacing.v4,
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: Spacing.d12,
-                    color: colors.onSurfaceVariant,
-                  ),
+              Spacing.v4,
+              // Compact cards keep a short summary so they don't feel bare.
+              Text(
+                description,
+                maxLines: compact ? 2 : null,
+                overflow: compact ? .ellipsis : null,
+                style: TextStyle(
+                  fontSize: Spacing.d12,
+                  color: colors.onSurfaceVariant,
                 ),
-              ],
+              ),
             ],
           ),
         ),

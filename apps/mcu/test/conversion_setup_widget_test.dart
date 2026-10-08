@@ -456,9 +456,10 @@ void main() {
       );
       expect(find.text('Quick convert'), findsOneWidget);
       expect(find.text('Quick presets'), findsNothing);
+      // Compact home cards keep a short summary under the title.
       expect(
         find.text('Balanced quality and broad playback support.'),
-        findsNothing,
+        findsOneWidget,
       );
       await tester.tap(find.text('Compatible video'));
       await tester.pumpAndSettle();
@@ -1238,6 +1239,8 @@ void main() {
     );
     expect(find.text('Stop'), findsOneWidget);
     manager.executionId = 'later-execution';
+    await tester.ensureVisible(find.text('Stop'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Stop'));
     await tester.pump();
     expect(manager.stoppedExecutionId, 'preparation-execution');
