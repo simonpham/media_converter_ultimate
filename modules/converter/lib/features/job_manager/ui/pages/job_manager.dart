@@ -16,7 +16,18 @@ class const JobManager({
 
 class _JobManagerState extends State<JobManager> {
   final MenuController _menuController = .new();
+  final ScrollController _scrollController = .new();
+  final ScrollController _sidebarScrollController = .new();
+  final ScrollController _jobsScrollController = .new();
   bool _isCreatingJob = false;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _sidebarScrollController.dispose();
+    _jobsScrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -168,52 +179,69 @@ class _JobManagerState extends State<JobManager> {
                 ],
               ];
               return switch (screenSize) {
-                .small || .normal => CustomScrollView(
-                  slivers: [
-                    SliverAppBar(
-                      expandedHeight: kToolbarHeight * 1.2,
-                      collapsedHeight: kToolbarHeight,
-                      centerTitle: true,
-                      title: Text(
-                        context.l10n.jobManager,
-                        maxLines: 1,
-                        overflow: .ellipsis,
+                .small || .normal => Scrollbar(
+                  controller: _scrollController,
+                  thumbVisibility: true,
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      SliverAppBar(
+                        expandedHeight: kToolbarHeight * 1.2,
+                        collapsedHeight: kToolbarHeight,
+                        centerTitle: true,
+                        title: Text(
+                          context.l10n.jobManager,
+                          maxLines: 1,
+                          overflow: .ellipsis,
+                        ),
+                        pinned: true,
+                        backgroundColor: context.theme.scaffoldBackgroundColor,
+                        actions: [_buildMenu(context)],
                       ),
-                      pinned: true,
-                      backgroundColor: context.theme.scaffoldBackgroundColor,
-                      actions: [_buildMenu(context)],
-                    ),
-                    const SliverToBoxAdapter(
-                      key: ValueKey('job_manager_ad_item'),
-                      child: JobAdItem(),
-                    ),
-                    SliverToBoxAdapter(
-                      child: _buildPresetShortcuts(context),
-                    ),
-                    ...jobSlivers,
-                  ],
+                      const SliverToBoxAdapter(
+                        key: ValueKey('job_manager_ad_item'),
+                        child: JobAdItem(),
+                      ),
+                      SliverToBoxAdapter(
+                        child: _buildPresetShortcuts(context),
+                      ),
+                      ...jobSlivers,
+                    ],
+                  ),
                 ),
                 .large || .larger || .extraLarge => Row(
                   crossAxisAlignment: .stretch,
                   children: [
                     SizedBox(
                       width: Spacing.d360,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: .stretch,
-                          children: [
-                            _buildPresetShortcuts(context),
-                            const JobAdItem(
-                              key: ValueKey('job_manager_ad_item'),
-                            ),
-                            const BottomSpacer(),
-                          ],
+                      child: Scrollbar(
+                        controller: _sidebarScrollController,
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          controller: _sidebarScrollController,
+                          child: Column(
+                            crossAxisAlignment: .stretch,
+                            children: [
+                              _buildPresetShortcuts(context),
+                              const JobAdItem(
+                                key: ValueKey('job_manager_ad_item'),
+                              ),
+                              const BottomSpacer(),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                    const VerticalDivider(width: 1),
+                    VerticalDivider(width: Spacing.d1),
                     Expanded(
-                      child: CustomScrollView(slivers: jobSlivers),
+                      child: Scrollbar(
+                        controller: _jobsScrollController,
+                        thumbVisibility: true,
+                        child: CustomScrollView(
+                          controller: _jobsScrollController,
+                          slivers: jobSlivers,
+                        ),
+                      ),
                     ),
                   ],
                 ),
