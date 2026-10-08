@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:sofluffy_ui/sofluffy_ui.dart';
 
 /// A filled pill naming an output format, shared by job and preset cards.
+/// It is filled with [gradient] when given, otherwise with [color].
 class const FormatBadge(
   final String label, {
   super.key,
-  required final Color color,
+  final Color? color,
+  final Gradient? gradient,
   required final Color onColor,
   final Key? labelKey,
 }) extends StatelessWidget {
@@ -13,7 +15,8 @@ class const FormatBadge(
   Widget build(BuildContext context) {
     return Container(
       decoration: ShapeDecoration(
-        color: color,
+        color: gradient == null ? color : null,
+        gradient: gradient,
         shape: const RoundedSuperellipseBorder(
           borderRadius: Spacing.r8,
         ),
