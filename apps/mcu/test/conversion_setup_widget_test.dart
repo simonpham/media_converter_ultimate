@@ -657,6 +657,16 @@ void main() {
         find.byType(BottomSheet),
         isDialog ? findsNothing : findsOneWidget,
       );
+      // The chooser fits its content instead of a fixed share of the screen.
+      final picker = find.byType(ConversionPresetPicker);
+      final scroll = find.ancestor(
+        of: picker,
+        matching: find.byType(SingleChildScrollView),
+      );
+      expect(
+        tester.getSize(scroll.first).height,
+        lessThanOrEqualTo(tester.getSize(picker).height + Spacing.d32),
+      );
       final option = find.descendant(
         of: find.byType(ConversionPresetPicker),
         matching: find.text('Compact audio'),

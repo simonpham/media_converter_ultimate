@@ -24,8 +24,11 @@ class const ConversionPresetPicker({
     FocusManager.instance.primaryFocus?.unfocus();
     return showAdaptiveSheet<ConversionPresetChoice>(
       context,
-      builder: (context) => FractionallySizedBox(
-        heightFactor: 0.85,
+      // Sized to its content, up to most of the screen.
+      builder: (context) => ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+        ),
         child: SafeArea(
           child: _PresetSheetContents(
             presets: presets,
@@ -193,9 +196,10 @@ class _PresetSheetContentsState extends State<_PresetSheetContents> {
 
   @override
   Widget build(BuildContext context) => Column(
+    mainAxisSize: .min,
     crossAxisAlignment: .stretch,
     children: [
-      Expanded(
+      Flexible(
         child: Scrollbar(
           controller: _controller,
           thumbVisibility: true,
