@@ -119,6 +119,7 @@ void main() {
       builder: (context, model, _) => ConversionPresetPicker(
         presets: model.availablePresets,
         selectedPreset: model.selectedPreset,
+        formatGradients: model.formatConfigModel.uiGradients,
         onSelected: (preset) {
           if (preset != model.selectedPreset) {
             unawaited(model.applyPreset(preset));

@@ -25,6 +25,7 @@ class const JobMakerPresetSelection({super.key}) extends StatelessWidget {
             context,
             presets: model.availablePresets,
             selectedPreset: preset,
+            formatGradients: model.formatConfigModel.uiGradients,
           );
           if (!context.mounted || selection == null) return;
           if (selection.preset == null) {

@@ -72,6 +72,7 @@ class _HomePresetShortcutsState extends State<HomePresetShortcuts> {
                 presets: presets,
                 compact: true,
                 enabled: widget.enabled,
+                formatGradients: config.uiGradients,
                 onSelected: widget.onSelected,
               ),
             ],

@@ -15,11 +15,16 @@ class const ConversionPresetPicker({
 
   /// Hiding the layout toggle keeps the cards in a grid.
   final bool showLayoutToggle = true,
+
+  /// Format gradients from the format config, keyed by format name, so badges
+  /// look like the format picker tiles.
+  final Map<String, LinearGradient> formatGradients = const {},
 }) extends StatefulWidget {
   static Future<ConversionPresetChoice?> show(
     BuildContext context, {
     required List<ConversionPreset> presets,
     ConversionPreset? selectedPreset,
+    Map<String, LinearGradient> formatGradients = const {},
   }) {
     FocusManager.instance.primaryFocus?.unfocus();
     return showAdaptiveSheet<ConversionPresetChoice>(
@@ -33,6 +38,7 @@ class const ConversionPresetPicker({
           child: _PresetSheetContents(
             presets: presets,
             selectedPreset: selectedPreset,
+            formatGradients: formatGradients,
           ),
         ),
       ),
@@ -171,6 +177,9 @@ class _ConversionPresetPickerState extends State<ConversionPresetPicker> {
 
   Widget _card(ConversionPreset preset) => _PresetCard(
     preset: preset,
+    gradient:
+        widget.formatGradients[preset.formatName] ??
+        widget.formatGradients['default'],
     isSelected: widget.selectedPreset == preset,
     compact: widget.compact,
     onTap: widget.enabled ? () => widget.onSelected(preset) : null,
@@ -180,6 +189,7 @@ class _ConversionPresetPickerState extends State<ConversionPresetPicker> {
 class const _PresetSheetContents({
   required final List<ConversionPreset> presets,
   required final ConversionPreset? selectedPreset,
+  required final Map<String, LinearGradient> formatGradients,
 }) extends StatefulWidget {
   @override
   State<_PresetSheetContents> createState() => _PresetSheetContentsState();
@@ -210,6 +220,7 @@ class _PresetSheetContentsState extends State<_PresetSheetContents> {
               presets: widget.presets,
               selectedPreset: widget.selectedPreset,
               showLayoutToggle: false,
+              formatGradients: widget.formatGradients,
               onSelected: (preset) => Navigator.of(context).pop(
                 ConversionPresetChoice(preset: preset),
               ),
@@ -269,6 +280,7 @@ extension ConversionPresetLabels on ConversionPreset {
 /// and muted supporting text.
 class const _PresetCard({
   required final ConversionPreset preset,
+  required final Gradient? gradient,
   required final bool isSelected,
   required final bool compact,
   required final VoidCallback? onTap,
@@ -309,9 +321,14 @@ class const _PresetCard({
                       preset.formatName.toUpperCase() +
                           (preset == .losslessAudio ? ' · ALAC' : ''),
                       labelKey: ValueKey('preset-format-${preset.name}'),
-                      // Tonal, so it does not read as a job status badge.
+                      // The format's gradient, as on the format picker tiles.
+                      // Without one, a tonal fill keeps it apart from job
+                      // status badges.
+                      gradient: gradient,
                       color: colors.primary.withValues(alpha: 0.12),
-                      onColor: colors.primary,
+                      onColor: gradient == null
+                          ? colors.primary
+                          : colors.onPrimary,
                     ),
                   ),
                   Spacing.h8,
