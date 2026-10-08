@@ -44,10 +44,8 @@ class OutputDestinationPicker {
       context.toastFailure(failure);
       return null;
     }
-    return showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
+    return showAdaptiveSheet<String>(
+      context,
       builder: (_) =>
           _DestinationSheet(initialPath: initialPath, initialFailure: failure),
     );

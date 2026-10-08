@@ -624,6 +624,52 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final (width, isDialog) in [(390.0, false), (1300.0, true)]) {
+    testWidgets('preset chooser adapts at ${width.toInt()}px wide', (
+      tester,
+    ) async {
+      injector.registerSingleton<FileService>(TestMediaFiles());
+      await showPicker(
+        tester,
+        size: Size(width, 900),
+        content: JobMaker(
+          formatConfigModel: model.formatConfigModel,
+          translations: model.translations,
+          initialPreset: .musicMp3,
+        ),
+      );
+      final wizard = tester
+          .element(find.byType(JobMakerFilePicker))
+          .read<JobMakerViewModel>();
+      final directory = Directory.systemTemp.createTempSync('mcu-sheet-');
+      addTearDown(() => directory.deleteSync(recursive: true));
+      await wizard.addFiles([
+        File('${directory.path}/song.wav')
+          ..writeAsBytesSync(utf8.encode('RIFF0000WAVE')),
+      ]);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('choose-conversion-preset')));
+      await tester.pumpAndSettle();
+      expect(find.byType(DialogCard), isDialog ? findsOneWidget : findsNothing);
+      expect(
+        find.byType(BottomSheet),
+        isDialog ? findsNothing : findsOneWidget,
+      );
+      final option = find.descendant(
+        of: find.byType(ConversionPresetPicker),
+        matching: find.text('Compact audio'),
+      );
+      await tester.ensureVisible(option);
+      await tester.tap(option);
+      await tester.pumpAndSettle();
+      expect(wizard.selectedPreset, ConversionPreset.compactAudio);
+      expect(find.byType(DialogCard), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('unsupported shortcut falls back to four steps', (tester) async {
     await showPicker(
       tester,

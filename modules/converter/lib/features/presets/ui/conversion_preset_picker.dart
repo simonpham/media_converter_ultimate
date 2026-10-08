@@ -22,10 +22,8 @@ class const ConversionPresetPicker({
     ConversionPreset? selectedPreset,
   }) {
     FocusManager.instance.primaryFocus?.unfocus();
-    return showModalBottomSheet<ConversionPresetChoice>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
+    return showAdaptiveSheet<ConversionPresetChoice>(
+      context,
       builder: (context) => FractionallySizedBox(
         heightFactor: 0.85,
         child: SafeArea(
