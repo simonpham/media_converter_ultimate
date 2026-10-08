@@ -25,7 +25,7 @@ class _FileAdItemState extends State<FileAdItem>
       return super.adUnitId;
     }
 
-    return kFilePickerNativeAdUnitId;
+    return GoogleAdUnits.filePicker;
   }
 
   @override

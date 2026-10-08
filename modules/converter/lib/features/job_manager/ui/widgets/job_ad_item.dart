@@ -25,7 +25,7 @@ class _JobAdItemState extends State<JobAdItem>
       return super.adUnitId;
     }
 
-    return kJobManagerNativeAdUnitId;
+    return GoogleAdUnits.jobManager;
   }
 
   @override

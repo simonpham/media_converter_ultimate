@@ -13,6 +13,22 @@ class MainActivity : FlutterActivity() {
         outputStorage = OutputStorage(this)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "io.sofluffy.mcu/output_storage")
             .setMethodCallHandler(outputStorage)
+        // Ad unit IDs are build resources, filled from env.props by Gradle.
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "io.sofluffy.mcu/ad_units")
+            .setMethodCallHandler { call, result ->
+                if (call.method != "getAdUnitIds") {
+                    result.notImplemented()
+                    return@setMethodCallHandler
+                }
+                result.success(
+                    mapOf(
+                        "jobManager" to getString(R.string.admob_job_manager_ad_unit_id),
+                        "filePicker" to getString(R.string.admob_file_picker_ad_unit_id),
+                        "outputFormatPicker" to getString(R.string.admob_output_format_picker_ad_unit_id),
+                        "previewPage" to getString(R.string.admob_preview_page_ad_unit_id),
+                    ),
+                )
+            }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

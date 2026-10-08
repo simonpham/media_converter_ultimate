@@ -23,6 +23,19 @@ val releaseStoreFile = envProps.getProperty("androidStoreFile")
     ?.let { rootProject.file("../../../.assets/$it") }
     ?.takeIf { it.exists() }
 
+// AdMob IDs from env.props. Without them, Google's sample IDs are used, so
+// forks never serve ads on the production account.
+val admobAppId = envProps.getProperty("admobAppId")
+    ?: "ca-app-pub-3940256099942544~3347511713"
+val testNativeAdUnitId = "ca-app-pub-3940256099942544/2247696110"
+// Resource name to env.props key; the app reads these at startup.
+val admobAdUnitIds = mapOf(
+    "admob_job_manager_ad_unit_id" to "admobJobManagerAdUnitId",
+    "admob_file_picker_ad_unit_id" to "admobFilePickerAdUnitId",
+    "admob_output_format_picker_ad_unit_id" to "admobOutputFormatPickerAdUnitId",
+    "admob_preview_page_ad_unit_id" to "admobPreviewPageAdUnitId",
+)
+
 android {
     namespace = "io.sofluffy.mcu"
     compileSdk = flutter.compileSdkVersion
@@ -42,6 +55,10 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["admobAppId"] = admobAppId
+        admobAdUnitIds.forEach { (name, key) ->
+            resValue("string", name, envProps.getProperty(key) ?: testNativeAdUnitId)
+        }
     }
 
     signingConfigs {

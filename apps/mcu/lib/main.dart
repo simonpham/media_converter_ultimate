@@ -1,4 +1,4 @@
-import 'package:converter/converter.dart' show ConverterInjector;
+import 'package:converter/converter.dart' show ConverterInjector, GoogleAdUnits;
 import 'package:converter/data/data.dart';
 import 'package:core/core.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +40,9 @@ Future<void> main() async {
   } catch (error, trace) {
     printError(error, trace);
   }
+
+  printLog('[main] Load ad units...');
+  await GoogleAdUnits.load();
 
   printLog('[main] Run app...');
   runApp(

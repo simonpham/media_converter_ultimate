@@ -25,7 +25,7 @@ class _OutputFormatAdItemState extends State<OutputFormatAdItem>
       return super.adUnitId;
     }
 
-    return kOutputFormatPickerAdUnitId;
+    return GoogleAdUnits.outputFormatPicker;
   }
 
   @override

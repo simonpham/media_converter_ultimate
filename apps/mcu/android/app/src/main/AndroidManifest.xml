@@ -56,7 +56,7 @@
             android:resource="@drawable/ic_launcher_monochrome" />
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-8469309022192575~2742857805"/>
+            android:value="${admobAppId}"/>
         <meta-data
             android:name="com.google.android.gms.ads.flag.NATIVE_AD_DEBUGGER_ENABLED"
             android:value="false" />

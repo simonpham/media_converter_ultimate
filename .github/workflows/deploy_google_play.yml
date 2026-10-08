@@ -28,12 +28,16 @@
 #      3. Go to Google Play Console -> Users & Permissions -> Invite new user.
 #      4. Invite the service account email with "Releases" permission on this app.
 #
+# 6. ADMOB_ENV_PROPS
+#    - The admob* lines of .assets/env.props with the real AdMob IDs
+#      (see .assets/env.props.example).
+#
 # OPTIONAL GITHUB REPOSITORY SECRETS:
 #
-# 6. ANDROID_APP_PACKAGE_NAME
+# 7. ANDROID_APP_PACKAGE_NAME
 #    - Application ID (defaults to "io.sofluffy.mcu" if not provided).
 #
-# 7. GH_PAT
+# 8. GH_PAT
 #    - Personal Access Token with repo read scope (only needed if submodule packages/sofluffy_ui is private).
 #
 # ==============================================================================
@@ -159,6 +163,17 @@ jobs:
           androidStoreFile=upload-keystore.jks
           androidStoreFilePassword=$ANDROID_STORE_FILE_PASSWORD
           EOF
+
+      - name: Add AdMob IDs to env.props
+        env:
+          ADMOB_ENV_PROPS: ${{ secrets.ADMOB_ENV_PROPS }}
+        run: |
+          # Without real IDs, a release build would silently serve test ads.
+          if [ -z "$ADMOB_ENV_PROPS" ]; then
+            echo "::error::Secret ADMOB_ENV_PROPS is empty or not configured."
+            exit 1
+          fi
+          echo "$ADMOB_ENV_PROPS" >> .assets/env.props
 
       - name: Build Android App Bundle (AAB)
         working-directory: apps/mcu

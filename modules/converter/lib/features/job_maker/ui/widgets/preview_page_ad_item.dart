@@ -23,7 +23,7 @@ class _PreviewPageAdItemState extends State<PreviewPageAdItem>
       return super.adUnitId;
     }
 
-    return kPreviewPageAdUnitId;
+    return GoogleAdUnits.previewPage;
   }
 
   @override
