@@ -22,8 +22,8 @@ class const DefaultOutputFormatSettingsChild({
         return GridView.builder(
           padding: .all(Spacing.d16),
           itemCount: format.formats.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: Spacing.d96,
             crossAxisSpacing: Spacing.d16,
             mainAxisSpacing: Spacing.d16,
           ),
