@@ -663,8 +663,13 @@ ConvertJob job(String id, {required int order, JobStatus status = .pending}) {
 
 /// Delays transaction entry while retaining real native Isar queries and writes.
 /// The competing commit finishes before repair acquires its write transaction.
-class _GatedIsar(final Isar delegate, {final bool failAfterWrite = false})
-    implements Isar {
+// Don't use primary constructor here as `analyzer` package
+// requires the 'primary-constructors' language feature to be enabled.
+class _GatedIsar implements Isar {
+  _GatedIsar(this.delegate, {this.failAfterWrite = false});
+
+  final Isar delegate;
+  final bool failAfterWrite;
   final entered = Completer<void>();
   final release = Completer<void>();
   @override
