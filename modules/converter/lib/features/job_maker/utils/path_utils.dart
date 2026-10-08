@@ -1,5 +1,5 @@
 import 'package:converter/constants/strings.dart'
-    show kDefaultOutputDirectoryPath;
+    show kDefaultOutputDirectoryName, kDefaultOutputDirectoryPath;
 import 'package:converter/converter.dart' show kStoragePaths;
 import 'package:core/core.dart';
 import 'package:platform_utils/platform_utils.dart';
@@ -9,19 +9,22 @@ class JobMakerPathUtils {
 
   static Future<String?> getDefaultOutputDirectoryPath() async {
     if (Platform.isAndroid) {
-      return await _fileService.getDownloadsDestination() ??
-          OutputDestination.appStorage;
-    }
-    for (final path in kStoragePaths) {
-      final directory = Directory(path + kDefaultOutputDirectoryPath);
-      await directory.createIfNotExists();
-      final isWritable = await _fileService.isDirectoryWritable(directory);
-      if (!isWritable) {
-        continue;
+      final destination = await _fileService.getDownloadsDestination();
+      if (destination != null) return destination;
+
+      for (final path in kStoragePaths) {
+        final directory = Directory(path + kDefaultOutputDirectoryPath);
+        await directory.createIfNotExists();
+        final isWritable = await _fileService.isDirectoryWritable(directory);
+        if (isWritable) return directory.path;
       }
 
-      return directory.path;
+      return OutputDestination.appStorage;
     }
-    return null;
+
+    final docs = await getApplicationDocumentsDirectory();
+    final directory = Directory('${docs.path}/$kDefaultOutputDirectoryName');
+    await directory.createIfNotExists();
+    return directory.path;
   }
 }
