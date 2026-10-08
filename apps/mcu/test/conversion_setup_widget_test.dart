@@ -1081,6 +1081,32 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final width in <double>[390, 700, 1000, 1300, 1700]) {
+    testWidgets('home lays out jobs at ${width.toInt()}px wide', (
+      tester,
+    ) async {
+      final manager = _ProcessingJobManager(.preparing);
+      addTearDown(manager.dispose);
+      await showPicker(
+        tester,
+        size: Size(width, 900),
+        content: ScreenSizeScope(
+          child: ChangeNotifierProvider<JobManagerViewModel>.value(
+            value: manager,
+            child: const JobManager(),
+          ),
+        ),
+      );
+      final screenSize = ScreenSize.fromWidth(width);
+      expect(find.text('Stop'), findsOneWidget);
+      expect(
+        find.byType(VerticalDivider),
+        screenSize.isLargeDevice ? findsOneWidget : findsNothing,
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   for (final status in <JobStatus>[.stopping, .cleaning]) {
     testWidgets('${status.name} job hides Stop until the operation ends', (
       tester,

@@ -20,7 +20,28 @@ class _JobManagerState extends State<JobManager> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = context.screenSize;
+    final columns = switch (screenSize) {
+      ScreenSize.small || ScreenSize.large => 1,
+      ScreenSize.normal || ScreenSize.larger => 2,
+      ScreenSize.extraLarge => 3,
+    };
     return Scaffold(
+      appBar: switch (screenSize) {
+        ScreenSize.small || ScreenSize.normal => null,
+        ScreenSize.large ||
+        ScreenSize.larger ||
+        ScreenSize.extraLarge => AppBar(
+          centerTitle: true,
+          title: Text(
+            context.l10n.jobManager,
+            maxLines: 1,
+            overflow: .ellipsis,
+          ),
+          backgroundColor: context.theme.scaffoldBackgroundColor,
+          actions: [_buildMenu(context)],
+        ),
+      },
       body: Consumer<JobManagerViewModel>(
         builder: (context, model, _) {
           return MultiStreamBuilder<List<ConvertJob>>(
@@ -31,8 +52,6 @@ class _JobManagerState extends State<JobManager> {
               model.actionRequiredJobsStream,
             ],
             builder: (context, data) {
-              final direction = Directionality.of(context);
-
               final List<ConvertJob> pendingJobs = data[0] ?? [];
               final List<ConvertJob> completedJobs = data[1] ?? [];
               final List<ConvertJob> runningJobs = data[2] ?? [];
@@ -42,273 +61,167 @@ class _JobManagerState extends State<JobManager> {
                   completedJobs.isEmpty &&
                   runningJobs.isEmpty &&
                   actionRequiredJobs.isEmpty;
-              return CustomScrollView(
-                slivers: [
-                  SliverAppBar(
-                    expandedHeight: kToolbarHeight * 1.2,
-                    collapsedHeight: kToolbarHeight,
-                    centerTitle: true,
-                    title: Text(
-                      context.l10n.jobManager,
-                      maxLines: 1,
-                      overflow: .ellipsis,
+              final jobSlivers = [
+                ..._buildJobSection(
+                  context,
+                  title: context.l10n.actionRequired,
+                  jobs: actionRequiredJobs,
+                  columns: columns,
+                  itemBuilder: (job, margin) => JobItem(
+                    job,
+                    margin: margin,
+                    onOpenLogs: () => _handleOpenLogs(context, job),
+                    onRemoveItem: () =>
+                        unawaited(_handleRemoveItem(context, job)),
+                    onRetryExport: () => unawaited(
+                      _handleRetryExport(context, job),
                     ),
-                    pinned: true,
-                    backgroundColor: context.theme.scaffoldBackgroundColor,
-                    actions: [
-                      Container(
-                        margin: .symmetric(
-                          horizontal: Spacing.d16,
-                        ),
-                        child: Directionality(
-                          textDirection: switch (direction) {
-                            TextDirection.ltr => TextDirection.rtl,
-                            TextDirection.rtl => TextDirection.ltr,
-                          },
-                          child: MenuAnchor(
-                            controller: _menuController,
-                            alignmentOffset: .new(0, Spacing.d4),
-                            menuChildren: [
-                              Directionality(
-                                textDirection: direction,
-                                child: ListItem(
-                                  leading: ImageView(
-                                    Assets.setting01,
-                                    size: Spacing.d24,
-                                    color: context.theme.colorScheme.onSurface,
-                                  ),
-                                  title: context.l10n.settingsTitle,
-                                  onTap: () {
-                                    _menuController.close();
-                                    SettingsPage.go(context);
-                                  },
-                                ),
-                              ),
-                              const Divider(),
-                              Directionality(
-                                textDirection: direction,
-                                child: ListItem(
-                                  leading: ImageView(
-                                    Assets.delete01,
-                                    size: Spacing.d24,
-                                    color: context.theme.colorScheme.onSurface,
-                                  ),
-                                  title: context.l10n.clearConversionHistory,
-                                  onTap: () {
-                                    _menuController.close();
-                                    unawaited(
-                                      _handleClearFinishedJobs(context),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                            builder: (context, controller, _) => Button(
-                              variant: .ghost,
-                              padding: .all(Spacing.d8),
-                              child: ImageView(
-                                Assets.moreVertical,
-                                size: Spacing.d24,
-                                color: context.theme.colorScheme.onSurface,
-                              ),
-                              onPressed: () {
-                                if (controller.isOpen) {
-                                  controller.close();
-                                  return;
-                                }
-
-                                controller.open();
-                              },
+                    onRenameOutputFile: () => unawaited(
+                      _handleRenameOutputFile(context, job),
+                    ),
+                    onSelectNewOutputPath: () => unawaited(
+                      _handleSelectNewOutputPath(context, job),
+                    ),
+                  ),
+                ),
+                ..._buildJobSection(
+                  context,
+                  title: context.l10n.running,
+                  jobs: runningJobs,
+                  columns: columns,
+                  itemBuilder: (job, margin) {
+                    final executionId = model.activeExecutionId(job.id);
+                    return JobItem(
+                      job,
+                      margin: margin,
+                      onRemoveItem: () =>
+                          unawaited(_handleRemoveItem(context, job)),
+                      onOpenLogs: () => _handleOpenLogs(context, job),
+                      onStop:
+                          job.status == .stopping ||
+                              job.status == .cleaning ||
+                              (job.sessionId == null && executionId == null)
+                          ? null
+                          : () => unawaited(
+                              _handleStop(context, job, executionId),
                             ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    );
+                  },
+                ),
+                ..._buildJobSection(
+                  context,
+                  title: context.l10n.pending,
+                  jobs: pendingJobs,
+                  columns: columns,
+                  itemBuilder: (job, margin) => JobItem(
+                    job,
+                    margin: margin,
+                    onRemoveItem: () =>
+                        unawaited(_handleRemoveItem(context, job)),
+                    onOpenLogs: () => _handleOpenLogs(context, job),
+                  ),
+                ),
+                ..._buildJobSection(
+                  context,
+                  title: context.l10n.finished,
+                  jobs: completedJobs,
+                  columns: columns,
+                  itemBuilder: (job, margin) {
+                    final isSuccess = job.status == .completed;
+                    return JobItem(
+                      job,
+                      margin: margin,
+                      onRemoveItem: () =>
+                          unawaited(_handleRemoveItem(context, job)),
+                      onOpenLogs: () => _handleOpenLogs(context, job),
+                      onShare: !isSuccess
+                          ? null
+                          : () => unawaited(_handleShare(context, job)),
+                      onOpenFile: isSuccess
+                          ? () => unawaited(_handleOpenFile(context, job))
+                          : null,
+                      onDelete: !isSuccess
+                          ? null
+                          : () => unawaited(_handleDelete(context, job)),
+                      onRestart: isSuccess
+                          ? null
+                          : () => unawaited(_handleRestart(context, job)),
+                    );
+                  },
+                ),
+                if (!isAllEmpty) ...[
+                  SliverToBoxAdapter(
+                    child: Spacing.vertical(Spacing.d56),
                   ),
                   const SliverToBoxAdapter(
-                    key: ValueKey('job_manager_ad_item'),
-                    child: JobAdItem(),
+                    child: BottomSpacer(),
                   ),
-                  SliverToBoxAdapter(
-                    child: HomePresetShortcuts(
-                      enabled: !_isCreatingJob,
-                      onSelected: (preset) => unawaited(
-                        _handleCreateJob(context, initialPreset: preset),
+                ],
+                if (isAllEmpty) ...[
+                  SliverFillRemaining(
+                    child: Center(
+                      child: EmptyWidget(
+                        icon: Assets.smileBulk,
+                        title: context.l10n.thereIsNothingHere,
+                        subtitle: context.l10n.tapCreateToBegin,
                       ),
                     ),
                   ),
-                  if (actionRequiredJobs.isNotEmpty) ...[
-                    SliverToBoxAdapter(child: Spacing.v16),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: Spacing.d16,
-                        ),
-                        child: Text(
-                          context.l10n.actionRequired,
-                          style: context.theme.textTheme.labelLarge?.copyWith(
-                            color: context.theme.colorScheme.primary,
-                          ),
-                        ),
+                ],
+              ];
+              return switch (screenSize) {
+                ScreenSize.small || ScreenSize.normal => CustomScrollView(
+                  slivers: [
+                    SliverAppBar(
+                      expandedHeight: kToolbarHeight * 1.2,
+                      collapsedHeight: kToolbarHeight,
+                      centerTitle: true,
+                      title: Text(
+                        context.l10n.jobManager,
+                        maxLines: 1,
+                        overflow: .ellipsis,
                       ),
-                    ),
-                    SliverToBoxAdapter(child: Spacing.v8),
-                    SliverList.separated(
-                      itemCount: actionRequiredJobs.length,
-                      separatorBuilder: (_, _) => Spacing.v8,
-                      itemBuilder: (BuildContext context, int index) {
-                        final job = actionRequiredJobs[index];
-                        return JobItem(
-                          job,
-                          onOpenLogs: () => _handleOpenLogs(context, job),
-                          onRemoveItem: () =>
-                              unawaited(_handleRemoveItem(context, job)),
-                          onRetryExport: () => unawaited(
-                            _handleRetryExport(context, job),
-                          ),
-                          onRenameOutputFile: () => unawaited(
-                            _handleRenameOutputFile(context, job),
-                          ),
-                          onSelectNewOutputPath: () => unawaited(
-                            _handleSelectNewOutputPath(context, job),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                  if (runningJobs.isNotEmpty) ...[
-                    SliverToBoxAdapter(child: Spacing.v16),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: Spacing.d16,
-                        ),
-                        child: Text(
-                          context.l10n.running,
-                          style: context.theme.textTheme.labelLarge?.copyWith(
-                            color: context.theme.colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SliverToBoxAdapter(child: Spacing.v8),
-                    SliverList.separated(
-                      itemCount: runningJobs.length,
-                      separatorBuilder: (_, _) => Spacing.v8,
-                      itemBuilder: (BuildContext context, int index) {
-                        final job = runningJobs[index];
-                        final executionId = model.activeExecutionId(job.id);
-                        return JobItem(
-                          job,
-                          onRemoveItem: () =>
-                              unawaited(_handleRemoveItem(context, job)),
-                          onOpenLogs: () => _handleOpenLogs(context, job),
-                          onStop:
-                              job.status == .stopping ||
-                                  job.status == .cleaning ||
-                                  (job.sessionId == null && executionId == null)
-                              ? null
-                              : () => unawaited(
-                                  _handleStop(context, job, executionId),
-                                ),
-                        );
-                      },
-                    ),
-                  ],
-                  if (pendingJobs.isNotEmpty) ...[
-                    SliverToBoxAdapter(child: Spacing.v16),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: Spacing.d16,
-                        ),
-                        child: Text(
-                          context.l10n.pending,
-                          style: context.theme.textTheme.labelLarge?.copyWith(
-                            color: context.theme.colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SliverToBoxAdapter(child: Spacing.v8),
-                    SliverList.separated(
-                      itemCount: pendingJobs.length,
-                      separatorBuilder: (_, _) => Spacing.v8,
-                      itemBuilder: (BuildContext context, int index) {
-                        final job = pendingJobs[index];
-                        return JobItem(
-                          job,
-                          onRemoveItem: () =>
-                              unawaited(_handleRemoveItem(context, job)),
-                          onOpenLogs: () => _handleOpenLogs(context, job),
-                        );
-                      },
-                    ),
-                  ],
-                  if (completedJobs.isNotEmpty) ...[
-                    SliverToBoxAdapter(child: Spacing.v16),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: Spacing.d16,
-                        ),
-                        child: Text(
-                          context.l10n.finished,
-                          style: context.theme.textTheme.labelLarge?.copyWith(
-                            color: context.theme.colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SliverToBoxAdapter(child: Spacing.v8),
-                    SliverList.separated(
-                      itemCount: completedJobs.length,
-                      separatorBuilder: (_, _) => Spacing.v8,
-                      itemBuilder: (BuildContext context, int index) {
-                        final job = completedJobs[index];
-                        final isSuccess = job.status == .completed;
-                        return JobItem(
-                          job,
-                          onRemoveItem: () =>
-                              unawaited(_handleRemoveItem(context, job)),
-                          onOpenLogs: () => _handleOpenLogs(context, job),
-                          onShare: !isSuccess
-                              ? null
-                              : () => unawaited(_handleShare(context, job)),
-                          onOpenFile: isSuccess
-                              ? () => unawaited(_handleOpenFile(context, job))
-                              : null,
-                          onDelete: !isSuccess
-                              ? null
-                              : () => unawaited(_handleDelete(context, job)),
-                          onRestart: isSuccess
-                              ? null
-                              : () => unawaited(_handleRestart(context, job)),
-                        );
-                      },
-                    ),
-                  ],
-                  if (!isAllEmpty) ...[
-                    SliverToBoxAdapter(
-                      child: Spacing.vertical(Spacing.d56),
+                      pinned: true,
+                      backgroundColor: context.theme.scaffoldBackgroundColor,
+                      actions: [_buildMenu(context)],
                     ),
                     const SliverToBoxAdapter(
-                      child: BottomSpacer(),
+                      key: ValueKey('job_manager_ad_item'),
+                      child: JobAdItem(),
                     ),
+                    SliverToBoxAdapter(
+                      child: _buildPresetShortcuts(context),
+                    ),
+                    ...jobSlivers,
                   ],
-                  if (isAllEmpty) ...[
-                    SliverFillRemaining(
-                      child: Center(
-                        child: EmptyWidget(
-                          icon: Assets.smileBulk,
-                          title: context.l10n.thereIsNothingHere,
-                          subtitle: context.l10n.tapCreateToBegin,
+                ),
+                ScreenSize.large ||
+                ScreenSize.larger ||
+                ScreenSize.extraLarge => Row(
+                  crossAxisAlignment: .stretch,
+                  children: [
+                    SizedBox(
+                      width: Spacing.d360,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: .stretch,
+                          children: [
+                            _buildPresetShortcuts(context),
+                            const JobAdItem(
+                              key: ValueKey('job_manager_ad_item'),
+                            ),
+                            const BottomSpacer(),
+                          ],
                         ),
                       ),
                     ),
+                    const VerticalDivider(width: 1),
+                    Expanded(
+                      child: CustomScrollView(slivers: jobSlivers),
+                    ),
                   ],
-                ],
-              );
+                ),
+              };
             },
           );
         },
@@ -329,6 +242,147 @@ class _JobManagerState extends State<JobManager> {
         },
       ),
     );
+  }
+
+  Widget _buildPresetShortcuts(BuildContext context) => HomePresetShortcuts(
+    enabled: !_isCreatingJob,
+    onSelected: (preset) => unawaited(
+      _handleCreateJob(context, initialPreset: preset),
+    ),
+  );
+
+  Widget _buildMenu(BuildContext context) {
+    final direction = Directionality.of(context);
+    return Container(
+      margin: .symmetric(
+        horizontal: Spacing.d16,
+      ),
+      child: Directionality(
+        textDirection: switch (direction) {
+          TextDirection.ltr => TextDirection.rtl,
+          TextDirection.rtl => TextDirection.ltr,
+        },
+        child: MenuAnchor(
+          controller: _menuController,
+          alignmentOffset: .new(0, Spacing.d4),
+          menuChildren: [
+            Directionality(
+              textDirection: direction,
+              child: ListItem(
+                leading: ImageView(
+                  Assets.setting01,
+                  size: Spacing.d24,
+                  color: context.theme.colorScheme.onSurface,
+                ),
+                title: context.l10n.settingsTitle,
+                onTap: () {
+                  _menuController.close();
+                  SettingsPage.go(context);
+                },
+              ),
+            ),
+            const Divider(),
+            Directionality(
+              textDirection: direction,
+              child: ListItem(
+                leading: ImageView(
+                  Assets.delete01,
+                  size: Spacing.d24,
+                  color: context.theme.colorScheme.onSurface,
+                ),
+                title: context.l10n.clearConversionHistory,
+                onTap: () {
+                  _menuController.close();
+                  unawaited(
+                    _handleClearFinishedJobs(context),
+                  );
+                },
+              ),
+            ),
+          ],
+          builder: (context, controller, _) => Button(
+            variant: .ghost,
+            padding: .all(Spacing.d8),
+            child: ImageView(
+              Assets.moreVertical,
+              size: Spacing.d24,
+              color: context.theme.colorScheme.onSurface,
+            ),
+            onPressed: () {
+              if (controller.isOpen) {
+                controller.close();
+                return;
+              }
+
+              controller.open();
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds a titled job section. With more than one column, jobs are laid
+  /// out in rows so cards keep their natural height.
+  List<Widget> _buildJobSection(
+    BuildContext context, {
+    required String title,
+    required List<ConvertJob> jobs,
+    required int columns,
+    required Widget Function(ConvertJob job, EdgeInsetsGeometry? margin)
+    itemBuilder,
+  }) {
+    if (jobs.isEmpty) return const [];
+    final rowCount = (jobs.length / columns).ceil();
+    return [
+      SliverToBoxAdapter(child: Spacing.v16),
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: Spacing.d16,
+          ),
+          child: Text(
+            title,
+            style: context.theme.textTheme.labelLarge?.copyWith(
+              color: context.theme.colorScheme.primary,
+            ),
+          ),
+        ),
+      ),
+      SliverToBoxAdapter(child: Spacing.v8),
+      if (columns == 1)
+        SliverList.separated(
+          itemCount: jobs.length,
+          separatorBuilder: (_, _) => Spacing.v8,
+          itemBuilder: (context, index) => itemBuilder(jobs[index], null),
+        )
+      else
+        SliverList.separated(
+          itemCount: rowCount,
+          separatorBuilder: (_, _) => Spacing.v8,
+          itemBuilder: (context, row) => Padding(
+            padding: .symmetric(
+              horizontal: Spacing.d16,
+            ),
+            child: Row(
+              crossAxisAlignment: .start,
+              spacing: Spacing.d8,
+              children: [
+                for (var column = 0; column < columns; column++)
+                  Expanded(
+                    child: switch (row * columns + column) {
+                      final index when index < jobs.length => itemBuilder(
+                        jobs[index],
+                        .zero,
+                      ),
+                      _ => const SizedBox.shrink(),
+                    },
+                  ),
+              ],
+            ),
+          ),
+        ),
+    ];
   }
 
   Future<void> _handleCreateJob(
