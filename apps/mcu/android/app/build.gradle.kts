@@ -16,7 +16,12 @@ if (envPropsFile.exists()) {
 } else {
     println("🔧 No env.props configs found.")
 }
-val packageName = envProps.getProperty("androidAppPackageName")
+// Without env.props (e.g. a fresh clone), build under the default ID and sign
+// release builds with the debug key. See .assets/env.props.example.
+val packageName = envProps.getProperty("androidAppPackageName") ?: "io.sofluffy.mcu"
+val releaseStoreFile = envProps.getProperty("androidStoreFile")
+    ?.let { rootProject.file("../../../.assets/$it") }
+    ?.takeIf { it.exists() }
 
 android {
     namespace = "io.sofluffy.mcu"
@@ -30,7 +35,6 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = packageName
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
@@ -41,18 +45,21 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            keyAlias = envProps.getProperty("androidKeyAlias")
-            keyPassword = envProps.getProperty("androidKeyPassword")
-            storeFile = rootProject.file("../../../.assets/" + envProps.getProperty("androidStoreFile"))
-            storePassword = envProps.getProperty("androidStoreFilePassword")
-            enableV2Signing = true
+        if (releaseStoreFile != null) {
+            create("release") {
+                keyAlias = envProps.getProperty("androidKeyAlias")
+                keyPassword = envProps.getProperty("androidKeyPassword")
+                storeFile = releaseStoreFile
+                storePassword = envProps.getProperty("androidStoreFilePassword")
+                enableV2Signing = true
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.findByName("release")
+                ?: signingConfigs.getByName("debug")
             isMinifyEnabled = false
             isShrinkResources = false
         }
