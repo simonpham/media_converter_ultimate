@@ -102,11 +102,10 @@ class TestMediaFiles implements FileService {
 }
 
 /// Provides a [ScreenSizeNotifier] sized from the test view, as the app does.
-class ScreenSizeScope extends StatefulWidget {
-  const ScreenSizeScope({super.key, required this.child});
-
-  final Widget child;
-
+class const ScreenSizeScope({
+  super.key,
+  required final Widget child,
+}) extends StatefulWidget {
   @override
   State<ScreenSizeScope> createState() => _ScreenSizeScopeState();
 }
