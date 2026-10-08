@@ -22,16 +22,14 @@ class _JobManagerState extends State<JobManager> {
   Widget build(BuildContext context) {
     final screenSize = context.screenSize;
     final columns = switch (screenSize) {
-      ScreenSize.small || ScreenSize.large => 1,
-      ScreenSize.normal || ScreenSize.larger => 2,
-      ScreenSize.extraLarge => 3,
+      .small || .large => 1,
+      .normal || .larger => 2,
+      .extraLarge => 3,
     };
     return Scaffold(
       appBar: switch (screenSize) {
-        ScreenSize.small || ScreenSize.normal => null,
-        ScreenSize.large ||
-        ScreenSize.larger ||
-        ScreenSize.extraLarge => AppBar(
+        .small || .normal => null,
+        .large || .larger || .extraLarge => AppBar(
           centerTitle: true,
           title: Text(
             context.l10n.jobManager,
@@ -170,7 +168,7 @@ class _JobManagerState extends State<JobManager> {
                 ],
               ];
               return switch (screenSize) {
-                ScreenSize.small || ScreenSize.normal => CustomScrollView(
+                .small || .normal => CustomScrollView(
                   slivers: [
                     SliverAppBar(
                       expandedHeight: kToolbarHeight * 1.2,
@@ -195,9 +193,7 @@ class _JobManagerState extends State<JobManager> {
                     ...jobSlivers,
                   ],
                 ),
-                ScreenSize.large ||
-                ScreenSize.larger ||
-                ScreenSize.extraLarge => Row(
+                .large || .larger || .extraLarge => Row(
                   crossAxisAlignment: .stretch,
                   children: [
                     SizedBox(
@@ -338,7 +334,7 @@ class _JobManagerState extends State<JobManager> {
       SliverToBoxAdapter(child: Spacing.v16),
       SliverToBoxAdapter(
         child: Padding(
-          padding: EdgeInsets.symmetric(
+          padding: .symmetric(
             horizontal: Spacing.d16,
           ),
           child: Text(
