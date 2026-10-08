@@ -56,7 +56,7 @@ class _SettingsPageState extends State<SettingsPage> {
             VerticalDivider(width: Spacing.d1),
             Expanded(
               child: switch (_selectedChild?.child) {
-                final SettingsChild child => KeyedSubtree(
+                final SettingsChild child => SettingsChildEmbedding(
                   key: ValueKey(child.settings),
                   child: Builder(
                     builder: (context) => Column(

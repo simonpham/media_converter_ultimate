@@ -19,6 +19,12 @@ abstract class const SettingsChild({
 
   Widget builder(BuildContext context);
 
+  /// Whether this page is shown beside the settings list rather than as its
+  /// own route. Embedded pages must not pop when a choice is done, since that
+  /// would close the whole settings page.
+  static bool isEmbedded(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<SettingsChildEmbedding>() != null;
+
   static void go(BuildContext context, SettingsPageItem settings) {
     final routeName = settings.routeName;
     if (routeName == null) {
@@ -51,4 +57,13 @@ abstract class const SettingsChild({
     ),
     _ => builder(context),
   };
+}
+
+/// Marks settings child pages shown beside the settings list.
+class const SettingsChildEmbedding({
+  super.key,
+  required super.child,
+}) extends InheritedWidget {
+  @override
+  bool updateShouldNotify(SettingsChildEmbedding oldWidget) => false;
 }

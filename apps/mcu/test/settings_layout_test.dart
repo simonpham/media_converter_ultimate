@@ -76,6 +76,31 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('saving an embedded child page keeps settings open', (
+    tester,
+  ) async {
+    await showSettings(tester, 1300);
+    final context = tester.element(find.byType(SettingsPage));
+    final label = SettingsPageItem.threadCount.getLabel(context);
+    await tester.ensureVisible(find.text(label));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(label));
+    await tester.pumpAndSettle();
+    expect(find.text(label), findsNWidgets(2));
+
+    await tester.drag(find.byType(Slider), const Offset(200, 0));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(context.l10n.save));
+    await tester.pumpAndSettle();
+    expect(settings.threadCount, isNot(0));
+    expect(find.byType(SettingsPage), findsOneWidget);
+    expect(find.text(label), findsNWidgets(2));
+    expect(find.text(context.l10n.save), findsNothing);
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
 }
 
 class _Changes extends ChangeNotifier implements ValueListenable<void> {

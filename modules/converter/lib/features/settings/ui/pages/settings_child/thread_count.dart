@@ -190,7 +190,9 @@ class const ThreadCountSettingsChild({
                           getValueLabel(context, newValue),
                         ),
                       );
-                      context.router.pop();
+                      if (!SettingsChild.isEmbedded(context)) {
+                        context.router.pop();
+                      }
                     },
                     label: context.l10n.save,
                   ),

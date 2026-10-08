@@ -63,7 +63,9 @@ class const LanguagesSettingsChild({
                             );
                           },
                         );
-                        context.navigator.pop();
+                        if (!SettingsChild.isEmbedded(context)) {
+                          context.navigator.pop();
+                        }
                       },
               ),
             );
