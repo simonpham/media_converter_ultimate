@@ -28,6 +28,8 @@ class const FormatBadge(
         child: Text(
           key: labelKey,
           label,
+          maxLines: 1,
+          overflow: .ellipsis,
           style: TextStyle(
             color: onColor,
             fontSize: Spacing.d12,

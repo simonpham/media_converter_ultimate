@@ -265,6 +265,8 @@ extension ConversionPresetLabels on ConversionPreset {
   };
 }
 
+/// Styled like a job card: a filled card with a format badge, a bold title
+/// and muted supporting text.
 class const _PresetCard({
   required final ConversionPreset preset,
   required final bool isSelected,
@@ -283,17 +285,16 @@ class const _PresetCard({
       child: Tappable(
         onTap: onTap,
         child: Container(
-          padding: .all(Spacing.d12),
+          padding: .all(Spacing.d16),
           decoration: ShapeDecoration(
             color: isSelected
                 ? colors.primary.withValues(alpha: 0.08)
                 : context.theme.cardColor,
             shape: RoundedSuperellipseBorder(
               borderRadius: Spacing.r12,
-              side: BorderSide(
-                color: isSelected ? colors.primary : colors.outlineVariant,
-                width: Spacing.d1,
-              ),
+              side: isSelected
+                  ? BorderSide(color: colors.primary, width: Spacing.d1)
+                  : .none,
             ),
           ),
           child: Column(
@@ -301,33 +302,16 @@ class const _PresetCard({
             crossAxisAlignment: .start,
             children: [
               Row(
+                mainAxisAlignment: .spaceBetween,
                 children: [
-                  ImageView(
-                    preset.formatName == 'mp4'
-                        ? Assets.fileVideo
-                        : Assets.fileAudio,
-                    size: Spacing.d24,
-                    color: colors.primary,
-                  ),
-                  const Spacer(),
-                  Text(
-                    key: ValueKey('preset-format-${preset.name}'),
-                    preset.formatName.toUpperCase() +
-                        (preset == .losslessAudio ? ' · ALAC' : ''),
-                    style: context.theme.textTheme.labelSmall?.copyWith(
-                      color: colors.primary,
-                    ),
-                  ),
-                ],
-              ),
-              Spacing.v8,
-              Row(
-                crossAxisAlignment: .start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: context.theme.textTheme.titleSmall,
+                  Flexible(
+                    child: FormatBadge(
+                      preset.formatName.toUpperCase() +
+                          (preset == .losslessAudio ? ' · ALAC' : ''),
+                      labelKey: ValueKey('preset-format-${preset.name}'),
+                      // Tonal, so it does not read as a job status badge.
+                      color: colors.primary.withValues(alpha: 0.12),
+                      onColor: colors.primary,
                     ),
                   ),
                   if (isSelected) ...[
@@ -340,9 +324,23 @@ class const _PresetCard({
                   ],
                 ],
               ),
+              Spacing.v8,
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: Spacing.d14,
+                  fontWeight: .w600,
+                ),
+              ),
               if (!compact) ...[
                 Spacing.v4,
-                Text(description, style: context.theme.textTheme.bodySmall),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: Spacing.d12,
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
               ],
             ],
           ),
