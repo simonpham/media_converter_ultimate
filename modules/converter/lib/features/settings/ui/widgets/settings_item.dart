@@ -8,6 +8,10 @@ import 'package:sofluffy_ui/sofluffy_ui.dart';
 class const SettingsItem({
   super.key,
   required final SettingsPageItem item,
+
+  /// Opens child pages in place instead of navigating to their route.
+  final ValueChanged<SettingsPageItem>? onSelectChild,
+  final bool isSelected = false,
 }) extends StatefulWidget {
   @override
   State<SettingsItem> createState() => _SettingsItemState();
@@ -19,6 +23,10 @@ class _SettingsItemState extends State<SettingsItem> {
   Future<void> _handleOpen(BuildContext context) async {
     if (_isOpening) return;
     if (widget.item.routeName != null) {
+      if (widget.onSelectChild case final onSelectChild?) {
+        onSelectChild(widget.item);
+        return;
+      }
       SettingsChild.go(context, widget.item);
       return;
     }
@@ -50,6 +58,7 @@ class _SettingsItemState extends State<SettingsItem> {
         left: Spacing.d16,
         right: Spacing.d16,
       ),
+      borderColor: widget.isSelected ? context.theme.colorScheme.primary : null,
       child: ListItem(
         leading: Container(
           alignment: .center,

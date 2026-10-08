@@ -36,15 +36,19 @@ abstract class const SettingsChild({
           settings.getLabel(context),
         ),
       ),
-      body: switch (settings.settingsKeys) {
-        List<Enum> keys when keys.isNotEmpty => ValueListenableBuilder(
-          valueListenable: keys.of(SettingsBox()),
-          builder: (context, _, _) {
-            return builder(context);
-          },
-        ),
-        _ => builder(context),
-      },
+      body: buildContent(context),
     );
   }
+
+  /// The page body without its app bar, so it can also be shown beside the
+  /// settings list on large screens.
+  Widget buildContent(BuildContext context) => switch (settings.settingsKeys) {
+    List<Enum> keys when keys.isNotEmpty => ValueListenableBuilder(
+      valueListenable: keys.of(SettingsBox()),
+      builder: (context, _, _) {
+        return builder(context);
+      },
+    ),
+    _ => builder(context),
+  };
 }

@@ -105,34 +105,32 @@ extension SettingsPageItemExtensions on SettingsPageItem {
     .supportTheDeveloper => null,
   };
 
-  GoRouterWidgetBuilder? get routerBuilder {
-    return switch (this) {
-      .defaultOutputFolder => null,
-      .defaultOutputFormat => (
-        _,
-        _,
-      ) => const DefaultOutputFormatSettingsChild(),
-      .overwriteBehavior => null,
-      .concurrencyLimit => null,
-      .threadCount => (_, _) => const ThreadCountSettingsChild(),
-      .keepAppRunning => null,
-      .excludeFileExtensions => (
-        _,
-        _,
-      ) => const ExcludeFileExtensionsSettingsChild(),
-      .languages => (_, _) => const LanguagesSettingsChild(),
-      .appTheme => (_, _) => const AppThemeSettingsChild(),
-      .showFileThumbnails => null,
-      .defaultSorting => null,
-      .clearCache => null,
-      .managePermissions => null,
-      .changelog => null,
-      .helpAndFaq => null,
-      .contactUs => null,
-      .legal => null,
-      .supportTheDeveloper => null,
-    };
-  }
+  /// The child page this item opens, or null when it acts in place.
+  SettingsChild? get child => switch (this) {
+    .defaultOutputFolder => null,
+    .defaultOutputFormat => const DefaultOutputFormatSettingsChild(),
+    .overwriteBehavior => null,
+    .concurrencyLimit => null,
+    .threadCount => const ThreadCountSettingsChild(),
+    .keepAppRunning => null,
+    .excludeFileExtensions => const ExcludeFileExtensionsSettingsChild(),
+    .languages => const LanguagesSettingsChild(),
+    .appTheme => const AppThemeSettingsChild(),
+    .showFileThumbnails => null,
+    .defaultSorting => null,
+    .clearCache => null,
+    .managePermissions => null,
+    .changelog => null,
+    .helpAndFaq => null,
+    .contactUs => null,
+    .legal => null,
+    .supportTheDeveloper => null,
+  };
+
+  GoRouterWidgetBuilder? get routerBuilder => switch (child) {
+    final SettingsChild child => (_, _) => child,
+    null => null,
+  };
 
   String getLabel(BuildContext context) {
     return switch (this) {
