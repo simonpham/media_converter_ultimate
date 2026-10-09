@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:converter/converter.dart';
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:icons/icons.dart';
 import 'package:platform_utils/platform_utils.dart';
@@ -417,7 +417,7 @@ class _JobManagerState extends State<JobManager> {
     if (_isCreatingJob) return;
     setState(() => _isCreatingJob = true);
     try {
-      if (Platform.isAndroid) {
+      if (defaultTargetPlatform == TargetPlatform.android) {
         final androidInfo = await DeviceInfoPlugin().androidInfo;
         if (!context.mounted) return;
         final sdkInt = androidInfo.version.sdkInt;

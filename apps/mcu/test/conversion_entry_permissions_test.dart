@@ -149,7 +149,7 @@ void main() {
         isTrue,
       );
       expect(tester.takeException(), isNull);
-    });
+    }, variant: TargetPlatformVariant({TargetPlatform.android}));
   }
 
   for (final api in [28, 29]) {
@@ -168,7 +168,7 @@ void main() {
         isTrue,
       );
       expect(tester.takeException(), isNull);
-    });
+    }, variant: TargetPlatformVariant({TargetPlatform.android}));
   }
 
   testWidgets('closing Home during a permission request stops setup safely', (
@@ -184,7 +184,7 @@ void main() {
     expect(find.text('Storage permission denied'), findsNothing);
     expect(find.text('Setup opened'), findsNothing);
     expect(tester.takeException(), isNull);
-  });
+  }, variant: TargetPlatformVariant({TargetPlatform.android}));
 }
 
 class _Manager extends ChangeNotifier implements JobManagerViewModel {
